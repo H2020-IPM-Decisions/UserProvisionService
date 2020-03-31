@@ -22,6 +22,8 @@ namespace H2020.IPMDecisions.UPR.API
             services.ConfigureCors(Configuration);
             services.ConfigureContentNegotiation();
             services.ConfigureJwtAuthentication(Configuration);
+
+            services.ConfigurePostgresContext(Configuration);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

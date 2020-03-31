@@ -1,9 +1,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using H2020.IPMDecisions.UPR.Data.Persistence;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Formatters;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
@@ -71,6 +73,18 @@ namespace H2020.IPMDecisions.APG.API.Extensions
                 var newtonsoftJsonOutputFormatter = config.OutputFormatters
                       .OfType<NewtonsoftJsonOutputFormatter>()?.FirstOrDefault();
             });
+        }
+
+        public static void ConfigurePostgresContext(this IServiceCollection services, IConfiguration config)
+        {
+            var connectionString = config["ConnectionStrings:MyPostgreSQLConnection"];
+            
+            services
+                .AddDbContext<ApplicationDbContext>(options =>
+                {
+                    options.UseNpgsql(connectionString,
+                        b => b.MigrationsAssembly("H2020.IPMDecisions.UPR.Data"));
+                });
         }
 
         public static IEnumerable<string> Audiences(string audiences)
