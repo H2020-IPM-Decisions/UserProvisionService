@@ -1,4 +1,9 @@
+using AutoMapper;
 using H2020.IPMDecisions.APG.API.Extensions;
+using H2020.IPMDecisions.IDP.Core.Profiles;
+using H2020.IPMDecisions.UPR.Core.Services;
+using H2020.IPMDecisions.UPR.Data.Core;
+using H2020.IPMDecisions.UPR.Data.Persistence;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -22,6 +27,13 @@ namespace H2020.IPMDecisions.UPR.API
             services.ConfigureCors(Configuration);
             services.ConfigureContentNegotiation();
             services.ConfigureJwtAuthentication(Configuration);
+
+            services.AddTransient<IPropertyMappingService, PropertyMappingService>();
+            services.AddTransient<IPropertyCheckerService, PropertyCheckerService>();
+
+            services.AddAutoMapper(typeof(MainProfile));
+
+            services.AddScoped<IDataService, DataService>();
 
             services.ConfigurePostgresContext(Configuration);
         }
