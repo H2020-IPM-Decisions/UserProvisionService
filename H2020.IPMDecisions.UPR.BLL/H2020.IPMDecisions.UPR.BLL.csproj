@@ -4,4 +4,13 @@
     <TargetFramework>netstandard2.1</TargetFramework>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="automapper" Version="9.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\H2020.IPMDecisions.UPR.Core\H2020.IPMDecisions.UPR.Core.csproj" />
+    <ProjectReference Include="..\H2020.IPMDecisions.UPR.Data\H2020.IPMDecisions.UPR.Data.csproj" />
+  </ItemGroup>
+
 </Project>
