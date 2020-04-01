@@ -50,6 +50,7 @@ namespace H2020.IPMDecisions.UPR.API
             app.UseRouting();
             app.UseRouting();
             app.UseAuthentication();
+            app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {
