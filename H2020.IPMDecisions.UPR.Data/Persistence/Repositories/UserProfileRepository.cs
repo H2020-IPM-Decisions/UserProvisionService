@@ -22,7 +22,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
 
         public void Create(UserProfile entity)
         {
-            throw new NotImplementedException();
+            this.context.UserProfile.Add(entity);
         }
 
         public void Delete(UserProfile entity)

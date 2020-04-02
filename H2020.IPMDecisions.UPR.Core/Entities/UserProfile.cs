@@ -8,6 +8,8 @@ namespace H2020.IPMDecisions.UPR.Core.Entities
         [Key]
         public Guid Id { get; set; }
         [Required]
+        public Guid UserId { get; set; }
+        [Required]
         [MaxLength(80)]
         public string FirstName { get; set; }
         public string LastName { get; set; }
@@ -16,6 +18,5 @@ namespace H2020.IPMDecisions.UPR.Core.Entities
         public string Address { get; set; }
         public string Postcode { get; set; }
         public string Country { get; set; }
-        public string Country2 { get; set; }
     }
 }
