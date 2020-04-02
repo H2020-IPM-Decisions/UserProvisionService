@@ -89,6 +89,27 @@ The solution will start in the default ports (https://localhost:5001;http://loca
 Open file `H2020.IPMDecisions.UPR.API\appsettings.json` and change the json section `AllowedHosts` with the host that you would like to allow to consume the API.
 The different URLS should be separated by a semicolon **";"**. If you would like to allow any origin, write an asterisk on the string **"*"**
 
+# Creating a Docker Image locally
+
+A Docker file has been created to allow to build and run the image in your preferred server. Before building your image ensure that your 'appsettings.json' is configured correctly.
+
+***
+**NOTE**
+This docker build image doesn't include the "PostreSQL" database.
+***
+
+Remember to change the **EXPOSE** ports in the `Dockerfile` if the default ports are taken (80 and 443).
+The following commands assumes that you are in the root directory of the application.
+* The image created will be called: `h2020.ipmdecisions.userprovisionservice`
+* The container created will be called `UPR` and will be running in the port `5006`
+* The command bellow assumes that the URL port `H2020.IPMDecisions.UPR.API\Properties\launchSettings.json` is 5006
+```Console
+docker build . --rm --pull -f ".\Docker\Dockerfile" -t "ipmdecisions/userprovisionservice:latest" --build-arg URL_PORT=5006 --build-arg BUILDER_VERSION=latest 
+
+docker run  -d -p 443:443/tcp -p 5006:5006/tcp --name UPR ipmdecisions/userprovisionservice:latest 
+```
+Now you should be able to user your API in the docker container. 
+
 ## Versioning
 
 For the versions available, see the [tags on this repository](https://github.com/H2020-IPM-Decisions/IdentityProviderService/tags). 
