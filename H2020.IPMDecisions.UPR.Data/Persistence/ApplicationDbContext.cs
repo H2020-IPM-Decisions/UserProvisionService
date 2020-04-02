@@ -1,5 +1,6 @@
 using H2020.IPMDecisions.IDP.UPR.Core;
 using H2020.IPMDecisions.UPR.Core.Entities;
+using H2020.IPMDecisions.UPR.Data.Persistence.Configurations;
 using Microsoft.EntityFrameworkCore;
 
 namespace H2020.IPMDecisions.UPR.Data.Persistence
@@ -11,6 +12,11 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {
+        }
+        
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.ApplyConfiguration(new UserProfileConfiguration());
         }
     }
 }
