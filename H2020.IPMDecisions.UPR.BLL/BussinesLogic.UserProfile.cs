@@ -8,7 +8,7 @@ namespace H2020.IPMDecisions.UPR.BLL
 {
     public partial class BusinessLogic : IBusinessLogic
     {
-        public async Task<GenericResponse> AddNewUserProfile(Guid userId, UserProfileForCreationDto userProfileForCreation)
+        public async Task<GenericResponse<UserProfileDto>> AddNewUserProfile(Guid userId, UserProfileForCreationDto userProfileForCreation)
         {
             try
             {
@@ -26,7 +26,49 @@ namespace H2020.IPMDecisions.UPR.BLL
             catch (Exception ex)
             {
                 //ToDo Log Error
+                return GenericResponseBuilder.NoSuccess<UserProfileDto>(null, $"{ex.Message} InnerException: {ex.InnerException.Message}");
+            }
+        }
+
+        public async Task<GenericResponse> DeleteUserProfileClient(Guid userId)
+        {
+            try
+            {
+                var existingUserProfile = await this.dataService
+                .UserProfiles
+                .FindByCondition(u => u.UserId == userId);
+
+                if (existingUserProfile == null) return GenericResponseBuilder.Success();
+
+                this.dataService.UserProfiles.Delete(existingUserProfile);
+                await this.dataService.CompleteAsync();
+
+                return GenericResponseBuilder.Success();
+            }
+            catch (Exception ex)
+            {
+                // ToDo Log Error
                 return GenericResponseBuilder.NoSuccess($"{ex.Message} InnerException: {ex.InnerException.Message}");
+            }
+        }
+
+        public async Task<GenericResponse<UserProfileDto>> GetUserProfile(Guid userId)
+        {
+            try
+            {
+                var existingUserProfile = await this.dataService
+                    .UserProfiles
+                    .FindByCondition(u => u.UserId == userId);
+
+                if (existingUserProfile == null) return GenericResponseBuilder.Success<UserProfileDto>(null);
+
+                var userToReturn = this.mapper.Map<UserProfileDto>(existingUserProfile);
+                return GenericResponseBuilder.Success<UserProfileDto>(userToReturn);
+            }
+            catch (Exception ex)
+            {
+                //ToDo Log Error
+                return GenericResponseBuilder.NoSuccess<UserProfileDto>(null, $"{ex.Message} InnerException: {ex.InnerException.Message}");
             }
         }
     }

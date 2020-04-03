@@ -36,13 +36,10 @@ namespace H2020.IPMDecisions.IDP.API.Controllers
         {
             var response = await businessLogic.AddNewUserProfile(userId, userProfileForCreation);
 
-            if (response.IsSuccessful)
-            {
-                var responseAsUserProfile = (GenericResponse<UserProfileDto>)response;
-                return Ok(responseAsUserProfile.Result);
-            }              
-
-            return BadRequest(new { message = response.ErrorMessage });
+            if (!response.IsSuccessful)
+                return BadRequest(new { message = response.ErrorMessage });
+                
+            return Ok(response.Result);
         }
 
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -51,9 +48,31 @@ namespace H2020.IPMDecisions.IDP.API.Controllers
         [HttpGet("", Name = "GetUserProfiles")]
         [HttpHead]
         // GET:  api/users/1/profiles
-        public Task<IActionResult> Get([FromRoute] Guid userId)
+        public async Task<IActionResult> Get([FromRoute] Guid userId)
         {
-            throw new NotImplementedException();
+            var response = await businessLogic.GetUserProfile(userId);
+
+            if (!response.IsSuccessful)
+                return BadRequest(new { message = response.ErrorMessage });
+            
+            if (response.Result == null)
+                return NotFound();
+            
+            return Ok(response.Result);
+        }
+
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [HttpDelete(Name = "DeleteApplicationClient")]
+        //DELETE :  api/users/1/profiles
+        public async Task<IActionResult> Delete([FromRoute] Guid userId)
+        {
+            var response = await this.businessLogic.DeleteUserProfileClient(userId);
+
+            if (!response.IsSuccessful)
+                return BadRequest(new { message = response.ErrorMessage });
+            
+            return NoContent();
         }
     }
 }

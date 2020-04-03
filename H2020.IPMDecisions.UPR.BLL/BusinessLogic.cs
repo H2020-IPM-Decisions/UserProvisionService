@@ -7,8 +7,7 @@ namespace H2020.IPMDecisions.UPR.BLL
     {
         private readonly IMapper mapper;
         private readonly IDataService dataService;
-
-
+        
         public BusinessLogic(
             IMapper mapper,
             IDataService dataService)

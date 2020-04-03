@@ -8,7 +8,9 @@ namespace H2020.IPMDecisions.UPR.BLL
     public interface IBusinessLogic
     {
         #region  UserProfile
-        Task<GenericResponse> AddNewUserProfile(Guid userId, UserProfileForCreationDto userProfileForCreation);
+        Task<GenericResponse<UserProfileDto>> AddNewUserProfile(Guid userId, UserProfileForCreationDto userProfileForCreation);
+        Task<GenericResponse> DeleteUserProfileClient(Guid userId);
+        Task<GenericResponse<UserProfileDto>> GetUserProfile(Guid userId);        
         #endregion
     }
 }

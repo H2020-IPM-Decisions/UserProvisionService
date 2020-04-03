@@ -1,11 +1,14 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using H2020.IPMDecisions.UPR.Core.Entities;
 using H2020.IPMDecisions.UPR.Core.Helpers;
 using H2020.IPMDecisions.UPR.Core.ResourceParameters;
 using H2020.IPMDecisions.UPR.Core.Services;
 using H2020.IPMDecisions.UPR.Data.Core.Repositories;
+using Microsoft.EntityFrameworkCore;
 
 namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
 {
@@ -27,7 +30,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
 
         public void Delete(UserProfile entity)
         {
-            throw new NotImplementedException();
+            this.context.UserProfile.Remove(entity);
         }
 
         public Task<IEnumerable<UserProfile>> FindAllAsync()
@@ -40,14 +43,25 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
             throw new NotImplementedException();
         }
 
-        public Task<UserProfile> FindByIdAsync(Guid id)
+        public async Task<UserProfile> FindByCondition(Expression<Func<UserProfile, bool>> expression)
         {
-            throw new NotImplementedException();
+            return await this.context
+                .UserProfile
+                .Where(expression)
+                .FirstOrDefaultAsync();
+        }
+
+        public async Task<UserProfile> FindByIdAsync(Guid id)
+        {
+            return await this.context
+                .UserProfile
+                .SingleOrDefaultAsync(a =>
+                    a.Id == id);
         }
 
         public void Update(UserProfile entity)
         {
-            throw new NotImplementedException();
+            this.context.UserProfile.Update(entity);
         }
     }
 }
