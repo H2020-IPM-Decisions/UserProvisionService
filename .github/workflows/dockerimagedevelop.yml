@@ -1,0 +1,31 @@
+name: Build And Push Docker on develop branch
+
+on:
+  push:
+    branches:
+      - develop
+env:
+  DOCKER_IMAGE_NAME: ipmdecisions/userprovisionservice
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Get current time
+      uses: gerred/actions/current-time@master
+      id: current-time
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 3.1.101
+    - name: Build image with develop
+      run: docker build . -f "./Docker/Dockerfile" -t "${{ env.DOCKER_IMAGE_NAME }}:develop" --build-arg BUILDER_VERSION=develop --build-arg RELEASE_DATE=${{ steps.current-time.outputs.time }}
+    - name: Login to docker hub
+      uses: actions-hub/docker/login@master
+      env:
+        DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+        DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+    - name: Push to docker hub :develop
+      uses: actions-hub/docker@master      
+      with:
+        args: push ${{ env.DOCKER_IMAGE_NAME }}:develop
