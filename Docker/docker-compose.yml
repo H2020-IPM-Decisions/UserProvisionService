@@ -30,7 +30,7 @@ services:
     ports:
       - "5555:80"
     environment:
-       # change admin username/password
+      # change admin username/password
       PGADMIN_DEFAULT_EMAIL: admin@test.com
       PGADMIN_DEFAULT_PASSWORD: admin
   upr.api:
@@ -48,9 +48,10 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:5006
-      - ConnectionStrings:MyPostgreSQLConnection=Host=upr.db;Port=5432;Database=H2020.IPMDecisions.UPR;Username=postgres;Password=postgres;
-      - JwtSettings:SecretKey=BFCVbbtvC1QoutaBujROE3cD_sRE3n16ohmM4sUQC0Q
-      - JwtSettings:IssuerServerUrl=http://localhost:5000
+      # The following db username and password are create in file in UPR_Postgresql_Init_Script/1.createUser.sql
+      - ConnectionStrings:MyPostgreSQLConnection=Host=upr.db;Port=5432;Database=H2020.IPMDecisions.UPR;Username=upr_user;Password=xxxxxx;
+      - JwtSettings:SecretKey=AddYourSecretKey
+      - JwtSettings:IssuerServerUrl=AddYourServer
       - JwtSettings:ValidAudiencesUrls=https://testclient.com
       - AllowedHosts=*
     networks:
