@@ -12,25 +12,23 @@ using System.Security.Claims;
 namespace H2020.IPMDecisions.IDP.API.Controllers
 {
     [ApiController]
-    [Route("api/{userId}/profile")]
+    [Route("api/users/{userId:guid}/profiles")]
     [Authorize()]
-    public class UserProfileController : ControllerBase
+    public class UserProfilesController : ControllerBase
     {
-
         private readonly IBusinessLogic businessLogic;
 
-        public UserProfileController(IBusinessLogic businessLogic)
+        public UserProfilesController(IBusinessLogic businessLogic)
         {
             this.businessLogic = businessLogic 
                 ?? throw new ArgumentNullException(nameof(businessLogic));
         }
 
-
         [Consumes(MediaTypeNames.Application.Json)]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [HttpPost("", Name = "CreateUserProfile")]
-        // POST: api/{userId}/profile
+        // POST: api/users/1/profiles
         public async Task<IActionResult> Post(
             [FromRoute] Guid userId,
             [FromBody] UserProfileForCreationDto userProfileForCreation)
@@ -59,7 +57,7 @@ namespace H2020.IPMDecisions.IDP.API.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [HttpGet("", Name = "GetUserProfiles")]
         [HttpHead]
-        // GET: api/{userId}/Profile
+        // GET:  api/users/1/profiles
         public Task<IActionResult> Get()
         {
             throw new NotImplementedException();

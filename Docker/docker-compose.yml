@@ -38,7 +38,7 @@ services:
       - upr.db
     image: ipmdecisions/userprovisionservice:develop
     container_name: upr-api
-    hostname: idp.api
+    hostname: upr.api
     restart: always
     build:
       context: ../
