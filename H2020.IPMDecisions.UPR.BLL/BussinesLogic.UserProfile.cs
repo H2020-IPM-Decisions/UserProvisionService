@@ -52,7 +52,26 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
         }
 
-        public async Task<GenericResponse<UserProfileDto>> GetUserProfile(Guid userId)
+        public async Task<GenericResponse<UserProfile>> GetUserProfile(Guid userId)
+        {
+            try
+            {
+                var existingUserProfile = await this.dataService
+                    .UserProfiles
+                    .FindByCondition(u => u.UserId == userId);
+
+                if (existingUserProfile == null) return GenericResponseBuilder.Success<UserProfile>(null);
+
+                return GenericResponseBuilder.Success<UserProfile>(existingUserProfile);
+            }
+            catch (Exception ex)
+            {
+                //ToDo Log Error
+                return GenericResponseBuilder.NoSuccess<UserProfile>(null, $"{ex.Message} InnerException: {ex.InnerException.Message}");
+            }
+        }
+
+        public async Task<GenericResponse<UserProfileDto>> GetUserProfileDto(Guid userId)
         {
             try
             {
@@ -69,6 +88,34 @@ namespace H2020.IPMDecisions.UPR.BLL
             {
                 //ToDo Log Error
                 return GenericResponseBuilder.NoSuccess<UserProfileDto>(null, $"{ex.Message} InnerException: {ex.InnerException.Message}");
+            }
+        }
+
+        public UserProfileForCreationDto MapToUserProfileForCreation(UserProfileForUpdateDto userProfileDto)
+        {
+            return this.mapper.Map<UserProfileForCreationDto>(userProfileDto);
+        }
+
+        public UserProfileForUpdateDto MapToUserProfileForUpdateDto(UserProfile userProfile)
+        {
+            return this.mapper.Map<UserProfileForUpdateDto>(userProfile);
+        }
+
+        public async Task<GenericResponse> UpdateUserProfile(UserProfile userProfile, UserProfileForUpdateDto userProfileToPatch)
+        {
+            try
+            {
+                this.mapper.Map(userProfileToPatch, userProfile);
+
+                this.dataService.UserProfiles.Update(userProfile);
+                await this.dataService.CompleteAsync();
+
+                return GenericResponseBuilder.Success();
+            }
+            catch (Exception ex)
+            {
+                //ToDo Log Error
+                return GenericResponseBuilder.NoSuccess($"{ex.Message} InnerException: {ex.InnerException.Message}");
             }
         }
     }

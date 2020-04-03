@@ -12,8 +12,14 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
                 .ForMember(dest => dest.FullName,
                 opt => opt.MapFrom(src => $"{src.FirstName} {src.LastName}"));
 
+            CreateMap<UserProfile, UserProfileForUpdateDto>();
+
             // Dtos to Entities
             CreateMap<UserProfileForCreationDto, UserProfile>();
+            CreateMap<UserProfileForUpdateDto, UserProfile>();
+
+            // Dtos to Dtos
+            CreateMap<UserProfileForUpdateDto, UserProfileForCreationDto>();
         }
     }
 }
