@@ -7,13 +7,14 @@ using System.Net.Mime;
 using H2020.IPMDecisions.UPR.BLL;
 using H2020.IPMDecisions.UPR.Core.Dtos;
 using H2020.IPMDecisions.UPR.Core.Models;
-using System.Security.Claims;
+using H2020.IPMDecisions.UPR.API.Filters;
 
 namespace H2020.IPMDecisions.IDP.API.Controllers
 {
     [ApiController]
     [Route("api/users/{userId:guid}/profiles")]
     [Authorize()]
+    [ServiceFilter(typeof(UserAccessingOwnDataActionFilter))]
     public class UserProfilesController : ControllerBase
     {
         private readonly IBusinessLogic businessLogic;
@@ -33,14 +34,6 @@ namespace H2020.IPMDecisions.IDP.API.Controllers
             [FromRoute] Guid userId,
             [FromBody] UserProfileForCreationDto userProfileForCreation)
         {
-            var claimsIdentity = this.User.Identity as ClaimsIdentity;
-            var userIdFromToken = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-          
-            if (!Guid.TryParse(userIdFromToken, out var validatedGuid))
-                return BadRequest(new { message = "UserId on token invalid" });
-            if (validatedGuid != userId)
-                return Unauthorized();
-
             var response = await businessLogic.AddNewUserProfile(userId, userProfileForCreation);
 
             if (response.IsSuccessful)
@@ -58,7 +51,7 @@ namespace H2020.IPMDecisions.IDP.API.Controllers
         [HttpGet("", Name = "GetUserProfiles")]
         [HttpHead]
         // GET:  api/users/1/profiles
-        public Task<IActionResult> Get()
+        public Task<IActionResult> Get([FromRoute] Guid userId)
         {
             throw new NotImplementedException();
         }

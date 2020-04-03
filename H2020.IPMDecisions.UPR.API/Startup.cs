@@ -1,5 +1,6 @@
 using AutoMapper;
 using H2020.IPMDecisions.APG.API.Extensions;
+using H2020.IPMDecisions.UPR.API.Filters;
 using H2020.IPMDecisions.UPR.BLL;
 using H2020.IPMDecisions.UPR.Core.Profiles;
 using H2020.IPMDecisions.UPR.Core.Services;
@@ -36,6 +37,8 @@ namespace H2020.IPMDecisions.UPR.API
 
             services.AddScoped<IDataService, DataService>();
             services.AddScoped<IBusinessLogic, BusinessLogic>();
+
+            services.AddScoped<UserAccessingOwnDataActionFilter>();
 
             services.ConfigurePostgresContext(Configuration);
 
