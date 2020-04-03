@@ -48,6 +48,16 @@ cp appsettingsTemplate.json appsettings.json
 dotnet build
 ```
 
+### Setting up PostgreSQL database on Docker
+
+This instructions are simplified as they are for testing proposes, please follow official instructions for detailed information.
+
+```console
+docker run --name postgresdev -d -p 5432:5432 -e POSTGRES_PASSWORD=postgres postgres:12.2
+```
+
+Your `ConnectionStrings\MyPostgreSQLConnection` will be `Host=127.0.0.1;Port=5432;Database=H2020.IPMDecisions.UPR;Username=postgres;Password=postgres`
+
 ### How to connect and start the database
 
 Open file `H2020.IPMDecisions.UPR.API\appsettings.json` and change the json object `ConnectionStrings\MyPostgreSQLConnection` with your PostgreSQL instance.
@@ -65,6 +75,18 @@ If new tables are added to the project using [CodeFirst approach](https://entity
 ```console
 dotnet ef migrations add YourMessage --project ..\H2020.IPMDecisions.UPR.Data\H2020.IPMDecisions.UPR.Data.csproj
 dotnet ef database update
+```
+
+### How to create backups to use on Docker-compose init scrip
+
+```console
+docker exec -u postgres <containerName> pg_dump --file "/var/lib/postgresql/data/dbBackup.sql" --username "yourUserName" --no-password --verbose --format=p --blobs --no-owner --section=pre-data --section=post-data --no-privileges --no-tablespaces "H2020.IPMDecisions.UPR"
+```
+
+The following command will copy the backup into your local machine. Add this file into the `Docker\UPR_Postgresql_Init_Script` folder with the name `2.dbBackup.sql`
+
+```console
+docker cp <containerName>:/var/lib/postgresql/data/dbBackup.sql your\local\folder\path\2.dbBackup.sql
 ```
 
 ### How to set-up the JsonWebToken (JWT) provider
@@ -95,7 +117,7 @@ A Docker file has been created to allow to build and run the image in your prefe
 
 ***
 **NOTE**
-This docker build image doesn't include the "PostreSQL" database.
+This docker build image doesn't include the "PostgreSQL" database.
 ***
 
 Remember to change the **EXPOSE** ports in the `Dockerfile` if the default ports are taken (80 and 443).
@@ -110,6 +132,18 @@ docker run  -d -p 443:443/tcp -p 5006:5006/tcp --name UPR ipmdecisions/userprovi
 ```
 Now you should be able to user your API in the docker container. 
 
+## Deployment with Docker Compose
+
+You can deploy the User Provision Service API, including a PostgreSQL database with the database structure and a pgAdmin4 UI to manage the database, using a docker compose.
+A file called `docker-compose.yml` is located in the following folder `Docker` locate in the root of the project. 
+To run the following command:
+
+```console
+docker-compose -f "./Docker/Docker-compose.yml" up -d
+```
+
+If no data have been modified in the `docker-compose.yml` the solution will be working in the URL `localhost:5006`.
+
 ## Versioning
 
 For the versions available, see the [tags on this repository](https://github.com/H2020-IPM-Decisions/IdentityProviderService/tags). 
@@ -117,3 +151,10 @@ For the versions available, see the [tags on this repository](https://github.com
 ## Authors
 
 * **ADAS Modelling and Informatics** - *Initial work* - [ADAS](https://www.adas.uk/)
+
+
+
+docker exec -u postgres upr-postgres pg_dump --file "/var/lib/postgresql/data/dbBackup.sql" --username "postgres" --no-password --verbose --format=p --blobs --no-owner --create --section=pre-data --section=post-data --no-privileges --no-tablespaces "H2020.IPMDecisions.UPR"
+
+
+ docker cp upr-postgres:/var/lib/postgresql/data/dbBackup.sql C:\Users\m507757\Desktop\docker\

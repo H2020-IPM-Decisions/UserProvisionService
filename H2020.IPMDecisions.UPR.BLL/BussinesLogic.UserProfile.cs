@@ -26,8 +26,7 @@ namespace H2020.IPMDecisions.UPR.BLL
             catch (Exception ex)
             {
                 //ToDo Log Error
-
-                return GenericResponseBuilder.NoSuccess($"{ex.Message}. InnerException: {ex.InnerException.Message}");
+                return GenericResponseBuilder.NoSuccess($"{ex.Message} InnerException: {ex.InnerException.Message}");
             }
         }
     }
