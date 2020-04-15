@@ -21,7 +21,7 @@ namespace H2020.IPMDecisions.UPR.API.Filters
             }
 
             var userRoleFromToken = claimsIdentity.FindFirst(ClaimTypes.Role)?.Value;      
-            if (userRoleFromToken.ToString().ToLower() == "admin")
+            if (userRoleFromToken != null && userRoleFromToken.ToString().ToLower() == "admin")
                 return;            
 
             var userIdFromToken = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier)?.Value;            
