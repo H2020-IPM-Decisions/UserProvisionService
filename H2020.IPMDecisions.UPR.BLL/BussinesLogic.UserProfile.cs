@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using H2020.IPMDecisions.UPR.Core.Dtos;
 using H2020.IPMDecisions.UPR.Core.Entities;
@@ -118,5 +119,41 @@ namespace H2020.IPMDecisions.UPR.BLL
                 return GenericResponseBuilder.NoSuccess($"{ex.Message} InnerException: {ex.InnerException.Message}");
             }
         }
+
+        #region Helpers
+        private IEnumerable<LinkDto> CreateLinksForUserProfiles(
+           Guid userId,
+           string fields = "")
+        {
+            var links = new List<LinkDto>();
+
+            if (string.IsNullOrWhiteSpace(fields))
+            {
+                links.Add(new LinkDto(
+                url.Link("GetUserProfile", new { userId }),
+                "self",
+                "GET"));
+            }
+            else
+            {
+                links.Add(new LinkDto(
+                 url.Link("GetUserProfile", new { userId, fields }),
+                 "self",
+                 "GET"));
+            }
+
+            links.Add(new LinkDto(
+                url.Link("DeleteUserProfile", new { userId }),
+                "delete_user_profile",
+                "DELETE"));
+
+            links.Add(new LinkDto(
+                url.Link("PartialUpdateUserProfile", new { userId }),
+                "update_user_profile",
+                "PATCH"));
+
+            return links;
+        }
+        #endregion
     }
 }

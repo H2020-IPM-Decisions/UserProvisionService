@@ -9,6 +9,9 @@ using H2020.IPMDecisions.UPR.Data.Persistence;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -39,6 +42,14 @@ namespace H2020.IPMDecisions.UPR.API
             services.AddScoped<IBusinessLogic, BusinessLogic>();
 
             services.AddScoped<UserAccessingOwnDataActionFilter>();
+
+            services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
+            services.AddScoped<IUrlHelper>(serviceProvider =>
+            {
+                var actionContext = serviceProvider.GetRequiredService<IActionContextAccessor>().ActionContext;
+                var factory = serviceProvider.GetRequiredService<IUrlHelperFactory>();
+                return factory.GetUrlHelper(actionContext);
+            });
 
             services.ConfigurePostgresContext(Configuration);
 

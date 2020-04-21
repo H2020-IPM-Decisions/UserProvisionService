@@ -1,5 +1,7 @@
+using System;
 using AutoMapper;
 using H2020.IPMDecisions.UPR.Data.Core;
+using Microsoft.AspNetCore.Mvc;
 
 namespace H2020.IPMDecisions.UPR.BLL
 {
@@ -7,15 +9,19 @@ namespace H2020.IPMDecisions.UPR.BLL
     {
         private readonly IMapper mapper;
         private readonly IDataService dataService;
+        private readonly IUrlHelper url;
         
         public BusinessLogic(
             IMapper mapper,
-            IDataService dataService)
+            IDataService dataService,
+            IUrlHelper url)
         {
             this.mapper = mapper 
-                ?? throw new System.ArgumentNullException(nameof(mapper));
+                ?? throw new ArgumentNullException(nameof(mapper));
             this.dataService = dataService 
-                ?? throw new System.ArgumentNullException(nameof(dataService));
+                ?? throw new ArgumentNullException(nameof(dataService));
+            this.url = url
+                ?? throw new ArgumentNullException(nameof(url));
         }
     }
 }
