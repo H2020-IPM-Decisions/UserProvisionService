@@ -1,80 +1,204 @@
 FORMAT: 1A
-HOST: https://polls.apiblueprint.org/
 
-# H2020 IPM Decisions - User Provision API
+# H2020 IPM Decisions - User Provision Service
 
-Polls is a simple API allowing consumers to view polls and vote in them.
+## Authentication and Authorization
+The API Gateway uses [Bearer Token Authorization.](https://tools.ietf.org/html/rfc6750)
+Tokens will be provided by the Identity Provider Service (IDP). Please refer to the main H2020 IPM Decision project
 
-## Questions Collection [/questions]
+## Contact
+* Name: ADAS Modelling and Informatics Team
+* Url: 'https://www.adas.uk/'
+* Email: software@adas.co.uk
 
-### List All Questions [GET]
+## License
+* [Use under GNU General Public License v3.0](https://www.gnu.org/licenses/gpl-3.0.txt)
 
-+ Response 200 (application/json)
+## API Version
+* Version: v1
 
-        [
-            {
-                "question": "Favourite programming language?",
-                "published_at": "2015-08-05T08:40:51.620Z",
-                "choices": [
-                    {
-                        "choice": "Swift",
-                        "votes": 2048
-                    }, {
-                        "choice": "Python",
-                        "votes": 1024
-                    }, {
-                        "choice": "Objective-C",
-                        "votes": 512
-                    }, {
-                        "choice": "Ruby",
-                        "votes": 256
-                    }
-                ]
-            }
-        ]
+# User Profiles
 
-### Create a New Question [POST]
+## User Profiles [/api/users/{userId}/profiles]
 
-You may create your own question using this action. It takes a JSON
-object containing a question and a collection of answers in the
-form of choices.
+### Get User Profile [GET] 
 
 + Request (application/json)
 
-        {
-            "question": "Favourite programming language?",
-            "choices": [
-                "Swift",
-                "Python",
-                "Objective-C",
-                "Ruby"
-            ]
-        }
+    + Headers
+    
+            Authorization: Bearer JWT
+            
++ Parameters
 
-+ Response 201 (application/json)
+    + userId (string, required)
+    
++ Response 200 (application/json)
+
+        Success
+
+    + Attributes (UserProfileDto)
+
++ Response 400 (application/json)
+
+        Bad Request
+
++ Response 401 
+
+        Unauthorized
+
++ Response 403 
+
+        Forbidden
+        
++ Response 404
+
+        Not Found
+        
+### Create User Profile [POST]
+
++ Parameters
+
+    + userId (string, required)
+
++ Request (application/json)
+
+    + Attributes (UserProfileForCreationDto)
+    
+    + Headers
+    
+            Accept: application/json
+            Authorization: Bearer JWT
+
++ Response 200 (application/json)
+
+        Success
+
+    + Attributes (UserProfileDto)
+    
+    + Headers
+    
+            Location: http://theurl/idp/api/admin/applicationclients/{userId}
+
++ Response 400 (application/json)
+
+        Bad Request
+
++ Response 401 
+
+        Unauthorized
+
++ Response 403 
+
+        Forbidden
+        
+### Partial Update User Profile [PATCH]
+
+Learn more about patch operation using [json-patch+json object](http://jsonpatch.com/).
+
+If a no existing `ID` is passed and the json-patch document has enough information for creating a UserProfile (see UserProfileForCreationDto), a new UserProfile will be created.
+
++ Parameters
+
+    + userId (string, required)
+    
++ Request (application/json-patch+json)
+
+    + Attributes (array[JsonPatchOperation])
+    
+    + Headers
+    
+            Authorization: Bearer JWT
+
++ Response 201 
+
+    + Attributes (UserProfileDto)
+    
+    + Headers
+    
+            Location: http://theurl/upr/api/user/{userId}/profiles
+
++ Response 204
+
++ Response 400 (application/json)
+
+        Bad Request
+
++ Response 401 
+
+        Unauthorized
+        
++ Response 403 
+
+        Forbidden
+        
+### Delete User Profile [DELETE]
+
++ Parameters
+
+    + userId (string, required)
+
++ Request (application/json)
 
     + Headers
+    
+            Authorization: Bearer JWT
 
-            Location: /questions/2
++ Response 204
 
-    + Body
++ Response 401 
 
-            {
-                "question": "Favourite programming language?",
-                "published_at": "2015-08-05T08:40:51.620Z",
-                "choices": [
-                    {
-                        "choice": "Swift",
-                        "votes": 0
-                    }, {
-                        "choice": "Python",
-                        "votes": 0
-                    }, {
-                        "choice": "Objective-C",
-                        "votes": 0
-                    }, {
-                        "choice": "Ruby",
-                        "votes": 0
-                    }
-                ]
-            }
+        Unauthorized
+
++ Response 403 
+
+        Forbidden
+
+# Data Structures
+
+## JsonPatchOperation (object)
+### Properties
++ `value` (object, optional, nullable) - For `add`, `replace` or `test` operations
++ `path` (string, optional, nullable) - Property name
++ `op` (string, optional, nullable) - add, remove, replace, copy, move or test
++ `from` (string, optional, nullable) - For `copy` or `move` operations
+
+## LinkDto (object)
+### Properties
++ `href` (string)
++ `rel` (enum[string]) 
+    + `self` 
+    + `next_page`
+    + `previous_page`
++ `method` (string)
+
+## UserProfileDto (object)
+### Properties
++ `id` (string)
++ `userId` (string)
++ `fullName` (string)
++ `phoneNumber` (string)
++ `mobileNumber` (string)
++ `address` (string)
++ `postcode` (string)
++ `country` (string)
+
+## UserProfileForCreationDto (object)
+### Properties
++ `firstName` (string)
++ `lastName` (string)
++ `phoneNumber` (string)
++ `mobileNumber` (string)
++ `address` (string)
++ `postcode` (string)
++ `country` (string)
+
+## UserProfileForUpdateDto (object)
+### Properties
++ `firstName` (string)
++ `lastName` (string)
++ `phoneNumber` (string)
++ `mobileNumber` (string)
++ `address` (string)
++ `postcode` (string)
++ `country` (string)
