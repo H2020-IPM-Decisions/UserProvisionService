@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
+using Microsoft.Net.Http.Headers;
 using System.Threading.Tasks;
 using H2020.IPMDecisions.UPR.Core.Dtos;
 using H2020.IPMDecisions.UPR.Core.Entities;
 using H2020.IPMDecisions.UPR.Core.Models;
+using H2020.IPMDecisions.UPR.Core.Helpers;
 
 namespace H2020.IPMDecisions.UPR.BLL
 {
@@ -72,23 +74,37 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
         }
 
-        public async Task<GenericResponse<UserProfileDto>> GetUserProfileDto(Guid userId)
+        public async Task<GenericResponse<IDictionary<string, object>>> GetUserProfileDto(Guid userId, string mediaType)
         {
             try
             {
+                if (!MediaTypeHeaderValue.TryParse(mediaType,
+                       out MediaTypeHeaderValue parsedMediaType))
+                    return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, "Wrong media type");
+
                 var existingUserProfile = await this.dataService
                     .UserProfiles
                     .FindByCondition(u => u.UserId == userId);
 
-                if (existingUserProfile == null) return GenericResponseBuilder.Success<UserProfileDto>(null);
+                if (existingUserProfile == null) return GenericResponseBuilder.Success<IDictionary<string, object>>(null);                
 
-                var userToReturn = this.mapper.Map<UserProfileDto>(existingUserProfile);
-                return GenericResponseBuilder.Success<UserProfileDto>(userToReturn);
+                var userProfileToReturn = this.mapper.Map<UserProfileDto>(existingUserProfile)
+                    .ShapeData() 
+                    as IDictionary<string, object>;
+
+                var includeLinks = parsedMediaType.SubTypeWithoutSuffix
+                            .EndsWith("hateoas", StringComparison.InvariantCultureIgnoreCase);
+                if (includeLinks)
+                {
+                    var links = CreateLinksForUserProfiles(userId);
+                    userProfileToReturn.Add("links", links);
+                }
+                return GenericResponseBuilder.Success<IDictionary<string, object>>(userProfileToReturn);
             }
             catch (Exception ex)
             {
                 //ToDo Log Error
-                return GenericResponseBuilder.NoSuccess<UserProfileDto>(null, $"{ex.Message} InnerException: {ex.InnerException.Message}");
+                return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, $"{ex.Message} InnerException: {ex.InnerException.Message}");
             }
         }
 

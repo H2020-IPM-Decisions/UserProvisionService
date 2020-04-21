@@ -8,12 +8,13 @@ using H2020.IPMDecisions.UPR.BLL;
 using H2020.IPMDecisions.UPR.Core.Dtos;
 using H2020.IPMDecisions.UPR.API.Filters;
 using Microsoft.AspNetCore.JsonPatch;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace H2020.IPMDecisions.IDP.API.Controllers
 {
     [ApiController]
     [Route("api/users/{userId:guid}/profiles")]
-    [Authorize()]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [ServiceFilter(typeof(UserAccessingOwnDataActionFilter))]
     public class UserProfilesController : ControllerBase
     {
@@ -28,11 +29,13 @@ namespace H2020.IPMDecisions.IDP.API.Controllers
         [Consumes(MediaTypeNames.Application.Json)]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [Produces(MediaTypeNames.Application.Json, "application/vnd.h2020ipmdecisions.hateoas+json")]
         [HttpPost("", Name = "CreateUserProfile")]
         // POST: api/users/1/profiles
         public async Task<IActionResult> Post(
             [FromRoute] Guid userId,
-            [FromBody] UserProfileForCreationDto userProfileForCreation)
+            [FromBody] UserProfileForCreationDto userProfileForCreation,
+            [FromHeader(Name = "Accept")] string mediaType)
         {
             var response = await businessLogic.AddNewUserProfile(userId, userProfileForCreation);
 
@@ -47,12 +50,14 @@ namespace H2020.IPMDecisions.IDP.API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [Produces(MediaTypeNames.Application.Json, "application/vnd.h2020ipmdecisions.hateoas+json")]
         [HttpGet("", Name = "GetUserProfile")]
         [HttpHead]
         // GET:  api/users/1/profiles
-        public async Task<IActionResult> Get([FromRoute] Guid userId)
+        public async Task<IActionResult> Get([FromRoute] Guid userId,
+            [FromHeader(Name = "Accept")] string mediaType)
         {
-            var response = await businessLogic.GetUserProfile(userId);
+            var response = await businessLogic.GetUserProfileDto(userId, mediaType);
 
             if (!response.IsSuccessful)
                 return BadRequest(new { message = response.ErrorMessage });

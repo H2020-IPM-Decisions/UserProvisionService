@@ -10,7 +10,8 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
             // Entities to Dtos
             CreateMap<UserProfile, UserProfileDto>()
                 .ForMember(dest => dest.FullName,
-                opt => opt.MapFrom(src => $"{src.FirstName} {src.LastName}"));
+                opt => opt.MapFrom(src => $"{src.FirstName} {src.LastName}"))
+                .AfterMap((src, dest) => dest.FullName.Trim());
 
             CreateMap<UserProfile, UserProfileForUpdateDto>();
 

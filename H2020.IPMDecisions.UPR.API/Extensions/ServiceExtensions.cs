@@ -75,6 +75,11 @@ namespace H2020.IPMDecisions.APG.API.Extensions
             {
                 var newtonsoftJsonOutputFormatter = config.OutputFormatters
                       .OfType<NewtonsoftJsonOutputFormatter>()?.FirstOrDefault();
+
+                if (newtonsoftJsonOutputFormatter != null)
+                {
+                    newtonsoftJsonOutputFormatter.SupportedMediaTypes.Add("application/vnd.h2020ipmdecisions.hateoas+json");
+                }
             });
         }
 
