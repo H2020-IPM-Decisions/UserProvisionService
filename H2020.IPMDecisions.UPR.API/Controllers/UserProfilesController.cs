@@ -37,7 +37,7 @@ namespace H2020.IPMDecisions.IDP.API.Controllers
             [FromBody] UserProfileForCreationDto userProfileForCreation,
             [FromHeader(Name = "Accept")] string mediaType)
         {
-            var response = await businessLogic.AddNewUserProfile(userId, userProfileForCreation);
+            var response = await businessLogic.AddNewUserProfile(userId, userProfileForCreation, mediaType);
 
             if (!response.IsSuccessful)
                 return BadRequest(new { message = response.ErrorMessage });

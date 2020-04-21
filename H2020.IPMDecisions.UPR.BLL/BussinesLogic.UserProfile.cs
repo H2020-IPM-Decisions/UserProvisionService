@@ -11,6 +11,49 @@ namespace H2020.IPMDecisions.UPR.BLL
 {
     public partial class BusinessLogic : IBusinessLogic
     {
+        public async Task<GenericResponse<IDictionary<string, object>>> AddNewUserProfile(Guid userId, UserProfileForCreationDto userProfileForCreation, string mediaType)
+        {
+            try
+            {
+                if (!MediaTypeHeaderValue.TryParse(mediaType,
+                       out MediaTypeHeaderValue parsedMediaType))
+                    return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, "Wrong media type.");
+
+                var currentUserProfileExists = await GetUserProfile(userId);
+                if (currentUserProfileExists.Result != null)
+                {
+                    return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, "User profile aready exits. Please use `PATCH` method for partial updates.");
+                }
+                    
+
+                var userProfileEntity = this.mapper.Map<UserProfile>(userProfileForCreation);
+                userProfileEntity.UserId = userId;
+
+                this.dataService.UserProfiles.Create(userProfileEntity);
+
+                await this.dataService.CompleteAsync();
+
+                var userProfileToReturn = this.mapper.Map<UserProfileDto>(userProfileEntity)
+                    .ShapeData()
+                    as IDictionary<string, object>;
+
+                var includeLinks = parsedMediaType.SubTypeWithoutSuffix
+                            .EndsWith("hateoas", StringComparison.InvariantCultureIgnoreCase);
+                if (includeLinks)
+                {
+                    var links = CreateLinksForUserProfiles(userId);
+                    userProfileToReturn.Add("links", links);
+                }
+
+                return GenericResponseBuilder.Success<IDictionary<string, object>>(userProfileToReturn);
+            }
+            catch (Exception ex)
+            {
+                //ToDo Log Error
+                return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, $"{ex.Message} InnerException: {ex.InnerException.Message}");
+            }
+        }
+
         public async Task<GenericResponse<UserProfileDto>> AddNewUserProfile(Guid userId, UserProfileForCreationDto userProfileForCreation)
         {
             try
