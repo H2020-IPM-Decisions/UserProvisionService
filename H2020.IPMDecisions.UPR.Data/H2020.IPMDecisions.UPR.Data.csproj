@@ -15,7 +15,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\H2020.IPMDecisions.UPR.Core\H2020.IPMDecisions.UPR.Core.csproj" />
-    <ProjectReference Include="..\H2020.IPMDecisions.UPR.BLL\H2020.IPMDecisions.UPR.BLL.csproj" />
   </ItemGroup>
 
 </Project>
