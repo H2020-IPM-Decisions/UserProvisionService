@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Http;
 using System.Net.Mime;
 using H2020.IPMDecisions.UPR.BLL;
 using H2020.IPMDecisions.UPR.Core.Dtos;
-using H2020.IPMDecisions.UPR.Core.Models;
 using H2020.IPMDecisions.UPR.API.Filters;
 using Microsoft.AspNetCore.JsonPatch;
 
@@ -125,6 +124,14 @@ namespace H2020.IPMDecisions.IDP.API.Controllers
                 return BadRequest(new { message = response.ErrorMessage });
 
             return NoContent();
+        }
+
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [HttpOptions]
+        public IActionResult Options()
+        {
+            Response.Headers.Add("Allow", "OPTIONS, GET, PATCH, POST, DELETE");
+            return Ok();
         }
     }
 }
