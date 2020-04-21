@@ -55,9 +55,10 @@ namespace H2020.IPMDecisions.IDP.API.Controllers
         [HttpHead]
         // GET:  api/users/1/profiles
         public async Task<IActionResult> Get([FromRoute] Guid userId,
+            [FromQuery] string fields,
             [FromHeader(Name = "Accept")] string mediaType)
         {
-            var response = await businessLogic.GetUserProfileDto(userId, mediaType);
+            var response = await businessLogic.GetUserProfileDto(userId, fields, mediaType);
 
             if (!response.IsSuccessful)
                 return BadRequest(new { message = response.ErrorMessage });

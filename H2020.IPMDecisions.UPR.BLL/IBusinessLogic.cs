@@ -14,7 +14,7 @@ namespace H2020.IPMDecisions.UPR.BLL
         Task<GenericResponse<UserProfileDto>> AddNewUserProfile(Guid userId, UserProfileForCreationDto userProfileForCreation);
         Task<GenericResponse> DeleteUserProfileClient(Guid userId);
         Task<GenericResponse<UserProfile>> GetUserProfile(Guid userId);
-        Task<GenericResponse<IDictionary<string, object>>> GetUserProfileDto(Guid userId, string mediaType);
+        Task<GenericResponse<IDictionary<string, object>>> GetUserProfileDto(Guid userId, string fields, string mediaType);
         UserProfileForCreationDto MapToUserProfileForCreation(UserProfileForUpdateDto userProfileDto);
         UserProfileForUpdateDto MapToUserProfileForUpdateDto(UserProfile userProfile);
         Task<GenericResponse> UpdateUserProfile(UserProfile userProfile, UserProfileForUpdateDto userProfileToPatch);

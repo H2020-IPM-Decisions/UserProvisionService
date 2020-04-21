@@ -117,13 +117,16 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
         }
 
-        public async Task<GenericResponse<IDictionary<string, object>>> GetUserProfileDto(Guid userId, string mediaType)
+        public async Task<GenericResponse<IDictionary<string, object>>> GetUserProfileDto(Guid userId, string fields, string mediaType)
         {
             try
             {
                 if (!MediaTypeHeaderValue.TryParse(mediaType,
                        out MediaTypeHeaderValue parsedMediaType))
                     return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, "Wrong media type");
+
+                if (!propertyCheckerService.TypeHasProperties<UserProfileDto>(fields))
+                    return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, "Wrong fields entered");
 
                 var existingUserProfile = await this.dataService
                     .UserProfiles
@@ -132,7 +135,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                 if (existingUserProfile == null) return GenericResponseBuilder.Success<IDictionary<string, object>>(null);                
 
                 var userProfileToReturn = this.mapper.Map<UserProfileDto>(existingUserProfile)
-                    .ShapeData() 
+                    .ShapeData(fields) 
                     as IDictionary<string, object>;
 
                 var includeLinks = parsedMediaType.SubTypeWithoutSuffix
