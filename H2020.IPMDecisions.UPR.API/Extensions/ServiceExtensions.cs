@@ -50,6 +50,8 @@ namespace H2020.IPMDecisions.APG.API.Extensions
         public static void ConfigureCors(this IServiceCollection services, IConfiguration config)
         {
             var allowedHosts = config["AllowedHosts"];
+            if (allowedHosts == null) return;
+
             services.AddCors(options =>
             {
                 options.AddPolicy("UserProvisionCORS", builder =>
@@ -86,7 +88,7 @@ namespace H2020.IPMDecisions.APG.API.Extensions
         public static void ConfigurePostgresContext(this IServiceCollection services, IConfiguration config)
         {
             var connectionString = config["ConnectionStrings:MyPostgreSQLConnection"];
-            
+
             services
                 .AddDbContext<ApplicationDbContext>(options =>
                 {
@@ -140,7 +142,9 @@ namespace H2020.IPMDecisions.APG.API.Extensions
 
         public static IEnumerable<string> Audiences(string audiences)
         {
-            var listOfAudiences = audiences.Split(';').ToList();
+            var listOfAudiences = new List<string>();
+            if (string.IsNullOrEmpty(audiences)) return listOfAudiences;
+            listOfAudiences = audiences.Split(';').ToList();
             return listOfAudiences;
         }
     }

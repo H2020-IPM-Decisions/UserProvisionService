@@ -62,11 +62,9 @@ namespace H2020.IPMDecisions.UPR.BLL
                 userProfileEntity.UserId = userId;
 
                 this.dataService.UserProfiles.Create(userProfileEntity);
-
                 await this.dataService.CompleteAsync();
 
                 var userToReturn = this.mapper.Map<UserProfileDto>(userProfileEntity);
-
                 return GenericResponseBuilder.Success<UserProfileDto>(userToReturn);
             }
             catch (Exception ex)
