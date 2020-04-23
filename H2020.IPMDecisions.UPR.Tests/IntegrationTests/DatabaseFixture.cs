@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Xunit;
 
-namespace H2020.IPMDecisions.UPR.Tests.UnitTests
+namespace H2020.IPMDecisions.UPR.Tests.IntegrationTests
 {
     public class DatabaseFixture : IDisposable
     {
@@ -15,12 +15,12 @@ namespace H2020.IPMDecisions.UPR.Tests.UnitTests
         public DatabaseFixture()
         {            
             var configuration = new ConfigurationBuilder()
-                .AddJsonFile("appsettings.json")
+                .AddJsonFile("appsettings.Test.json")
                 .Build();
 
             // Remember to create integration_test_user in PostgreSQL. User need to be able to create DB
             //  e.g: CREATE USER yourUsername WITH PASSWORD 'yourPassword' CREATEDB;
-            var connectionString = configuration["ConnectionStrings:MyTestPostgreSQLConnection"];
+            var connectionString = configuration["ConnectionStrings:MyPostgreSQLConnection"];
 
             tempDatabase = new TestDatabaseBuilder()
                 .WithConnectionString(connectionString)
