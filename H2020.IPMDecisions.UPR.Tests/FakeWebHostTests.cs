@@ -9,18 +9,20 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Xunit;
 
-namespace H2020.IPMDecisions.UPR.Tests.UnitTests
+namespace H2020.IPMDecisions.UPR.Tests
 {
-    public class FakeWebHostForTesting : IAsyncLifetime, IDisposable
+    public class FakeWebHost : IAsyncLifetime
     {
-        public IHost _host;
+        public IHost Host;
         private readonly ITestDatabase tempDatabase;
-        public FakeWebHostForTesting(bool createDb = false)
+        public FakeWebHost(bool createDb = false)
         {
             var configuration = new ConfigurationBuilder()
                .AddJsonFile("appsettings.Test.json")
                .Build();
 
+            // Remember to create integration_test_user in PostgreSQL. User need to be able to create DB
+            //  e.g: CREATE USER yourUsername WITH PASSWORD 'yourPassword' CREATEDB;
             var connectionString = configuration["ConnectionStrings:MyPostgreSQLConnection"];
             
             if (createDb)
@@ -30,10 +32,9 @@ namespace H2020.IPMDecisions.UPR.Tests.UnitTests
                 .Build();
 
             tempDatabase.Create();
-            }
-            
+            }            
         }
-
+        
         public async Task InitializeAsync()
         {
             var configuration = new ConfigurationBuilder()
@@ -43,7 +44,7 @@ namespace H2020.IPMDecisions.UPR.Tests.UnitTests
             if (tempDatabase != null)
                 configuration["ConnectionStrings:MyPostgreSQLConnection"] = tempDatabase.ConnectionString.ToString(); 
 
-            _host = await new HostBuilder()
+            Host = await new HostBuilder()
               .ConfigureWebHost(webBuilder =>
               {
                   webBuilder.UseStartup<H2020.IPMDecisions.UPR.API.Startup>();
@@ -53,7 +54,7 @@ namespace H2020.IPMDecisions.UPR.Tests.UnitTests
               })
               .StartAsync();
 
-            using (var scope = _host.Services.CreateScope())
+            using (var scope = Host.Services.CreateScope())
             {
                 var services = scope.ServiceProvider;
                 var context = services.GetService<ApplicationDbContext>();
@@ -64,13 +65,9 @@ namespace H2020.IPMDecisions.UPR.Tests.UnitTests
 
         public async Task DisposeAsync()
         {
-            await _host.StopAsync();
-        }
-
-        public void Dispose()
-        {
             tempDatabase.Drop();
-            _host.Dispose();
+            await Host.StopAsync();
+            Host.Dispose();
         }
     }
 }

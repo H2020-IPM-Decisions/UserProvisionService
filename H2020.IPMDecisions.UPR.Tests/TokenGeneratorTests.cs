@@ -7,9 +7,9 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 
-namespace H2020.IPMDecisions.UPR.Tests.UnitTests
+namespace H2020.IPMDecisions.UPR.Tests
 {
-    public static class TokenGeneratorForTesting
+    public static class TokenGeneratorTests
     {
         private static List<Claim> GenerateClaims(Guid userId, string userRole, IList<Claim> userClaims = null)
         {
@@ -32,7 +32,7 @@ namespace H2020.IPMDecisions.UPR.Tests.UnitTests
 
         public static string GenerateToken(
                 Guid userId, 
-                string userRole, 
+                string userRole = "", 
                 IList<Claim> userClaims = null)
         {
             var configuration = new ConfigurationBuilder()

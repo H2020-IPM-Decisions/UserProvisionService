@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Xunit;
 
-namespace H2020.IPMDecisions.UPR.Tests.IntegrationTests
+namespace H2020.IPMDecisions.UPR.Tests
 {
     public class DatabaseFixture : IDisposable
     {
