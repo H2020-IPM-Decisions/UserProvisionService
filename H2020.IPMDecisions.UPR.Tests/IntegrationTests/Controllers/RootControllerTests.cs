@@ -7,46 +7,39 @@ using Xunit;
 
 namespace H2020.IPMDecisions.UPR.Tests.IntegrationTests.Controllers
 {
-    public class RootControllerTests : IDisposable
+    [Collection("FakeWebHost")]
+    public class RootControllerTests
     {
-        private FakeWebHost _fakeWebHost;
-        public RootControllerTests()
-        {
-            _fakeWebHost = new FakeWebHost();
-        }
+        private readonly FakeWebHost fakeWebHost;
 
-        public async void Dispose()
+        public RootControllerTests(FakeWebHost fakeWebHost)
         {
-            await _fakeWebHost.DisposeAsync();
+            this.fakeWebHost = fakeWebHost;
         }
 
         [Fact]
         public async void Get_NoToken_ShouldReturnOK()
         {
-            //Given
-            await _fakeWebHost.InitializeAsync();
-            var httpClient = _fakeWebHost.Host.GetTestServer().CreateClient();
+            // Arrange
 
-            //When
-            var response = await httpClient.GetAsync("api/");
+            // Act
+            var response = await fakeWebHost.httpClient.GetAsync("api/");
 
-            //Then
+            // Assert
             response.StatusCode.Should().Be(HttpStatusCode.OK);
         }
 
         [Fact]
         public async void Post_NoToken_ShouldReturnOK()
         {
-            //Given
-            await _fakeWebHost.InitializeAsync();
-            var httpClient = _fakeWebHost.Host.GetTestServer().CreateClient();
+            // Arrange
             var stringContent = new StringContent("");
 
-            //When
-            var response = await httpClient.PostAsync("api/", stringContent);
+            // Act
+            var response = await fakeWebHost.httpClient.PostAsync("api/", stringContent);
 
-            //Then
+            // Assert
             response.StatusCode.Should().Be(HttpStatusCode.MethodNotAllowed);
-        }        
+        }
     }
 }

@@ -1,48 +1,56 @@
-using System;
-using System.Net;
-using System.Net.Http.Headers;
-using FluentAssertions;
-using Microsoft.AspNetCore.TestHost;
-using Xunit;
+// using System;
+// using System.Net;
+// using System.Net.Http;
+// using System.Net.Http.Headers;
+// using System.Text;
+// using System.Json;
+// using FluentAssertions;
+// using Microsoft.AspNetCore.TestHost;
+// using Xunit;
 
-namespace H2020.IPMDecisions.UPR.Tests.IntegrationTests.Controllers
-{
-    public class UserProfilesControllerTests
-    {
-        private FakeWebHost _fakeWebHost;
+// namespace H2020.IPMDecisions.UPR.Tests.IntegrationTests.Controllers
+// {
+//     public class UserProfilesControllerTests : IDisposable
+//     {
+//         private FakeWebHostWithDb _fakeWebHost;
 
-        public UserProfilesControllerTests()
-        {
-            _fakeWebHost = new FakeWebHost(false);
-        }
+//         public UserProfilesControllerTests()
+//         {
+//             _fakeWebHost = new FakeWebHostWithDb(true);
+//         }
 
-        [Fact]
-        public async void Get_DifferentUserIdUrlAndToken_Unauthorized()
-        {
-            // Arrange
-            var tokenUserId = Guid.NewGuid();
-            var resourceUserId = Guid.NewGuid();
+//         public async void Dispose()
+//         {
+//             await _fakeWebHost.DisposeAsync();
+//         }
 
-            var myToken = TokenGeneratorTests.GenerateToken(tokenUserId); 
+//         [Fact]
+//         public async void Get_AddminCanAccessController_NotFound()
+//         {
+//             // Arrange
+//             var tokenUserId = Guid.NewGuid();
+//             var resourceUserId = Guid.NewGuid();
 
-            await _fakeWebHost.InitializeAsync();
-            var httpClient = _fakeWebHost.Host.GetTestServer().CreateClient();
+//             var myToken = TokenGeneratorTests.GenerateToken(tokenUserId, "admin");
 
-            httpClient
-                .DefaultRequestHeaders
-                .Authorization =
-                new AuthenticationHeaderValue("Bearer", myToken);
-            
-            httpClient
-                .DefaultRequestHeaders
-                .Accept
-                .Add(new MediaTypeWithQualityHeaderValue("application/json"));
+//             await _fakeWebHost.InitializeAsync();
+//             var httpClient = _fakeWebHost.Host.GetTestServer().CreateClient();
 
-            //When
-            var response = await httpClient.GetAsync(string.Format("api/users/{0}/profiles", resourceUserId));
+//             httpClient
+//                 .DefaultRequestHeaders
+//                 .Authorization =
+//                 new AuthenticationHeaderValue("Bearer", myToken);
 
-            //Then
-            response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
-        }
-    }
-}
+//             httpClient
+//                 .DefaultRequestHeaders
+//                 .Accept
+//                 .Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+//             // Act
+//             var response = await httpClient.GetAsync(string.Format("api/users/{0}/profiles", resourceUserId));
+
+//             // Assert
+//             response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+//         }
+//     }
+// }

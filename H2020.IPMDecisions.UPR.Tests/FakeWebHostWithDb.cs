@@ -11,38 +11,28 @@ using Xunit;
 
 namespace H2020.IPMDecisions.UPR.Tests
 {
-    public class FakeWebHost : IAsyncLifetime
+    public class FakeWebHostWithDb : IAsyncLifetime
     {
         public IHost Host;
-        private readonly ITestDatabase tempDatabase;
-        public FakeWebHost(bool createDb = false)
+        private ITestDatabase tempDatabase;
+
+        public async Task InitializeAsync()
         {
             var configuration = new ConfigurationBuilder()
-               .AddJsonFile("appsettings.Test.json")
-               .Build();
+              .AddJsonFile("appsettings.Test.json")
+              .Build();
 
             // Remember to create integration_test_user in PostgreSQL. User need to be able to create DB
             //  e.g: CREATE USER yourUsername WITH PASSWORD 'yourPassword' CREATEDB;
             var connectionString = configuration["ConnectionStrings:MyPostgreSQLConnection"];
-            
-            if (createDb)
-            {
-                tempDatabase = new TestDatabaseBuilder()
-                .WithConnectionString(connectionString)
-                .Build();
 
+            tempDatabase = new TestDatabaseBuilder()
+            .WithConnectionString(connectionString)
+            .Build();
             tempDatabase.Create();
-            }            
-        }
-        
-        public async Task InitializeAsync()
-        {
-            var configuration = new ConfigurationBuilder()
-                .AddJsonFile("appsettings.Test.json")
-                .Build();
 
             if (tempDatabase != null)
-                configuration["ConnectionStrings:MyPostgreSQLConnection"] = tempDatabase.ConnectionString.ToString(); 
+                configuration["ConnectionStrings:MyPostgreSQLConnection"] = tempDatabase.ConnectionString.ToString();
 
             Host = await new HostBuilder()
               .ConfigureWebHost(webBuilder =>
@@ -65,9 +55,16 @@ namespace H2020.IPMDecisions.UPR.Tests
 
         public async Task DisposeAsync()
         {
-            tempDatabase.Drop();
+            if (tempDatabase != null)
+                tempDatabase.Drop();
+
             await Host.StopAsync();
             Host.Dispose();
+        }
+
+        [CollectionDefinition("FakeWebHostWithDb")]
+        public class FakeWebHostWithDbCollectionFixture : ICollectionFixture<FakeWebHostWithDb>
+        {
         }
     }
 }
