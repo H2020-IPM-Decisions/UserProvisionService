@@ -20,9 +20,13 @@ COPY ["H2020.IPMDecisions.UPR.API/H2020.IPMDecisions.UPR.API.csproj", "H2020.IPM
 RUN dotnet restore "H2020.IPMDecisions.UPR.API/H2020.IPMDecisions.UPR.API.csproj"
 
 COPY . .
-WORKDIR "/src/H2020.IPMDecisions.UPR.API"
+WORKDIR /src/H2020.IPMDecisions.UPR.API
 RUN dotnet build "H2020.IPMDecisions.UPR.API.csproj" -c Release -o /app/build
 
+WORKDIR /src/H2020.IPMDecisions.UPR.Tests
+RUN dotnet test "H2020.IPMDecisions.UPR.Tests.csproj"
+
+WORKDIR /src/H2020.IPMDecisions.UPR.API
 FROM build AS publish
 RUN dotnet publish "H2020.IPMDecisions.UPR.API.csproj" -c Release -o /app/publish
 

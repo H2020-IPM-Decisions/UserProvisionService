@@ -1,0 +1,47 @@
+version: '3.4'
+
+services:
+  upr.db:
+    image: postgres:12.2
+    container_name: upr-postgres
+    environment:
+      # change default username/password 
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: H2020.IPMDecisions.UPR
+    restart: always
+    expose:
+      - "5432"
+    ports:
+      - "5432:5432"
+    volumes: 
+      - postgres_upr_volume:/var/lib/postgresql/data
+      # Change username and password before loading the data
+      - ./UPR_Postgresql_Init_Script/1.createUser.sql :/docker-entrypoint-initdb.d/1.createUser.sql
+      - ./UPR_Postgresql_Init_Script/2.dbBackup.sql :/docker-entrypoint-initdb.d/2.dbBackup.sql
+  upr.api:
+    depends_on:
+      - upr.db
+    image: ipmdecisions/userprovisionservice:local
+    container_name: upr-api
+    hostname: upr.api
+    restart: always
+    ports:
+      - "5005:80"
+      - "5006:443"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:80;https://+:443
+      - ASPNETCORE_HTTPS_PORT=5006
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=password
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/H2020.IPMDecisions.pfx
+      # The following db username and password are create in file in UPR_Postgresql_Init_Script/1.createUser.sql
+      - ConnectionStrings:MyPostgreSQLConnection=Host=upr.db;Port=5432;Database=H2020.IPMDecisions.UPR;Username=upr_user;Password=xxxxxx;
+      - JwtSettings:SecretKey=BFCVbbtvC1QoutaBujROE3cD_sRE3n16ohmM4sUQC0Q
+      - JwtSettings:IssuerServerUrl=http://localhost:5000
+      - JwtSettings:ValidAudiencesUrls=https://testclient.com
+      - AllowedHosts=*
+    volumes:
+      - ~/.aspnet/https:/https:ro
+volumes:
+   postgres_upr_volume:

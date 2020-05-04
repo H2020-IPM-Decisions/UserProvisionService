@@ -5,8 +5,10 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Json;
 using FluentAssertions;
-using Microsoft.AspNetCore.TestHost;
 using Xunit;
+using Microsoft.AspNetCore.JsonPatch;
+using H2020.IPMDecisions.UPR.Core.Dtos;
+using Newtonsoft.Json;
 
 namespace H2020.IPMDecisions.UPR.Tests.IntegrationTests.Controllers
 {
@@ -145,7 +147,7 @@ namespace H2020.IPMDecisions.UPR.Tests.IntegrationTests.Controllers
         }
 
         [Fact]
-        public async void Put_DifferentUserIdUrlAndToken_Unauthorized()
+        public async void Patch_DifferentUserIdUrlAndToken_Unauthorized()
         {
             // Arrange
             var tokenUserId = Guid.NewGuid();
@@ -165,10 +167,10 @@ namespace H2020.IPMDecisions.UPR.Tests.IntegrationTests.Controllers
                 .Accept
                 .Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-            var jsonObject = new JsonObject();
-            jsonObject.Add("firstName", "SomeName");
+            var patchDoc = new JsonPatchDocument<UserProfileForUpdateDto>();
+            var serializedPatchDoc = JsonConvert.SerializeObject(patchDoc);
             var content = new StringContent(
-                jsonObject.ToString(), 
+                serializedPatchDoc, 
                 Encoding.UTF8, 
                 "application/json-patch+json");
 
@@ -176,11 +178,11 @@ namespace H2020.IPMDecisions.UPR.Tests.IntegrationTests.Controllers
             var response = await fakeWebHost.httpClient.PatchAsync(string.Format("api/users/{0}/profiles", resourceUserId), content);
 
             // Assert
-            response.StatusCode.Should().Be(HttpStatusCode.UnsupportedMediaType);
+            response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
         }
 
         [Fact]
-        public async void Put_WrongContentTypeHeader_UnsupportedMediaType()
+        public async void Patch_WrongContentTypeHeader_UnsupportedMediaType()
         {
             // Arrange
             var tokenUserId = Guid.NewGuid();

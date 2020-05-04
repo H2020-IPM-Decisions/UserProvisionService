@@ -1,6 +1,7 @@
-using System;
+using System.Net.Http;
 using System.Threading.Tasks;
 using DoomedDatabases.Postgres;
+using H2020.IPMDecisions.UPR.API;
 using H2020.IPMDecisions.UPR.Data.Persistence;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
@@ -23,6 +24,7 @@ namespace H2020.IPMDecisions.UPR.Tests
               .Build();
 
             // Remember to create integration_test_user in PostgreSQL. User need to be able to create DB
+            // Get into docker container: docker exec -it {ContainerID} psql -U {adminUser} postgres
             //  e.g: CREATE USER yourUsername WITH PASSWORD 'yourPassword' CREATEDB;
             var connectionString = configuration["ConnectionStrings:MyPostgreSQLConnection"];
 
@@ -37,7 +39,7 @@ namespace H2020.IPMDecisions.UPR.Tests
             Host = await new HostBuilder()
               .ConfigureWebHost(webBuilder =>
               {
-                  webBuilder.UseStartup<H2020.IPMDecisions.UPR.API.Startup>();
+                  webBuilder.UseStartup<Startup>();
                   webBuilder
                         .UseTestServer()
                         .UseConfiguration(configuration);
@@ -57,7 +59,6 @@ namespace H2020.IPMDecisions.UPR.Tests
         {
             if (tempDatabase != null)
                 tempDatabase.Drop();
-
             await Host.StopAsync();
             Host.Dispose();
         }
