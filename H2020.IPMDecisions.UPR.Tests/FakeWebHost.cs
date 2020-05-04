@@ -1,5 +1,6 @@
 using System.Net.Http;
 using System.Threading.Tasks;
+using H2020.IPMDecisions.UPR.API;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Configuration;
@@ -21,10 +22,11 @@ namespace H2020.IPMDecisions.UPR.Tests
             Host = await new HostBuilder()
               .ConfigureWebHost(webBuilder =>
               {
-                  webBuilder.UseStartup<H2020.IPMDecisions.UPR.API.Startup>();
                   webBuilder
-                        .UseTestServer()
-                        .UseConfiguration(configuration);
+                   .UseEnvironment(Microsoft.Extensions.Hosting.Environments.Staging)
+                   .UseStartup<Startup>()
+                   .UseTestServer()
+                   .UseConfiguration(configuration);
               })
               .StartAsync();
 

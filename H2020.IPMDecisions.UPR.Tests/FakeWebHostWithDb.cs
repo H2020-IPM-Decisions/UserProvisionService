@@ -39,10 +39,11 @@ namespace H2020.IPMDecisions.UPR.Tests
             Host = await new HostBuilder()
               .ConfigureWebHost(webBuilder =>
               {
-                  webBuilder.UseStartup<Startup>();
                   webBuilder
-                        .UseTestServer()
-                        .UseConfiguration(configuration);
+                    .UseEnvironment(Microsoft.Extensions.Hosting.Environments.Staging)
+                    .UseStartup<Startup>()
+                    .UseTestServer()
+                    .UseConfiguration(configuration);
               })
               .StartAsync();
 
