@@ -126,7 +126,7 @@ The following commands assumes that you are in the root directory of the applica
 * The container created will be called `UPR` and will be running in the port `5006`
 * The command bellow assumes that the URL port `H2020.IPMDecisions.UPR.API\Properties\launchSettings.json` is 5006
 ```Console
-docker build . --rm --pull -f ".\Docker\Dockerfile" -t "ipmdecisions/userprovisionservice:latest" --build-arg URL_PORT=5006 --build-arg BUILDER_VERSION=latest 
+docker build . --rm --pull -f ".\Docker\Dockerfile" -t "ipmdecisions/userprovisionservice:latest" --build-arg BUILDER_VERSION=latest 
 
 docker run  -d -p 443:443/tcp -p 5006:5006/tcp --name UPR ipmdecisions/userprovisionservice:latest 
 ```

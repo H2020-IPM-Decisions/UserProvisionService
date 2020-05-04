@@ -351,5 +351,5 @@ MigrationBackup/
 
 # Custom ignores
 H2020.IPMDecisions.UPR.API/appsettings.json
-Docker/docker-compose.debug.yml
+Docker/docker-compose.*.yml
 .vscode/**

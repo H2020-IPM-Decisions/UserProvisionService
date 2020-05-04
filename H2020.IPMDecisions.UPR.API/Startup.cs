@@ -21,14 +21,23 @@ namespace H2020.IPMDecisions.UPR.API
     public class Startup
     {
         public IConfiguration Configuration { get; }
+        private IWebHostEnvironment CurrentEnvironment { get; set; }
 
-        public Startup(IConfiguration configuration)
+        public Startup(IConfiguration configuration, IWebHostEnvironment environment)
         {
             Configuration = configuration;
+            CurrentEnvironment = environment;
         }
         
         public void ConfigureServices(IServiceCollection services)
         {
+            if (!CurrentEnvironment.IsDevelopment())
+            {
+                services.ConfigureHttps(Configuration);
+            }
+
+            services.ConfigureKestrelWebServer(Configuration);
+
             services.ConfigureCors(Configuration);
             services.ConfigureContentNegotiation();
             services.ConfigureJwtAuthentication(Configuration);
@@ -59,13 +68,18 @@ namespace H2020.IPMDecisions.UPR.API
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            if (env.IsDevelopment())
+            if (CurrentEnvironment.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
             else
             {
-                // app.UseHsts();
+                if (CurrentEnvironment.IsProduction())
+                {
+                    app.UseForwardedHeaders();
+                    app.UseHsts();
+                    app.UseHttpsRedirection();
+                }
                 app.UseExceptionHandler(appBuilder =>
                 {
                     appBuilder.Run(async context =>

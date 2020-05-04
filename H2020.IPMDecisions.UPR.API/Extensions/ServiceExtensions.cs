@@ -5,8 +5,12 @@ using System.Text;
 using H2020.IPMDecisions.UPR.API.Filters;
 using H2020.IPMDecisions.UPR.Data.Persistence;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Formatters;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -136,6 +140,35 @@ namespace H2020.IPMDecisions.APG.API.Extensions
             });
 
             services.AddSwaggerGenNewtonsoftSupport();
+        }
+
+        public static void ConfigureKestrelWebServer(this IServiceCollection services, IConfiguration config)
+        {
+            services.Configure<KestrelServerOptions>(
+                config.GetSection("Kestrel")
+            );
+        }
+
+        public static void ConfigureHttps(this IServiceCollection services, IConfiguration config)
+        {
+            services.Configure<ForwardedHeadersOptions>(options =>
+            {
+                options.ForwardedHeaders =
+                    ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+            });
+
+            services.AddHsts(options =>
+            {
+                options.Preload = true;
+                options.IncludeSubDomains = true;
+                options.MaxAge = TimeSpan.FromDays(60);
+            });
+
+            services.AddHttpsRedirection(options =>
+            {
+                options.RedirectStatusCode = StatusCodes.Status308PermanentRedirect;
+                options.HttpsPort = int.Parse(config["ASPNETCORE_HTTPS_PORT"]);
+            });
         }
 
         public static IEnumerable<string> Audiences(string audiences)
