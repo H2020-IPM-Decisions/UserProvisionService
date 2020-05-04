@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "H2020.IPMDecisions.UPR.Core
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "H2020.IPMDecisions.UPR.Data", "H2020.IPMDecisions.UPR.Data\H2020.IPMDecisions.UPR.Data.csproj", "{03D93D14-A10A-4C96-96F6-8F39BA0FB486}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "H2020.IPMDecisions.UPR.Tests", "H2020.IPMDecisions.UPR.Tests\H2020.IPMDecisions.UPR.Tests.csproj", "{D57FE3E2-2417-41B5-9B63-EC88A5104D08}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -72,5 +74,17 @@ Global
 		{03D93D14-A10A-4C96-96F6-8F39BA0FB486}.Release|x64.Build.0 = Release|Any CPU
 		{03D93D14-A10A-4C96-96F6-8F39BA0FB486}.Release|x86.ActiveCfg = Release|Any CPU
 		{03D93D14-A10A-4C96-96F6-8F39BA0FB486}.Release|x86.Build.0 = Release|Any CPU
+		{D57FE3E2-2417-41B5-9B63-EC88A5104D08}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D57FE3E2-2417-41B5-9B63-EC88A5104D08}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D57FE3E2-2417-41B5-9B63-EC88A5104D08}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{D57FE3E2-2417-41B5-9B63-EC88A5104D08}.Debug|x64.Build.0 = Debug|Any CPU
+		{D57FE3E2-2417-41B5-9B63-EC88A5104D08}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{D57FE3E2-2417-41B5-9B63-EC88A5104D08}.Debug|x86.Build.0 = Debug|Any CPU
+		{D57FE3E2-2417-41B5-9B63-EC88A5104D08}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D57FE3E2-2417-41B5-9B63-EC88A5104D08}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D57FE3E2-2417-41B5-9B63-EC88A5104D08}.Release|x64.ActiveCfg = Release|Any CPU
+		{D57FE3E2-2417-41B5-9B63-EC88A5104D08}.Release|x64.Build.0 = Release|Any CPU
+		{D57FE3E2-2417-41B5-9B63-EC88A5104D08}.Release|x86.ActiveCfg = Release|Any CPU
+		{D57FE3E2-2417-41B5-9B63-EC88A5104D08}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
