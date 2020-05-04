@@ -353,4 +353,4 @@ MigrationBackup/
 H2020.IPMDecisions.UPR.API/appsettings.json
 Docker/docker-compose.*.yml
 .vscode/**
-# H2020.IPMDecisions.UPR.Tests/appsettings.Test.json
+H2020.IPMDecisions.UPR.Tests/appsettings.Test.json
