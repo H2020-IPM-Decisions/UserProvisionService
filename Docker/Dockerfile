@@ -24,7 +24,7 @@ WORKDIR /src/H2020.IPMDecisions.UPR.API
 RUN dotnet build "H2020.IPMDecisions.UPR.API.csproj" -c Release -o /app/build
 
 WORKDIR /src/H2020.IPMDecisions.UPR.Tests
-RUN dotnet test "H2020.IPMDecisions.UPR.Tests.csproj"
+RUN dotnet test "H2020.IPMDecisions.UPR.Tests.csproj" --filter Category!=Docker
 
 WORKDIR /src/H2020.IPMDecisions.UPR.API
 FROM build AS publish
