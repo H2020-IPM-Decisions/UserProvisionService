@@ -1,8 +1,6 @@
-using System;
 using System.Net;
 using System.Net.Http;
 using FluentAssertions;
-using Microsoft.AspNetCore.TestHost;
 using Xunit;
 
 namespace H2020.IPMDecisions.UPR.Tests.IntegrationTests.Controllers
@@ -30,7 +28,7 @@ namespace H2020.IPMDecisions.UPR.Tests.IntegrationTests.Controllers
         }
 
         [Fact]
-        public async void Post_NoToken_ShouldReturnOK()
+        public async void Post_NoToken_ShouldReturnNotAllowed()
         {
             // Arrange
             var stringContent = new StringContent("");
