@@ -8,11 +8,11 @@
     <Authors>ADAS Modelling and Informatics Team</Authors>
     <Company>RSK ADAS Ltd</Company>
     <Product>H2020 IPM Decisions User Provision Service</Product>
-    <PackageId>H2020.IPMDecisions.APG</PackageId>
+    <PackageId>H2020.IPMDecisions.UPR</PackageId>
     <NeutralLanguage>en</NeutralLanguage>
     <Description>Service in charge to store and manage users information for the H2020 IPM Decisions platform.</Description>
     <Copyright>Under GNU GENERAL PUBLIC LICENSE</Copyright>
-    <PackageTags>H2020, IPM Decisions, USer Provision Service</PackageTags>
+    <PackageTags>H2020, IPM Decisions, User Provision Service</PackageTags>
     <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
   </PropertyGroup>
   <ItemGroup>
