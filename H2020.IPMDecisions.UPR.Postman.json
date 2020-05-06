@@ -1,0 +1,529 @@
+{
+	"info": {
+		"_postman_id": "dffcabd6-50ee-4c17-bd37-63ed605ea387",
+		"name": "H2020.IPMDecisions.UPR.Postman",
+		"description": "Postman collection with endpoints for the User Provision Service for the H2020 IPM Decisions project",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "UserProfile",
+			"item": [
+				{
+					"name": "Create User Profile",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"firstName\" : \"Antonio\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/{{uprUrl}}/users/380f0a69-a009-4c34-8496-9a43c2e069be/profiles",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"{{uprUrl}}",
+								"users",
+								"380f0a69-a009-4c34-8496-9a43c2e069be",
+								"profiles"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create User Profile - Error - Bad UserId on URL",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"firstName\" : \"Antonio\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/{{uprUrl}}/users/380f0a69-a009-4c34-8496-9a43c2e069/profiles",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"{{uprUrl}}",
+								"users",
+								"380f0a69-a009-4c34-8496-9a43c2e069",
+								"profiles"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create User Profile - Error - Different UserId on URL",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"firstName\" : \"Antonio\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/{{uprUrl}}/users/380f0a69-a009-4c34-8496-9a43c2e069ba/profiles",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"{{uprUrl}}",
+								"users",
+								"380f0a69-a009-4c34-8496-9a43c2e069ba",
+								"profiles"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get User Profile",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/{{uprUrl}}/users/380f0a69-a009-4c34-8496-9a43c2e069be/profiles",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"{{uprUrl}}",
+								"users",
+								"380f0a69-a009-4c34-8496-9a43c2e069be",
+								"profiles"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete User Profile",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/{{uprUrl}}/users/380f0a69-a009-4c34-8496-9a43c2e069be/profiles",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"{{uprUrl}}",
+								"users",
+								"380f0a69-a009-4c34-8496-9a43c2e069be",
+								"profiles"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update User Profile",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json-patch+json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "[\n    {\n      \"op\": \"replace\",\n      \"path\": \"/FirstName\",\n      \"value\": \"New name\"\n    },\n    {\n      \"op\": \"replace\",\n      \"path\": \"/LastName\",\n      \"value\": \"New LastName\"\n    }\n]"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/{{uprUrl}}/users/380f0a69-a009-4c34-8496-9a43c2e069be/profiles",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"{{uprUrl}}",
+								"users",
+								"380f0a69-a009-4c34-8496-9a43c2e069be",
+								"profiles"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update User Profile - Error - Wrong Field Name",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json-patch+json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "[\n    {\n      \"op\": \"replace\",\n      \"path\": \"/FirstNamexx\",\n      \"value\": \"New name\"\n    },\n    {\n      \"op\": \"replace\",\n      \"path\": \"/LastName\",\n      \"value\": \"New LastName\"\n    }\n]"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/{{uprUrl}}/users/380f0a69-a009-4c34-8496-9a43c2e069be/profiles",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"{{uprUrl}}",
+								"users",
+								"380f0a69-a009-4c34-8496-9a43c2e069be",
+								"profiles"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update User Profile - Error - Remove First Name",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json-patch+json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "[\n    {\n      \"op\": \"remove\",\n      \"path\": \"/FirstName\",\n      \"value\": \"New name\"\n    },\n    {\n      \"op\": \"replace\",\n      \"path\": \"/LastName\",\n      \"value\": \"New LastName\"\n    }\n]"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/{{uprUrl}}/users/380f0a69-a009-4c34-8496-9a43c2e069be/profiles",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"{{uprUrl}}",
+								"users",
+								"380f0a69-a009-4c34-8496-9a43c2e069be",
+								"profiles"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update User Profile - Creates New Profile",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json-patch+json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "[\n    {\n      \"op\": \"replace\",\n      \"path\": \"/FirstName\",\n      \"value\": \"New name\"\n    },\n    {\n      \"op\": \"replace\",\n      \"path\": \"/LastName\",\n      \"value\": \"New LastName\"\n    }\n]"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/{{uprUrl}}/users/380f0a69-a009-4c34-8496-9a43c2e069ca/profiles",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"{{uprUrl}}",
+								"users",
+								"380f0a69-a009-4c34-8496-9a43c2e069ca",
+								"profiles"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "f9ca962c-0b7d-4ff7-9dba-e8c1e420ef67",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "992b858d-53b3-4791-83c6-a3f97dcf2dd5",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "APG - Authenticate Default Role Admin With Default Client",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "Accept",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "grant_type",
+						"type": "text",
+						"value": "password"
+					},
+					{
+						"key": "client_id",
+						"type": "text",
+						"value": "08d7aa5b-e23c-496e-8946-6d8af6b98dd6"
+					},
+					{
+						"key": "client_secret",
+						"type": "text",
+						"value": "bpjiu9ticX8TB0owtMESxM27iQdp9iX_b4RpZ8VAujA"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"email\" : \"ADMIN@TEST.COM\",\n\t\"password\" : \"Password1!\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{apgUrl}}/idp/api/authorization/authenticate",
+					"host": [
+						"{{apgUrl}}"
+					],
+					"path": [
+						"idp",
+						"api",
+						"authorization",
+						"authenticate"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "APG  - Authenticate With Refresh Token",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "Accept",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "grant_type",
+						"type": "text",
+						"value": "refresh_token"
+					},
+					{
+						"key": "client_id",
+						"type": "text",
+						"value": "08d7aa5b-e23c-496e-8946-6d8af6b98dd6"
+					},
+					{
+						"key": "client_secret",
+						"type": "text",
+						"value": "bpjiu9ticX8TB0owtMESxM27iQdp9iX_b4RpZ8VAujo"
+					},
+					{
+						"key": "refresh_token",
+						"type": "text",
+						"value": "o1kKWSTcnLodyXJkzAaFPACEuVT6lyGUO0U3hgbYKcE="
+					}
+				],
+				"url": {
+					"raw": "{{apgUrl}}/idp/api/authorization/authenticate/token",
+					"host": [
+						"{{apgUrl}}"
+					],
+					"path": [
+						"idp",
+						"api",
+						"authorization",
+						"authenticate",
+						"token"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "IDP - Authenticate Default Role Admin With Default Client Copy",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "Accept",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "grant_type",
+						"type": "text",
+						"value": "password"
+					},
+					{
+						"key": "client_id",
+						"type": "text",
+						"value": "08d7aa5b-e23c-496e-8946-6d8af6b98dd6"
+					},
+					{
+						"key": "client_secret",
+						"type": "text",
+						"value": "bpjiu9ticX8TB0owtMESxM27iQdp9iX_b4RpZ8VAujA"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"email\" : \"ADMIN@TEST.COM\",\n\t\"password\" : \"Password1!\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{idpUrl}}/api/accounts/authenticate",
+					"host": [
+						"{{idpUrl}}"
+					],
+					"path": [
+						"api",
+						"accounts",
+						"authenticate"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIzODBmMGE2OS1hMDA5LTRjMzQtODQ5Ni05YTQzYzJlMDY5YmUiLCJqdGkiOiI5N2Q3NTQ0My01OTY3LTRkMWEtYTc0Yy02ODMyNTBhNjEzYjQiLCJpYXQiOjE1ODU5MjkzMjYsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL25hbWVpZGVudGlmaWVyIjoiMzgwZjBhNjktYTAwOS00YzM0LTg0OTYtOWE0M2MyZTA2OWJlIiwiaHR0cDovL3NjaGVtYXMueG1sc29hcC5vcmcvd3MvMjAwNS8wNS9pZGVudGl0eS9jbGFpbXMvbmFtZSI6ImFkbWluQHRlc3QuY29tIiwiaHR0cDovL3NjaGVtYXMubWljcm9zb2Z0LmNvbS93cy8yMDA4LzA2L2lkZW50aXR5L2NsYWltcy9yb2xlIjoiQWRtaW4iLCJuYmYiOjE1ODU5MjkzMjUsImV4cCI6MTU4NTkzNDEyNSwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDo1MDAwIiwiYXVkIjoiaHR0cHM6Ly90ZXN0Y2xpZW50LmNvbSJ9.dMDND5HyL5RxBmZUqGQREN5gJgZqW4Sf7Iw1xJYrdJU",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "ef9793a8-0453-40b5-91bf-c714fd7c908c",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "9be5bd14-9900-4509-877c-f78e0a244e83",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"id": "6fa28cba-daab-4870-9931-a89c2a7e5101",
+			"key": "baseUrl",
+			"value": "https://localhost:5005",
+			"type": "string"
+		},
+		{
+			"id": "7bb5da3e-db12-4031-b9dc-e024baf811d6",
+			"key": "uprUrl",
+			"value": "api",
+			"type": "string"
+		},
+		{
+			"id": "3163bc3a-65a0-4baa-abae-2f31742796cb",
+			"key": "apgUrl",
+			"value": "http://localhost:5002",
+			"type": "string"
+		}
+	],
+	"protocolProfileBehavior": {}
+}
