@@ -20,6 +20,15 @@ namespace H2020.IPMDecisions.UPR.API
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
+                    webBuilder.ConfigureAppConfiguration((hostingContext, config) =>
+                    {
+                    config
+                        .SetBasePath(hostingContext.HostingEnvironment.ContentRootPath)
+                        .AddJsonFile("appsettings.json")
+                        .AddJsonFile($"appsettings.{hostingContext.HostingEnvironment.EnvironmentName}.json")
+                        .AddEnvironmentVariables()
+                        .Build();
+                    });
                     webBuilder.UseStartup<Startup>();
                 });
     }

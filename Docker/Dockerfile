@@ -17,6 +17,7 @@ EXPOSE ${URL_EXPOSE_PORT_HTTPS}
 FROM mcr.microsoft.com/dotnet/core/sdk:3.1 AS build
 WORKDIR /src
 COPY ["H2020.IPMDecisions.UPR.API/H2020.IPMDecisions.UPR.API.csproj", "H2020.IPMDecisions.UPR.API/"]
+COPY ["H2020.IPMDecisions.UPR.API/appsettingsTemplate.json", "H2020.IPMDecisions.UPR.API/appsettings.json"]
 RUN dotnet restore "H2020.IPMDecisions.UPR.API/H2020.IPMDecisions.UPR.API.csproj"
 
 COPY . .
@@ -36,12 +37,5 @@ ARG URL_PORT_HTTPS=443
 
 WORKDIR /app
 COPY --from=publish /app/publish .
-
-ENV ASPNETCORE_URLS=http://*:${URL_PORT}
-ENV ConnectionStrings:MyPostgreSQLConnection=""
-ENV JwtSettings:SecretKey=""
-ENV JwtSettings:IssuerServerUrl=""
-ENV JwtSettings:ValidAudiencesUrls=""
-ENV AllowedHosts="*"
 
 ENTRYPOINT ["dotnet", "H2020.IPMDecisions.UPR.API.dll"]
