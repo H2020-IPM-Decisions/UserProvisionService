@@ -94,7 +94,7 @@ docker cp <containerName>:/var/lib/postgresql/data/dbBackup.sql your\local\folde
 Open file `H2020.IPMDecisions.UPR.API\appsettings.json` and change the json section `JwtSettings` with the your server information.
 1. SecretKey: This parameter holds a secret key to sign the JWT. Your resource API should have the same secret in the JWT properties.
 2. IssuerServerUrl: This parameter holds who is issuing the certificate, usually will be this server. Your resource API should have the same issuer url in the JWT properties.
-3. ValidAudiencesUrls: This parameter holds which clients URLs can use this UPR service. The different URLS should be separated by a semicolon **";"**. At least one of the client URL should be added into your resource API JWT properties.
+3. ValidAudiences: This parameter holds which clients URLs can use this UPR service. The different URLS should be separated by a semicolon **";"**. At least one of the client URL should be added into your resource API JWT properties.
 
 ### How to run the project
 
@@ -126,7 +126,7 @@ The following commands assumes that you are in the root directory of the applica
 * The container created will be called `UPR` and will be running in the port `5006`
 * The command bellow assumes that the URL port `H2020.IPMDecisions.UPR.API\Properties\launchSettings.json` is 5006
 ```Console
-docker build . --rm --pull -f ".\Docker\Dockerfile" -t "ipmdecisions/userprovisionservice:latest" --build-arg BUILDER_VERSION=latest 
+docker build . --rm --pull --no-cache  -f ".\Docker\Dockerfile" -t "ipmdecisions/userprovisionservice:latest" --build-arg BUILDER_VERSION=latest 
 
 docker run  -d -p 443:443/tcp -p 5006:5006/tcp --name UPR ipmdecisions/userprovisionservice:latest 
 ```
