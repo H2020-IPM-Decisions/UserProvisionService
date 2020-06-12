@@ -52,7 +52,7 @@ services:
       - ConnectionStrings:MyPostgreSQLConnection=Host=upr.db;Port=5432;Database=H2020.IPMDecisions.UPR;Username=upr_user;Password=xxxxxx;
       - JwtSettings:SecretKey=AddYourSecretKey
       - JwtSettings:IssuerServerUrl=AddYourServer
-      - JwtSettings:ValidAudiencesUrls=https://testclient.com
+      - JwtSettings:ValidAudiences=https://testclient.com
       - AllowedHosts=*
     networks:
       - dockerapi-dev

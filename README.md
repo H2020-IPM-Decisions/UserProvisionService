@@ -94,7 +94,7 @@ docker cp <containerName>:/var/lib/postgresql/data/dbBackup.sql your\local\folde
 Open file `H2020.IPMDecisions.UPR.API\appsettings.json` and change the json section `JwtSettings` with the your server information.
 1. SecretKey: This parameter holds a secret key to sign the JWT. Your resource API should have the same secret in the JWT properties.
 2. IssuerServerUrl: This parameter holds who is issuing the certificate, usually will be this server. Your resource API should have the same issuer url in the JWT properties.
-3. ValidAudiencesUrls: This parameter holds which clients URLs can use this UPR service. The different URLS should be separated by a semicolon **";"**. At least one of the client URL should be added into your resource API JWT properties.
+3. ValidAudiences: This parameter holds which clients URLs can use this UPR service. The different URLS should be separated by a semicolon **";"**. At least one of the client URL should be added into your resource API JWT properties.
 
 ### How to run the project
 
