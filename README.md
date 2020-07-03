@@ -58,6 +58,11 @@ docker run --name postgresdev -d -p 5432:5432 -e POSTGRES_PASSWORD=postgres post
 
 Your `ConnectionStrings\MyPostgreSQLConnection` will be `Host=127.0.0.1;Port=5432;Database=H2020.IPMDecisions.UPR;Username=postgres;Password=postgres`
 
+Use pgAdmin4 to manage your DB
+```
+docker run -p 5555:80 --name pgadmin4 --env PGADMIN_DEFAULT_EMAIL=admin@test.com --env PGADMIN_DEFAULT_PASSWORD=admin -d dpage/pgadmin4
+```
+
 ### How to connect and start the database
 
 Open file `H2020.IPMDecisions.UPR.API\appsettings.json` and change the json object `ConnectionStrings\MyPostgreSQLConnection` with your PostgreSQL instance.
