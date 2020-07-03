@@ -8,6 +8,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence
     public class ApplicationDbContext : DbContext, IApplicationDbContext
     {
         public DbSet<UserProfile> UserProfile { get; set; }
+        public DbSet<UserAddress> UserAddress { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
@@ -17,6 +18,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfiguration(new UserProfileConfiguration());
+            modelBuilder.ApplyConfiguration(new UserAddressConfiguration());
         }
     }
 }

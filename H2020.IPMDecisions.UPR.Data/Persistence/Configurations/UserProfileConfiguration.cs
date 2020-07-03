@@ -9,8 +9,21 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Configurations
     {
         public void Configure(EntityTypeBuilder<UserProfile> builder)
         {
+            builder.HasKey(u => u.Id);
+
+            builder.Property(u => u.Id)
+                .ValueGeneratedOnAdd();
+
             builder.HasIndex(u => u.UserId)
                 .IsUnique();
+
+            builder.Property(u => u.UserId)
+                .IsRequired();
+
+            builder.HasOne(u => u.UserAddress)
+                .WithMany()
+                .HasForeignKey(e => e.UserAddressId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

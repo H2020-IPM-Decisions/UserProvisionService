@@ -30,6 +30,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
 
         public void Delete(UserProfile entity)
         {
+            this.context.UserAddress.RemoveRange(entity.UserAddress);
             this.context.UserProfile.Remove(entity);
         }
 
@@ -48,6 +49,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
             return await this.context
                 .UserProfile
                 .Where(expression)
+                .Include(u => u.UserAddress)
                 .FirstOrDefaultAsync();
         }
 
@@ -55,6 +57,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
         {
             return await this.context
                 .UserProfile
+                .Include(u => u.UserAddress)
                 .SingleOrDefaultAsync(a =>
                     a.Id == id);
         }

@@ -10,14 +10,34 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
             // Entities to Dtos
             CreateMap<UserProfile, UserProfileDto>()
                 .ForMember(dest => dest.FullName,
-                opt => opt.MapFrom(src => $"{src.FirstName} {src.LastName}"))
-                .AfterMap((src, dest) => dest.FullName = dest.FullName.Trim());
+                    opt => opt.MapFrom(src => $"{src.FirstName} {src.LastName}"))
+                .ForMember(dest => dest.FullAddress,
+                    opt => opt.MapFrom(src => $"{src.UserAddress.Street} {src.UserAddress.City}, {src.UserAddress.Country}, {src.UserAddress.Postcode}"))
+                .AfterMap((src, dest) => dest.FullName = dest.FullName.Trim())
+                .AfterMap((src, dest) => dest.FullAddress = dest.FullAddress.Trim());
 
             CreateMap<UserProfile, UserProfileForUpdateDto>();
 
             // Dtos to Entities
-            CreateMap<UserProfileForCreationDto, UserProfile>();
-            CreateMap<UserProfileForUpdateDto, UserProfile>();
+            CreateMap<UserProfileForCreationDto, UserProfile>()
+                .ForPath(dest => dest.UserAddress.Street,
+                    opt => opt.MapFrom(src => src.Street))
+                .ForPath(dest => dest.UserAddress.City,
+                    opt => opt.MapFrom(src => src.City))
+                .ForPath(dest => dest.UserAddress.Country,
+                    opt => opt.MapFrom(src => src.Country))
+                .ForPath(dest => dest.UserAddress.Postcode,
+                    opt => opt.MapFrom(src => src.Postcode));
+
+            CreateMap<UserProfileForUpdateDto, UserProfile>()
+                .ForPath(dest => dest.UserAddress.Street,
+                    opt => opt.MapFrom(src => src.Street))
+                .ForPath(dest => dest.UserAddress.City,
+                    opt => opt.MapFrom(src => src.City))
+                .ForPath(dest => dest.UserAddress.Country,
+                    opt => opt.MapFrom(src => src.Country))
+                .ForPath(dest => dest.UserAddress.Postcode,
+                    opt => opt.MapFrom(src => src.Postcode));
 
             // Dtos to Dtos
             CreateMap<UserProfileForUpdateDto, UserProfileForCreationDto>();
