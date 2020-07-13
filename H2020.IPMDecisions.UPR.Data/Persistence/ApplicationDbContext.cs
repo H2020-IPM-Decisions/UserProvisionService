@@ -9,7 +9,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence
     {
         public DbSet<UserProfile> UserProfile { get; set; }
         public DbSet<UserAddress> UserAddress { get; set; }
-        // public DbSet<Farm> Farm { get; set; }
+        public DbSet<Farm> Farm { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
@@ -20,10 +20,10 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence
         {
             modelBuilder.HasPostgresExtension("postgis");
 
-            // modelBuilder.ApplyConfiguration(new UserFarmConfiguration());
+            modelBuilder.ApplyConfiguration(new UserFarmConfiguration());
             modelBuilder.ApplyConfiguration(new UserProfileConfiguration());
             modelBuilder.ApplyConfiguration(new UserAddressConfiguration());
-            // modelBuilder.ApplyConfiguration(new FarmConfiguration());
+            modelBuilder.ApplyConfiguration(new FarmConfiguration());
         }
     }
 }
