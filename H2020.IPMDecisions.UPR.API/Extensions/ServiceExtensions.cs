@@ -96,8 +96,11 @@ namespace H2020.IPMDecisions.APG.API.Extensions
             services
                 .AddDbContext<ApplicationDbContext>(options =>
                 {
-                    options.UseNpgsql(connectionString,
-                        b => b.MigrationsAssembly("H2020.IPMDecisions.UPR.Data"));
+                    options.UseNpgsql(
+                        connectionString,                        
+                            b => b.MigrationsAssembly("H2020.IPMDecisions.UPR.Data")
+                                    .UseNetTopologySuite()                       
+                        );
                 });
         }
 

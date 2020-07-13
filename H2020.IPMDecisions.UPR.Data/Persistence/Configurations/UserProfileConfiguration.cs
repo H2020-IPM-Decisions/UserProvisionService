@@ -20,9 +20,13 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Configurations
             builder.Property(u => u.UserId)
                 .IsRequired();
 
+            builder.Property(u => u.FirstName)
+                .IsRequired();
+
             builder.HasOne(u => u.UserAddress)
                 .WithMany()
                 .HasForeignKey(e => e.UserAddressId)
+                .HasConstraintName("FK_User_UserAddress")
                 .OnDelete(DeleteBehavior.Cascade);
         }
     }
