@@ -98,8 +98,8 @@ namespace H2020.IPMDecisions.APG.API.Extensions
                 {
                     options.UseNpgsql(
                         connectionString,                        
-                            b => b.MigrationsAssembly("H2020.IPMDecisions.UPR.Data")
-                                    .UseNetTopologySuite()                       
+                            b => b.UseNetTopologySuite()                            
+                            .MigrationsAssembly("H2020.IPMDecisions.UPR.Data")
                         );
                 });
         }
