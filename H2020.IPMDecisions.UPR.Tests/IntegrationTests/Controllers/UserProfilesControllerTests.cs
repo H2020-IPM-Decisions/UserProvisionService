@@ -1,19 +1,20 @@
+using FluentAssertions;
+using H2020.IPMDecisions.UPR.Core.Dtos;
+using Microsoft.AspNetCore.JsonPatch;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.TestHost;
+using Newtonsoft.Json;
 using System;
+using System.Json;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
-using System.Json;
-using FluentAssertions;
-using Microsoft.AspNetCore.TestHost;
 using Xunit;
-using Newtonsoft.Json;
-using H2020.IPMDecisions.UPR.Core.Dtos;
-using Microsoft.AspNetCore.JsonPatch;
-using Microsoft.AspNetCore.Mvc;
 
 namespace H2020.IPMDecisions.UPR.Tests.IntegrationTests.Controllers
 {
+    [Collection("WithDatabase")]
     [Trait("Category", "Docker")]
     public class UserProfilesControllerTests : IClassFixture<FakeWebHostWithDb>
     {
@@ -31,7 +32,7 @@ namespace H2020.IPMDecisions.UPR.Tests.IntegrationTests.Controllers
         [Fact]
         public async void Post_AdminCreatesOtherProfile_Created()
         {
-            // Arrange            
+            // Arrange
             var resourceUserId = Guid.NewGuid();
 
             var httpClient = fakeWebHost.Host.GetTestServer().CreateClient();

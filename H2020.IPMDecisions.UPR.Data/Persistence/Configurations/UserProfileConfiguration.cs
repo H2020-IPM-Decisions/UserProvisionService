@@ -20,6 +20,9 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Configurations
             builder.Property(u => u.UserId)
                 .IsRequired();
 
+            builder.Property(u => u.UserId)
+                .ValueGeneratedNever();
+
             builder.Property(u => u.FirstName)
                 .IsRequired();
 

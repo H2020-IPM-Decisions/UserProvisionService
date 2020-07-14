@@ -1,4 +1,3 @@
-using System.Threading.Tasks;
 using DoomedDatabases.Postgres;
 using H2020.IPMDecisions.UPR.API;
 using H2020.IPMDecisions.UPR.Data.Persistence;
@@ -7,6 +6,7 @@ using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace H2020.IPMDecisions.UPR.Tests
