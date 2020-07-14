@@ -1,4 +1,4 @@
-using H2020.IPMDecisions.IDP.UPR.Core;
+using H2020.IPMDecisions.UPR.Core;
 using H2020.IPMDecisions.UPR.Core.Entities;
 using H2020.IPMDecisions.UPR.Data.Persistence.Configurations;
 using Microsoft.EntityFrameworkCore;

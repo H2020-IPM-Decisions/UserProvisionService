@@ -1,7 +1,7 @@
 // using System;
 // using System.Collections.Generic;
 // using AutoMapper;
-// using H2020.IPMDecisions.IDP.UPR.Core;
+// using H2020.IPMDecisions.UPR.Core;
 // using H2020.IPMDecisions.UPR.BLL;
 // using H2020.IPMDecisions.UPR.Core.Dtos;
 // using H2020.IPMDecisions.UPR.Core.Entities;

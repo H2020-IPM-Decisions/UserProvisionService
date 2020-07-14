@@ -10,7 +10,7 @@ using H2020.IPMDecisions.UPR.API.Filters;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 
-namespace H2020.IPMDecisions.IDP.API.Controllers
+namespace H2020.IPMDecisions.UPR.API.Controllers
 {
     [ApiController]
     [Route("api/users/{userId:guid}/profiles")]
