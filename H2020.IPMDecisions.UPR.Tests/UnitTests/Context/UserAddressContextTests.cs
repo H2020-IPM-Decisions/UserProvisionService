@@ -9,7 +9,7 @@ namespace H2020.IPMDecisions.UPR.Tests.UnitTests.Context
 {
     [Collection("WithDatabase")]
     [Trait("Category", "Docker")]
-    public class UserAddressContextTest
+    public class UserAddressContextTests
     {
 
         [Fact]
@@ -36,7 +36,7 @@ namespace H2020.IPMDecisions.UPR.Tests.UnitTests.Context
                 // Act
 
                 context.UserProfile.Add(userProfile);
-                var result = context.SaveChanges();
+                var dbEntries = context.SaveChanges();
 
                 // Assert
                 var userProfileObject = await context
@@ -45,7 +45,7 @@ namespace H2020.IPMDecisions.UPR.Tests.UnitTests.Context
                    .SingleOrDefaultAsync(u =>
                    u.Id == userProfile.Id);
 
-                Assert.Equal(2, result);
+                Assert.Equal(2, dbEntries);
                 userProfileObject.UserAddress.Should().NotBeNull();
             }
         }
@@ -83,7 +83,7 @@ namespace H2020.IPMDecisions.UPR.Tests.UnitTests.Context
 
 
                 userProfileFromDb.UserAddress = userAddress;
-                context.SaveChanges();
+                var dbEntries = context.SaveChanges();
 
                 // Assert
                 var userProfileObject = await context
@@ -91,7 +91,7 @@ namespace H2020.IPMDecisions.UPR.Tests.UnitTests.Context
                    .SingleOrDefaultAsync(u =>
                    u.Id == userProfile.Id);
 
-
+                Assert.Equal(2, dbEntries);
                 userProfileObject.UserAddress.Should().NotBeNull();
                 userProfileObject.UserAddress.Street.Should().Be(street);
             }

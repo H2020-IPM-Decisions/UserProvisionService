@@ -8,7 +8,7 @@ namespace H2020.IPMDecisions.UPR.Tests.UnitTests.Context
 {
     [Collection("WithDatabase")]
     [Trait("Category", "Docker")]
-    public class UserProfileContextTest
+    public class UserProfileContextTests
     {
 
         [Fact]
@@ -29,11 +29,11 @@ namespace H2020.IPMDecisions.UPR.Tests.UnitTests.Context
                 // Act
 
                 context.UserProfile.Add(userProfile);
-                var result = context.SaveChanges();
+                var dbEntries = context.SaveChanges();
 
                 // Assert
 
-                Assert.Equal(1, result);
+                Assert.Equal(1, dbEntries);
             }
         }
 
