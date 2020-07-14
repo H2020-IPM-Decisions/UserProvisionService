@@ -19,6 +19,12 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Configurations
             builder.Property(f => f.Location)
                 .HasColumnType("geometry (point)")
                 .IsRequired();
+
+            builder.HasMany<Field>(f => f.Fields)
+                .WithOne(fi => fi.Farm)
+                .HasForeignKey(fi => fi.FarmId)
+                .HasConstraintName("FK_Field_Farm")
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }
