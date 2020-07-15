@@ -40,7 +40,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         [Produces(MediaTypeNames.Application.Json)]
         [HttpGet("", Name = "GetFarms")]
         [HttpHead]
-        // GET: api/famrs
+        // GET: api/farms
         public async Task<IActionResult> GetFarms(
             [FromQuery] FarmResourceParameter resourceParameter,
             [FromHeader(Name = "Accept")] string mediaType)
