@@ -1,5 +1,5 @@
 using System.ComponentModel.DataAnnotations;
-using NetTopologySuite.Geometries;
+using H2020.IPMDecisions.UPR.Core.Models;
 
 namespace H2020.IPMDecisions.UPR.Core.Dtos
 {
@@ -9,6 +9,6 @@ namespace H2020.IPMDecisions.UPR.Core.Dtos
         public virtual string Name { get; set; }
         public virtual string Inf1 { get; set; }
         public virtual string Inf2 { get; set; }
-        public virtual Point Location { get; set; }
+        public virtual CustomPointLocation Location { get; set; }
     }
 }
