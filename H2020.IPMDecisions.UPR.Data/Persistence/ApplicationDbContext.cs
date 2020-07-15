@@ -11,6 +11,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence
         public DbSet<UserAddress> UserAddress { get; set; }
         public DbSet<Farm> Farm { get; set; }
         public DbSet<Field> Field { get; set; }
+        public DbSet<FieldObservation> FieldObservation { get; set; }        
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
@@ -26,6 +27,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence
             modelBuilder.ApplyConfiguration(new UserAddressConfiguration());
             modelBuilder.ApplyConfiguration(new FarmConfiguration());
             modelBuilder.ApplyConfiguration(new FieldConfiguration());
+            modelBuilder.ApplyConfiguration(new FieldObservationConfiguration());
         }
     }
 }

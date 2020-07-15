@@ -5,7 +5,6 @@ namespace H2020.IPMDecisions.UPR.Core.Entities
 {
     public class UserFarm
     {
-        
         public Guid UserId { get; set; }
         public UserProfile UserProfile { get; set; }
         

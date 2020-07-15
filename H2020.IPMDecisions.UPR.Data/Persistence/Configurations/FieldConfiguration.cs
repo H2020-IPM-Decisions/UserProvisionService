@@ -15,6 +15,12 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Configurations
 
             builder.Property(f => f.Name)
                 .IsRequired();
+
+            builder.HasMany<FieldObservation>(f => f.FieldObservations)
+                .WithOne(fo => fo.Field)
+                .HasForeignKey(f => f.FieldId)
+                .HasConstraintName("FK_Observation_Field")
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }
