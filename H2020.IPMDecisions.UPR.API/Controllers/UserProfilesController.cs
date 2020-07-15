@@ -47,8 +47,8 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
                  response.Result);
         }
 
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [Produces(MediaTypeNames.Application.Json, "application/vnd.h2020ipmdecisions.hateoas+json")]
         [HttpGet("", Name = "GetUserProfile")]
@@ -69,8 +69,8 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
             return Ok(response.Result);
         }
 
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [HttpDelete(Name = "DeleteUserProfile")]
         //DELETE :  api/users/1/profiles
         public async Task<IActionResult> Delete([FromRoute] Guid userId)
