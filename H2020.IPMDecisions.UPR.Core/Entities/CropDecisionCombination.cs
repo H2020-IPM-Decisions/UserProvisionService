@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace H2020.IPMDecisions.UPR.Core.Entities
@@ -18,5 +19,7 @@ namespace H2020.IPMDecisions.UPR.Core.Entities
         public Pest Pest { get; set; }
 
         public string Inf1 { get; set; }
+
+        public IList<FieldCropDecisionCombination> FieldCropDecisionCombinations { get; set; }
     }
 }

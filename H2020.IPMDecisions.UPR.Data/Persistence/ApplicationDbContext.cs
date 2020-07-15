@@ -28,6 +28,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence
             modelBuilder.ApplyConfiguration(new DssConfiguration());
             modelBuilder.ApplyConfiguration(new FarmConfiguration());
             modelBuilder.ApplyConfiguration(new FieldConfiguration());
+            modelBuilder.ApplyConfiguration(new FieldCropDecisionCombinationConfiguration()); 
             modelBuilder.ApplyConfiguration(new FieldObservationConfiguration());
             modelBuilder.ApplyConfiguration(new PestConfiguration());
             modelBuilder.ApplyConfiguration(new UserFarmConfiguration());
