@@ -1,9 +1,13 @@
 using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace H2020.IPMDecisions.UPR.Core.Entities
 {
     public class CropDecisionCombination
     {
+        [Key]
+        public Guid Id { get; set; }
+        
         public Guid CropId { get; set; }
         public Crop Crop { get; set; }
 

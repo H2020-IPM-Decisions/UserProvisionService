@@ -8,7 +8,12 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Configurations
     {
         public void Configure(EntityTypeBuilder<CropDecisionCombination> builder)
         {
-            builder.HasKey(c =>
+            builder.HasKey(c => c.Id);
+
+            builder.Property(c => c.Id)
+                .ValueGeneratedOnAdd();
+
+            builder.HasIndex(c =>
                 new
                 {
                     c.CropId,
