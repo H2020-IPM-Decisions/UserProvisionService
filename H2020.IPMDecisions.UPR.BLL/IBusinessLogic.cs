@@ -9,8 +9,8 @@ namespace H2020.IPMDecisions.UPR.BLL
 {
     public interface IBusinessLogic
     {
-        #region Farm
-        Task<GenericResponse<FarmDto>> AddNewFarm(FarmForCreationDto userProfileForCreation, string userId, string mediaType);
+        #region User Farms
+        Task<GenericResponse<FarmDto>> LinkNewFarmToUserProfile(FarmForCreationDto farmForCreation, Guid userId, string mediaType);
         #endregion
 
         #region Field

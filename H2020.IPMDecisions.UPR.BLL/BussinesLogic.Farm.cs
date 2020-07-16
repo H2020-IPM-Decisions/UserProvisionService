@@ -6,15 +6,39 @@ using H2020.IPMDecisions.UPR.Core.Dtos;
 using H2020.IPMDecisions.UPR.Core.Entities;
 using H2020.IPMDecisions.UPR.Core.Models;
 using H2020.IPMDecisions.UPR.Core.Helpers;
+using NetTopologySuite.Geometries;
 
 namespace H2020.IPMDecisions.UPR.BLL
 {
     public partial class BusinessLogic : IBusinessLogic
     {
-        public Task<GenericResponse<FarmDto>> AddNewFarm(FarmForCreationDto userProfileForCreation, string userId, string mediaType)
+        public async Task<GenericResponse<FarmDto>> LinkNewFarmToUserProfile(FarmForCreationDto farmForCreation, Guid userId, string mediaType)
         {
-            
-            throw new NotImplementedException();
+            try
+            {
+                if (!MediaTypeHeaderValue.TryParse(mediaType,
+                       out MediaTypeHeaderValue parsedMediaType))
+                    return GenericResponseBuilder.NoSuccess<FarmDto>(null, "Wrong media type.");
+
+                var userProfile = await GetUserProfile(userId);
+                if (userProfile.Result == null)
+                {
+                    // ToDo Create empty profile
+                }
+                var farmAsEntity = this.mapper.Map<Farm>(farmForCreation);
+
+                this.dataService.UserProfiles.AddFarm(userProfile.Result, farmAsEntity);
+                await this.dataService.CompleteAsync();
+
+                var farmToReturn = this.mapper.Map<FarmDto>(farmAsEntity);
+
+                return GenericResponseBuilder.Success<FarmDto>(farmToReturn);
+            }
+            catch (Exception ex)
+            {
+                //ToDo Log Error
+                return GenericResponseBuilder.NoSuccess<FarmDto>(null, $"{ex.Message} InnerException: {ex.InnerException.Message}");
+            }
         }
     }
 }

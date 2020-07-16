@@ -66,5 +66,17 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
         {
             this.context.UserProfile.Update(entity);
         }
+
+        public void AddFarm(UserProfile userProfile, Farm farm)
+        {
+            userProfile.UserFarms = new List<UserFarm>
+            {
+                new UserFarm
+                {
+                    UserProfile = userProfile,
+                    Farm = farm
+                }
+            };
+        }
     }
 }

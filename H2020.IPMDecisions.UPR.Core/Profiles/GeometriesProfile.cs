@@ -17,6 +17,15 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
                     opt => opt.MapFrom(src => src.Y))
                 .ForMember(dest => dest.SRID,
                     opt => opt.MapFrom(src => src.SRID));
+
+            // Models to Object
+            CreateMap<CustomPointLocation, Point>()
+                .ForMember(dest => dest.X,
+                    opt => opt.MapFrom(src => src.X))
+                .ForMember(dest => dest.Y,
+                    opt => opt.MapFrom(src => src.Y))
+                .ForMember(dest => dest.SRID,
+                    opt => opt.MapFrom(src => src.SRID));
         }
     }
 }

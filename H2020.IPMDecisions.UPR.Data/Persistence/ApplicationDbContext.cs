@@ -12,6 +12,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence
         public DbSet<Field> Field { get; set; }
         public DbSet<FieldObservation> FieldObservation { get; set; }
         public DbSet<UserAddress> UserAddress { get; set; }
+        public DbSet<UserFarm> UserFarm { get; set; }
         public DbSet<UserProfile> UserProfile { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)

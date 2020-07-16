@@ -23,7 +23,20 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence
                 }
                 return userProfiles;
             }
-        }        
+        }
+
+        private IFarmRepository farms;
+        public IFarmRepository Farms 
+        {
+            get
+            {
+                if (farms == null)
+                {
+                    farms = new FarmRepository(this.context, this.propertyMappingService);
+                }
+                return farms;
+            }
+        }
 
         public DataService(
             ApplicationDbContext context,

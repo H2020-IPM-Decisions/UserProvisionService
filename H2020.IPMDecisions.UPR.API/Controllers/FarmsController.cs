@@ -74,15 +74,15 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
             [FromBody] FarmForCreationDto farmForCreationDto,
             [FromHeader(Name = "Accept")] string mediaType)
         {
-            var userId = HttpContext.Items["userId"].ToString();
-            var response = await this.businessLogic.AddNewFarm(farmForCreationDto, userId, mediaType);
+            var userId = Guid.Parse(HttpContext.Items["userId"].ToString());
+            var response = await this.businessLogic.LinkNewFarmToUserProfile(farmForCreationDto, userId, mediaType);
 
             if (!response.IsSuccessful)
             {
                 return BadRequest(new { message = response.ErrorMessage });
             }
-            
-            return Ok();
+
+            return Ok(response.Result);
         }
 
         [Consumes("application/json-patch+json")]
