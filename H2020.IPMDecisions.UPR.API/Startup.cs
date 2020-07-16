@@ -51,6 +51,7 @@ namespace H2020.IPMDecisions.UPR.API
             services.AddScoped<IBusinessLogic, BusinessLogic>();
 
             services.AddScoped<UserAccessingOwnDataActionFilter>();
+            services.AddScoped<AddUserIdToContextFilter>();
 
             services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
             services.AddScoped<IUrlHelper>(serviceProvider =>

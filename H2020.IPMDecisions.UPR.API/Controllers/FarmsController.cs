@@ -9,12 +9,14 @@ using H2020.IPMDecisions.UPR.Core.Dtos;
 using System;
 using H2020.IPMDecisions.UPR.Core.ResourceParameters;
 using Microsoft.AspNetCore.JsonPatch;
+using H2020.IPMDecisions.UPR.API.Filters;
 
 namespace H2020.IPMDecisions.UPR.API.Controllers
 {
     [ApiController]
     [Route("api/farms")]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [ServiceFilter(typeof(AddUserIdToContextFilter))]
     public class FarmsController : ControllerBase
     {
         private readonly IBusinessLogic businessLogic;
@@ -72,7 +74,15 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
             [FromBody] FarmForCreationDto farmForCreationDto,
             [FromHeader(Name = "Accept")] string mediaType)
         {
-            throw new NotImplementedException();
+            var userId = HttpContext.Items["userId"].ToString();
+            var response = await this.businessLogic.AddNewFarm(farmForCreationDto, userId, mediaType);
+
+            if (!response.IsSuccessful)
+            {
+                return BadRequest(new { message = response.ErrorMessage });
+            }
+            
+            return Ok();
         }
 
         [Consumes("application/json-patch+json")]
