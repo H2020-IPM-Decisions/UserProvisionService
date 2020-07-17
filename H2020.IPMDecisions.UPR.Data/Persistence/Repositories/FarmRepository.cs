@@ -32,7 +32,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
 
         public void Delete(Farm entity)
         {
-            throw new NotImplementedException();
+            this.context.Farm.Remove(entity);
         }
 
         public async Task<IEnumerable<Farm>> FindAllAsync()
@@ -42,11 +42,21 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
                 .ToListAsync<Farm>();
         }
 
-        public Task<PagedList<Farm>> FindAllAsync(FarmResourceParameter resourceParameter)
+        public async Task<PagedList<Farm>> FindAllAsync(FarmResourceParameter resourceParameter)
         {
-            throw new NotImplementedException();
-        }
+            if (resourceParameter is null)
+                throw new ArgumentNullException(nameof(resourceParameter));
 
+            var collection = this.context.Farm as IQueryable<Farm>;
+
+            collection = ApplyResourceParameter(resourceParameter, collection);
+
+            return await PagedList<Farm>.CreateAsync(
+                collection,
+                resourceParameter.PageNumber,
+                resourceParameter.PageSize);
+        }
+        
         public async Task<PagedList<Farm>> FindAllAsync(FarmResourceParameter resourceParameter, Guid? userId = null)
         {
             if (resourceParameter is null)
@@ -56,29 +66,12 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
 
             if (!string.IsNullOrEmpty(userId.ToString()))
             {
-                collection = collection.Where(f => 
+                collection = collection.Where(f =>
                     f.UserFarms.Any
                         (uf => uf.UserId == userId));
             }
 
-            if (!string.IsNullOrEmpty(resourceParameter.SearchQuery))
-            {
-                //ToDo: Check that Columns can do this type of query
-                // var searchQuery = resourceParameter.SearchQuery.Trim();
-                // collection = collection.Where(f =>
-                //     f.Name.Contains(searchQuery, StringComparison.OrdinalIgnoreCase)
-                //     || f.Inf1.Contains(searchQuery, StringComparison.OrdinalIgnoreCase)
-                //     || f.Inf2.Contains(searchQuery, StringComparison.OrdinalIgnoreCase));
-            }
-
-            if (!string.IsNullOrEmpty(resourceParameter.OrderBy))
-            {
-                //ToDo: 
-                var propertyMappingDictionary =
-                    this.propertyMappingService.GetPropertyMapping<FarmDto, Farm>();
-
-                collection = collection.ApplySort(resourceParameter.OrderBy, propertyMappingDictionary);
-            }
+            collection = ApplyResourceParameter(resourceParameter, collection);
 
             return await PagedList<Farm>.CreateAsync(
                 collection,
@@ -108,5 +101,23 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
         {
             throw new NotImplementedException();
         }
+
+        #region Helpers
+        private IQueryable<Farm> ApplyResourceParameter(FarmResourceParameter resourceParameter, IQueryable<Farm> collection)
+        {
+            if (!string.IsNullOrEmpty(resourceParameter.SearchQuery))
+            {
+                //ToDo: Check that Columns can do this type of query
+            }
+            if (!string.IsNullOrEmpty(resourceParameter.OrderBy))
+            {
+                var propertyMappingDictionary =
+                    this.propertyMappingService.GetPropertyMapping<FarmDto, Farm>();
+
+                collection = collection.ApplySort(resourceParameter.OrderBy, propertyMappingDictionary);
+            }
+            return collection;
+        }
+        #endregion
     }
 }

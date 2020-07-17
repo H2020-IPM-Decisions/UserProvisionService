@@ -28,14 +28,19 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
                 ?? throw new System.ArgumentNullException(nameof(businessLogic));
         }
 
-        // [ProducesResponseType(StatusCodes.Status204NoContent)]
-        // [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        // [HttpDelete("{id:guid}", Name = "DeleteFarm")]
-        // //DELETE: api/farms/1
-        // public async Task<IActionResult> Delete([FromRoute] Guid id)
-        // {
-        //     throw new NotImplementedException();
-        // }
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [HttpDelete("{id:guid}", Name = "DeleteFarm")]
+        //DELETE: api/farms/1
+        public async Task<IActionResult> Delete([FromRoute] Guid id)
+        {
+            var response = await this.businessLogic.DeleteFarm(id, HttpContext);
+
+            if (!response.IsSuccessful)
+                return BadRequest(new { message = response.ErrorMessage });
+
+            return NoContent();
+        }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]

@@ -14,6 +14,45 @@ namespace H2020.IPMDecisions.UPR.BLL
 {
     public partial class BusinessLogic : IBusinessLogic
     {
+        public async Task<GenericResponse> DeleteFarm(Guid id, HttpContext httpContext)
+        {
+            try
+            {
+                var userId = Guid.Parse(httpContext.Items["userId"].ToString());
+                var isAdmin = httpContext.Items["isAdmin"];
+
+                Farm existingFarm = null;
+
+                if (isAdmin == null)
+                {
+                    existingFarm = await this.dataService
+                    .Farms
+                    .FindByCondition(
+                        f => f.Id == id 
+                        &&
+                        f.UserFarms.Any(uf => uf.UserId == userId)
+                    );
+                }
+                else {
+                    existingFarm = await this.dataService
+                        .Farms
+                        .FindByIdAsync(id);
+                }
+
+                if (existingFarm == null) return GenericResponseBuilder.Success();
+
+                this.dataService.Farms.Delete(existingFarm);
+                await this.dataService.CompleteAsync();
+                
+                return GenericResponseBuilder.Success();
+            }
+            catch (Exception ex)
+            {
+                //ToDo Log Error
+                return GenericResponseBuilder.NoSuccess($"{ex.Message} InnerException: {ex.InnerException.Message}");
+            }
+        }
+
         public async Task<GenericResponse<FarmDto>> LinkNewFarmToUserProfile(FarmForCreationDto farmForCreation, Guid userId, string mediaType)
         {
             try
@@ -44,7 +83,7 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
         }
 
-        public async Task<GenericResponse<FarmDto>> GetFarmById(Guid id, string fields, HttpContext context, string mediaType)
+        public async Task<GenericResponse<FarmDto>> GetFarmById(Guid id, string fields, HttpContext httpContext, string mediaType)
         {
             try
             {
@@ -52,8 +91,8 @@ namespace H2020.IPMDecisions.UPR.BLL
                        out MediaTypeHeaderValue parsedMediaType))
                     return GenericResponseBuilder.NoSuccess<FarmDto>(null, "Wrong media type.");
 
-                var userId = Guid.Parse(context.Items["userId"].ToString());
-                var isAdmin = context.Items["isAdmin"];
+                var userId = Guid.Parse(httpContext.Items["userId"].ToString());
+                var isAdmin = httpContext.Items["isAdmin"];
 
                 Farm farmAsEntity = null;
 
