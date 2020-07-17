@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using H2020.IPMDecisions.UPR.Core.Dtos;
 using H2020.IPMDecisions.UPR.Core.Entities;
 using H2020.IPMDecisions.UPR.Core.Models;
+using H2020.IPMDecisions.UPR.Core.ResourceParameters;
 using Microsoft.AspNetCore.Http;
 
 namespace H2020.IPMDecisions.UPR.BLL
@@ -16,6 +17,7 @@ namespace H2020.IPMDecisions.UPR.BLL
 
         #region Farms
         Task<GenericResponse<FarmDto>> GetFarmById(Guid id, string fields, HttpContext context, string mediaType);
+        Task<GenericResponse<ShapedDataWithLinks>> GetFarms(Guid userId, FarmResourceParameter resourceParameter, string mediaType);
         #endregion
 
         #region Field

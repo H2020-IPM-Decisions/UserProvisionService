@@ -10,6 +10,7 @@ using System;
 using H2020.IPMDecisions.UPR.Core.ResourceParameters;
 using Microsoft.AspNetCore.JsonPatch;
 using H2020.IPMDecisions.UPR.API.Filters;
+using System.Text.Json;
 
 namespace H2020.IPMDecisions.UPR.API.Controllers
 {
@@ -27,14 +28,14 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
                 ?? throw new System.ArgumentNullException(nameof(businessLogic));
         }
 
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [HttpDelete("{id:guid}", Name = "DeleteFarm")]
-        //DELETE: api/farms/1
-        public async Task<IActionResult> Delete([FromRoute] Guid id)
-        {
-            throw new NotImplementedException();
-        }
+        // [ProducesResponseType(StatusCodes.Status204NoContent)]
+        // [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        // [HttpDelete("{id:guid}", Name = "DeleteFarm")]
+        // //DELETE: api/farms/1
+        // public async Task<IActionResult> Delete([FromRoute] Guid id)
+        // {
+        //     throw new NotImplementedException();
+        // }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -43,11 +44,24 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         [HttpGet("", Name = "GetFarms")]
         [HttpHead]
         // GET: api/farms
-        public async Task<IActionResult> GetFarms(
+        public async Task<IActionResult> Get(
             [FromQuery] FarmResourceParameter resourceParameter,
             [FromHeader(Name = "Accept")] string mediaType)
         {
-            throw new NotImplementedException();
+            var userId = Guid.Parse(HttpContext.Items["userId"].ToString());
+            var response = await this.businessLogic.GetFarms(userId, resourceParameter, mediaType);
+
+            if (!response.IsSuccessful)
+                return response.RequestResult;
+
+            Response.Headers.Add("X-Pagination",
+                JsonSerializer.Serialize(response.Result.PaginationMetaData));
+                
+            return Ok(new
+                {
+                    value = response.Result.Value,
+                    links = response.Result.Links
+                });
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -57,7 +71,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         [HttpGet("{id:guid}", Name = "GetFarmById")]
         [HttpHead]
         // GET:  api/farms/1
-        public async Task<IActionResult> Get([FromRoute] Guid id,
+        public async Task<IActionResult> GetFarmById([FromRoute] Guid id,
             [FromQuery] string fields,
             [FromHeader(Name = "Accept")] string mediaType)
         {
@@ -90,18 +104,18 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
                 response.Result);
         }
 
-        [Consumes("application/json-patch+json")]
-        [ProducesResponseType(StatusCodes.Status201Created)]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [HttpPatch("{id:guid}", Name = "PartialUpdateFarm")]
-        //PATCH: api/farms/1
-        public async Task<IActionResult> PartialUpdate(
-            [FromRoute] Guid id,
-            JsonPatchDocument<FarmForUpdateDto> patchDocument)
-        {
-            throw new NotImplementedException();
-        }
+        // [Consumes("application/json-patch+json")]
+        // [ProducesResponseType(StatusCodes.Status201Created)]
+        // [ProducesResponseType(StatusCodes.Status204NoContent)]
+        // [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        // [HttpPatch("{id:guid}", Name = "PartialUpdateFarm")]
+        // //PATCH: api/farms/1
+        // public async Task<IActionResult> PartialUpdate(
+        //     [FromRoute] Guid id,
+        //     JsonPatchDocument<FarmForUpdateDto> patchDocument)
+        // {
+        //     throw new NotImplementedException();
+        // }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
         [HttpOptions]

@@ -1,22 +1,24 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using H2020.IPMDecisions.UPR.Core.Dtos;
+using H2020.IPMDecisions.UPR.Core.Entities;
 
 namespace H2020.IPMDecisions.UPR.Core.Services
 {
     public class PropertyMappingService : IPropertyMappingService
     {
-        // private Dictionary<string, PropertyMappingValue> _entityMappingService =
-        //     new Dictionary<string, PropertyMappingValue>(StringComparer.OrdinalIgnoreCase)
-        //     {
-        //         { "PropertyDto", new PropertyMappingValue(new List<string>() { "PropertyEntity" })},
-        //     };
+        private Dictionary<string, PropertyMappingValue> _entityMappingService =
+            new Dictionary<string, PropertyMappingValue>(StringComparer.OrdinalIgnoreCase)
+            {
+                { "Name", new PropertyMappingValue(new List<string>() { "Name" })},
+            };
 
         public IList<IPropertyMapping> propertyMappings = new List<IPropertyMapping>();
 
         public PropertyMappingService()
         {
-            // this.propertyMappings.Add(new PropertyMapping<YourDTO, YourEntitie>(_entityMappingService));
+            this.propertyMappings.Add(new PropertyMapping<FarmDto, Farm>(_entityMappingService));
         }
 
         public Dictionary<string, PropertyMappingValue> GetPropertyMapping<TSource, TDestination>()

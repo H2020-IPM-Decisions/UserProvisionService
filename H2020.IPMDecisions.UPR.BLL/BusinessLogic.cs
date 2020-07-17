@@ -12,12 +12,14 @@ namespace H2020.IPMDecisions.UPR.BLL
         private readonly IDataService dataService;
         private readonly IUrlHelper url;
         private readonly IPropertyCheckerService propertyCheckerService;
-        
+        private readonly IPropertyMappingService propertyMappingService;
+
         public BusinessLogic(
             IMapper mapper,
             IDataService dataService,
             IUrlHelper url,
-            IPropertyCheckerService propertyCheckerService)
+            IPropertyCheckerService propertyCheckerService,
+            IPropertyMappingService propertyMappingService)
         {
             this.mapper = mapper 
                 ?? throw new ArgumentNullException(nameof(mapper));
@@ -27,6 +29,8 @@ namespace H2020.IPMDecisions.UPR.BLL
                 ?? throw new ArgumentNullException(nameof(url));
             this.propertyCheckerService = propertyCheckerService
                 ?? throw new ArgumentNullException(nameof(propertyCheckerService));
+            this.propertyMappingService = propertyMappingService 
+                ?? throw new ArgumentNullException(nameof(propertyMappingService));
         }
     }
 }
