@@ -19,9 +19,15 @@ namespace H2020.IPMDecisions.UPR.Tests.UnitTests
             Mock<IMapper> mockMapper = new Mock<IMapper>();
             Mock<IDataService> mockDataService = new Mock<IDataService>();        
             Mock<IUrlHelper> mockUrl = new Mock<IUrlHelper>();
-            Mock<IPropertyCheckerService> mockPropertyCheckerService = new Mock<IPropertyCheckerService>();          
+            Mock<IPropertyCheckerService> mockPropertyCheckerService = new Mock<IPropertyCheckerService>();
+            Mock<IPropertyMappingService> mockPropertyMappingService = new Mock<IPropertyMappingService>();
 
-            var bll = new BusinessLogic(mockMapper.Object, mockDataService.Object, mockUrl.Object, mockPropertyCheckerService.Object);
+            var bll = new BusinessLogic(
+                mockMapper.Object, 
+                mockDataService.Object, 
+                mockUrl.Object, 
+                mockPropertyCheckerService.Object,
+                mockPropertyMappingService.Object);
 
             UserProfileForCreationDto user = new UserProfileForCreationDto();
             // Act
