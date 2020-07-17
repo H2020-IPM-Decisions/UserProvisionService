@@ -24,8 +24,7 @@ namespace H2020.IPMDecisions.UPR.Tests.IntegrationTests.Controllers
         {
             this.fakeWebHost = fakeWebHost;
 
-            var tokenUserId = Guid.NewGuid();
-            myAdminToken = TokenGeneratorTests.GenerateToken(tokenUserId, "admin");
+            myAdminToken = TokenGeneratorTests.GenerateToken(fakeWebHost.DefaultAdminUserId, "admin");
         }
 
         #region Admin Role
