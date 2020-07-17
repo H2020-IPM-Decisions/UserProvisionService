@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using H2020.IPMDecisions.UPR.Core.Dtos;
 using H2020.IPMDecisions.UPR.Core.Entities;
 using H2020.IPMDecisions.UPR.Core.Models;
+using Microsoft.AspNetCore.Http;
 
 namespace H2020.IPMDecisions.UPR.BLL
 {
@@ -11,6 +12,10 @@ namespace H2020.IPMDecisions.UPR.BLL
     {
         #region User Farms
         Task<GenericResponse<FarmDto>> LinkNewFarmToUserProfile(FarmForCreationDto farmForCreation, Guid userId, string mediaType);
+        #endregion
+
+        #region Farms
+        Task<GenericResponse<FarmDto>> GetFarmById(Guid id, string fields, HttpContext context, string mediaType);
         #endregion
 
         #region Field

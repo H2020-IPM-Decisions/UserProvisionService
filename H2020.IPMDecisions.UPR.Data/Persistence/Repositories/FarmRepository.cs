@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Dynamic.Core;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using H2020.IPMDecisions.UPR.Core.Entities;
@@ -7,6 +9,7 @@ using H2020.IPMDecisions.UPR.Core.Helpers;
 using H2020.IPMDecisions.UPR.Core.ResourceParameters;
 using H2020.IPMDecisions.UPR.Core.Services;
 using H2020.IPMDecisions.UPR.Data.Core.Repositories;
+using Microsoft.EntityFrameworkCore;
 
 namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
 {
@@ -41,14 +44,23 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
             throw new NotImplementedException();
         }
 
-        public Task<Farm> FindByCondition(Expression<Func<Farm, bool>> expression)
+        public async Task<Farm> FindByCondition(Expression<Func<Farm, bool>> expression)
         {
-            throw new NotImplementedException();
+            return await this.context
+                .Farm
+                .Where(expression)
+                .FirstOrDefaultAsync();
         }
 
-        public Task<Farm> FindByIdAsync(Guid id)
+        public async Task<Farm> FindByIdAsync(Guid id)
         {
-            throw new NotImplementedException();
+            return await this
+                .context
+                .Farm
+                .Where(f =>
+                    f.Id == id)
+                .Include(u => u.UserFarms)
+                .FirstOrDefaultAsync();
         }
 
         public void Update(Farm entity)

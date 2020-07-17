@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using NetTopologySuite.Geometries;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -26,6 +27,8 @@ namespace H2020.IPMDecisions.UPR.Tests
         public readonly Guid DefaultAdminUserId = Guid.Parse("380f0a69-a009-4c34-8496-9a43c2e069ba");
         public readonly Guid DefaultNormalUserId = Guid.Parse("89f4cb8a-c803-11ea-87d0-0242ac130003");
         public readonly Guid ExtraNormalUserId = Guid.Parse("68840b5c-803b-461e-a262-cdb9932d203b");
+        public readonly Guid DefaultFarmId = Guid.Parse("16bddb81-0ee6-492d-8172-cddf8855f683");
+        public readonly string DefaultFarmName = "New Farm";
 
         [Trait("Category", "Docker")]
         public async Task InitializeAsync()
@@ -101,26 +104,42 @@ namespace H2020.IPMDecisions.UPR.Tests
                         },
                         new UserProfile()
                         {
-                            UserId = DefaultNormalUserId,
-                            FirstName = "Default"
-                        },
-                        new UserProfile()
-                        {
                             UserId = ExtraNormalUserId,
                             FirstName = "Extra"
                         },
                     };
 
                     _context.UserProfile.AddRange(defaultUsers);
-                    _context.SaveChanges();
-                }
-                IsDatabaseInitialized = true;
-            }
-        }
 
-        [CollectionDefinition("FakeWebHostWithDb")]
-        public class FakeWebHostWithDbCollectionFixture : ICollectionFixture<FakeWebHostWithDb>
-        {
+                    var userWithFarm = new UserProfile()
+                    {
+                        UserId = DefaultNormalUserId,
+                        FirstName = "Default"
+                    };
+
+                    userWithFarm.UserFarms = new List<UserFarm>{
+                        new UserFarm
+                        {
+                            UserProfile = userWithFarm,
+                            Farm = new Farm {
+                                Id = DefaultFarmId,
+                                Name = "New Farm",
+                                Location = new Point(1, 1)
+                             }
+                        }
+                    };
+
+                    _context.UserProfile.Add(userWithFarm);
+
+                    _context.SaveChanges();
+                };
+            }
+            IsDatabaseInitialized = true;
         }
+    }
+
+    [CollectionDefinition("FakeWebHostWithDb")]
+    public class FakeWebHostWithDbCollectionFixture : ICollectionFixture<FakeWebHostWithDb>
+    {
     }
 }

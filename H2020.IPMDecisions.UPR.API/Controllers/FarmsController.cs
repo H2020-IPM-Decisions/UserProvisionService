@@ -61,7 +61,12 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
             [FromQuery] string fields,
             [FromHeader(Name = "Accept")] string mediaType)
         {
-            throw new NotImplementedException();
+            var response = await this.businessLogic.GetFarmById(id, fields, HttpContext, mediaType);
+
+            if (!response.IsSuccessful)
+                return response.RequestResult;
+
+            return Ok(response.Result);
         }
 
         [Consumes(MediaTypeNames.Application.Json)]
@@ -78,11 +83,11 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
             var response = await this.businessLogic.LinkNewFarmToUserProfile(farmForCreationDto, userId, mediaType);
 
             if (!response.IsSuccessful)
-            {
-                return BadRequest(new { message = response.ErrorMessage });
-            }
-
-            return Ok(response.Result);
+                return response.RequestResult;
+            return CreatedAtRoute(
+                "GetFarmById",
+                new { id = response.Result.Id },
+                response.Result);
         }
 
         [Consumes("application/json-patch+json")]

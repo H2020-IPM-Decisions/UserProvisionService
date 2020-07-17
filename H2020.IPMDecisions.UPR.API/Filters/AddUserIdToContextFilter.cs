@@ -29,7 +29,11 @@ namespace H2020.IPMDecisions.UPR.API.Filters
                     return;
                 }
 
-                context.HttpContext.Items.Add("userId", validatedGuid);                
+                var userRoleFromToken = claimsIdentity.FindFirst(ClaimTypes.Role)?.Value;
+                if (userRoleFromToken != null && userRoleFromToken.ToString().ToLower() == "admin")
+                    context.HttpContext.Items.Add("isAdmin", true);
+
+                context.HttpContext.Items.Add("userId", validatedGuid);                        
             }
             catch (Exception ex)
             {
