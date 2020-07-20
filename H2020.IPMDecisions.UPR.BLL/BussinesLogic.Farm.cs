@@ -53,7 +53,34 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
         }
 
-        public async Task<GenericResponse<FarmDto>> LinkNewFarmToUserProfile(FarmForCreationDto farmForCreation, Guid userId, string mediaType)
+        public async Task<GenericResponse<FarmDto>> LinkNewFarmToUserProfile(FarmForCreationDto farmForCreationDto, Guid id, Guid userId)
+        {
+            try
+            {
+                var userProfile = await GetUserProfile(userId);
+                if (userProfile.Result == null)
+                {
+                    // ToDo Create empty profile
+                    return GenericResponseBuilder.NoSuccess<FarmDto>(null, "Please add User Profile first.");
+                }
+
+                var farmAsEntity = this.mapper.Map<Farm>(farmForCreationDto);
+                farmAsEntity.Id = id;
+
+                this.dataService.UserProfiles.AddFarm(userProfile.Result, farmAsEntity);
+                await this.dataService.CompleteAsync();
+
+                var farmToReturn = this.mapper.Map<FarmDto>(farmAsEntity);
+                return GenericResponseBuilder.Success<FarmDto>(farmToReturn);
+            }
+            catch (Exception ex)
+            {
+                //ToDo Log Error
+                return GenericResponseBuilder.NoSuccess<FarmDto>(null, $"{ex.Message} InnerException: {ex.InnerException.Message}");
+            }
+        }
+
+        public async Task<GenericResponse<FarmDto>> LinkNewFarmToUserProfile(FarmForCreationDto farmForCreationDto, Guid userId, string mediaType)
         {
             try
             {
@@ -67,13 +94,12 @@ namespace H2020.IPMDecisions.UPR.BLL
                     // ToDo Create empty profile
                     return GenericResponseBuilder.NoSuccess<FarmDto>(null, "Please add User Profile first.");
                 }
-                var farmAsEntity = this.mapper.Map<Farm>(farmForCreation);
+                var farmAsEntity = this.mapper.Map<Farm>(farmForCreationDto);
 
                 this.dataService.UserProfiles.AddFarm(userProfile.Result, farmAsEntity);
                 await this.dataService.CompleteAsync();
 
                 var farmToReturn = this.mapper.Map<FarmDto>(farmAsEntity);
-
                 return GenericResponseBuilder.Success<FarmDto>(farmToReturn);
             }
             catch (Exception ex)
@@ -83,7 +109,40 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
         }
 
-        public async Task<GenericResponse<FarmDto>> GetFarmById(Guid id, string fields, HttpContext httpContext, string mediaType)
+        public async Task<GenericResponse<Farm>> GetFarm(Guid id, HttpContext httpContext)
+        {
+            try
+            {
+                var userId = Guid.Parse(httpContext.Items["userId"].ToString());
+                var isAdmin = httpContext.Items["isAdmin"];
+
+                Farm farmAsEntity = await this
+                        .dataService
+                        .Farms
+                        .FindByIdAsync(id);
+
+                if (farmAsEntity == null) return GenericResponseBuilder.NotFound<Farm>();
+
+                if (isAdmin == null)
+                {
+                    var belongsToUser = farmAsEntity
+                        .UserFarms
+                        .Any(uf => uf.UserId == userId);
+
+                    if (!belongsToUser)
+                        return GenericResponseBuilder.Unauthorized<Farm>();
+                }
+
+                return GenericResponseBuilder.Success<Farm>(farmAsEntity);
+            }
+            catch (Exception ex)
+            {
+                //ToDo Log Error
+                return GenericResponseBuilder.NoSuccess<Farm>(null, $"{ex.Message} InnerException: {ex.InnerException.Message}");
+            }
+        }
+
+        public async Task<GenericResponse<FarmDto>> GetFarmDto(Guid id, HttpContext httpContext, string fields, string mediaType)
         {
             try
             {
@@ -177,7 +236,35 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
         }
 
+        public async Task<GenericResponse> UpdateFarm(Farm farm, FarmForUpdateDto farmToPatch)
+        {
+            try
+            {
+                this.mapper.Map(farmToPatch, farm);
+
+                this.dataService.Farms.Update(farm);
+                await this.dataService.CompleteAsync();
+
+                return GenericResponseBuilder.Success();
+            }
+            catch (Exception ex)
+            {
+                //ToDo Log Error
+                return GenericResponseBuilder.NoSuccess($"{ex.Message} InnerException: {ex.InnerException.Message}");
+            }
+        }
+
         #region Helpers
+
+        public FarmForCreationDto MapToFarmForCreation(FarmForUpdateDto farmDto)
+        {
+            return this.mapper.Map<FarmForCreationDto>(farmDto);
+        }
+
+        public FarmForUpdateDto MapToFarmForUpdateDto(Farm farm)
+        {
+            return this.mapper.Map<FarmForUpdateDto>(farm);
+        }
 
         private IEnumerable<LinkDto> CreateLinksForFarms(
             FarmResourceParameter resourceParameter, 

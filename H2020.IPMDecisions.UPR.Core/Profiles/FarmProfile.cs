@@ -10,6 +10,7 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
         {
             // Entities to Dtos
             CreateMap<Farm, FarmDto>();
+            CreateMap<Farm, FarmForUpdateDto>();
 
             // Dtos to Entities
             CreateMap<FarmForCreationDto, Farm>()

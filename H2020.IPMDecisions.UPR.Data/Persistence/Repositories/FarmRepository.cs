@@ -56,7 +56,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
                 resourceParameter.PageNumber,
                 resourceParameter.PageSize);
         }
-        
+
         public async Task<PagedList<Farm>> FindAllAsync(FarmResourceParameter resourceParameter, Guid? userId = null)
         {
             if (resourceParameter is null)
@@ -92,6 +92,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
             return await this
                 .context
                 .Farm
+                .Include(f => f.UserFarms)
                 .Where(f =>
                     f.Id == id)
                 .FirstOrDefaultAsync();
@@ -99,7 +100,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
 
         public void Update(Farm entity)
         {
-            throw new NotImplementedException();
+            this.context.Farm.Update(entity);
         }
 
         #region Helpers

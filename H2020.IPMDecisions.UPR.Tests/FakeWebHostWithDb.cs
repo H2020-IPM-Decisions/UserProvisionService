@@ -28,6 +28,7 @@ namespace H2020.IPMDecisions.UPR.Tests
         public readonly Guid DefaultNormalUserId = Guid.Parse("89f4cb8a-c803-11ea-87d0-0242ac130003");
         public readonly Guid ExtraNormalUserId = Guid.Parse("68840b5c-803b-461e-a262-cdb9932d203b");
         public readonly Guid DefaultFarmId = Guid.Parse("16bddb81-0ee6-492d-8172-cddf8855f683");
+        public readonly Guid UserWith3Farms = Guid.Parse("f5497c01-1375-46ff-a8bc-b4640a8c84cd");
         public readonly string DefaultFarmName = "New Farm";
 
         [Trait("Category", "Docker")]
@@ -47,9 +48,7 @@ namespace H2020.IPMDecisions.UPR.Tests
                 .Build();
             tempDatabase.Create();
 
-            string databaseGuid = Guid.NewGuid().ToString();
-            var newConString = string.Format("{0}{1}", tempDatabase.ConnectionString.ToString(), databaseGuid);
-            configuration["ConnectionStrings:MyPostgreSQLConnection"] = newConString;
+            configuration["ConnectionStrings:MyPostgreSQLConnection"] = tempDatabase.ConnectionString.ToString();
 
             Host = await new HostBuilder()
               .ConfigureWebHost(webBuilder =>
@@ -79,9 +78,6 @@ namespace H2020.IPMDecisions.UPR.Tests
                 _context = services.GetService<ApplicationDbContext>();
                 _context.Database.EnsureDeleted();
             }
-
-            if (tempDatabase != null)
-                tempDatabase.Drop();
             await Host.StopAsync();
             Host.Dispose();
         }
@@ -106,7 +102,7 @@ namespace H2020.IPMDecisions.UPR.Tests
                         {
                             UserId = ExtraNormalUserId,
                             FirstName = "Extra"
-                        },
+                        }
                     };
 
                     _context.UserProfile.AddRange(defaultUsers);
@@ -117,19 +113,57 @@ namespace H2020.IPMDecisions.UPR.Tests
                         FirstName = "Default"
                     };
 
-                    userWithFarm.UserFarms = new List<UserFarm>{
+                    userWithFarm.UserFarms = new List<UserFarm>
+                    {
                         new UserFarm
                         {
                             UserProfile = userWithFarm,
                             Farm = new Farm {
                                 Id = DefaultFarmId,
-                                Name = "New Farm",
+                                Name = DefaultFarmName,
                                 Location = new Point(1, 1)
                              }
                         }
                     };
 
                     _context.UserProfile.Add(userWithFarm);
+
+
+                    var userWith3Farms = new UserProfile()
+                    {
+                        UserId = UserWith3Farms,
+                        FirstName = "FewFarms"
+                    };
+
+                    userWith3Farms.UserFarms = new List<UserFarm>
+                    {
+                        new UserFarm
+                        {
+                            UserProfile = userWith3Farms,
+                            Farm = new Farm {
+                                Name = "AAA",
+                                Location = new Point(10, 10)
+                             }
+                        },
+                        new UserFarm
+                        {
+                            UserProfile = userWith3Farms,
+                            Farm = new Farm {
+                                Name = "BBB",
+                                Location = new Point(20, 20)
+                             }
+                        },
+                        new UserFarm
+                        {
+                            UserProfile = userWith3Farms,
+                            Farm = new Farm {
+                                Name = "ZZZ",
+                                Location = new Point(30, 30)
+                             }
+                        }
+                    };
+
+                    _context.UserProfile.Add(userWith3Farms);
 
                     _context.SaveChanges();
                 };

@@ -1,24 +1,30 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using H2020.IPMDecisions.UPR.Core.Dtos;
 using H2020.IPMDecisions.UPR.Core.Entities;
 using H2020.IPMDecisions.UPR.Core.Models;
 using H2020.IPMDecisions.UPR.Core.ResourceParameters;
 using Microsoft.AspNetCore.Http;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace H2020.IPMDecisions.UPR.BLL
 {
     public interface IBusinessLogic
     {
         #region User Farms
-        Task<GenericResponse<FarmDto>> LinkNewFarmToUserProfile(FarmForCreationDto farmForCreation, Guid userId, string mediaType);
+        Task<GenericResponse<FarmDto>> LinkNewFarmToUserProfile(FarmForCreationDto farmForCreationDto, Guid id, Guid userId);
+        Task<GenericResponse<FarmDto>> LinkNewFarmToUserProfile(FarmForCreationDto farmForCreationDto, Guid userId, string mediaType);
         #endregion
 
         #region Farms
         Task<GenericResponse> DeleteFarm(Guid id, HttpContext httpContext);
-        Task<GenericResponse<FarmDto>> GetFarmById(Guid id, string fields, HttpContext httpContext, string mediaType);
+        Task<GenericResponse<Farm>> GetFarm(Guid id, HttpContext httpContext);
+        Task<GenericResponse<FarmDto>> GetFarmDto(Guid id, HttpContext httpContext, string fields, string mediaType);
         Task<GenericResponse<ShapedDataWithLinks>> GetFarms(Guid userId, FarmResourceParameter resourceParameter, string mediaType);
+        FarmForCreationDto MapToFarmForCreation(FarmForUpdateDto farmDto);
+        FarmForUpdateDto MapToFarmForUpdateDto(Farm farm);
+        Task<GenericResponse> UpdateFarm(Farm farm, FarmForUpdateDto farmToPatch);
+
         #endregion
 
         #region Field

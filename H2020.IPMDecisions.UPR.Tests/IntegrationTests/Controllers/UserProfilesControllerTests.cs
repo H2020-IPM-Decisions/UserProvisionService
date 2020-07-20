@@ -14,7 +14,7 @@ using Xunit;
 
 namespace H2020.IPMDecisions.UPR.Tests.IntegrationTests.Controllers
 {
-    [Collection("WithDatabase")]
+    [Collection("FakeWebHostWithDb")]
     [Trait("Category", "Docker")]
     public class UserProfilesControllerTests : IClassFixture<FakeWebHostWithDb>
     {

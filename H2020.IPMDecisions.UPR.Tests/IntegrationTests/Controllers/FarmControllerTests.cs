@@ -1,19 +1,23 @@
+using FluentAssertions;
+using H2020.IPMDecisions.UPR.Core.Dtos;
+using H2020.IPMDecisions.UPR.Core.Models;
+using Microsoft.AspNetCore.TestHost;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Json;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
-using FluentAssertions;
-using H2020.IPMDecisions.UPR.Core.Dtos;
-using Microsoft.AspNetCore.TestHost;
-using Newtonsoft.Json;
 using Xunit;
 
 namespace H2020.IPMDecisions.UPR.Tests.IntegrationTests.Controllers
 {
+    [Collection("FakeWebHostWithDb")]
     [Trait("Category", "Docker")]
-    public class FarmControllerTests: IClassFixture<FakeWebHostWithDb>
+    public class FarmControllerTests : IClassFixture<FakeWebHostWithDb>
     {
         private FakeWebHostWithDb fakeWebHost;
 
@@ -35,9 +39,9 @@ namespace H2020.IPMDecisions.UPR.Tests.IntegrationTests.Controllers
                  new AuthenticationHeaderValue("Bearer", myDefaultUserToken);
 
             httpClient
-            .DefaultRequestHeaders
-            .Accept
-            .Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                .DefaultRequestHeaders
+                .Accept
+                .Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
             var jsonObjectLocation = new JsonObject();
             jsonObjectLocation.Add("x", "1");
@@ -104,9 +108,9 @@ namespace H2020.IPMDecisions.UPR.Tests.IntegrationTests.Controllers
                  new AuthenticationHeaderValue("Bearer", myDefaultUserToken);
 
             httpClient
-            .DefaultRequestHeaders
-            .Accept
-            .Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                .DefaultRequestHeaders
+                .Accept
+                .Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
             var randomFarmId = Guid.NewGuid();
 
@@ -148,7 +152,7 @@ namespace H2020.IPMDecisions.UPR.Tests.IntegrationTests.Controllers
         {
             // Arrange
             var httpClient = fakeWebHost.Host.GetTestServer().CreateClient();
-            var myAdminUserToken = TokenGeneratorTests.GenerateToken(fakeWebHost.DefaultAdminUserId, "admin");    
+            var myAdminUserToken = TokenGeneratorTests.GenerateToken(fakeWebHost.DefaultAdminUserId, "admin");
 
             httpClient
                  .DefaultRequestHeaders
@@ -168,6 +172,186 @@ namespace H2020.IPMDecisions.UPR.Tests.IntegrationTests.Controllers
             // Assert
             response.StatusCode.Should().Be(HttpStatusCode.OK);
             responseDeserialized.Name.Should().Be(fakeWebHost.DefaultFarmName);
+        }
+
+        [Fact]
+        public async void UserGetFarms_UserHave3Farms_OK3Farms()
+        {
+            // Arrange
+            var httpClient = fakeWebHost.Host.GetTestServer().CreateClient();
+            var myUserToken = TokenGeneratorTests.GenerateToken(fakeWebHost.UserWith3Farms);
+
+            httpClient
+                 .DefaultRequestHeaders
+                 .Authorization =
+                 new AuthenticationHeaderValue("Bearer", myUserToken);
+
+            httpClient
+            .DefaultRequestHeaders
+            .Accept
+            .Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+            // Act
+            var response = await httpClient.GetAsync("api/farms");
+            var responseContent = await response.Content.ReadAsStringAsync();
+
+            JObject parsedObject = JObject.Parse(responseContent);
+            ShapedDataWithLinks jsonObj = parsedObject.ToObject<ShapedDataWithLinks>();
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+            jsonObj.Value.Count().Should().Be(3);
+        }
+
+        [Fact]
+        public async void UserGetFarms_NameDesc_OKFarmZZZFirst()
+        {
+            // Arrange
+            var httpClient = fakeWebHost.Host.GetTestServer().CreateClient();
+            var myUserToken = TokenGeneratorTests.GenerateToken(fakeWebHost.UserWith3Farms);
+
+            httpClient
+                 .DefaultRequestHeaders
+                 .Authorization =
+                 new AuthenticationHeaderValue("Bearer", myUserToken);
+
+            httpClient
+            .DefaultRequestHeaders
+            .Accept
+            .Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+            // Act
+            var response = await httpClient.GetAsync("api/farms?orderby=name desc");
+            var responseContent = await response.Content.ReadAsStringAsync();
+
+            JObject parsedObject = JObject.Parse(responseContent);
+            ShapedDataWithLinks jsonObj = parsedObject.ToObject<ShapedDataWithLinks>();
+            var firstFarm = jsonObj.Value.FirstOrDefault();
+            var lastFarm = jsonObj.Value.LastOrDefault();
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+            jsonObj.Value.Count().Should().Be(3);
+            firstFarm["name"].Should().Be("ZZZ");
+            lastFarm["name"].Should().Be("AAA");
+        }
+
+        [Fact]
+        public async void UserGetFarms_NoFarms_NotFound()
+        {
+            // Arrange
+            var httpClient = fakeWebHost.Host.GetTestServer().CreateClient();
+            var myUserToken = TokenGeneratorTests.GenerateToken(fakeWebHost.ExtraNormalUserId);
+
+            httpClient
+                 .DefaultRequestHeaders
+                 .Authorization =
+                 new AuthenticationHeaderValue("Bearer", myUserToken);
+
+            httpClient
+            .DefaultRequestHeaders
+            .Accept
+            .Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+            // Act
+            var response = await httpClient.GetAsync("api/farms");
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        }
+
+        [Fact]
+        public async void UserPatch_FarmExist_NotContentAndUpdated()
+        {
+            // Arrange
+            var httpClient = fakeWebHost.Host.GetTestServer().CreateClient();
+            var myUserToken = TokenGeneratorTests.GenerateToken(fakeWebHost.DefaultNormalUserId);
+            var newFarmName = "ThisIsANewName";
+
+
+            httpClient
+                 .DefaultRequestHeaders
+                 .Authorization =
+                 new AuthenticationHeaderValue("Bearer", myUserToken);
+
+            httpClient
+                .DefaultRequestHeaders
+                .Accept
+                .Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+            var patchOperation = new JsonObject();
+            patchOperation.Add("op", "replace");
+            patchOperation.Add("path", "/Name");
+            patchOperation.Add("value", newFarmName);
+
+            var patchOperationArray = new JsonArray();
+            patchOperationArray.Add(patchOperation);
+
+            var patchContent = new StringContent(
+                patchOperationArray.ToString(),
+                Encoding.UTF8,
+                "application/json-patch+json");
+
+            // Act
+            var responsePatch = await httpClient.PatchAsync(string.Format("api/farms/{0}", fakeWebHost.DefaultFarmId), patchContent);
+            var responseGet = await httpClient.GetAsync(string.Format("api/farms/{0}", fakeWebHost.DefaultFarmId));
+            var responseContent = await responseGet.Content.ReadAsStringAsync();
+            var responseDeserialized = JsonConvert.DeserializeObject<FarmDto>(responseContent);
+
+            // Assert
+            responsePatch.StatusCode.Should().Be(HttpStatusCode.NoContent);
+            responseGet.StatusCode.Should().Be(HttpStatusCode.OK);
+            responseDeserialized.Name.Should().Be(newFarmName);
+        }
+
+        [Fact]
+        public async void UserPatch_FarmDoNotExist_NotFound()
+        {
+            // Arrange
+            var httpClient = fakeWebHost.Host.GetTestServer().CreateClient();
+            var myUserToken = TokenGeneratorTests.GenerateToken(fakeWebHost.DefaultNormalUserId);
+            var newFarmId = Guid.NewGuid();
+            var newFarmName = "ThisIsANewFarm";
+
+            httpClient
+                 .DefaultRequestHeaders
+                 .Authorization =
+                 new AuthenticationHeaderValue("Bearer", myUserToken);
+
+            httpClient
+                .DefaultRequestHeaders
+                .Accept
+                .Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+            var patchOperation = new JsonObject();
+            patchOperation.Add("op", "replace");
+            patchOperation.Add("path", "/Name");
+            patchOperation.Add("value", newFarmName);
+
+            var jsonObjectLocation = new JsonObject();
+            jsonObjectLocation.Add("x", "5");
+            jsonObjectLocation.Add("y", "5");
+            jsonObjectLocation.Add("srid", "4236");
+
+            var patchOperationLocation = new JsonObject();
+            patchOperationLocation.Add("op", "replace");
+            patchOperationLocation.Add("path", "/Location");
+            patchOperationLocation.Add("value", jsonObjectLocation);
+
+            var patchOperationArray = new JsonArray();
+            patchOperationArray.Add(patchOperation);
+            patchOperationArray.Add(patchOperationLocation);
+
+            var patchContent = new StringContent(
+                patchOperationArray.ToString(),
+                Encoding.UTF8,
+                "application/json-patch+json");
+
+            // Act
+            var responsePatch = await httpClient.PatchAsync(string.Format("api/farms/{0}", newFarmId), patchContent);
+
+            // Assert
+            responsePatch.StatusCode.Should().Be(HttpStatusCode.NotFound);
         }
     }
 }

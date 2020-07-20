@@ -80,7 +80,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
             [FromQuery] string fields,
             [FromHeader(Name = "Accept")] string mediaType)
         {
-            var response = await this.businessLogic.GetFarmById(id, fields, HttpContext, mediaType);
+            var response = await this.businessLogic.GetFarmDto(id, HttpContext, fields, mediaType);
 
             if (!response.IsSuccessful)
                 return response.RequestResult;
@@ -109,18 +109,34 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
                 response.Result);
         }
 
-        // [Consumes("application/json-patch+json")]
-        // [ProducesResponseType(StatusCodes.Status201Created)]
-        // [ProducesResponseType(StatusCodes.Status204NoContent)]
-        // [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        // [HttpPatch("{id:guid}", Name = "PartialUpdateFarm")]
-        // //PATCH: api/farms/1
-        // public async Task<IActionResult> PartialUpdate(
-        //     [FromRoute] Guid id,
-        //     JsonPatchDocument<FarmForUpdateDto> patchDocument)
-        // {
-        //     throw new NotImplementedException();
-        // }
+        [Consumes("application/json-patch+json")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [HttpPatch("{id:guid}", Name = "PartialUpdateFarm")]
+        //PATCH: api/farms/1
+        public async Task<IActionResult> PartialUpdate(
+            [FromRoute] Guid id,
+            JsonPatchDocument<FarmForUpdateDto> patchDocument)
+        {
+            var farmResponse = await this.businessLogic.GetFarm(id, HttpContext);
+
+            if (!farmResponse.IsSuccessful)
+                return farmResponse.RequestResult;
+
+            FarmForUpdateDto farmToPatch = 
+                this.businessLogic.MapToFarmForUpdateDto(farmResponse.Result);
+            patchDocument.ApplyTo(farmToPatch, ModelState);
+            if (!TryValidateModel(farmToPatch))
+                return ValidationProblem(ModelState);
+
+            var response = await this.businessLogic.UpdateFarm(farmResponse.Result, farmToPatch);
+
+            if (!response.IsSuccessful)
+                return BadRequest(new { message = response.ErrorMessage });
+
+            return NoContent();
+        }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
         [HttpOptions]
