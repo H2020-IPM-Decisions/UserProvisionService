@@ -28,8 +28,10 @@ namespace H2020.IPMDecisions.UPR.Tests
         public readonly Guid DefaultNormalUserId = Guid.Parse("89f4cb8a-c803-11ea-87d0-0242ac130003");
         public readonly Guid ExtraNormalUserId = Guid.Parse("68840b5c-803b-461e-a262-cdb9932d203b");
         public readonly Guid DefaultFarmId = Guid.Parse("16bddb81-0ee6-492d-8172-cddf8855f683");
-        public readonly Guid UserWith3Farms = Guid.Parse("f5497c01-1375-46ff-a8bc-b4640a8c84cd");
+        public readonly Guid UserWith3FarmsId = Guid.Parse("f5497c01-1375-46ff-a8bc-b4640a8c84cd");
+        public readonly Guid UserWith2FarmsId = Guid.Parse("23482647-f8ae-49e0-881e-93aeead00ac7");
         public readonly string DefaultFarmName = "New Farm";
+        public readonly Guid FirstFarmIdUser2Farms = Guid.Parse("843185ed-5f66-4982-a6e6-38379c39fe92");
 
         [Trait("Category", "Docker")]
         public async Task InitializeAsync()
@@ -128,10 +130,38 @@ namespace H2020.IPMDecisions.UPR.Tests
 
                     _context.UserProfile.Add(userWithFarm);
 
+                    var userWith2Farms = new UserProfile()
+                    {
+                        UserId = UserWith2FarmsId,
+                        FirstName = "FewFarms"
+                    };
+
+                    userWith2Farms.UserFarms = new List<UserFarm>
+                    {
+                        new UserFarm
+                        {
+                            UserProfile = userWith2Farms,
+                            Farm = new Farm {
+                                Id = FirstFarmIdUser2Farms,
+                                Name = "AAA",
+                                Location = new Point(11, 10)
+                             }
+                        },
+                        new UserFarm
+                        {
+                            UserProfile = userWith2Farms,
+                            Farm = new Farm {
+                                Name = "BBB",
+                                Location = new Point(22, 20)
+                             }
+                        }
+                    };
+
+                    _context.UserProfile.Add(userWith2Farms);
 
                     var userWith3Farms = new UserProfile()
                     {
-                        UserId = UserWith3Farms,
+                        UserId = UserWith3FarmsId,
                         FirstName = "FewFarms"
                     };
 

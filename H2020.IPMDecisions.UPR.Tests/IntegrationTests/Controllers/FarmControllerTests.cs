@@ -17,7 +17,7 @@ namespace H2020.IPMDecisions.UPR.Tests.IntegrationTests.Controllers
 {
     [Collection("FakeWebHostWithDb")]
     [Trait("Category", "Docker")]
-    public class FarmControllerTests : IClassFixture<FakeWebHostWithDb>
+    public class FarmControllerTests 
     {
         private FakeWebHostWithDb fakeWebHost;
 
@@ -179,7 +179,7 @@ namespace H2020.IPMDecisions.UPR.Tests.IntegrationTests.Controllers
         {
             // Arrange
             var httpClient = fakeWebHost.Host.GetTestServer().CreateClient();
-            var myUserToken = TokenGeneratorTests.GenerateToken(fakeWebHost.UserWith3Farms);
+            var myUserToken = TokenGeneratorTests.GenerateToken(fakeWebHost.UserWith3FarmsId);
 
             httpClient
                  .DefaultRequestHeaders
@@ -208,7 +208,7 @@ namespace H2020.IPMDecisions.UPR.Tests.IntegrationTests.Controllers
         {
             // Arrange
             var httpClient = fakeWebHost.Host.GetTestServer().CreateClient();
-            var myUserToken = TokenGeneratorTests.GenerateToken(fakeWebHost.UserWith3Farms);
+            var myUserToken = TokenGeneratorTests.GenerateToken(fakeWebHost.UserWith3FarmsId);
 
             httpClient
                  .DefaultRequestHeaders
@@ -352,6 +352,79 @@ namespace H2020.IPMDecisions.UPR.Tests.IntegrationTests.Controllers
 
             // Assert
             responsePatch.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        }
+
+        [Fact]
+        public async void UserDeleteFarm_Has2Farms_NotContentOnly1()
+        {
+            // Arrange
+            var httpClient = fakeWebHost.Host.GetTestServer().CreateClient();
+            var myUserToken = TokenGeneratorTests.GenerateToken(fakeWebHost.UserWith2FarmsId);
+
+            httpClient
+                 .DefaultRequestHeaders
+                 .Authorization =
+                 new AuthenticationHeaderValue("Bearer", myUserToken);
+
+            httpClient
+            .DefaultRequestHeaders
+            .Accept
+            .Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+            // Act
+            var responseBeforeDelete = await httpClient.GetAsync("api/farms");
+            var responseDelete = await httpClient.DeleteAsync(string.Format("api/farms/{0}", fakeWebHost.FirstFarmIdUser2Farms));
+            var responseAfterDelete = await httpClient.GetAsync("api/farms");
+
+            var responseContent = await responseBeforeDelete.Content.ReadAsStringAsync();
+            JObject parsedObject = JObject.Parse(responseContent);
+            ShapedDataWithLinks dataBeforeDelete = parsedObject.ToObject<ShapedDataWithLinks>();
+
+            responseContent = await responseAfterDelete.Content.ReadAsStringAsync();
+            parsedObject = JObject.Parse(responseContent);
+            ShapedDataWithLinks dataAfterDelete = parsedObject.ToObject<ShapedDataWithLinks>();
+
+            // Assert
+            dataBeforeDelete.Value.Count().Should().Be(2);
+            responseDelete.StatusCode.Should().Be(HttpStatusCode.NoContent);
+            dataAfterDelete.Value.Count().Should().Be(1);
+        }
+
+        [Fact]
+        public async void UserDeleteFarm_DoNotExist_NotContentSameFarms()
+        {
+            // Arrange
+            var httpClient = fakeWebHost.Host.GetTestServer().CreateClient();
+            var myUserToken = TokenGeneratorTests.GenerateToken(fakeWebHost.UserWith3FarmsId);
+            var randomFarmID = Guid.NewGuid();
+
+            httpClient
+                 .DefaultRequestHeaders
+                 .Authorization =
+                 new AuthenticationHeaderValue("Bearer", myUserToken);
+
+            httpClient
+            .DefaultRequestHeaders
+            .Accept
+            .Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+            // Act
+            var responseBeforeDelete = await httpClient.GetAsync("api/farms");
+            var responseDelete = await httpClient.DeleteAsync(string.Format("api/farms/{0}", randomFarmID));
+            var responseAfterDelete = await httpClient.GetAsync("api/farms");
+
+            var responseContent = await responseBeforeDelete.Content.ReadAsStringAsync();
+            JObject parsedObject = JObject.Parse(responseContent);
+            ShapedDataWithLinks dataBeforeDelete = parsedObject.ToObject<ShapedDataWithLinks>();
+
+            responseContent = await responseAfterDelete.Content.ReadAsStringAsync();
+            parsedObject = JObject.Parse(responseContent);
+            ShapedDataWithLinks dataAfterDelete = parsedObject.ToObject<ShapedDataWithLinks>();
+
+            // Assert
+            dataBeforeDelete.Value.Count().Should().Be(3);
+            responseDelete.StatusCode.Should().Be(HttpStatusCode.NoContent);
+            dataAfterDelete.Value.Count().Should().Be(3);
         }
     }
 }
