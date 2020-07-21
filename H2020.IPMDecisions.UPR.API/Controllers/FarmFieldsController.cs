@@ -35,7 +35,12 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         public async Task<IActionResult> Delete(
             [FromRoute] Guid farmId, Guid id)
         {
-            throw new NotImplementedException();
+            var response = await this.businessLogic.DeleteField(id);
+
+            if (!response.IsSuccessful)
+                return BadRequest(new { message = response.ErrorMessage });
+
+            return NoContent();
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]

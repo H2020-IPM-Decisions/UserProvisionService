@@ -39,6 +39,29 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
         }
 
+        public async Task<GenericResponse> DeleteField(Guid id)
+        {
+            try
+            {
+                var existingField = await this
+                            .dataService
+                            .Fields
+                            .FindByIdAsync(id);
+
+                if (existingField == null) return GenericResponseBuilder.Success();
+
+                this.dataService.Fields.Delete(existingField);
+                await this.dataService.CompleteAsync();
+
+                return GenericResponseBuilder.Success();
+            }
+            catch (Exception ex)
+            {
+                //ToDo Log Error
+                return GenericResponseBuilder.NoSuccess($"{ex.Message} InnerException: {ex.InnerException.Message}");
+            }
+        }
+
         public async Task<GenericResponse<ShapedDataWithLinks>> GetFields(
             Guid farmId, 
             FieldResourceParameter resourceParameter, 
