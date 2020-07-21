@@ -28,6 +28,7 @@ namespace H2020.IPMDecisions.UPR.BLL
         #endregion
 
         #region Field
+        Task<GenericResponse<FieldDto>> LinkNewFieldToFarm(FieldForCreationDto fieldForCreationDto, HttpContext httpContext, string mediaType);
 
         #endregion
 

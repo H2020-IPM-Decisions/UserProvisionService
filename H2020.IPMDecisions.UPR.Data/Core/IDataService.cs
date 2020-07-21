@@ -9,5 +9,6 @@ namespace H2020.IPMDecisions.UPR.Data.Core
         Task CompleteAsync();
         IUserProfileRepository UserProfiles { get; }
         IFarmRepository Farms { get; }
+        IFieldRepository Fields { get; }
     }
 }

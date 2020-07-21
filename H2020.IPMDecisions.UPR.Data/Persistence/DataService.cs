@@ -38,6 +38,19 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence
             }
         }
 
+        private IFieldRepository fields;
+        public IFieldRepository Fields
+        {
+            get
+            {
+                if (fields == null)
+                {
+                    fields = new FieldRepository(this.context, this.propertyMappingService);
+                }
+                return fields;
+            }
+        }
+
         public DataService(
             ApplicationDbContext context,
             IPropertyMappingService propertyMappingService)

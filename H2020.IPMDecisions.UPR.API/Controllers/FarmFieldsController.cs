@@ -79,9 +79,19 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
             [FromBody] FieldForCreationDto fieldForCreationDto,
             [FromHeader(Name = "Accept")] string mediaType)
         {
-            var userId = Guid.Parse(HttpContext.Items["userId"].ToString());
-            var farm = HttpContext.Items["farm"] as Farm;
-            throw new NotImplementedException();
+            var response = await this.businessLogic.LinkNewFieldToFarm(fieldForCreationDto, HttpContext, mediaType);
+
+            if (!response.IsSuccessful)
+                return response.RequestResult;
+
+                return Ok(response.Result);
+
+            // return CreatedAtRoute(
+            //     "GetFieldById",
+            //     new {
+            //         farmId = response.Result.FarmId, 
+            //         id = response.Result.Id },
+            //     response.Result);
         }
 
         [Consumes("application/json-patch+json")]
