@@ -9,6 +9,7 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
         {
             // Entities to Dtos
             CreateMap<Field, FieldDto>();
+            CreateMap<Field, FieldForUpdateDto>();
 
             // Dtos to Entities
             CreateMap<FieldForCreationDto, Field>();

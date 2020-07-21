@@ -125,7 +125,44 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
             [FromRoute] Guid farmId, Guid id,
             JsonPatchDocument<FieldForUpdateDto> patchDocument)
         {
-            throw new NotImplementedException();
+            var fieldResponse = await this.businessLogic.GetField(id);
+
+            if (!fieldResponse.IsSuccessful)
+                return fieldResponse.RequestResult;
+
+            if (fieldResponse.Result == null)
+            {
+                var fieldForUpdateDto = new FieldForUpdateDto();
+                patchDocument.ApplyTo(fieldForUpdateDto, ModelState);
+                if (!TryValidateModel(fieldForUpdateDto))
+                    return ValidationProblem(ModelState);
+
+                var fieldForCreationDto = this.businessLogic.MapToFieldForCreation(fieldForUpdateDto);
+                if (!TryValidateModel(fieldForCreationDto))
+                    return ValidationProblem(ModelState);
+
+                var createFieldResponse = await this.businessLogic.AddNewField(fieldForCreationDto, HttpContext, id);
+                if (!createFieldResponse.IsSuccessful)
+                    return BadRequest(new { message = createFieldResponse.ErrorMessage });
+
+                return CreatedAtRoute("GetFieldById",
+                    new {
+                        farmId,
+                        id },
+                    createFieldResponse.Result);
+            }
+
+            FieldForUpdateDto fieldToPatch =
+                this.businessLogic.MapToFieldForUpdateDto(fieldResponse.Result);
+            patchDocument.ApplyTo(fieldToPatch, ModelState);
+            if (!TryValidateModel(fieldToPatch))
+                return ValidationProblem(ModelState);
+
+            var response = await this.businessLogic.UpdateField(fieldResponse.Result, fieldToPatch);
+            if (!response.IsSuccessful)
+                return BadRequest(new { message = response.ErrorMessage });
+
+            return NoContent();
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]

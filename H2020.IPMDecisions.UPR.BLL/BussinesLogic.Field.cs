@@ -20,11 +20,33 @@ namespace H2020.IPMDecisions.UPR.BLL
         {
             try
             {
-                var userId = Guid.Parse(httpContext.Items["userId"].ToString());
                 var farm = httpContext.Items["farm"] as Farm;
 
                 var fieldAsEntity = this.mapper.Map<Field>(fieldForCreationDto);
                 fieldAsEntity.Farm = farm;
+
+                this.dataService.Fields.Create(fieldAsEntity);
+                await this.dataService.CompleteAsync();
+
+                var fieldToReturn = this.mapper.Map<FieldDto>(fieldAsEntity);
+                return GenericResponseBuilder.Success<FieldDto>(fieldToReturn);
+            }
+            catch (Exception ex)
+            {
+                //ToDo Log Error
+                return GenericResponseBuilder.NoSuccess<FieldDto>(null, $"{ex.Message} InnerException: {ex.InnerException.Message}");
+            }
+        }
+
+        public async Task<GenericResponse<FieldDto>> AddNewField(FieldForCreationDto fieldForCreationDto, HttpContext httpContext, Guid id)
+        {
+            try
+            {
+                var farm = httpContext.Items["farm"] as Farm;
+
+                var fieldAsEntity = this.mapper.Map<Field>(fieldForCreationDto);
+                fieldAsEntity.Farm = farm;
+                fieldAsEntity.Id = id;
 
                 this.dataService.Fields.Create(fieldAsEntity);
                 await this.dataService.CompleteAsync();
@@ -117,6 +139,26 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
         }
 
+        public async Task<GenericResponse<Field>> GetField(Guid id)
+        {
+            try
+            {
+                var fieldAsEntity = await this
+                    .dataService
+                    .Fields
+                    .FindByIdAsync(id);
+
+                if (fieldAsEntity == null) return GenericResponseBuilder.Success<Field>(null);
+
+                return GenericResponseBuilder.Success<Field>(fieldAsEntity);
+            }
+            catch (Exception ex)
+            {
+                //ToDo Log Error
+                return GenericResponseBuilder.NoSuccess<Field>(null, $"{ex.Message} InnerException: {ex.InnerException.Message}");
+            }
+        }
+
         public async Task<GenericResponse<FieldDto>> GetFieldDto(Guid id, string fields, string mediaType)
         {
             try
@@ -148,8 +190,34 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
         }
 
+        public async Task<GenericResponse> UpdateField(Field field, FieldForUpdateDto fieldToPatch)
+        {
+            try
+            {
+                this.mapper.Map(fieldToPatch, field);
+
+                this.dataService.Fields.Update(field);
+                await this.dataService.CompleteAsync();
+
+                return GenericResponseBuilder.Success();
+            }
+            catch (Exception ex)
+            {
+                //ToDo Log Error
+                return GenericResponseBuilder.NoSuccess($"{ex.Message} InnerException: {ex.InnerException.Message}");
+            }
+        }
 
         #region Helpers
+        public FieldForCreationDto MapToFieldForCreation(FieldForUpdateDto fieldForUpdateDto)
+        {
+            return this.mapper.Map<FieldForCreationDto>(fieldForUpdateDto);
+        }
+        public FieldForUpdateDto MapToFieldForUpdateDto(Field field)
+        {
+            return this.mapper.Map<FieldForUpdateDto>(field);
+        }
+
         private IEnumerable<LinkDto> CreateLinksForFields(
             FieldResourceParameter resourceParameter,
             bool hasNextPage,
