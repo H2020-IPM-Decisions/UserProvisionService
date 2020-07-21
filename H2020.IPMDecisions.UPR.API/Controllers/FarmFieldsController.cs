@@ -9,16 +9,19 @@ using System.Net.Mime;
 using H2020.IPMDecisions.UPR.Core.Dtos;
 using Microsoft.AspNetCore.JsonPatch;
 using H2020.IPMDecisions.UPR.Core.ResourceParameters;
+using H2020.IPMDecisions.UPR.API.Filters;
+using H2020.IPMDecisions.UPR.Core.Entities;
 
 namespace H2020.IPMDecisions.UPR.API.Controllers
 {
     [ApiController]
     [Route("api/farms/{farmId:guid}/fields")]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [ServiceFilter(typeof(AddUserIdToContextFilter), Order=1)]
+    [ServiceFilter(typeof(FarmBelongsToUserActionFilter), Order=2)]
     public class FarmFieldsController : ControllerBase
     {
         private readonly IBusinessLogic businessLogic;
-        
         public FarmFieldsController(IBusinessLogic businessLogic)
         {
             this.businessLogic = businessLogic
@@ -76,6 +79,8 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
             [FromBody] FieldForCreationDto fieldForCreationDto,
             [FromHeader(Name = "Accept")] string mediaType)
         {
+            var userId = Guid.Parse(HttpContext.Items["userId"].ToString());
+            var farm = HttpContext.Items["farm"] as Farm;
             throw new NotImplementedException();
         }
 
