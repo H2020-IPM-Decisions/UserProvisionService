@@ -10,7 +10,7 @@ using H2020.IPMDecisions.UPR.Core.Dtos;
 using Microsoft.AspNetCore.JsonPatch;
 using H2020.IPMDecisions.UPR.Core.ResourceParameters;
 using H2020.IPMDecisions.UPR.API.Filters;
-using H2020.IPMDecisions.UPR.Core.Entities;
+using System.Text.Json;
 
 namespace H2020.IPMDecisions.UPR.API.Controllers
 {
@@ -45,12 +45,24 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         [HttpGet("", Name = "Getfields")]
         [HttpHead]
         // GET: api/farms/1/fields
-        public async Task<IActionResult> GetFields(
+        public async Task<IActionResult> Get(
             [FromRoute] Guid farmId,
             [FromQuery] FieldResourceParameter resourceParameter,
             [FromHeader(Name = "Accept")] string mediaType)
         {
-            throw new NotImplementedException();
+            var response = await this.businessLogic.GetFields(farmId, resourceParameter, mediaType);
+
+            if (!response.IsSuccessful)
+                return response.RequestResult;
+
+            Response.Headers.Add("X-Pagination",
+                JsonSerializer.Serialize(response.Result.PaginationMetaData));
+
+            return Ok(new
+            {
+                value = response.Result.Value,
+                links = response.Result.Links
+            });
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -60,7 +72,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         [HttpGet("{id:guid}", Name = "GetFieldById")]
         [HttpHead]
         // GET:  api/farms/1/fields/1
-        public async Task<IActionResult> Get(
+        public async Task<IActionResult> GetFieldById(
             [FromRoute] Guid farmId, Guid id,
             [FromQuery] string fields,
             [FromHeader(Name = "Accept")] string mediaType)
@@ -71,6 +83,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         [Consumes(MediaTypeNames.Application.Json)]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [Produces(MediaTypeNames.Application.Json)]
         [HttpPost("", Name = "CreateField")]
         // POST: api/farms/1/fields
@@ -79,7 +92,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
             [FromBody] FieldForCreationDto fieldForCreationDto,
             [FromHeader(Name = "Accept")] string mediaType)
         {
-            var response = await this.businessLogic.LinkNewFieldToFarm(fieldForCreationDto, HttpContext, mediaType);
+            var response = await this.businessLogic.AddNewField(fieldForCreationDto, HttpContext, mediaType);
 
             if (!response.IsSuccessful)
                 return response.RequestResult;

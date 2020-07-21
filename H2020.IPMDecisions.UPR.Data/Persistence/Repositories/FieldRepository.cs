@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using H2020.IPMDecisions.UPR.Core.Dtos;
 using H2020.IPMDecisions.UPR.Core.Entities;
 using H2020.IPMDecisions.UPR.Core.Helpers;
 using H2020.IPMDecisions.UPR.Core.ResourceParameters;
@@ -36,9 +38,46 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
             throw new NotImplementedException();
         }
 
-        public Task<PagedList<Field>> FindAllAsync(FieldResourceParameter resourceParameter)
+        public async Task<PagedList<Field>> FindAllAsync(FieldResourceParameter resourceParameter)
         {
             throw new NotImplementedException();
+        }
+
+        public async Task<PagedList<Field>> FindAllAsync(FieldResourceParameter resourceParameter, Guid? farmId = null)
+        {
+            if (resourceParameter is null)
+                throw new ArgumentNullException(nameof(resourceParameter));
+
+            var collection = this.context.Field as IQueryable<Field>;
+
+            if (!string.IsNullOrEmpty(farmId.ToString()))
+            {
+                collection = collection.Where(f =>
+                    f.FarmId == farmId);
+            }
+
+            collection = ApplyResourceParameter(resourceParameter, collection);
+            
+            return await PagedList<Field>.CreateAsync(
+                collection,
+                resourceParameter.PageNumber,
+                resourceParameter.PageSize);
+        }
+
+        private IQueryable<Field> ApplyResourceParameter(FieldResourceParameter resourceParameter, IQueryable<Field> collection)
+        {
+            if (!string.IsNullOrEmpty(resourceParameter.SearchQuery))
+            {
+                //ToDo: Check that Columns can do this type of query
+            }
+            if (!string.IsNullOrEmpty(resourceParameter.OrderBy))
+            {
+                var propertyMappingDictionary =
+                    this.propertyMappingService.GetPropertyMapping<FieldDto, Field>();
+
+                collection = collection.ApplySort(resourceParameter.OrderBy, propertyMappingDictionary);
+            }
+            return collection;
         }
 
         public Task<Field> FindByCondition(Expression<Func<Field, bool>> expression)

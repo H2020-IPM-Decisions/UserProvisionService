@@ -28,8 +28,8 @@ namespace H2020.IPMDecisions.UPR.BLL
         #endregion
 
         #region Field
-        Task<GenericResponse<FieldDto>> LinkNewFieldToFarm(FieldForCreationDto fieldForCreationDto, HttpContext httpContext, string mediaType);
-
+        Task<GenericResponse<FieldDto>> AddNewField(FieldForCreationDto fieldForCreationDto, HttpContext httpContext, string mediaType);
+        Task<GenericResponse<ShapedDataWithLinks>> GetFields(Guid farmId, FieldResourceParameter resourceParameter, string mediaType);
         #endregion
 
         #region  UserProfile

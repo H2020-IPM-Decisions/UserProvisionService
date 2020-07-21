@@ -8,7 +8,13 @@ namespace H2020.IPMDecisions.UPR.Core.Services
 {
     public class PropertyMappingService : IPropertyMappingService
     {
-        private Dictionary<string, PropertyMappingValue> _entityMappingService =
+        private Dictionary<string, PropertyMappingValue> _FarmMappingService =
+            new Dictionary<string, PropertyMappingValue>(StringComparer.OrdinalIgnoreCase)
+            {
+                { "Name", new PropertyMappingValue(new List<string>() { "Name" })},
+            };
+
+        private Dictionary<string, PropertyMappingValue> _FieldMappingService =
             new Dictionary<string, PropertyMappingValue>(StringComparer.OrdinalIgnoreCase)
             {
                 { "Name", new PropertyMappingValue(new List<string>() { "Name" })},
@@ -18,7 +24,8 @@ namespace H2020.IPMDecisions.UPR.Core.Services
 
         public PropertyMappingService()
         {
-            this.propertyMappings.Add(new PropertyMapping<FarmDto, Farm>(_entityMappingService));
+            this.propertyMappings.Add(new PropertyMapping<FarmDto, Farm>(_FarmMappingService));
+            this.propertyMappings.Add(new PropertyMapping<FieldDto, Field>(_FieldMappingService));
         }
 
         public Dictionary<string, PropertyMappingValue> GetPropertyMapping<TSource, TDestination>()
