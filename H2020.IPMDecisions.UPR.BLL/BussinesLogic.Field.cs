@@ -94,6 +94,37 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
         }
 
+        public async Task<GenericResponse<FieldDto>> GetFieldDto(Guid id, string fields, string mediaType)
+        {
+            try
+            {
+                if (!MediaTypeHeaderValue.TryParse(mediaType,
+                        out MediaTypeHeaderValue parsedMediaType))
+                    return GenericResponseBuilder.NoSuccess<FieldDto>(null, "Wrong media type.");
+
+                if (!propertyCheckerService.TypeHasProperties<FieldDto>(fields, false))
+                    return GenericResponseBuilder.NoSuccess<FieldDto>(null, "Wrong fields entered");
+
+
+                var fieldAsEntity = await this
+                            .dataService
+                            .Fields
+                            .FindByIdAsync(id);
+
+                if (fieldAsEntity == null) return GenericResponseBuilder.NotFound<FieldDto>();
+
+                // ToDo: Shape Data
+
+                var fieldToReturn = this.mapper.Map<FieldDto>(fieldAsEntity);
+                return GenericResponseBuilder.Success<FieldDto>(fieldToReturn);
+            }
+            catch (Exception ex)
+            {
+                //ToDo Log Error
+                return GenericResponseBuilder.NoSuccess<FieldDto>(null, $"{ex.Message} InnerException: {ex.InnerException.Message}");
+            }
+        }
+
 
         #region Helpers
         private IEnumerable<LinkDto> CreateLinksForFields(

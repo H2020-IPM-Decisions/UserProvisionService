@@ -9,6 +9,7 @@ using H2020.IPMDecisions.UPR.Core.Helpers;
 using H2020.IPMDecisions.UPR.Core.ResourceParameters;
 using H2020.IPMDecisions.UPR.Core.Services;
 using H2020.IPMDecisions.UPR.Data.Core.Repositories;
+using Microsoft.EntityFrameworkCore;
 
 namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
 {
@@ -85,9 +86,14 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
             throw new NotImplementedException();
         }
 
-        public Task<Field> FindByIdAsync(Guid id)
+        public async Task<Field> FindByIdAsync(Guid id)
         {
-            throw new NotImplementedException();
+            return await this
+                .context
+                .Field
+                .Where(f =>
+                    f.Id == id)
+                .FirstOrDefaultAsync();
         }
 
         public void Update(Field entity)

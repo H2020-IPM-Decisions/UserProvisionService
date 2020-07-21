@@ -150,6 +150,9 @@ namespace H2020.IPMDecisions.UPR.BLL
                        out MediaTypeHeaderValue parsedMediaType))
                     return GenericResponseBuilder.NoSuccess<FarmDto>(null, "Wrong media type.");
 
+                if (!propertyCheckerService.TypeHasProperties<FarmDto>(fields, false))
+                    return GenericResponseBuilder.NoSuccess<FarmDto>(null, "Wrong fields entered");
+
                 var userId = Guid.Parse(httpContext.Items["userId"].ToString());
                 var isAdmin = httpContext.Items["isAdmin"];
 
@@ -174,6 +177,8 @@ namespace H2020.IPMDecisions.UPR.BLL
                 }
 
                 if (farmAsEntity == null) return GenericResponseBuilder.NotFound<FarmDto>();
+
+                // ToDo: Shape Data
 
                 var farmToReturn = this.mapper.Map<FarmDto>(farmAsEntity);
                 return GenericResponseBuilder.Success<FarmDto>(farmToReturn);
