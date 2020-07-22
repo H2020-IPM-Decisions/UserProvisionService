@@ -1,12 +1,13 @@
 using System;
 using System.Net.Mime;
+using System.Text.Json;
 using System.Threading.Tasks;
 using H2020.IPMDecisions.UPR.API.Filters;
 using H2020.IPMDecisions.UPR.BLL;
+using H2020.IPMDecisions.UPR.Core.Dtos;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 
 namespace H2020.IPMDecisions.UPR.API.Controllers
@@ -32,7 +33,12 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         public async Task<IActionResult> Delete(
             [FromRoute] Guid fieldId, Guid id)
         {
-            return Ok();
+            var response = await this.businessLogic.DeleteFieldObservation(id);
+
+            if (!response.IsSuccessful)
+                return BadRequest(new { message = response.ErrorMessage });
+
+            return NoContent();
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -47,7 +53,19 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
             [FromQuery] object resourceParameter,
             [FromHeader(Name = "Accept")] string mediaType)
         {
-            return Ok();
+            var response = await this.businessLogic.GetFieldObservations(fieldId, resourceParameter, mediaType);
+
+            if (!response.IsSuccessful)
+                return response.RequestResult;
+
+            Response.Headers.Add("X-Pagination",
+                JsonSerializer.Serialize(response.Result.PaginationMetaData));
+
+            return Ok(new
+            {
+                value = response.Result.Value,
+                links = response.Result.Links
+            });
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -57,12 +75,17 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         [HttpGet("{id:guid}", Name = "GetObservationById")]
         [HttpHead]
         // GET:  api/fields/1/observations/1
-        public async Task<IActionResult> GetFieldById(
+        public async Task<IActionResult> GetFielObservationdById(
             [FromRoute] Guid fieldId, Guid id,
             [FromQuery] string fields,
             [FromHeader(Name = "Accept")] string mediaType)
         {
-            return Ok();
+            var response = await this.businessLogic.GetFieldObservationDto(id, fields, mediaType);
+
+            if (!response.IsSuccessful)
+                return response.RequestResult;
+
+            return Ok(response.Result);
         }
 
         [Consumes(MediaTypeNames.Application.Json)]
@@ -74,22 +97,14 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         // POST: api/fields/1/observations
         public async Task<IActionResult> Post(
             [FromRoute] Guid fieldId,
-            [FromBody] object observationForCreationDto,
+            [FromBody] FieldObservationForCreationDto observationForCreationDto,
             [FromHeader(Name = "Accept")] string mediaType)
         {
-            return Ok();
-        }
+            var response = await this.businessLogic.AddNewFieldObservation(observationForCreationDto, HttpContext, mediaType);
 
-        [Consumes("application/json-patch+json")]
-        [ProducesResponseType(StatusCodes.Status201Created)]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [HttpPatch("{id:guid}", Name = "PartialUpdateObservation")]
-        //PATCH: api/fields/1/observations/1
-        public async Task<IActionResult> PartialUpdate(
-            [FromRoute] Guid fieldId, Guid id,
-            JsonPatchDocument<object> patchDocument)
-        {
+            if (!response.IsSuccessful)
+                return response.RequestResult;
+
             return Ok();
         }
 

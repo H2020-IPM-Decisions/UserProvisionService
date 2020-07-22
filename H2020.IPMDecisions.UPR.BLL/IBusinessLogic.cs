@@ -24,7 +24,6 @@ namespace H2020.IPMDecisions.UPR.BLL
         FarmForCreationDto MapToFarmForCreation(FarmForUpdateDto farmDto);
         FarmForUpdateDto MapToFarmForUpdateDto(Farm farm);
         Task<GenericResponse> UpdateFarm(Farm farm, FarmForUpdateDto farmToPatch);
-
         #endregion
 
         #region Field
@@ -37,6 +36,13 @@ namespace H2020.IPMDecisions.UPR.BLL
         FieldForCreationDto MapToFieldForCreation(FieldForUpdateDto fieldForUpdateDto);
         FieldForUpdateDto MapToFieldForUpdateDto(Field field);
         Task<GenericResponse> UpdateField(Field field, FieldForUpdateDto fieldToPatch);
+        #endregion
+
+        #region  FieldObservation
+        Task<GenericResponse<FieldObservationDto>> AddNewFieldObservation(FieldObservationForCreationDto fieldObservationForCreationDto, HttpContext httpContext, string mediaType);
+        Task<GenericResponse> DeleteFieldObservation(Guid id);
+        Task<GenericResponse<ShapedDataWithLinks>> GetFieldObservations(Guid fieldId, object resourceParameter, string mediaType);
+        Task<GenericResponse<FieldObservationDto>> GetFieldObservationDto(Guid id, string fields, string mediaType);
         #endregion
 
         #region  UserProfile
