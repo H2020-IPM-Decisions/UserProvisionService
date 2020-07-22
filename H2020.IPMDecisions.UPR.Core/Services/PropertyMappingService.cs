@@ -20,12 +20,20 @@ namespace H2020.IPMDecisions.UPR.Core.Services
                 { "Name", new PropertyMappingValue(new List<string>() { "Name" })},
             };
 
+        private Dictionary<string, PropertyMappingValue> _FieldObservationMappingService =
+            new Dictionary<string, PropertyMappingValue>(StringComparer.OrdinalIgnoreCase)
+            {
+                { "PestEppoCode", new PropertyMappingValue(new List<string>() { "PestEppoCode" })},
+                { "CropEppoCode", new PropertyMappingValue(new List<string>() { "CropEppoCode" })},
+            };
+
         public IList<IPropertyMapping> propertyMappings = new List<IPropertyMapping>();
 
         public PropertyMappingService()
         {
             this.propertyMappings.Add(new PropertyMapping<FarmDto, Farm>(_FarmMappingService));
             this.propertyMappings.Add(new PropertyMapping<FieldDto, Field>(_FieldMappingService));
+            this.propertyMappings.Add(new PropertyMapping<FieldObservationDto, FieldObservation>(_FieldObservationMappingService));
         }
 
         public Dictionary<string, PropertyMappingValue> GetPropertyMapping<TSource, TDestination>()

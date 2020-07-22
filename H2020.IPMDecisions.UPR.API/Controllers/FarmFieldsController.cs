@@ -110,7 +110,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
             return CreatedAtRoute(
                 "GetFieldById",
                 new {
-                    farmId = response.Result.FarmId, 
+                    farmId,
                     id = response.Result.Id },
                 response.Result);
         }

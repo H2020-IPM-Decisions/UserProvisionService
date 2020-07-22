@@ -51,6 +51,19 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence
             }
         }
 
+        private IFieldObservationRepository fieldObservations;
+        public IFieldObservationRepository FieldObservations
+        {
+            get
+            {
+                if (fieldObservations == null)
+                {
+                    fieldObservations = new FieldObservationRepository(this.context, this.propertyMappingService);
+                }
+                return fieldObservations;
+            }
+        }
+        
         public DataService(
             ApplicationDbContext context,
             IPropertyMappingService propertyMappingService)

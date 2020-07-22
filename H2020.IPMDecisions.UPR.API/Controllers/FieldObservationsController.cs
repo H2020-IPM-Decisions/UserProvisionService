@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using H2020.IPMDecisions.UPR.API.Filters;
 using H2020.IPMDecisions.UPR.BLL;
 using H2020.IPMDecisions.UPR.Core.Dtos;
+using H2020.IPMDecisions.UPR.Core.ResourceParameters;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -45,12 +46,12 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [Produces(MediaTypeNames.Application.Json)]
-        [HttpGet("", Name = "GetObservation")]
+        [HttpGet("", Name = "GetObservations")]
         [HttpHead]
         // GET: api/fields/1/observations
         public async Task<IActionResult> Get(
             [FromRoute] Guid fieldId,
-            [FromQuery] object resourceParameter,
+            [FromQuery] FieldObservationResourceParameter resourceParameter,
             [FromHeader(Name = "Accept")] string mediaType)
         {
             var response = await this.businessLogic.GetFieldObservations(fieldId, resourceParameter, mediaType);
@@ -105,7 +106,14 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
             if (!response.IsSuccessful)
                 return response.RequestResult;
 
-            return Ok();
+            return CreatedAtRoute(
+                "GetObservationById",
+                new
+                {
+                    fieldId,
+                    id = response.Result.Id
+                },
+                response.Result);
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
