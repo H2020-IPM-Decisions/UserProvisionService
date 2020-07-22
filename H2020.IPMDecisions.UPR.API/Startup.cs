@@ -53,6 +53,7 @@ namespace H2020.IPMDecisions.UPR.API
             services.AddScoped<UserAccessingOwnDataActionFilter>();
             services.AddScoped<AddUserIdToContextFilter>();
             services.AddScoped<FarmBelongsToUserActionFilter>();
+            services.AddScoped<FieldBelongsToUserActionFilter>();
 
             services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
             services.AddScoped<IUrlHelper>(serviceProvider =>

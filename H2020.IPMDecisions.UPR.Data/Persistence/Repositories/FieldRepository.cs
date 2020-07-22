@@ -34,14 +34,26 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
             this.context.Remove(entity);
         }
 
-        public Task<IEnumerable<Field>> FindAllAsync()
+        public async Task<IEnumerable<Field>> FindAllAsync()
         {
-            throw new NotImplementedException();
+            return await this.context
+               .Field
+               .ToListAsync<Field>();
         }
 
         public async Task<PagedList<Field>> FindAllAsync(FieldResourceParameter resourceParameter)
         {
-            throw new NotImplementedException();
+            if (resourceParameter is null)
+                throw new ArgumentNullException(nameof(resourceParameter));
+
+            var collection = this.context.Field as IQueryable<Field>;
+
+            collection = ApplyResourceParameter(resourceParameter, collection);
+
+            return await PagedList<Field>.CreateAsync(
+                collection,
+                resourceParameter.PageNumber,
+                resourceParameter.PageSize);
         }
 
         public async Task<PagedList<Field>> FindAllAsync(FieldResourceParameter resourceParameter, Guid? farmId = null)
@@ -81,9 +93,12 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
             return collection;
         }
 
-        public Task<Field> FindByCondition(Expression<Func<Field, bool>> expression)
+        public async Task<Field> FindByCondition(Expression<Func<Field, bool>> expression)
         {
-            throw new NotImplementedException();
+            return await this.context
+                .Field
+                .Where(expression)
+                .FirstOrDefaultAsync();
         }
 
         public async Task<Field> FindByIdAsync(Guid id)
