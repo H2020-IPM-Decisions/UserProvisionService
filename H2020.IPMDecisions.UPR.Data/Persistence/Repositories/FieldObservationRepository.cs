@@ -85,6 +85,19 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence
                 .FirstOrDefaultAsync();
         }
 
+        public async Task<FieldObservation> FindByCondition(Expression<Func<FieldObservation, bool>> expression, bool includeAssociatedData)
+        {
+            if (includeAssociatedData)
+            {
+                return await FindByCondition(expression);
+            }
+
+            return await this.context
+                .FieldObservation
+                .Where(expression)
+                .FirstOrDefaultAsync();
+        }
+
         public async Task<FieldObservation> FindByIdAsync(Guid id)
         {
             return await this

@@ -87,6 +87,21 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
                 .FirstOrDefaultAsync();
         }
 
+        public async Task<Farm> FindByCondition(Expression<Func<Farm, bool>> expression, bool includeAssociatedData)
+        {
+            if (includeAssociatedData)
+            {
+                return await FindByCondition(expression);
+            }
+
+            return await this.context
+                .Farm
+                .Where(expression)
+                .Include(f => f.Fields)
+                   .ThenInclude(fi => fi.FieldObservations)
+                .FirstOrDefaultAsync();
+        }
+
         public async Task<Farm> FindByIdAsync(Guid id)
         {
             return await this

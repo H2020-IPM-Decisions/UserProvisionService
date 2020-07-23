@@ -13,6 +13,7 @@ namespace H2020.IPMDecisions.UPR.Data.Core.Repositories
         Task<IEnumerable<T>> FindAllAsync();
         Task<PagedList<T>> FindAllAsync(Y resourceParameter);
         Task<T> FindByCondition(Expression<Func<T, bool>> expression);
+        Task<T> FindByCondition(Expression<Func<T, bool>> expression, bool includeAssociatedData);
         Task<T> FindByIdAsync(Guid id);
         void Update(T entity);
     }
