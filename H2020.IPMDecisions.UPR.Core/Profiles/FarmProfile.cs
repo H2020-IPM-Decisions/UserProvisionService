@@ -9,7 +9,8 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
         public FarmProfile()
         {
             // Entities to Dtos
-            CreateMap<Farm, FarmDto>();
+            CreateMap<Farm, FarmDto>()
+                .ForMember(dest => dest.FieldsDto, opt => opt.MapFrom(src => src.Fields));
             CreateMap<Farm, FarmForUpdateDto>();
 
             // Dtos to Entities

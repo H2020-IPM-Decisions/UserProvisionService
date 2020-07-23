@@ -47,7 +47,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [Produces(MediaTypeNames.Application.Json)]
-        [HttpGet("", Name = "Getfields")]
+        [HttpGet("", Name = "GetFields")]
         [HttpHead]
         // GET: api/farms/1/fields
         public async Task<IActionResult> Get(

@@ -8,7 +8,8 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
         public FieldProfile()
         {
             // Entities to Dtos
-            CreateMap<Field, FieldDto>();
+            CreateMap<Field, FieldDto>()
+                .ForMember(dest => dest.FieldObservationsDto, opt => opt.MapFrom(src => src.FieldObservations));
             CreateMap<Field, FieldForUpdateDto>();
 
             // Dtos to Entities
