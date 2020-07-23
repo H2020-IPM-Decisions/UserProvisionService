@@ -5,7 +5,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace H2020.IPMDecisions.UPR.Core.Helpers
 {
-    public class PagedList<T> : List<T>
+
+    public class PagedList<T> : List<T>, IPagedList
     {
         public PagedList(List<T> items, int currentPage, int pageSize, int count)
         {
@@ -22,6 +23,8 @@ namespace H2020.IPMDecisions.UPR.Core.Helpers
         public int TotalCount { get; private set; }
         public bool HasPrevious => (CurrentPage > 1);
         public bool HasNext => (CurrentPage < TotalPages);
+        public bool IsFirstPage => (CurrentPage == 1);
+        public bool IsLastPage => (CurrentPage >= TotalPages);
 
         public static async Task<PagedList<T>> CreateAsync(IQueryable<T> source, int pageNumber, int pageSize)
         {
@@ -30,6 +33,16 @@ namespace H2020.IPMDecisions.UPR.Core.Helpers
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
+            return new PagedList<T>(items, pageNumber, pageSize, count);
+        }
+
+        public static PagedList<T> Create(IQueryable<T> source, int pageNumber, int pageSize)
+        {
+            var count = source.Count();
+            var items = source
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
             return new PagedList<T>(items, pageNumber, pageSize, count);
         }
     }
