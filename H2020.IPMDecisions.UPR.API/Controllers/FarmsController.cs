@@ -1,16 +1,16 @@
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using H2020.IPMDecisions.UPR.BLL;
-using System.Net.Mime;
-using Microsoft.AspNetCore.Http;
-using System.Threading.Tasks;
-using H2020.IPMDecisions.UPR.Core.Dtos;
-using System;
-using H2020.IPMDecisions.UPR.Core.ResourceParameters;
-using Microsoft.AspNetCore.JsonPatch;
 using H2020.IPMDecisions.UPR.API.Filters;
+using H2020.IPMDecisions.UPR.BLL;
+using H2020.IPMDecisions.UPR.Core.Dtos;
+using H2020.IPMDecisions.UPR.Core.ResourceParameters;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.JsonPatch;
+using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Net.Mime;
 using System.Text.Json;
+using System.Threading.Tasks;
 
 namespace H2020.IPMDecisions.UPR.API.Controllers
 {
@@ -30,7 +30,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
 
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [HttpDelete("{id:guid}", Name = "DeleteFarm")]
+        [HttpDelete("{id:guid}", Name = "api.farm.delete.farmbyid")]
         //DELETE: api/farms/1
         public async Task<IActionResult> Delete([FromRoute] Guid id)
         {
@@ -45,8 +45,8 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [Produces(MediaTypeNames.Application.Json)]
-        [HttpGet("", Name = "GetFarms")]
+        [Produces(MediaTypeNames.Application.Json, "application/vnd.h2020ipmdecisions.hateoas+json")]
+        [HttpGet("", Name = "api.farm.get.all")]
         [HttpHead]
         // GET: api/farms
         public async Task<IActionResult> Get(
@@ -61,19 +61,19 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
 
             Response.Headers.Add("X-Pagination",
                 JsonSerializer.Serialize(response.Result.PaginationMetaData));
-                
+
             return Ok(new
-                {
-                    value = response.Result.Value,
-                    links = response.Result.Links
-                });
+            {
+                value = response.Result.Value,
+                links = response.Result.Links
+            });
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [Produces(MediaTypeNames.Application.Json)]
-        [HttpGet("{id:guid}", Name = "GetFarmById")]
+        [Produces(MediaTypeNames.Application.Json, "application/vnd.h2020ipmdecisions.hateoas+json")]
+        [HttpGet("{id:guid}", Name = "api.farm.get.farmbyid")]
         [HttpHead]
         // GET:  api/farms/1
         public async Task<IActionResult> GetFarmById([FromRoute] Guid id,
@@ -91,8 +91,8 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         [Consumes(MediaTypeNames.Application.Json)]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [Produces(MediaTypeNames.Application.Json)]
-        [HttpPost("", Name = "CreateFarm")]
+        [Produces(MediaTypeNames.Application.Json, "application/vnd.h2020ipmdecisions.hateoas+json")]
+        [HttpPost("", Name = "api.farm.post.farm")]
         // POST: api/farms
         public async Task<IActionResult> Post(
             [FromBody] FarmForCreationDto farmForCreationDto,
@@ -104,8 +104,8 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
             if (!response.IsSuccessful)
                 return response.RequestResult;
             return CreatedAtRoute(
-                "GetFarmById",
-                new { id = response.Result.Id },
+                "api.farm.get.farmbyid",
+                new { id = response.Result["Id"] },
                 response.Result);
         }
 
@@ -113,25 +113,23 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [HttpPatch("{id:guid}", Name = "PartialUpdateFarm")]
+        [HttpPatch("{id:guid}", Name = "api.farm.patch.farmbyid")]
         //PATCH: api/farms/1
         public async Task<IActionResult> PartialUpdate(
             [FromRoute] Guid id,
             JsonPatchDocument<FarmForUpdateDto> patchDocument)
         {
             var farmResponse = await this.businessLogic.GetFarm(id, HttpContext);
-
             if (!farmResponse.IsSuccessful)
                 return farmResponse.RequestResult;
 
-            FarmForUpdateDto farmToPatch = 
+            FarmForUpdateDto farmToPatch =
                 this.businessLogic.MapToFarmForUpdateDto(farmResponse.Result);
             patchDocument.ApplyTo(farmToPatch, ModelState);
             if (!TryValidateModel(farmToPatch))
                 return ValidationProblem(ModelState);
 
             var response = await this.businessLogic.UpdateFarm(farmResponse.Result, farmToPatch);
-
             if (!response.IsSuccessful)
                 return BadRequest(new { message = response.ErrorMessage });
 
