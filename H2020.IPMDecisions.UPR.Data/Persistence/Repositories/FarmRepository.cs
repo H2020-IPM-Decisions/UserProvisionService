@@ -57,19 +57,20 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
                 resourceParameter.PageSize);
         }
 
-        public async Task<PagedList<Farm>> FindAllAsync(FarmResourceParameter resourceParameter, Guid? userId = null)
+        public async Task<PagedList<Farm>> FindAllAsync(FarmResourceParameter resourceParameter, Guid userId)
         {
+            if (string.IsNullOrEmpty(userId.ToString()))
+            {
+                return await FindAllAsync(resourceParameter);
+            }
+
             if (resourceParameter is null)
                 throw new ArgumentNullException(nameof(resourceParameter));
 
             var collection = this.context.Farm as IQueryable<Farm>;
-
-            if (!string.IsNullOrEmpty(userId.ToString()))
-            {
-                collection = collection.Where(f =>
+            collection = collection.Where(f =>
                     f.UserFarms.Any
                         (uf => uf.UserId == userId));
-            }
 
             collection = ApplyResourceParameter(resourceParameter, collection);
 
@@ -107,6 +108,24 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
                 .context
                 .Farm
                 .Include(f => f.UserFarms)
+                .Where(f =>
+                    f.Id == id)
+                .FirstOrDefaultAsync();
+        }
+
+        public async Task<Farm> FindByIdAsync(Guid id, bool includeAssociatedData)
+        {
+            if (!includeAssociatedData)
+            {
+                return await FindByIdAsync(id);
+            }
+
+            return await this
+                .context
+                .Farm
+                .Include(f => f.UserFarms)
+                .Include(f => f.Fields)
+                    .ThenInclude(fi => fi.FieldObservations)
                 .Where(f =>
                     f.Id == id)
                 .FirstOrDefaultAsync();

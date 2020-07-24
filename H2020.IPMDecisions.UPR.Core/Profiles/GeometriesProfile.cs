@@ -1,5 +1,3 @@
-using H2020.IPMDecisions.UPR.Core.Dtos;
-using H2020.IPMDecisions.UPR.Core.Entities;
 using H2020.IPMDecisions.UPR.Core.Models;
 using NetTopologySuite.Geometries;
 

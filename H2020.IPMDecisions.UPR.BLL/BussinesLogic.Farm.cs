@@ -157,7 +157,11 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
         }
 
-        public async Task<GenericResponse<IDictionary<string, object>>> GetFarmDto(Guid id, HttpContext httpContext, string fields, string mediaType)
+        public async Task<GenericResponse<IDictionary<string, object>>> GetFarmDto(
+            Guid id,
+            HttpContext httpContext,
+            ChildrenResourceParameter childrenResourceParameter,
+            string mediaType)
         {
             try
             {
@@ -165,11 +169,21 @@ namespace H2020.IPMDecisions.UPR.BLL
                        out MediaTypeHeaderValue parsedMediaType))
                     return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, "Wrong media type.");
 
-                if (!propertyCheckerService.TypeHasProperties<FarmDto>(fields, false))
+                if (!propertyCheckerService.TypeHasProperties<FarmDto>(childrenResourceParameter.Fields, false))
                     return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, "Wrong fields entered");
 
                 var userId = Guid.Parse(httpContext.Items["userId"].ToString());
                 var isAdmin = httpContext.Items["isAdmin"];
+
+                var includeLinks = parsedMediaType.SubTypeWithoutSuffix
+                    .EndsWith("hateoas", StringComparison.InvariantCultureIgnoreCase);
+
+                var primaryMediaType = includeLinks ?
+                    parsedMediaType.SubTypeWithoutSuffix
+                    .Substring(0, parsedMediaType.SubTypeWithoutSuffix.Length - 8)
+                    : parsedMediaType.SubTypeWithoutSuffix;
+
+                bool includeChildren = primaryMediaType.ToString().Contains("withchildren");
 
                 Farm farmAsEntity = null;
 
@@ -181,54 +195,77 @@ namespace H2020.IPMDecisions.UPR.BLL
                         .FindByCondition(
                             f => f.Id == id &&
                             f.UserFarms
-                                .Any(uf => uf.UserId == userId), true);
+                                .Any(uf => uf.UserId == userId), includeChildren);
                 }
                 else
                 {
                     farmAsEntity = await this
                         .dataService
                         .Farms
-                        .FindByIdAsync(id);
+                        .FindByIdAsync(id, includeChildren);
                 }
 
                 if (farmAsEntity == null) return GenericResponseBuilder.NotFound<IDictionary<string, object>>();
 
-                //if (farmAsEntity.Fields != null && farmAsEntity.Fields.Count() > 0)
-                //{
-                //    var childAsPaged = PagedList<Field>.Create(farmAsEntity.Fields.AsQueryable(), 1, 5);
-
-                //    FieldResourceParameter childResourceParameter = new FieldResourceParameter()
-                //    {
-                //        PageSize = 5,
-                //        PageNumber = 1
-                //    };
-                //    IEnumerable<LinkDto> childLinks = CreateLinksForFields(farmAsEntity.Id, childResourceParameter, childAsPaged.HasNext, childAsPaged.HasPrevious);
-
-                //    var paginationMetaData = MiscellaneousHelpers.CreatePaginationMetadata(childAsPaged);
-
-                //    var shapedChildToReturn = this.mapper
-                //        .Map<IEnumerable<FieldDto>>(childAsPaged)
-                //        .ShapeData("");
-
-                //    var farmsToReturn = new ShapedDataWithLinks()
-                //    {
-                //        Value = shapedChildToReturn,
-                //        Links = childLinks,
-                //        PaginationMetaData = paginationMetaData
-                //    };
-
-                //    var farmToReturnWithChildren = this.mapper.Map<FarmWithShapedChildrenDto>(farmAsEntity);
-                //    farmToReturnWithChildren.FieldsDto = farmsToReturn;
-                //    var farmToReturnWithChildrenx = farmToReturnWithChildren.ShapeData("");
-                //    return GenericResponseBuilder.Success<IDictionary<string, object>>(farmToReturnWithChildrenx);
-                //}
-                var farmToReturn = this.mapper.Map<FarmDto>(farmAsEntity).ShapeData(fields) as IDictionary<string, object>;
-
-                var includeLinks = parsedMediaType.SubTypeWithoutSuffix
-                            .EndsWith("hateoas", StringComparison.InvariantCultureIgnoreCase);
+                IEnumerable<LinkDto> links = new List<LinkDto>();
                 if (includeLinks)
                 {
-                    var links = CreateLinksForFarm(id, fields);
+                    links = CreateLinksForFarm(id, childrenResourceParameter.Fields);
+                }
+
+                if (includeChildren)
+                {
+                    var childrenAsPaged = PagedList<Field>.Create(
+                        farmAsEntity.Fields.AsQueryable(),
+                        childrenResourceParameter.PageNumber,
+                        childrenResourceParameter.PageSize);
+
+                    var fieldResourceParameter = this.mapper.Map<FieldResourceParameter>(childrenResourceParameter);
+                    var childrenPaginationLinks = CreateLinksForFields(farmAsEntity.Id, fieldResourceParameter, childrenAsPaged.HasNext, childrenAsPaged.HasPrevious);
+
+                    var paginationMetaData = MiscellaneousHelpers.CreatePaginationMetadata(childrenAsPaged);
+
+                    var shapedChildrenToReturn = this.mapper
+                       .Map<IEnumerable<FieldDto>>(childrenAsPaged)
+                       .ShapeData();
+
+                    var shapedChildrentToReturnWithLinks = shapedChildrenToReturn.Select(field =>
+                    {
+                        var userAsDictionary = field as IDictionary<string, object>;
+                        if (includeLinks)
+                        {
+                            var userLinks = CreateLinksForField((Guid)userAsDictionary["Id"], id, fieldResourceParameter.Fields);
+                            userAsDictionary.Add("links", userLinks);
+                        }
+                        return userAsDictionary;
+                    });
+
+                    var fieldsToReturn = new ShapedDataWithLinks()
+                   {
+                       Value = shapedChildrentToReturnWithLinks,
+                       Links = childrenPaginationLinks,
+                       PaginationMetaData = paginationMetaData
+                   };
+
+                    var farmToReturnWithChildren = this.mapper.Map<FarmWithShapedChildrenDto>(farmAsEntity);
+                    farmToReturnWithChildren.FieldsDto = fieldsToReturn;
+
+                    var farmToReturnWithChildrenShaped = farmToReturnWithChildren.ShapeData("") as IDictionary<string, object>;
+
+                    if (includeLinks)
+                    {
+                        farmToReturnWithChildrenShaped.Add("links", links);
+                    }
+
+                    return GenericResponseBuilder.Success<IDictionary<string, object>>(farmToReturnWithChildrenShaped);
+                }
+                
+                var farmToReturn = this.mapper.Map<FarmDto>(farmAsEntity)
+                    .ShapeData(childrenResourceParameter.Fields) as IDictionary<string, object>;
+
+                if (includeLinks)
+                {
+                    links = CreateLinksForFarm(id, childrenResourceParameter.Fields);
                     farmToReturn.Add("links", links);
                 }
 
@@ -431,8 +468,6 @@ namespace H2020.IPMDecisions.UPR.BLL
 
             return links;
         }
-
-
         #endregion
     }
 }

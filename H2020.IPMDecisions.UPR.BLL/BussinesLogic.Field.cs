@@ -291,6 +291,41 @@ namespace H2020.IPMDecisions.UPR.BLL
                     });
             }
         }
+
+        private IEnumerable<LinkDto> CreateLinksForField(
+            Guid id,
+            Guid farmId,
+            string fields = "")
+        {
+            var links = new List<LinkDto>();
+
+            if (string.IsNullOrWhiteSpace(fields))
+            {
+                links.Add(new LinkDto(
+                url.Link("GetFieldById", new { farmId, id }),
+                "self",
+                "GET"));
+            }
+            else
+            {
+                links.Add(new LinkDto(
+                 url.Link("GetFieldById", new { farmId, id, fields }),
+                 "self",
+                 "GET"));
+            }
+
+            links.Add(new LinkDto(
+                url.Link("DeleteField", new { farmId, id }),
+                "delete_field",
+                "DELETE"));
+
+            links.Add(new LinkDto(
+                url.Link("PartialUpdateField", new { farmId, id }),
+                "update_field",
+                "PATCH"));
+
+            return links;
+        }
         #endregion
     }
 }

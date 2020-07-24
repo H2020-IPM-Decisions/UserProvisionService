@@ -72,15 +72,18 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [Produces(MediaTypeNames.Application.Json, "application/vnd.h2020ipmdecisions.hateoas+json")]
+        [Produces(MediaTypeNames.Application.Json,
+            "application/vnd.h2020ipmdecisions.hateoas+json",
+            "application/vnd.h2020ipmdecisions.farm.withchildren+json",
+            "application/vnd.h2020ipmdecisions.farm.withchildren.hateoas+json")]
         [HttpGet("{id:guid}", Name = "api.farm.get.farmbyid")]
         [HttpHead]
         // GET:  api/farms/1
         public async Task<IActionResult> GetFarmById([FromRoute] Guid id,
-            [FromQuery] string fields,
+            [FromQuery] ChildrenResourceParameter resourceParameter,
             [FromHeader(Name = "Accept")] string mediaType)
         {
-            var response = await this.businessLogic.GetFarmDto(id, HttpContext, fields, mediaType);
+            var response = await this.businessLogic.GetFarmDto(id, HttpContext, resourceParameter, mediaType);
 
             if (!response.IsSuccessful)
                 return response.RequestResult;
@@ -91,7 +94,10 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         [Consumes(MediaTypeNames.Application.Json)]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [Produces(MediaTypeNames.Application.Json, "application/vnd.h2020ipmdecisions.hateoas+json")]
+        [Produces(MediaTypeNames.Application.Json, 
+            "application/vnd.h2020ipmdecisions.hateoas+json",
+            "application/vnd.h2020ipmdecisions.farm.withchildren+json",
+            "application/vnd.h2020ipmdecisions.farm.withchildren.hateoas+json")]
         [HttpPost("", Name = "api.farm.post.farm")]
         // POST: api/farms
         public async Task<IActionResult> Post(
