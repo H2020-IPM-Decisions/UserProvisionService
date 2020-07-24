@@ -89,16 +89,15 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
 
         public async Task<Farm> FindByCondition(Expression<Func<Farm, bool>> expression, bool includeAssociatedData)
         {
-            if (includeAssociatedData)
+            if (!includeAssociatedData)
             {
                 return await FindByCondition(expression);
             }
-
             return await this.context
                 .Farm
                 .Where(expression)
                 .Include(f => f.Fields)
-                   .ThenInclude(fi => fi.FieldObservations)
+                    .ThenInclude(fi => fi.FieldObservations)
                 .FirstOrDefaultAsync();
         }
 

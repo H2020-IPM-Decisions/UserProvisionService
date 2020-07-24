@@ -1,13 +1,13 @@
-using System;
-using System.Collections.Generic;
-using System.Net.Http.Headers;
-using System.Threading.Tasks;
 using H2020.IPMDecisions.UPR.Core.Dtos;
 using H2020.IPMDecisions.UPR.Core.Entities;
 using H2020.IPMDecisions.UPR.Core.Helpers;
 using H2020.IPMDecisions.UPR.Core.Models;
 using H2020.IPMDecisions.UPR.Core.ResourceParameters;
 using Microsoft.AspNetCore.Http;
+using System;
+using System.Collections.Generic;
+using System.Net.Http.Headers;
+using System.Threading.Tasks;
 
 namespace H2020.IPMDecisions.UPR.BLL
 {
@@ -15,7 +15,7 @@ namespace H2020.IPMDecisions.UPR.BLL
     {
         public async Task<GenericResponse<FieldDto>> AddNewField(
             FieldForCreationDto fieldForCreationDto,
-            HttpContext httpContext, 
+            HttpContext httpContext,
             string mediaType)
         {
             try
@@ -85,8 +85,8 @@ namespace H2020.IPMDecisions.UPR.BLL
         }
 
         public async Task<GenericResponse<ShapedDataWithLinks>> GetFields(
-            Guid farmId, 
-            FieldResourceParameter resourceParameter, 
+            Guid farmId,
+            FieldResourceParameter resourceParameter,
             string mediaType)
         {
             try
@@ -116,7 +116,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                     TotalPages = fieldsAsEntities.TotalPages
                 };
 
-                var links = CreateLinksForFields(resourceParameter, fieldsAsEntities.HasNext, fieldsAsEntities.HasPrevious);
+                var links = CreateLinksForFields(farmId, resourceParameter, fieldsAsEntities.HasNext, fieldsAsEntities.HasPrevious);
 
                 var shapedFarmsToReturn = this.mapper
                     .Map<IEnumerable<FieldDto>>(fieldsAsEntities)
@@ -130,7 +130,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                 };
 
                 return GenericResponseBuilder.Success<ShapedDataWithLinks>(farmsToReturn);
-                
+
             }
             catch (Exception ex)
             {
@@ -219,6 +219,7 @@ namespace H2020.IPMDecisions.UPR.BLL
         }
 
         private IEnumerable<LinkDto> CreateLinksForFields(
+            Guid farmId,
             FieldResourceParameter resourceParameter,
             bool hasNextPage,
             bool hasPreviousPage)
@@ -226,21 +227,21 @@ namespace H2020.IPMDecisions.UPR.BLL
             var links = new List<LinkDto>();
 
             links.Add(new LinkDto(
-                CreateFieldResourceUri(resourceParameter, ResourceUriType.Current),
+                CreateFieldResourceUri(farmId, resourceParameter, ResourceUriType.Current),
                 "self",
                 "GET"));
 
             if (hasNextPage)
             {
                 links.Add(new LinkDto(
-                CreateFieldResourceUri(resourceParameter, ResourceUriType.NextPage),
+                CreateFieldResourceUri(farmId, resourceParameter, ResourceUriType.NextPage),
                 "next_page",
                 "GET"));
             }
             if (hasPreviousPage)
             {
                 links.Add(new LinkDto(
-               CreateFieldResourceUri(resourceParameter, ResourceUriType.PreviousPage),
+               CreateFieldResourceUri(farmId, resourceParameter, ResourceUriType.PreviousPage),
                "previous_page",
                "GET"));
             }
@@ -248,6 +249,7 @@ namespace H2020.IPMDecisions.UPR.BLL
         }
 
         private string CreateFieldResourceUri(
+            Guid farmId,
             FieldResourceParameter resourceParameter,
             ResourceUriType type)
         {
@@ -257,6 +259,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                     return url.Link("GetFields",
                     new
                     {
+                        farmId,
                         fields = resourceParameter.Fields,
                         orderBy = resourceParameter.OrderBy,
                         pageNumber = resourceParameter.PageNumber - 1,
@@ -267,6 +270,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                     return url.Link("GetFields",
                     new
                     {
+                        farmId,
                         fields = resourceParameter.Fields,
                         orderBy = resourceParameter.OrderBy,
                         pageNumber = resourceParameter.PageNumber + 1,
@@ -278,6 +282,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                     return url.Link("GetFields",
                     new
                     {
+                        farmId,
                         fields = resourceParameter.Fields,
                         orderBy = resourceParameter.OrderBy,
                         pageNumber = resourceParameter.PageNumber,

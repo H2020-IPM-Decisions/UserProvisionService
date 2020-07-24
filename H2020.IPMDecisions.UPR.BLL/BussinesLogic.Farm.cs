@@ -1,14 +1,14 @@
-using System;
-using Microsoft.Net.Http.Headers;
-using System.Threading.Tasks;
 using H2020.IPMDecisions.UPR.Core.Dtos;
 using H2020.IPMDecisions.UPR.Core.Entities;
-using H2020.IPMDecisions.UPR.Core.Models;
-using Microsoft.AspNetCore.Http;
-using System.Linq;
-using System.Collections.Generic;
-using H2020.IPMDecisions.UPR.Core.ResourceParameters;
 using H2020.IPMDecisions.UPR.Core.Helpers;
+using H2020.IPMDecisions.UPR.Core.Models;
+using H2020.IPMDecisions.UPR.Core.ResourceParameters;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Net.Http.Headers;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace H2020.IPMDecisions.UPR.BLL
 {
@@ -28,12 +28,13 @@ namespace H2020.IPMDecisions.UPR.BLL
                     existingFarm = await this.dataService
                     .Farms
                     .FindByCondition(
-                        f => f.Id == id 
+                        f => f.Id == id
                         &&
                         f.UserFarms.Any(uf => uf.UserId == userId)
                     );
                 }
-                else {
+                else
+                {
                     existingFarm = await this.dataService
                         .Farms
                         .FindByIdAsync(id);
@@ -43,7 +44,7 @@ namespace H2020.IPMDecisions.UPR.BLL
 
                 this.dataService.Farms.Delete(existingFarm);
                 await this.dataService.CompleteAsync();
-                
+
                 return GenericResponseBuilder.Success();
             }
             catch (Exception ex)
@@ -142,16 +143,16 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
         }
 
-        public async Task<GenericResponse<FarmDto>> GetFarmDto(Guid id, HttpContext httpContext, string fields, string mediaType)
+        public async Task<GenericResponse<IDictionary<string, object>>> GetFarmDto(Guid id, HttpContext httpContext, string fields, string mediaType)
         {
             try
             {
                 if (!MediaTypeHeaderValue.TryParse(mediaType,
                        out MediaTypeHeaderValue parsedMediaType))
-                    return GenericResponseBuilder.NoSuccess<FarmDto>(null, "Wrong media type.");
+                    return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, "Wrong media type.");
 
                 if (!propertyCheckerService.TypeHasProperties<FarmDto>(fields, false))
-                    return GenericResponseBuilder.NoSuccess<FarmDto>(null, "Wrong fields entered");
+                    return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, "Wrong fields entered");
 
                 var userId = Guid.Parse(httpContext.Items["userId"].ToString());
                 var isAdmin = httpContext.Items["isAdmin"];
@@ -166,7 +167,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                         .FindByCondition(
                             f => f.Id == id &&
                             f.UserFarms
-                                .Any(uf => uf.UserId == userId));
+                                .Any(uf => uf.UserId == userId), true);
                 }
                 else
                 {
@@ -176,17 +177,52 @@ namespace H2020.IPMDecisions.UPR.BLL
                         .FindByIdAsync(id);
                 }
 
-                if (farmAsEntity == null) return GenericResponseBuilder.NotFound<FarmDto>();
+                if (farmAsEntity == null) return GenericResponseBuilder.NotFound<IDictionary<string, object>>();
 
-                // ToDo: Shape Data
+                if (farmAsEntity.Fields != null && farmAsEntity.Fields.Count() > 0)
+                {
+                    var childAsPaged = PagedList<Field>.Create(farmAsEntity.Fields.AsQueryable(), 1, 5);
 
-                var farmToReturn = this.mapper.Map<FarmDto>(farmAsEntity);
-                return GenericResponseBuilder.Success<FarmDto>(farmToReturn);
+                    FieldResourceParameter childResourceParameter = new FieldResourceParameter()
+                    {
+                        PageSize = 5,
+                        PageNumber = 1
+                    };
+                    IEnumerable<LinkDto> childLinks = CreateLinksForFields(farmAsEntity.Id, childResourceParameter, childAsPaged.HasNext, childAsPaged.HasPrevious);
+
+                    var paginationMetaData = new PaginationMetaData()
+                    {
+                        TotalCount = childAsPaged.TotalCount,
+                        PageSize = childAsPaged.PageSize,
+                        CurrentPage = childAsPaged.CurrentPage,
+                        TotalPages = childAsPaged.TotalPages,
+                        IsFirstPage = childAsPaged.IsFirstPage,
+                        IsLastPage = childAsPaged.IsLastPage
+                    };
+
+                    var shapedChildToReturn = this.mapper
+                        .Map<IEnumerable<FieldDto>>(childAsPaged)
+                        .ShapeData("");
+
+                    var farmsToReturn = new ShapedDataWithLinks()
+                    {
+                        Value = shapedChildToReturn,
+                        Links = childLinks,
+                        PaginationMetaData = paginationMetaData
+                    };
+
+                    var farmToReturnWithChildren = this.mapper.Map<FarmWithShapedChildrenDto>(farmAsEntity);
+                    farmToReturnWithChildren.FieldsDto = farmsToReturn;
+                    var farmToReturnWithChildrenx = farmToReturnWithChildren.ShapeData("");
+                    return GenericResponseBuilder.Success<IDictionary<string, object>>(farmToReturnWithChildrenx);
+                }
+                var farmToReturn = this.mapper.Map<FarmDto>(farmAsEntity).ShapeData(fields);
+                return GenericResponseBuilder.Success<IDictionary<string, object>>(farmToReturn);
             }
             catch (Exception ex)
             {
                 //ToDo Log Error
-                return GenericResponseBuilder.NoSuccess<FarmDto>(null, $"{ex.Message} InnerException: {ex.InnerException.Message}");
+                return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, $"{ex.Message} InnerException: {ex.InnerException.Message}");
             }
         }
 
@@ -200,30 +236,36 @@ namespace H2020.IPMDecisions.UPR.BLL
 
                 if (!propertyCheckerService.TypeHasProperties<FarmDto>(resourceParameter.Fields, true))
                     return GenericResponseBuilder.NoSuccess<ShapedDataWithLinks>(null, "Wrong fields entered or missing 'id' field");
-                
+
                 if (!propertyMappingService.ValidMappingExistsFor<FarmDto, Farm>(resourceParameter.OrderBy))
                     return GenericResponseBuilder.NoSuccess<ShapedDataWithLinks>(null, "Wrong OrderBy entered");
 
                 var farmsAsEntities = await this
                     .dataService
                     .Farms
-                    .FindAllAsync(resourceParameter, userId);                
+                    .FindAllAsync(resourceParameter, userId);
 
                 if (farmsAsEntities.Count == 0) return GenericResponseBuilder.NotFound<ShapedDataWithLinks>();
+
+                var shapedFarmsToReturn = this.mapper
+                    .Map<IEnumerable<FarmDto>>(farmsAsEntities)
+                    .ShapeData(resourceParameter.Fields);
+
+                foreach (var farm in shapedFarmsToReturn)
+                {
+                }
 
                 var paginationMetaData = new PaginationMetaData()
                 {
                     TotalCount = farmsAsEntities.TotalCount,
                     PageSize = farmsAsEntities.PageSize,
                     CurrentPage = farmsAsEntities.CurrentPage,
-                    TotalPages = farmsAsEntities.TotalPages
+                    TotalPages = farmsAsEntities.TotalPages,
+                    IsFirstPage = farmsAsEntities.IsFirstPage,
+                    IsLastPage = farmsAsEntities.IsLastPage
                 };
 
                 var links = CreateLinksForFarms(resourceParameter, farmsAsEntities.HasNext, farmsAsEntities.HasPrevious);
-
-                var shapedFarmsToReturn = this.mapper
-                                    .Map<IEnumerable<FarmDto>>(farmsAsEntities)
-                                    .ShapeData(resourceParameter.Fields);
 
                 var farmsToReturn = new ShapedDataWithLinks()
                 {
@@ -272,8 +314,8 @@ namespace H2020.IPMDecisions.UPR.BLL
         }
 
         private IEnumerable<LinkDto> CreateLinksForFarms(
-            FarmResourceParameter resourceParameter, 
-            bool hasNextPage, 
+            FarmResourceParameter resourceParameter,
+            bool hasNextPage,
             bool hasPreviousPage)
         {
             var links = new List<LinkDto>();
@@ -301,7 +343,7 @@ namespace H2020.IPMDecisions.UPR.BLL
         }
 
         private string CreateFarmResourceUri(
-            FarmResourceParameter resourceParameter, 
+            FarmResourceParameter resourceParameter,
             ResourceUriType type)
         {
             switch (type)

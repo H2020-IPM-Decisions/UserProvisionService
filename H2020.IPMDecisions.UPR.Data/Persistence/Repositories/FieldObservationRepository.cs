@@ -87,7 +87,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence
 
         public async Task<FieldObservation> FindByCondition(Expression<Func<FieldObservation, bool>> expression, bool includeAssociatedData)
         {
-            if (includeAssociatedData)
+            if (!includeAssociatedData)
             {
                 return await FindByCondition(expression);
             }

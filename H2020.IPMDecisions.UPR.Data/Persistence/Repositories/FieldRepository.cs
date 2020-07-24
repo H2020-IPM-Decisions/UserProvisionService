@@ -103,7 +103,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
 
         public async Task<Field> FindByCondition(Expression<Func<Field, bool>> expression, bool includeAssociatedData)
         {
-            if (includeAssociatedData)
+            if (!includeAssociatedData)
             {
                 return await FindByCondition(expression);
             }
