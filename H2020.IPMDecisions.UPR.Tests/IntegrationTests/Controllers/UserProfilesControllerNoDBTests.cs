@@ -20,9 +20,9 @@ namespace H2020.IPMDecisions.UPR.Tests.IntegrationTests.Controllers
         public UserProfilesControllerNoDBTests(FakeWebHost fakeWebHost)
         {
             this.fakeWebHost = fakeWebHost;
-        }      
+        }
 
-        [Fact]
+        [Fact(Skip = "Deprecated")]
         public async void Get_DifferentUserIdUrlAndToken_Unauthorized()
         {
             // Arrange
@@ -50,7 +50,7 @@ namespace H2020.IPMDecisions.UPR.Tests.IntegrationTests.Controllers
             response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
         }
 
-        [Fact]
+        [Fact(Skip = "Deprecated")]
         public async void Post_DifferentUserIdUrlAndToken_Unauthorized()
         {
             // Arrange
@@ -85,7 +85,7 @@ namespace H2020.IPMDecisions.UPR.Tests.IntegrationTests.Controllers
             response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
         }
 
-        [Fact]
+        [Fact(Skip = "Deprecated")]
         public async void Post_WrongContentTypeHeader_UnsupportedMediaType()
         {
             // Arrange
@@ -118,7 +118,7 @@ namespace H2020.IPMDecisions.UPR.Tests.IntegrationTests.Controllers
             response.StatusCode.Should().Be(HttpStatusCode.UnsupportedMediaType);
         }
 
-        [Fact]
+        [Fact(Skip = "Deprecated")]
         public async void Delete_DifferentUserIdUrlAndToken_Unauthorized()
         {
             // Arrange
@@ -146,7 +146,7 @@ namespace H2020.IPMDecisions.UPR.Tests.IntegrationTests.Controllers
             response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
         }
 
-        [Fact]
+        [Fact(Skip = "Deprecated")]
         public async void Patch_DifferentUserIdUrlAndToken_Unauthorized()
         {
             // Arrange
@@ -181,7 +181,7 @@ namespace H2020.IPMDecisions.UPR.Tests.IntegrationTests.Controllers
             response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
         }
 
-        [Fact]
+        [Fact(Skip = "Depracated")]
         public async void Patch_WrongContentTypeHeader_UnsupportedMediaType()
         {
             // Arrange

@@ -28,7 +28,7 @@ namespace H2020.IPMDecisions.UPR.Tests.IntegrationTests.Controllers
         }
 
         #region Admin Role
-        [Fact]
+        [Fact(Skip = "Deprecated")]
         public async void Post_AdminCreatesOtherProfile_Created()
         {
             // Arrange
@@ -66,7 +66,7 @@ namespace H2020.IPMDecisions.UPR.Tests.IntegrationTests.Controllers
 
         }
 
-        [Fact]
+        [Fact(Skip = "Deprecated")]
         public async void Get_AdminUsesUnexistingUserId_NotFound()
         {
             // Arrange
@@ -90,7 +90,7 @@ namespace H2020.IPMDecisions.UPR.Tests.IntegrationTests.Controllers
             response.StatusCode.Should().Be(HttpStatusCode.NotFound);
         }
 
-        [Fact]
+        [Fact(Skip = "Deprecated")]
         public async void Delete_AdminUsesUnexistingUserId_NotContent()
         {
             // Arrange
@@ -114,7 +114,7 @@ namespace H2020.IPMDecisions.UPR.Tests.IntegrationTests.Controllers
             response.StatusCode.Should().Be(HttpStatusCode.NoContent);
         }
 
-        [Fact]
+        [Fact(Skip = "Deprecated")]
         public async void Patch_AdminUsesUnexistingUserId_CreatesNewUserProfile()
         {
             // Arrange
@@ -150,7 +150,7 @@ namespace H2020.IPMDecisions.UPR.Tests.IntegrationTests.Controllers
             responseDeserialized.FullName.Should().Be("NewName");
         }
 
-        [Fact]
+        [Fact(Skip = "Deprecated")]
         public async void Patch_AdminUsesUnexistingUserIdButNoFirstName_BadRequest()
         {
             // Arrange
