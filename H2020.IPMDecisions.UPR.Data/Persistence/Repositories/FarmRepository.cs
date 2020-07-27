@@ -80,6 +80,33 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
                 resourceParameter.PageSize);
         }
 
+        public async Task<PagedList<Farm>> FindAllAsync(FarmResourceParameter resourceParameter, Guid userId, bool includeAssociatedData)
+        {
+            if (!includeAssociatedData)
+            {
+                return await FindAllAsync(resourceParameter, userId);
+            }
+
+            if (resourceParameter is null)
+                throw new ArgumentNullException(nameof(resourceParameter));           
+
+            var collection = this.context.Farm as IQueryable<Farm>;
+            collection = collection.Where(f =>
+                    f.UserFarms.Any
+                        (uf => uf.UserId == userId));
+
+            collection = collection
+                .Include(f => f.Fields)
+                    .ThenInclude(fi => fi.FieldObservations);
+
+            collection = ApplyResourceParameter(resourceParameter, collection);
+
+            return await PagedList<Farm>.CreateAsync(
+                collection,
+                resourceParameter.PageNumber,
+                resourceParameter.PageSize);
+        }
+
         public async Task<Farm> FindByCondition(Expression<Func<Farm, bool>> expression)
         {
             return await this.context

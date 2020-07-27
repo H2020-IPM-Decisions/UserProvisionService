@@ -9,6 +9,7 @@ namespace H2020.IPMDecisions.UPR.Data.Core.Repositories
     public interface IFarmRepository : IRepositoryBase<Farm, FarmResourceParameter>
     {
         Task<PagedList<Farm>> FindAllAsync(FarmResourceParameter resourceParameter, Guid userId);
+        Task<PagedList<Farm>> FindAllAsync(FarmResourceParameter resourceParameter, Guid userId, bool includeAssociatedData);
         Task<Farm> FindByIdAsync(Guid id, bool includeAssociatedData);
     }
 }
