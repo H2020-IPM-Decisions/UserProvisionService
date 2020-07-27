@@ -22,24 +22,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                 var userId = Guid.Parse(httpContext.Items["userId"].ToString());
                 var isAdmin = httpContext.Items["isAdmin"];
 
-                Farm existingFarm = null;
-
-                if (isAdmin == null)
-                {
-                    existingFarm = await this.dataService
-                    .Farms
-                    .FindByCondition(
-                        f => f.Id == id
-                        &&
-                        f.UserFarms.Any(uf => uf.UserId == userId)
-                    );
-                }
-                else
-                {
-                    existingFarm = await this.dataService
-                        .Farms
-                        .FindByIdAsync(id);
-                }
+                Farm existingFarm = await FindFarm(id, userId, isAdmin, false);
 
                 if (existingFarm == null) return GenericResponseBuilder.Success();
 
@@ -185,25 +168,7 @@ namespace H2020.IPMDecisions.UPR.BLL
 
                 bool includeChildren = primaryMediaType.ToString().Contains("withchildren");
 
-                Farm farmAsEntity = null;
-
-                if (isAdmin == null)
-                {
-                    farmAsEntity = await this
-                        .dataService
-                        .Farms
-                        .FindByCondition(
-                            f => f.Id == id &&
-                            f.UserFarms
-                                .Any(uf => uf.UserId == userId), includeChildren);
-                }
-                else
-                {
-                    farmAsEntity = await this
-                        .dataService
-                        .Farms
-                        .FindByIdAsync(id, includeChildren);
-                }
+                Farm farmAsEntity = await FindFarm(id, userId, isAdmin, includeChildren);
 
                 if (farmAsEntity == null) return GenericResponseBuilder.NotFound<IDictionary<string, object>>();
 
@@ -215,51 +180,17 @@ namespace H2020.IPMDecisions.UPR.BLL
 
                 if (includeChildren)
                 {
-                    var childrenAsPaged = PagedList<Field>.Create(
-                        farmAsEntity.Fields.AsQueryable(),
-                        childrenResourceParameter.PageNumber,
-                        childrenResourceParameter.PageSize);
-
-                    var fieldResourceParameter = this.mapper.Map<FieldResourceParameter>(childrenResourceParameter);
-                    var childrenPaginationLinks = CreateLinksForFields(farmAsEntity.Id, fieldResourceParameter, childrenAsPaged.HasNext, childrenAsPaged.HasPrevious);
-
-                    var paginationMetaData = MiscellaneousHelpers.CreatePaginationMetadata(childrenAsPaged);
-
-                    var shapedChildrenToReturn = this.mapper
-                       .Map<IEnumerable<FieldDto>>(childrenAsPaged)
-                       .ShapeData();
-
-                    var shapedChildrentToReturnWithLinks = shapedChildrenToReturn.Select(field =>
-                    {
-                        var userAsDictionary = field as IDictionary<string, object>;
-                        if (includeLinks)
-                        {
-                            var userLinks = CreateLinksForField((Guid)userAsDictionary["Id"], id, fieldResourceParameter.Fields);
-                            userAsDictionary.Add("links", userLinks);
-                        }
-                        return userAsDictionary;
-                    });
-
-                    var fieldsToReturn = new ShapedDataWithLinks()
-                   {
-                       Value = shapedChildrentToReturnWithLinks,
-                       Links = childrenPaginationLinks,
-                       PaginationMetaData = paginationMetaData
-                   };
-
-                    var farmToReturnWithChildren = this.mapper.Map<FarmWithShapedChildrenDto>(farmAsEntity);
-                    farmToReturnWithChildren.FieldsDto = fieldsToReturn;
-
-                    var farmToReturnWithChildrenShaped = farmToReturnWithChildren.ShapeData("") as IDictionary<string, object>;
-
-                    if (includeLinks)
-                    {
-                        farmToReturnWithChildrenShaped.Add("links", links);
-                    }
+                    var farmToReturnWithChildrenShaped = CreateFarmWithChildrenAsDictionary(
+                        childrenResourceParameter,
+                        childrenResourceParameter.PageNumber, 
+                        childrenResourceParameter.PageSize,
+                        includeLinks, 
+                        farmAsEntity, 
+                        links);
 
                     return GenericResponseBuilder.Success<IDictionary<string, object>>(farmToReturnWithChildrenShaped);
                 }
-                
+
                 var farmToReturn = this.mapper.Map<FarmDto>(farmAsEntity)
                     .ShapeData(childrenResourceParameter.Fields) as IDictionary<string, object>;
 
@@ -276,7 +207,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                 //ToDo Log Error
                 return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, $"{ex.Message} InnerException: {ex.InnerException.Message}");
             }
-        }
+        }       
 
         public async Task<GenericResponse<ShapedDataWithLinks>> GetFarms(Guid userId, FarmResourceParameter resourceParameter, string mediaType)
         {
@@ -292,22 +223,52 @@ namespace H2020.IPMDecisions.UPR.BLL
                 if (!propertyMappingService.ValidMappingExistsFor<FarmDto, Farm>(resourceParameter.OrderBy))
                     return GenericResponseBuilder.NoSuccess<ShapedDataWithLinks>(null, "Wrong OrderBy entered");
 
+                var includeLinks = parsedMediaType.SubTypeWithoutSuffix
+                    .EndsWith("hateoas", StringComparison.InvariantCultureIgnoreCase);
+
+                var primaryMediaType = includeLinks ?
+                    parsedMediaType.SubTypeWithoutSuffix
+                    .Substring(0, parsedMediaType.SubTypeWithoutSuffix.Length - 8)
+                    : parsedMediaType.SubTypeWithoutSuffix;
+
+                bool includeChildren = primaryMediaType.ToString().Contains("withchildren");
+
                 var farmsAsEntities = await this
                     .dataService
                     .Farms
-                    .FindAllAsync(resourceParameter, userId);
+                    .FindAllAsync(resourceParameter, userId, includeChildren);
 
                 if (farmsAsEntities.Count == 0) return GenericResponseBuilder.NotFound<ShapedDataWithLinks>();
 
                 var paginationMetaData = MiscellaneousHelpers.CreatePaginationMetadata(farmsAsEntities);
-                var links = CreateLinksForFarms(resourceParameter, farmsAsEntities.HasNext, farmsAsEntities.HasPrevious);
+                var paginationLinks = CreateLinksForFarms(resourceParameter, farmsAsEntities.HasNext, farmsAsEntities.HasPrevious);
+
+                if (includeChildren)
+                {
+                    var farmsAsDictionaryList = farmsAsEntities.Select(farm =>
+                    {
+                        return CreateFarmWithChildrenAsDictionary(
+                            resourceParameter,
+                            resourceParameter.ChildPageNumber,
+                            resourceParameter.ChildPageSize,
+                            includeLinks,
+                            farm,
+                            paginationLinks);                        
+                    });
+
+                    var farmsToReturnWitChildren = new ShapedDataWithLinks()
+                    {
+                        Value = farmsAsDictionaryList,
+                        Links = paginationLinks,
+                        PaginationMetaData = paginationMetaData
+                    };
+
+                    return GenericResponseBuilder.Success<ShapedDataWithLinks>(farmsToReturnWitChildren);
+                }
 
                 var shapedFarmsToReturn = this.mapper
-                    .Map<IEnumerable<FarmDto>>(farmsAsEntities)
-                    .ShapeData(resourceParameter.Fields);
-
-                var includeLinks = parsedMediaType.SubTypeWithoutSuffix
-                    .EndsWith("hateoas", StringComparison.InvariantCultureIgnoreCase);
+                   .Map<IEnumerable<FarmDto>>(farmsAsEntities)
+                   .ShapeData(resourceParameter.Fields);
 
                 var shapedFarmsToReturnWithLinks = shapedFarmsToReturn.Select(farm =>
                 {
@@ -323,7 +284,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                 var farmsToReturn = new ShapedDataWithLinks()
                 {
                     Value = shapedFarmsToReturnWithLinks,
-                    Links = links,
+                    Links = paginationLinks,
                     PaginationMetaData = paginationMetaData
                 };
 
@@ -355,6 +316,29 @@ namespace H2020.IPMDecisions.UPR.BLL
         }
 
         #region Helpers
+        private async Task<Farm> FindFarm(Guid id, Guid userId, object isAdmin, bool includeChildren)
+        {
+            Farm existingFarm = null;
+
+            if (isAdmin == null)
+            {
+                existingFarm = await this.dataService
+                .Farms
+                .FindByCondition(
+                    f => f.Id == id
+                    &&
+                    f.UserFarms.Any(uf => uf.UserId == userId), includeChildren
+                );
+            }
+            else
+            {
+                existingFarm = await this.dataService
+                    .Farms
+                    .FindByIdAsync(id, includeChildren);
+            }
+
+            return existingFarm;
+        }
 
         public FarmForCreationDto MapToFarmForCreation(FarmForUpdateDto farmDto)
         {
@@ -467,6 +451,28 @@ namespace H2020.IPMDecisions.UPR.BLL
                 "PATCH"));
 
             return links;
+        }
+
+        private IDictionary<string, object> CreateFarmWithChildrenAsDictionary(BaseResourceParameter childrenResourceParameter, int pageNumber, int pageSize, bool includeLinks, Farm farmAsEntity, IEnumerable<LinkDto> links)
+        {
+            var fieldsToReturn = ShapeFieldsAsChildren(
+                farmAsEntity,
+                pageNumber,
+                pageSize,
+                childrenResourceParameter,
+                includeLinks);
+
+            var farmToReturnWithChildren = this.mapper.Map<FarmWithShapedChildrenDto>(farmAsEntity);
+            farmToReturnWithChildren.FieldsDto = fieldsToReturn;
+
+            var farmToReturnWithChildrenShaped = farmToReturnWithChildren.ShapeData("") as IDictionary<string, object>;
+
+            if (includeLinks)
+            {
+                farmToReturnWithChildrenShaped.Add("links", links);
+            }
+
+            return farmToReturnWithChildrenShaped;
         }
         #endregion
     }

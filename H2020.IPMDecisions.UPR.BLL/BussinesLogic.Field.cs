@@ -1,3 +1,4 @@
+using H2020.IPMDecisions.UPR.BLL.Helpers;
 using H2020.IPMDecisions.UPR.Core.Dtos;
 using H2020.IPMDecisions.UPR.Core.Entities;
 using H2020.IPMDecisions.UPR.Core.Helpers;
@@ -6,6 +7,7 @@ using H2020.IPMDecisions.UPR.Core.ResourceParameters;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 
@@ -325,6 +327,51 @@ namespace H2020.IPMDecisions.UPR.BLL
                 "PATCH"));
 
             return links;
+        }
+
+
+        private ShapedDataWithLinks ShapeFieldsAsChildren(Farm farm, int pageNumer, int pageSize, BaseResourceParameter resourceParameter, bool includeLinks)
+        {
+            try
+            {
+                var childrenAsPaged = PagedList<Field>.Create(
+                farm.Fields.AsQueryable(),
+                pageNumer,
+                pageSize);
+
+                var fieldResourceParameter = this.mapper.Map<FieldResourceParameter>(resourceParameter);
+                var childrenPaginationLinks = CreateLinksForFields(farm.Id, fieldResourceParameter, childrenAsPaged.HasNext, childrenAsPaged.HasPrevious);
+                var paginationMetaDataChildren = MiscellaneousHelpers.CreatePaginationMetadata(childrenAsPaged);
+
+                var shapedChildrenToReturn = this.mapper
+                    .Map<IEnumerable<FieldDto>>(childrenAsPaged)
+                    .ShapeData("");
+
+                var shapedChildrentToReturnWithLinks = shapedChildrenToReturn.Select(field =>
+                {
+                    var farmAsDictionary = field as IDictionary<string, object>;
+                    if (includeLinks)
+                    {
+                        var userLinks = CreateLinksForField((Guid)farmAsDictionary["Id"], farm.Id, fieldResourceParameter.Fields);
+                        farmAsDictionary.Add("links", userLinks);
+                    }
+                    return farmAsDictionary;
+                });
+
+                return new ShapedDataWithLinks()
+                {
+                    Value = shapedChildrentToReturnWithLinks,
+                    Links = childrenPaginationLinks,
+                    PaginationMetaData = paginationMetaDataChildren
+                };
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+                //ToDo Log Error
+                // Log($"{ex.Message} InnerException: {ex.InnerException.Message}");
+            }
         }
         #endregion
     }
