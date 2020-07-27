@@ -45,7 +45,10 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [Produces(MediaTypeNames.Application.Json, "application/vnd.h2020ipmdecisions.hateoas+json")]
+        [Produces(MediaTypeNames.Application.Json,
+            "application/vnd.h2020ipmdecisions.hateoas+json",
+            "application/vnd.h2020ipmdecisions.farm.withchildren+json",
+            "application/vnd.h2020ipmdecisions.farm.withchildren.hateoas+json")]
         [HttpGet("", Name = "api.farm.get.all")]
         [HttpHead]
         // GET: api/farms
@@ -95,9 +98,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [Produces(MediaTypeNames.Application.Json, 
-            "application/vnd.h2020ipmdecisions.hateoas+json",
-            "application/vnd.h2020ipmdecisions.farm.withchildren+json",
-            "application/vnd.h2020ipmdecisions.farm.withchildren.hateoas+json")]
+            "application/vnd.h2020ipmdecisions.hateoas+json")]
         [HttpPost("", Name = "api.farm.post.farm")]
         // POST: api/farms
         public async Task<IActionResult> Post(
