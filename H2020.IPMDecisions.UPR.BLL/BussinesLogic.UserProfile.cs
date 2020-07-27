@@ -6,6 +6,7 @@ using H2020.IPMDecisions.UPR.Core.Dtos;
 using H2020.IPMDecisions.UPR.Core.Entities;
 using H2020.IPMDecisions.UPR.Core.Models;
 using H2020.IPMDecisions.UPR.Core.Helpers;
+using H2020.IPMDecisions.UPR.BLL.Helpers;
 
 namespace H2020.IPMDecisions.UPR.BLL
 {
@@ -41,7 +42,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                             .EndsWith("hateoas", StringComparison.InvariantCultureIgnoreCase);
                 if (includeLinks)
                 {
-                    var links = CreateLinksForUserProfiles(userId);
+                    var links = UrlCreatorHelper.CreateLinksForUserProfiles(this.url, userId);
                     userProfileToReturn.Add("links", links);
                 }
 
@@ -140,7 +141,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                             .EndsWith("hateoas", StringComparison.InvariantCultureIgnoreCase);
                 if (includeLinks)
                 {
-                    var links = CreateLinksForUserProfiles(userId);
+                    var links = UrlCreatorHelper.CreateLinksForUserProfiles(this.url, userId);
                     userProfileToReturn.Add("links", links);
                 }
                 return GenericResponseBuilder.Success<IDictionary<string, object>>(userProfileToReturn);
@@ -180,40 +181,7 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
         }
 
-        #region Helpers
-        private IEnumerable<LinkDto> CreateLinksForUserProfiles(
-           Guid userId,
-           string fields = "")
-        {
-            var links = new List<LinkDto>();
-
-            if (string.IsNullOrWhiteSpace(fields))
-            {
-                links.Add(new LinkDto(
-                url.Link("GetUserProfile", new { userId }),
-                "self",
-                "GET"));
-            }
-            else
-            {
-                links.Add(new LinkDto(
-                 url.Link("GetUserProfile", new { userId, fields }),
-                 "self",
-                 "GET"));
-            }
-
-            links.Add(new LinkDto(
-                url.Link("DeleteUserProfile", new { userId }),
-                "delete_user_profile",
-                "DELETE"));
-
-            links.Add(new LinkDto(
-                url.Link("PartialUpdateUserProfile", new { userId }),
-                "update_user_profile",
-                "PATCH"));
-
-            return links;
-        }
+        #region Helpers        
         #endregion
     }
 }
