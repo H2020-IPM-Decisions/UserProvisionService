@@ -7,7 +7,11 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
         public ResourceParametersProfile()
         {
             CreateMap<ChildrenResourceParameter, FieldResourceParameter>()
-                .ForMember(src => src.Fields, opt => opt.Ignore());
+                .ForMember(dest => dest.Fields, opt => opt.Ignore());
+
+            CreateMap<FarmResourceParameter, FieldResourceParameter>()
+               .ForMember(dest => dest.PageNumber, opt => opt.MapFrom(src => src.ChildPageNumber))
+               .ForMember(dest => dest.PageSize, opt => opt.MapFrom(src => src.ChildPageSize));
         }
     }
 }
