@@ -99,16 +99,16 @@ namespace H2020.IPMDecisions.UPR.API
             app.UseAuthentication();
             app.UseAuthorization();
 
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapControllers();
-            });
-
             app.UseSwagger();
             app.UseSwaggerUI(c =>
             {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "H2020 IPM Decisions - Identity Provider API");
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "H2020 IPM Decisions - User Provision API");
             });
+
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
+            });            
         }       
     }
 }

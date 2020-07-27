@@ -9,6 +9,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
 {
     public static class UrlCreatorHelper
     {
+        #region Farms
         internal static IEnumerable<LinkDto> CreateLinksForFarms(
             this IUrlHelper url,
             FarmResourceParameter resourceParameter,
@@ -119,8 +120,9 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
 
             return links;
         }
+        #endregion
 
-
+        #region Fields
         internal static IEnumerable<LinkDto> CreateLinksForFields(
             this IUrlHelper url,
             Guid farmId,
@@ -232,6 +234,116 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
 
             return links;
         }
-        
+        #endregion
+
+        #region Profiles
+        internal static IEnumerable<LinkDto> CreateLinksForUserProfiles(
+            this IUrlHelper url,
+            Guid userId,
+            string fields = "")
+        {
+            var links = new List<LinkDto>();
+
+            if (string.IsNullOrWhiteSpace(fields))
+            {
+                links.Add(new LinkDto(
+                url.Link("api.userprofile.get.profilebyid", new { userId }),
+                "self",
+                "GET"));
+            }
+            else
+            {
+                links.Add(new LinkDto(
+                 url.Link("api.userprofile.get.profilebyid", new { userId, fields }),
+                 "self",
+                 "GET"));
+            }
+
+            links.Add(new LinkDto(
+                url.Link("api.userprofile.delete.profilebyid", new { userId }),
+                "delete_user_profile",
+                "DELETE"));
+
+            links.Add(new LinkDto(
+                url.Link("api.userprofile.patch.profilebyid", new { userId }),
+                "update_user_profile",
+                "PATCH"));
+
+            return links;
+        }
+        #endregion
+
+        #region Observations
+        internal static IEnumerable<LinkDto> CreateLinksForFieldObservations(
+            this IUrlHelper url,
+            FieldObservationResourceParameter resourceParameter,
+            bool hasNextPage,
+            bool hasPreviousPage)
+        {
+            var links = new List<LinkDto>();
+
+            links.Add(new LinkDto(
+                CreateFieldObservationResourceUri(url, resourceParameter, ResourceUriType.Current),
+                "self",
+                "GET"));
+
+            if (hasNextPage)
+            {
+                links.Add(new LinkDto(
+                CreateFieldObservationResourceUri(url, resourceParameter, ResourceUriType.NextPage),
+                "next_page",
+                "GET"));
+            }
+            if (hasPreviousPage)
+            {
+                links.Add(new LinkDto(
+               CreateFieldObservationResourceUri(url, resourceParameter, ResourceUriType.PreviousPage),
+               "previous_page",
+               "GET"));
+            }
+            return links;
+        }
+
+        private static string CreateFieldObservationResourceUri(
+            IUrlHelper url,
+            FieldObservationResourceParameter resourceParameter,
+            ResourceUriType type)
+        {
+            switch (type)
+            {
+                case ResourceUriType.PreviousPage:
+                    return url.Link("api.observation.get.all",
+                    new
+                    {
+                        fields = resourceParameter.Fields,
+                        orderBy = resourceParameter.OrderBy,
+                        pageNumber = resourceParameter.PageNumber - 1,
+                        pageSize = resourceParameter.PageSize,
+                        searchQuery = resourceParameter.SearchQuery
+                    });
+                case ResourceUriType.NextPage:
+                    return url.Link("api.observation.get.all",
+                    new
+                    {
+                        fields = resourceParameter.Fields,
+                        orderBy = resourceParameter.OrderBy,
+                        pageNumber = resourceParameter.PageNumber + 1,
+                        pageSize = resourceParameter.PageSize,
+                        searchQuery = resourceParameter.SearchQuery
+                    });
+                case ResourceUriType.Current:
+                default:
+                    return url.Link("api.observation.get.all",
+                    new
+                    {
+                        fields = resourceParameter.Fields,
+                        orderBy = resourceParameter.OrderBy,
+                        pageNumber = resourceParameter.PageNumber,
+                        pageSize = resourceParameter.PageSize,
+                        searchQuery = resourceParameter.SearchQuery
+                    });
+            }
+        }
+        #endregion
     }
 }

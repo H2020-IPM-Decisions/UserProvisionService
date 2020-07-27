@@ -29,7 +29,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
 
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [HttpDelete("{id:guid}", Name = "DeleteObservation")]
+        [HttpDelete("{id:guid}", Name = "api.observation.delete.observationbyid")]
         //DELETE: api/fields/1/observations/1
         public async Task<IActionResult> Delete(
             [FromRoute] Guid fieldId, Guid id)
@@ -46,7 +46,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [Produces(MediaTypeNames.Application.Json)]
-        [HttpGet("", Name = "GetObservations")]
+        [HttpGet("", Name = "api.observation.get.all")]
         [HttpHead]
         // GET: api/fields/1/observations
         public async Task<IActionResult> Get(
@@ -73,8 +73,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [Produces(MediaTypeNames.Application.Json)]
-        [HttpGet("{id:guid}", Name = "GetObservationById")]
-        [HttpHead]
+        [HttpGet("{id:guid}", Name = "api.observation.get.observationbyid")]
         // GET:  api/fields/1/observations/1
         public async Task<IActionResult> GetFielObservationdById(
             [FromRoute] Guid fieldId, Guid id,
@@ -94,7 +93,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [Produces(MediaTypeNames.Application.Json)]
-        [HttpPost("", Name = "CreateObservation")]
+        [HttpPost("", Name = "api.observation.post.observation")]
         // POST: api/fields/1/observations
         public async Task<IActionResult> Post(
             [FromRoute] Guid fieldId,
@@ -107,7 +106,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
                 return response.RequestResult;
 
             return CreatedAtRoute(
-                "GetObservationById",
+                "api.observation.get.observationbyid",
                 new
                 {
                     fieldId,

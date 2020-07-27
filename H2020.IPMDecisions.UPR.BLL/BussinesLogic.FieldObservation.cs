@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
+using H2020.IPMDecisions.UPR.BLL.Helpers;
 using H2020.IPMDecisions.UPR.Core.Dtos;
 using H2020.IPMDecisions.UPR.Core.Entities;
 using H2020.IPMDecisions.UPR.Core.Helpers;
@@ -118,7 +119,11 @@ namespace H2020.IPMDecisions.UPR.BLL
                     TotalPages = observationsAsEntities.TotalPages
                 };
 
-                var links = CreateLinksForFieldObservations(resourceParameter, observationsAsEntities.HasNext, observationsAsEntities.HasPrevious);
+                var links = UrlCreatorHelper.CreateLinksForFieldObservations(
+                    this.url,
+                    resourceParameter,
+                    observationsAsEntities.HasNext,
+                    observationsAsEntities.HasPrevious);
 
                 var shapedObservatiosToReturn = this.mapper
                     .Map<IEnumerable<FieldObservationDto>>(observationsAsEntities)
@@ -141,75 +146,6 @@ namespace H2020.IPMDecisions.UPR.BLL
         }
 
         #region Helpers
-
-        private IEnumerable<LinkDto> CreateLinksForFieldObservations(
-            FieldObservationResourceParameter resourceParameter,
-            bool hasNextPage,
-            bool hasPreviousPage)
-        {
-            var links = new List<LinkDto>();
-
-            links.Add(new LinkDto(
-                CreateFieldObservationResourceUri(resourceParameter, ResourceUriType.Current),
-                "self",
-                "GET"));
-
-            if (hasNextPage)
-            {
-                links.Add(new LinkDto(
-                CreateFieldObservationResourceUri(resourceParameter, ResourceUriType.NextPage),
-                "next_page",
-                "GET"));
-            }
-            if (hasPreviousPage)
-            {
-                links.Add(new LinkDto(
-               CreateFieldObservationResourceUri(resourceParameter, ResourceUriType.PreviousPage),
-               "previous_page",
-               "GET"));
-            }
-            return links;
-        }
-
-        private string CreateFieldObservationResourceUri(
-            FieldObservationResourceParameter resourceParameter,
-            ResourceUriType type)
-        {
-            switch (type)
-            {
-                case ResourceUriType.PreviousPage:
-                    return url.Link("GetObservations",
-                    new
-                    {
-                        fields = resourceParameter.Fields,
-                        orderBy = resourceParameter.OrderBy,
-                        pageNumber = resourceParameter.PageNumber - 1,
-                        pageSize = resourceParameter.PageSize,
-                        searchQuery = resourceParameter.SearchQuery
-                    });
-                case ResourceUriType.NextPage:
-                    return url.Link("GetObservations",
-                    new
-                    {
-                        fields = resourceParameter.Fields,
-                        orderBy = resourceParameter.OrderBy,
-                        pageNumber = resourceParameter.PageNumber + 1,
-                        pageSize = resourceParameter.PageSize,
-                        searchQuery = resourceParameter.SearchQuery
-                    });
-                case ResourceUriType.Current:
-                default:
-                    return url.Link("GetObservations",
-                    new
-                    {
-                        fields = resourceParameter.Fields,
-                        orderBy = resourceParameter.OrderBy,
-                        pageNumber = resourceParameter.PageNumber,
-                        pageSize = resourceParameter.PageSize,
-                        searchQuery = resourceParameter.SearchQuery
-                    });
-            }
-        }
         #endregion
     }
 }

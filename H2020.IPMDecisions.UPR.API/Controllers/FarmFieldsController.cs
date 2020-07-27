@@ -75,7 +75,6 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [Produces(MediaTypeNames.Application.Json)]
         [HttpGet("{id:guid}", Name = "api.field.get.fieldbyid")]
-        [HttpHead]
         // GET:  api/farms/1/fields/1
         public async Task<IActionResult> GetFieldById(
             [FromRoute] Guid farmId, Guid id,

@@ -80,7 +80,6 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
             "application/vnd.h2020ipmdecisions.farm.withchildren+json",
             "application/vnd.h2020ipmdecisions.farm.withchildren.hateoas+json")]
         [HttpGet("{id:guid}", Name = "api.farm.get.farmbyid")]
-        [HttpHead]
         // GET:  api/farms/1
         public async Task<IActionResult> GetFarmById([FromRoute] Guid id,
             [FromQuery] ChildrenResourceParameter resourceParameter,
