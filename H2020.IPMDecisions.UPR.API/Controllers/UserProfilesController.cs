@@ -13,7 +13,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 namespace H2020.IPMDecisions.UPR.API.Controllers
 {
     [ApiController]
-    [Route("api/users/{userId:guid}/profiles")]
+    [Route("api/users/profiles")]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [ServiceFilter(typeof(UserAccessingOwnDataActionFilter))]
     public class UserProfilesController : ControllerBase
@@ -50,7 +50,11 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [Produces(MediaTypeNames.Application.Json, "application/vnd.h2020ipmdecisions.hateoas+json")]
+        [Produces(MediaTypeNames.Application.Json, 
+        "application/vnd.h2020ipmdecisions.hateoas+json",
+        "application/vnd.h2020ipmdecisions.profile.full+json",
+        "application/vnd.h2020ipmdecisions.profile.full.hateoas+json",
+        "application/vnd.h2020ipmdecisions.profile.friendly.hateoas+json")]
         [HttpGet("", Name = "GetUserProfile")]
         [HttpHead]
         // GET:  api/users/1/profiles

@@ -3,7 +3,7 @@ using H2020.IPMDecisions.UPR.Core.Models;
 
 namespace H2020.IPMDecisions.UPR.BLL.Helpers
 {
-    public static class MiscellaneousHelpers
+    public static class MiscellaneousHelper
     {
         public static PaginationMetaData CreatePaginationMetadata<T>(PagedList<T> pagedList)
         {

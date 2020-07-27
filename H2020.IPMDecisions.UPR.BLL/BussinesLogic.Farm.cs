@@ -95,7 +95,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                             .EndsWith("hateoas", StringComparison.InvariantCultureIgnoreCase);
                 if (includeLinks)
                 {
-                    var links = CreateLinksForFarm(farmAsEntity.Id);
+                    var links = UrlCreatorHelper.CreateLinksForFarm(url, farmAsEntity.Id);
                     farmToReturn.Add("links", links);
                 }
                 return GenericResponseBuilder.Success<IDictionary<string, object>>(farmToReturn);
@@ -175,7 +175,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                 IEnumerable<LinkDto> links = new List<LinkDto>();
                 if (includeLinks)
                 {
-                    links = CreateLinksForFarm(id, childrenResourceParameter.Fields);
+                    links = UrlCreatorHelper.CreateLinksForFarm(url, id, childrenResourceParameter.Fields);
                 }
 
                 if (includeChildren)
@@ -196,7 +196,7 @@ namespace H2020.IPMDecisions.UPR.BLL
 
                 if (includeLinks)
                 {
-                    links = CreateLinksForFarm(id, childrenResourceParameter.Fields);
+                    links = UrlCreatorHelper.CreateLinksForFarm(url, id, childrenResourceParameter.Fields);
                     farmToReturn.Add("links", links);
                 }
 
@@ -240,8 +240,12 @@ namespace H2020.IPMDecisions.UPR.BLL
 
                 if (farmsAsEntities.Count == 0) return GenericResponseBuilder.NotFound<ShapedDataWithLinks>();
 
-                var paginationMetaData = MiscellaneousHelpers.CreatePaginationMetadata(farmsAsEntities);
-                var paginationLinks = CreateLinksForFarms(resourceParameter, farmsAsEntities.HasNext, farmsAsEntities.HasPrevious);
+                var paginationMetaData = MiscellaneousHelper.CreatePaginationMetadata(farmsAsEntities);
+                var paginationLinks = UrlCreatorHelper.CreateLinksForFarms(
+                    url,
+                    resourceParameter,
+                    farmsAsEntities.HasNext,
+                    farmsAsEntities.HasPrevious);
 
                 if (includeChildren)
                 {
@@ -275,7 +279,10 @@ namespace H2020.IPMDecisions.UPR.BLL
                     var farmAsDictionary = farm as IDictionary<string, object>;
                     if (includeLinks)
                     {
-                        var farmsLinks = CreateLinksForFarm((Guid)farmAsDictionary["Id"], resourceParameter.Fields);
+                        var farmsLinks = UrlCreatorHelper.CreateLinksForFarm(
+                            url,
+                            (Guid)farmAsDictionary["Id"],
+                            resourceParameter.Fields);
                         farmAsDictionary.Add("links", farmsLinks);
                     }
                     return farmAsDictionary;
@@ -350,129 +357,36 @@ namespace H2020.IPMDecisions.UPR.BLL
             return this.mapper.Map<FarmForUpdateDto>(farm);
         }
 
-        private IEnumerable<LinkDto> CreateLinksForFarms(
-            FarmResourceParameter resourceParameter,
-            bool hasNextPage,
-            bool hasPreviousPage)
-        {
-            var links = new List<LinkDto>();
-
-            links.Add(new LinkDto(
-                CreateFarmResourceUri(resourceParameter, ResourceUriType.Current),
-                "self",
-                "GET"));
-
-            if (hasNextPage)
-            {
-                links.Add(new LinkDto(
-                CreateFarmResourceUri(resourceParameter, ResourceUriType.NextPage),
-                "next_page",
-                "GET"));
-            }
-            if (hasPreviousPage)
-            {
-                links.Add(new LinkDto(
-               CreateFarmResourceUri(resourceParameter, ResourceUriType.PreviousPage),
-               "previous_page",
-               "GET"));
-            }
-            return links;
-        }
-
-        private string CreateFarmResourceUri(
-            FarmResourceParameter resourceParameter,
-            ResourceUriType type)
-        {
-            switch (type)
-            {
-                case ResourceUriType.PreviousPage:
-                    return url.Link("api.farm.get.all",
-                    new
-                    {
-                        fields = resourceParameter.Fields,
-                        orderBy = resourceParameter.OrderBy,
-                        pageNumber = resourceParameter.PageNumber - 1,
-                        pageSize = resourceParameter.PageSize,
-                        searchQuery = resourceParameter.SearchQuery
-                    });
-                case ResourceUriType.NextPage:
-                    return url.Link("api.farm.get.all",
-                    new
-                    {
-                        fields = resourceParameter.Fields,
-                        orderBy = resourceParameter.OrderBy,
-                        pageNumber = resourceParameter.PageNumber + 1,
-                        pageSize = resourceParameter.PageSize,
-                        searchQuery = resourceParameter.SearchQuery
-                    });
-                case ResourceUriType.Current:
-                default:
-                    return url.Link("api.farm.get.all",
-                    new
-                    {
-                        fields = resourceParameter.Fields,
-                        orderBy = resourceParameter.OrderBy,
-                        pageNumber = resourceParameter.PageNumber,
-                        pageSize = resourceParameter.PageSize,
-                        searchQuery = resourceParameter.SearchQuery
-                    });
-            }
-        }
-
-        private IEnumerable<LinkDto> CreateLinksForFarm(
-            Guid id,
-            string fields = "")
-        {
-            var links = new List<LinkDto>();
-
-            if (string.IsNullOrWhiteSpace(fields))
-            {
-                links.Add(new LinkDto(
-                url.Link("api.farm.get.farmbyid", new { id }),
-                "self",
-                "GET"));
-            }
-            else
-            {
-                links.Add(new LinkDto(
-                 url.Link("api.farm.get.farmbyid", new { id, fields }),
-                 "self",
-                 "GET"));
-            }
-
-            links.Add(new LinkDto(
-                url.Link("api.farm.delete.farmbyid", new { id }),
-                "delete_farm",
-                "DELETE"));
-
-            links.Add(new LinkDto(
-                url.Link("api.farm.patch.farmbyid", new { id }),
-                "update_farm",
-                "PATCH"));
-
-            return links;
-        }
-
         private IDictionary<string, object> CreateFarmWithChildrenAsDictionary(BaseResourceParameter childrenResourceParameter, int pageNumber, int pageSize, bool includeLinks, Farm farmAsEntity, IEnumerable<LinkDto> links)
         {
-            var fieldsToReturn = ShapeFieldsAsChildren(
+            try
+            {
+                var fieldsToReturn = ShapeFieldsAsChildren(
                 farmAsEntity,
                 pageNumber,
                 pageSize,
                 childrenResourceParameter,
                 includeLinks);
 
-            var farmToReturnWithChildren = this.mapper.Map<FarmWithShapedChildrenDto>(farmAsEntity);
-            farmToReturnWithChildren.FieldsDto = fieldsToReturn;
+                var farmToReturnWithChildren = this.mapper.Map<FarmWithShapedChildrenDto>(farmAsEntity);
+                farmToReturnWithChildren.FieldsDto = fieldsToReturn;
 
-            var farmToReturnWithChildrenShaped = farmToReturnWithChildren.ShapeData("") as IDictionary<string, object>;
+                var farmToReturnWithChildrenShaped = farmToReturnWithChildren.ShapeData("") as IDictionary<string, object>;
 
-            if (includeLinks)
-            {
-                farmToReturnWithChildrenShaped.Add("links", links);
+                if (includeLinks)
+                {
+                    farmToReturnWithChildrenShaped.Add("links", links);
+                }
+
+                return farmToReturnWithChildrenShaped;
             }
-
-            return farmToReturnWithChildrenShaped;
+            catch (Exception)
+            {
+                return null;
+                //ToDo Log Error
+                // Log($"{ex.Message} InnerException: {ex.InnerException.Message}");
+            }
+            
         }
         #endregion
     }

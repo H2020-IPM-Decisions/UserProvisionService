@@ -30,7 +30,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
 
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [HttpDelete("{id:guid}", Name = "DeleteField")]
+        [HttpDelete("{id:guid}", Name = "api.field.delete.fieldbyid")]
         //DELETE: api/farms/1/fields/1
         public async Task<IActionResult> Delete(
             [FromRoute] Guid farmId, Guid id)
@@ -47,7 +47,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [Produces(MediaTypeNames.Application.Json)]
-        [HttpGet("", Name = "GetFields")]
+        [HttpGet("", Name = "api.field.get.all")]
         [HttpHead]
         // GET: api/farms/1/fields
         public async Task<IActionResult> Get(
@@ -74,7 +74,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [Produces(MediaTypeNames.Application.Json)]
-        [HttpGet("{id:guid}", Name = "GetFieldById")]
+        [HttpGet("{id:guid}", Name = "api.field.get.fieldbyid")]
         [HttpHead]
         // GET:  api/farms/1/fields/1
         public async Task<IActionResult> GetFieldById(
@@ -95,7 +95,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [Produces(MediaTypeNames.Application.Json)]
-        [HttpPost("", Name = "CreateField")]
+        [HttpPost("", Name = "api.field.post.field")]
         // POST: api/farms/1/fields
         public async Task<IActionResult> Post(
             [FromRoute] Guid farmId,
@@ -108,7 +108,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
                 return response.RequestResult;
                 
             return CreatedAtRoute(
-                "GetFieldById",
+                "api.field.get.fieldbyid",
                 new {
                     farmId,
                     id = response.Result.Id },
@@ -119,7 +119,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [HttpPatch("{id:guid}", Name = "PartialUpdateField")]
+        [HttpPatch("{id:guid}", Name = "api.field.patch.fieldbyid")]
         //PATCH: api/farms/1/fields/1
         public async Task<IActionResult> PartialUpdate(
             [FromRoute] Guid farmId, Guid id,
@@ -145,7 +145,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
                 if (!createFieldResponse.IsSuccessful)
                     return BadRequest(new { message = createFieldResponse.ErrorMessage });
 
-                return CreatedAtRoute("GetFieldById",
+                return CreatedAtRoute("api.field.get.fieldbyid",
                     new {
                         farmId,
                         id },

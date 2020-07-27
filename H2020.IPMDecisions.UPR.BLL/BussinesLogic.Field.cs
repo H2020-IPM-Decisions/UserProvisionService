@@ -118,7 +118,12 @@ namespace H2020.IPMDecisions.UPR.BLL
                     TotalPages = fieldsAsEntities.TotalPages
                 };
 
-                var links = CreateLinksForFields(farmId, resourceParameter, fieldsAsEntities.HasNext, fieldsAsEntities.HasPrevious);
+                var links = UrlCreatorHelper.CreateLinksForFields(
+                    this.url,
+                    farmId,
+                    resourceParameter,
+                    fieldsAsEntities.HasNext,
+                    fieldsAsEntities.HasPrevious);
 
                 var shapedFarmsToReturn = this.mapper
                     .Map<IEnumerable<FieldDto>>(fieldsAsEntities)
@@ -219,117 +224,6 @@ namespace H2020.IPMDecisions.UPR.BLL
         {
             return this.mapper.Map<FieldForUpdateDto>(field);
         }
-
-        private IEnumerable<LinkDto> CreateLinksForFields(
-            Guid farmId,
-            FieldResourceParameter resourceParameter,
-            bool hasNextPage,
-            bool hasPreviousPage)
-        {
-            var links = new List<LinkDto>();
-
-            links.Add(new LinkDto(
-                CreateFieldResourceUri(farmId, resourceParameter, ResourceUriType.Current),
-                "self",
-                "GET"));
-
-            if (hasNextPage)
-            {
-                links.Add(new LinkDto(
-                CreateFieldResourceUri(farmId, resourceParameter, ResourceUriType.NextPage),
-                "next_page",
-                "GET"));
-            }
-            if (hasPreviousPage)
-            {
-                links.Add(new LinkDto(
-               CreateFieldResourceUri(farmId, resourceParameter, ResourceUriType.PreviousPage),
-               "previous_page",
-               "GET"));
-            }
-            return links;
-        }
-
-        private string CreateFieldResourceUri(
-            Guid farmId,
-            FieldResourceParameter resourceParameter,
-            ResourceUriType type)
-        {
-            switch (type)
-            {
-                case ResourceUriType.PreviousPage:
-                    return url.Link("GetFields",
-                    new
-                    {
-                        farmId,
-                        fields = resourceParameter.Fields,
-                        orderBy = resourceParameter.OrderBy,
-                        pageNumber = resourceParameter.PageNumber - 1,
-                        pageSize = resourceParameter.PageSize,
-                        searchQuery = resourceParameter.SearchQuery
-                    });
-                case ResourceUriType.NextPage:
-                    return url.Link("GetFields",
-                    new
-                    {
-                        farmId,
-                        fields = resourceParameter.Fields,
-                        orderBy = resourceParameter.OrderBy,
-                        pageNumber = resourceParameter.PageNumber + 1,
-                        pageSize = resourceParameter.PageSize,
-                        searchQuery = resourceParameter.SearchQuery
-                    });
-                case ResourceUriType.Current:
-                default:
-                    return url.Link("GetFields",
-                    new
-                    {
-                        farmId,
-                        fields = resourceParameter.Fields,
-                        orderBy = resourceParameter.OrderBy,
-                        pageNumber = resourceParameter.PageNumber,
-                        pageSize = resourceParameter.PageSize,
-                        searchQuery = resourceParameter.SearchQuery
-                    });
-            }
-        }
-
-        private IEnumerable<LinkDto> CreateLinksForField(
-            Guid id,
-            Guid farmId,
-            string fields = "")
-        {
-            var links = new List<LinkDto>();
-
-            if (string.IsNullOrWhiteSpace(fields))
-            {
-                links.Add(new LinkDto(
-                url.Link("GetFieldById", new { farmId, id }),
-                "self",
-                "GET"));
-            }
-            else
-            {
-                links.Add(new LinkDto(
-                 url.Link("GetFieldById", new { farmId, id, fields }),
-                 "self",
-                 "GET"));
-            }
-
-            links.Add(new LinkDto(
-                url.Link("DeleteField", new { farmId, id }),
-                "delete_field",
-                "DELETE"));
-
-            links.Add(new LinkDto(
-                url.Link("PartialUpdateField", new { farmId, id }),
-                "update_field",
-                "PATCH"));
-
-            return links;
-        }
-
-
         private ShapedDataWithLinks ShapeFieldsAsChildren(Farm farm, int pageNumer, int pageSize, BaseResourceParameter resourceParameter, bool includeLinks)
         {
             try
@@ -340,8 +234,14 @@ namespace H2020.IPMDecisions.UPR.BLL
                 pageSize);
 
                 var fieldResourceParameter = this.mapper.Map<FieldResourceParameter>(resourceParameter);
-                var childrenPaginationLinks = CreateLinksForFields(farm.Id, fieldResourceParameter, childrenAsPaged.HasNext, childrenAsPaged.HasPrevious);
-                var paginationMetaDataChildren = MiscellaneousHelpers.CreatePaginationMetadata(childrenAsPaged);
+                var childrenPaginationLinks = UrlCreatorHelper.CreateLinksForFields(
+                    this.url,
+                    farm.Id,
+                    fieldResourceParameter,
+                    childrenAsPaged.HasNext,
+                    childrenAsPaged.HasPrevious);
+
+                var paginationMetaDataChildren = MiscellaneousHelper.CreatePaginationMetadata(childrenAsPaged);
 
                 var shapedChildrenToReturn = this.mapper
                     .Map<IEnumerable<FieldDto>>(childrenAsPaged)
@@ -352,7 +252,11 @@ namespace H2020.IPMDecisions.UPR.BLL
                     var farmAsDictionary = field as IDictionary<string, object>;
                     if (includeLinks)
                     {
-                        var userLinks = CreateLinksForField((Guid)farmAsDictionary["Id"], farm.Id, fieldResourceParameter.Fields);
+                        var userLinks = UrlCreatorHelper.CreateLinksForField(
+                            this.url,
+                            (Guid)farmAsDictionary["Id"],
+                            farm.Id,
+                            fieldResourceParameter.Fields);
                         farmAsDictionary.Add("links", userLinks);
                     }
                     return farmAsDictionary;
