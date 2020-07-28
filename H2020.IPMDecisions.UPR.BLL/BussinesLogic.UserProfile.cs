@@ -7,6 +7,7 @@ using H2020.IPMDecisions.UPR.Core.Entities;
 using H2020.IPMDecisions.UPR.Core.Models;
 using H2020.IPMDecisions.UPR.Core.Helpers;
 using H2020.IPMDecisions.UPR.BLL.Helpers;
+using Microsoft.Extensions.Logging;
 
 namespace H2020.IPMDecisions.UPR.BLL
 {
@@ -62,7 +63,7 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
             catch (Exception ex)
             {
-                //ToDo Log Error
+                logger.LogError(string.Format("Error in BLL - AddNewUserProfile. {0}", ex.Message), ex);
                 return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, $"{ex.Message} InnerException: {ex.InnerException.Message}");
             }
         }      
@@ -82,7 +83,7 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
             catch (Exception ex)
             {
-                //ToDo Log Error
+                logger.LogError(string.Format("Error in BLL - AddNewUserProfile. {0}", ex.Message), ex);
                 return GenericResponseBuilder.NoSuccess<UserProfileDto>(null, $"{ex.Message} InnerException: {ex.InnerException.Message}");
             }
         }
@@ -104,7 +105,7 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
             catch (Exception ex)
             {
-                // ToDo Log Error
+                logger.LogError(string.Format("Error in BLL - DeleteUserProfileClient. {0}", ex.Message), ex);
                 return GenericResponseBuilder.NoSuccess($"{ex.Message} InnerException: {ex.InnerException.Message}");
             }
         }
@@ -123,7 +124,7 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
             catch (Exception ex)
             {
-                //ToDo Log Error
+                logger.LogError(string.Format("Error in BLL - GetUserProfile. {0}", ex.Message), ex);
                 return GenericResponseBuilder.NoSuccess<UserProfile>(null, $"{ex.Message} InnerException: {ex.InnerException.Message}");
             }
         }
@@ -160,7 +161,6 @@ namespace H2020.IPMDecisions.UPR.BLL
                         as IDictionary<string, object>;
 
                     AddLinksToUserProfileAsDictionary(userId, includeLinks, userProfileFullToReturn);
-
                     return GenericResponseBuilder.Success<IDictionary<string, object>>(userProfileFullToReturn);
                 }
                 
@@ -169,12 +169,11 @@ namespace H2020.IPMDecisions.UPR.BLL
                         as IDictionary<string, object>;
 
                 AddLinksToUserProfileAsDictionary(userId, includeLinks, userProfileToReturn);
-
                 return GenericResponseBuilder.Success<IDictionary<string, object>>(userProfileToReturn);
             }
             catch (Exception ex)
             {
-                //ToDo Log Error
+                logger.LogError(string.Format("Error in BLL - GetUserProfileDto. {0}", ex.Message), ex);
                 return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, $"{ex.Message} InnerException: {ex.InnerException.Message}");
             }
         }
@@ -192,7 +191,7 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
             catch (Exception ex)
             {
-                //ToDo Log Error
+                logger.LogError(string.Format("Error in BLL - UpdateUserProfile. {0}", ex.Message), ex);
                 return GenericResponseBuilder.NoSuccess($"{ex.Message} InnerException: {ex.InnerException.Message}");
             }
         }

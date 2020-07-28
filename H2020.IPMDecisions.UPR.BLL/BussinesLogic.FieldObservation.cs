@@ -9,6 +9,7 @@ using H2020.IPMDecisions.UPR.Core.Helpers;
 using H2020.IPMDecisions.UPR.Core.Models;
 using H2020.IPMDecisions.UPR.Core.ResourceParameters;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 
 namespace H2020.IPMDecisions.UPR.BLL
 {
@@ -31,7 +32,7 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
             catch (Exception ex)
             {
-                //ToDo Log Error
+                logger.LogError(string.Format("Error in BLL - AddNewFieldObservation. {0}", ex.Message), ex);
                 return GenericResponseBuilder.NoSuccess<FieldObservationDto>(null, $"{ex.Message} InnerException: {ex.InnerException.Message}");
             }
         }
@@ -54,7 +55,7 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
             catch (Exception ex)
             {
-                //ToDo Log Error
+                logger.LogError(string.Format("Error in BLL - DeleteFieldObservation. {0}", ex.Message), ex);
                 return GenericResponseBuilder.NoSuccess($"{ex.Message} InnerException: {ex.InnerException.Message}");
             }
         }
@@ -85,7 +86,7 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
             catch (Exception ex)
             {
-                //ToDo Log Error
+                logger.LogError(string.Format("Error in BLL - GetFieldObservationDto. {0}", ex.Message), ex);
                 return GenericResponseBuilder.NoSuccess<FieldObservationDto>(null, $"{ex.Message} InnerException: {ex.InnerException.Message}");
             }
         }
@@ -140,7 +141,7 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
             catch (Exception ex)
             {
-                //ToDo Log Error
+                logger.LogError(string.Format("Error in BLL - GetFieldObservations. {0}", ex.Message), ex);
                 return GenericResponseBuilder.NoSuccess<ShapedDataWithLinks>(null, $"{ex.Message} InnerException: {ex.InnerException.Message}");
             }
         }

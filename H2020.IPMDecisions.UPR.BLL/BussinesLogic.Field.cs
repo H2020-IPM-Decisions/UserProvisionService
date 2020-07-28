@@ -5,6 +5,7 @@ using H2020.IPMDecisions.UPR.Core.Helpers;
 using H2020.IPMDecisions.UPR.Core.Models;
 using H2020.IPMDecisions.UPR.Core.ResourceParameters;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -35,7 +36,7 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
             catch (Exception ex)
             {
-                //ToDo Log Error
+                logger.LogError(string.Format("Error in BLL - AddNewField. {0}", ex.Message), ex);
                 return GenericResponseBuilder.NoSuccess<FieldDto>(null, $"{ex.Message} InnerException: {ex.InnerException.Message}");
             }
         }
@@ -58,7 +59,7 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
             catch (Exception ex)
             {
-                //ToDo Log Error
+                logger.LogError(string.Format("Error in BLL - AddNewField. {0}", ex.Message), ex);
                 return GenericResponseBuilder.NoSuccess<FieldDto>(null, $"{ex.Message} InnerException: {ex.InnerException.Message}");
             }
         }
@@ -81,7 +82,7 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
             catch (Exception ex)
             {
-                //ToDo Log Error
+                logger.LogError(string.Format("Error in BLL - DeleteField. {0}", ex.Message), ex);
                 return GenericResponseBuilder.NoSuccess($"{ex.Message} InnerException: {ex.InnerException.Message}");
             }
         }
@@ -141,7 +142,7 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
             catch (Exception ex)
             {
-                //ToDo Log Error
+                logger.LogError(string.Format("Error in BLL - GetFields. {0}", ex.Message), ex);
                 return GenericResponseBuilder.NoSuccess<ShapedDataWithLinks>(null, $"{ex.Message} InnerException: {ex.InnerException.Message}");
             }
         }
@@ -161,7 +162,7 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
             catch (Exception ex)
             {
-                //ToDo Log Error
+                logger.LogError(string.Format("Error in BLL - GetField. {0}", ex.Message), ex);
                 return GenericResponseBuilder.NoSuccess<Field>(null, $"{ex.Message} InnerException: {ex.InnerException.Message}");
             }
         }
@@ -192,7 +193,7 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
             catch (Exception ex)
             {
-                //ToDo Log Error
+                logger.LogError(string.Format("Error in BLL - GetFieldDto. {0}", ex.Message), ex);
                 return GenericResponseBuilder.NoSuccess<FieldDto>(null, $"{ex.Message} InnerException: {ex.InnerException.Message}");
             }
         }
@@ -210,7 +211,7 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
             catch (Exception ex)
             {
-                //ToDo Log Error
+                logger.LogError(string.Format("Error in BLL - UpdateField. {0}", ex.Message), ex);
                 return GenericResponseBuilder.NoSuccess($"{ex.Message} InnerException: {ex.InnerException.Message}");
             }
         }
@@ -272,10 +273,8 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
             catch (Exception ex)
             {
-                throw ex;
-                //ToDo Log Error
-                // Log($"{ex.Message} InnerException: {ex.InnerException.Message}");
-            }
+                logger.LogError(string.Format("Error in BLL - ShapeFieldsAsChildren. {0}", ex.Message), ex);
+                return null;
         }
         #endregion
     }
