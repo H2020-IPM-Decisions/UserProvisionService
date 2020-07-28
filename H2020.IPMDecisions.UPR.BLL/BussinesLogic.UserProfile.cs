@@ -25,7 +25,6 @@ namespace H2020.IPMDecisions.UPR.BLL
                 {
                     return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, "User profile aready exits. Please use `PATCH` method for partial updates.");
                 }
-                    
 
                 var userProfileEntity = this.mapper.Map<UserProfile>(userProfileForCreation);
                 userProfileEntity.UserId = userId;

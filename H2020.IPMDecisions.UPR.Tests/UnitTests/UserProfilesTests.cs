@@ -5,6 +5,7 @@ using H2020.IPMDecisions.UPR.Core.Dtos;
 using H2020.IPMDecisions.UPR.Core.Services;
 using H2020.IPMDecisions.UPR.Data.Core;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
 
@@ -21,13 +22,15 @@ namespace H2020.IPMDecisions.UPR.Tests.UnitTests
             Mock<IUrlHelper> mockUrl = new Mock<IUrlHelper>();
             Mock<IPropertyCheckerService> mockPropertyCheckerService = new Mock<IPropertyCheckerService>();
             Mock<IPropertyMappingService> mockPropertyMappingService = new Mock<IPropertyMappingService>();
+            Mock<ILogger<BusinessLogic>> mockLoggerService = new Mock<ILogger<BusinessLogic>>();
 
             var bll = new BusinessLogic(
                 mockMapper.Object, 
                 mockDataService.Object, 
                 mockUrl.Object, 
                 mockPropertyCheckerService.Object,
-                mockPropertyMappingService.Object);
+                mockPropertyMappingService.Object,
+                mockLoggerService.Object);
 
             UserProfileForCreationDto user = new UserProfileForCreationDto();
             // Act

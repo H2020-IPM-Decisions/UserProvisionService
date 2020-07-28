@@ -47,6 +47,7 @@ namespace H2020.IPMDecisions.UPR.API
 
             services.AddAutoMapper(typeof(MainProfile));
 
+            services.ConfigureLogger(Configuration);
             services.AddScoped<IDataService, DataService>();
             services.AddScoped<IBusinessLogic, BusinessLogic>();
 
@@ -69,7 +70,7 @@ namespace H2020.IPMDecisions.UPR.API
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IHostApplicationLifetime applicationLifetime)
         {
             if (CurrentEnvironment.IsDevelopment())
             {
@@ -108,7 +109,14 @@ namespace H2020.IPMDecisions.UPR.API
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
-            });            
-        }       
+            });
+
+            applicationLifetime.ApplicationStopping.Register(OnShutdown);
+        }
+        
+        private void OnShutdown()
+        {
+            NLog.LogManager.Shutdown();
+        }
     }
 }

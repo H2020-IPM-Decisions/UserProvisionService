@@ -5,6 +5,7 @@ using H2020.IPMDecisions.UPR.Core.Helpers;
 using H2020.IPMDecisions.UPR.Core.Models;
 using H2020.IPMDecisions.UPR.Core.ResourceParameters;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
 using System;
 using System.Collections.Generic;
@@ -33,7 +34,7 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
             catch (Exception ex)
             {
-                //ToDo Log Error
+                logger.LogError(string.Format("Error in BLL - DeleteFarm. {0}", ex.Message));
                 return GenericResponseBuilder.NoSuccess($"{ex.Message} InnerException: {ex.InnerException.Message}");
             }
         }
@@ -63,7 +64,7 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
             catch (Exception ex)
             {
-                //ToDo Log Error
+                logger.LogError(string.Format("Error in BLL - LinkNewFarmToUserProfile. {0}", ex.Message), ex);
                 return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, $"{ex.Message} InnerException: {ex.InnerException.Message}");
             }
         }
@@ -102,7 +103,7 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
             catch (Exception ex)
             {
-                //ToDo Log Error
+                logger.LogError(string.Format("Error in BLL - LinkNewFarmToUserProfile. {0}", ex.Message), ex);
                 return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, $"{ex.Message} InnerException: {ex.InnerException.Message}");
             }
         }
@@ -135,7 +136,7 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
             catch (Exception ex)
             {
-                //ToDo Log Error
+                logger.LogError(string.Format("Error in BLL - GetFarm. {0}", ex.Message), ex);
                 return GenericResponseBuilder.NoSuccess<Farm>(null, $"{ex.Message} InnerException: {ex.InnerException.Message}");
             }
         }
@@ -204,7 +205,7 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
             catch (Exception ex)
             {
-                //ToDo Log Error
+                logger.LogError(string.Format("Error in BLL - GetFarmDto. {0}", ex.Message), ex);
                 return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, $"{ex.Message} InnerException: {ex.InnerException.Message}");
             }
         }       
@@ -299,7 +300,7 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
             catch (Exception ex)
             {
-                //ToDo Log Error
+                logger.LogError(string.Format("Error in BLL - GetFarms. {0}", ex.Message), ex);
                 return GenericResponseBuilder.NoSuccess<ShapedDataWithLinks>(null, $"{ex.Message} InnerException: {ex.InnerException.Message}");
             }
         }
@@ -317,7 +318,7 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
             catch (Exception ex)
             {
-                //ToDo Log Error
+                logger.LogError(string.Format("Error in BLL - UpdateFarm. {0}", ex.Message), ex);
                 return GenericResponseBuilder.NoSuccess($"{ex.Message} InnerException: {ex.InnerException.Message}");
             }
         }
@@ -380,11 +381,10 @@ namespace H2020.IPMDecisions.UPR.BLL
 
                 return farmToReturnWithChildrenShaped;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                logger.LogError(string.Format("Error in BLL - CreateFarmWithChildrenAsDictionary. {0}", ex.Message), ex);
                 return null;
-                //ToDo Log Error
-                // Log($"{ex.Message} InnerException: {ex.InnerException.Message}");
             }
             
         }

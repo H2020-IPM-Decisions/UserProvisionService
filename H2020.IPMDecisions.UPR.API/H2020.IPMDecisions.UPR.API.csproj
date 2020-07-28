@@ -1,4 +1,3 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
@@ -16,23 +15,26 @@
     <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="7.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="3.1.1" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.1.1" />
-    <PackageReference Include="Microsoft.AspNetCore.Session" Version="2.2.0" />
+    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="7.0.0"/>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="3.1.1"/>
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.1.1"/>
+    <PackageReference Include="Microsoft.AspNetCore.Session" Version="2.2.0"/>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="3.1.3">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="3.1.3" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.3" />
-    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL.NetTopologySuite" Version="3.1.3" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="5.3.1" />
-    <PackageReference Include="Swashbuckle.AspNetCore.Newtonsoft" Version="5.3.1" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="3.1.3"/>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.3"/>
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL.NetTopologySuite" Version="3.1.3"/>
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="5.3.1"/>
+    <PackageReference Include="Swashbuckle.AspNetCore.Newtonsoft" Version="5.3.1"/>
+    <PackageReference Include="NLog.Web.AspNetCore" Version="4.9.2"/>
+    <PackageReference Include="NLog" Version="4.7.2"/>
+    <PackageReference Include="NLog.Extensions.Logging" Version="1.6.4"/>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\H2020.IPMDecisions.UPR.Data\H2020.IPMDecisions.UPR.Data.csproj" />
-    <ProjectReference Include="..\H2020.IPMDecisions.UPR.BLL\H2020.IPMDecisions.UPR.BLL.csproj" />
-    <ProjectReference Include="..\H2020.IPMDecisions.UPR.Core\H2020.IPMDecisions.UPR.Core.csproj" />
+    <ProjectReference Include="..\H2020.IPMDecisions.UPR.Data\H2020.IPMDecisions.UPR.Data.csproj"/>
+    <ProjectReference Include="..\H2020.IPMDecisions.UPR.BLL\H2020.IPMDecisions.UPR.BLL.csproj"/>
+    <ProjectReference Include="..\H2020.IPMDecisions.UPR.Core\H2020.IPMDecisions.UPR.Core.csproj"/>
   </ItemGroup>
 </Project>
