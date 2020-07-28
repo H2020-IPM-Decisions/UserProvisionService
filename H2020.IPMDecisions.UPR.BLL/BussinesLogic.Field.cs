@@ -275,6 +275,7 @@ namespace H2020.IPMDecisions.UPR.BLL
             {
                 logger.LogError(string.Format("Error in BLL - ShapeFieldsAsChildren. {0}", ex.Message), ex);
                 return null;
+            }
         }
         #endregion
     }
