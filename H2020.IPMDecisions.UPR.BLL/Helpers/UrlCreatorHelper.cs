@@ -237,7 +237,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
         #endregion
 
         #region Profiles
-        internal static IEnumerable<LinkDto> CreateLinksForUserProfiles(
+        internal static IEnumerable<LinkDto> CreateLinksForUserProfile(
             this IUrlHelper url,
             Guid userId,
             string fields = "")

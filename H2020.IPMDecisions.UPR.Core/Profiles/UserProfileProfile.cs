@@ -16,6 +16,16 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
                 .AfterMap((src, dest) => dest.FullName = dest.FullName.Trim())
                 .AfterMap((src, dest) => dest.FullAddress = dest.FullAddress.Trim());
 
+            CreateMap<UserProfile, UserProfileFullDto>()
+                .ForMember(dest => dest.Street,
+                        opt => opt.MapFrom(src => src.UserAddress.Street))
+                .ForMember(dest => dest.City,
+                        opt => opt.MapFrom(src => src.UserAddress.City))
+                .ForMember(dest => dest.Country,
+                        opt => opt.MapFrom(src => src.UserAddress.Country))
+                .ForMember(dest => dest.Postcode,
+                        opt => opt.MapFrom(src => src.UserAddress.Postcode));
+
             CreateMap<UserProfile, UserProfileForUpdateDto>();
 
             // Dtos to Entities

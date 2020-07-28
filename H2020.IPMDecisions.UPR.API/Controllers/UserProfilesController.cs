@@ -29,7 +29,11 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         [Consumes(MediaTypeNames.Application.Json)]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [Produces(MediaTypeNames.Application.Json, "application/vnd.h2020ipmdecisions.hateoas+json")]
+        [Produces(MediaTypeNames.Application.Json,
+        "application/vnd.h2020ipmdecisions.hateoas+json",
+        "application/vnd.h2020ipmdecisions.profile.full+json",
+        "application/vnd.h2020ipmdecisions.profile.full.hateoas+json",
+        "application/vnd.h2020ipmdecisions.profile.friendly.hateoas+json")]
         [HttpPost("", Name = "api.userprofile.post.profile")]
         // POST: api/users/profiles
         public async Task<IActionResult> Post(

@@ -34,17 +34,30 @@ namespace H2020.IPMDecisions.UPR.BLL
 
                 await this.dataService.CompleteAsync();
 
+                var includeLinks = parsedMediaType.SubTypeWithoutSuffix
+                            .EndsWith("hateoas", StringComparison.InvariantCultureIgnoreCase);
+
+                var primaryMediaType = includeLinks ?
+                    parsedMediaType.SubTypeWithoutSuffix
+                    .Substring(0, parsedMediaType.SubTypeWithoutSuffix.Length - 8)
+                    : parsedMediaType.SubTypeWithoutSuffix;
+
+                if (primaryMediaType == "vnd.h2020ipmdecisions.profile.full")
+                {
+                    var userProfileFullToReturn = this.mapper.Map<UserProfileFullDto>(userProfileEntity)
+                        .ShapeData()
+                        as IDictionary<string, object>;
+
+                    AddLinksToUserProfileAsDictionary(userId, includeLinks, userProfileFullToReturn);
+
+                    return GenericResponseBuilder.Success<IDictionary<string, object>>(userProfileFullToReturn);
+                }
+
                 var userProfileToReturn = this.mapper.Map<UserProfileDto>(userProfileEntity)
                     .ShapeData()
                     as IDictionary<string, object>;
 
-                var includeLinks = parsedMediaType.SubTypeWithoutSuffix
-                            .EndsWith("hateoas", StringComparison.InvariantCultureIgnoreCase);
-                if (includeLinks)
-                {
-                    var links = UrlCreatorHelper.CreateLinksForUserProfiles(this.url, userId);
-                    userProfileToReturn.Add("links", links);
-                }
+                AddLinksToUserProfileAsDictionary(userId, includeLinks, userProfileToReturn);
 
                 return GenericResponseBuilder.Success<IDictionary<string, object>>(userProfileToReturn);
             }
@@ -53,7 +66,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                 //ToDo Log Error
                 return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, $"{ex.Message} InnerException: {ex.InnerException.Message}");
             }
-        }
+        }      
 
         public async Task<GenericResponse<UserProfileDto>> AddNewUserProfile(Guid userId, UserProfileForCreationDto userProfileForCreation)
         {
@@ -131,19 +144,33 @@ namespace H2020.IPMDecisions.UPR.BLL
                     .UserProfiles
                     .FindByCondition(u => u.UserId == userId);
 
-                if (existingUserProfile == null) return GenericResponseBuilder.Success<IDictionary<string, object>>(null);                
-
-                var userProfileToReturn = this.mapper.Map<UserProfileDto>(existingUserProfile)
-                    .ShapeData(fields) 
-                    as IDictionary<string, object>;
+                if (existingUserProfile == null) return GenericResponseBuilder.Success<IDictionary<string, object>>(null);
 
                 var includeLinks = parsedMediaType.SubTypeWithoutSuffix
                             .EndsWith("hateoas", StringComparison.InvariantCultureIgnoreCase);
-                if (includeLinks)
+
+                var primaryMediaType = includeLinks ?
+                    parsedMediaType.SubTypeWithoutSuffix
+                    .Substring(0, parsedMediaType.SubTypeWithoutSuffix.Length - 8)
+                    : parsedMediaType.SubTypeWithoutSuffix;
+
+                if (primaryMediaType == "vnd.h2020ipmdecisions.profile.full")
                 {
-                    var links = UrlCreatorHelper.CreateLinksForUserProfiles(this.url, userId);
-                    userProfileToReturn.Add("links", links);
+                    var userProfileFullToReturn = this.mapper.Map<UserProfileFullDto>(existingUserProfile)
+                        .ShapeData(fields)
+                        as IDictionary<string, object>;
+
+                    AddLinksToUserProfileAsDictionary(userId, includeLinks, userProfileFullToReturn);
+
+                    return GenericResponseBuilder.Success<IDictionary<string, object>>(userProfileFullToReturn);
                 }
+                
+                var userProfileToReturn = this.mapper.Map<UserProfileDto>(existingUserProfile)
+                        .ShapeData(fields)
+                        as IDictionary<string, object>;
+
+                AddLinksToUserProfileAsDictionary(userId, includeLinks, userProfileToReturn);
+
                 return GenericResponseBuilder.Success<IDictionary<string, object>>(userProfileToReturn);
             }
             catch (Exception ex)
@@ -151,16 +178,6 @@ namespace H2020.IPMDecisions.UPR.BLL
                 //ToDo Log Error
                 return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, $"{ex.Message} InnerException: {ex.InnerException.Message}");
             }
-        }
-
-        public UserProfileForCreationDto MapToUserProfileForCreation(UserProfileForUpdateDto userProfileDto)
-        {
-            return this.mapper.Map<UserProfileForCreationDto>(userProfileDto);
-        }
-
-        public UserProfileForUpdateDto MapToUserProfileForUpdateDto(UserProfile userProfile)
-        {
-            return this.mapper.Map<UserProfileForUpdateDto>(userProfile);
         }
 
         public async Task<GenericResponse> UpdateUserProfile(UserProfile userProfile, UserProfileForUpdateDto userProfileToPatch)
@@ -181,7 +198,25 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
         }
 
-        #region Helpers        
+        #region Helpers
+        public UserProfileForCreationDto MapToUserProfileForCreation(UserProfileForUpdateDto userProfileDto)
+        {
+            return this.mapper.Map<UserProfileForCreationDto>(userProfileDto);
+        }
+
+        public UserProfileForUpdateDto MapToUserProfileForUpdateDto(UserProfile userProfile)
+        {
+            return this.mapper.Map<UserProfileForUpdateDto>(userProfile);
+        }
+
+        private void AddLinksToUserProfileAsDictionary(Guid userId, bool includeLinks, IDictionary<string, object> userProfileAsDictionary)
+        {
+            if (includeLinks)
+            {
+                var links = UrlCreatorHelper.CreateLinksForUserProfile(this.url, userId);
+                userProfileAsDictionary.Add("links", links);
+            }
+        }
         #endregion
     }
 }
