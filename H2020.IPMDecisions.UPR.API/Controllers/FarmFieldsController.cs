@@ -46,7 +46,10 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [Produces(MediaTypeNames.Application.Json)]
+        [Produces(MediaTypeNames.Application.Json,
+            "application/vnd.h2020ipmdecisions.hateoas+json",
+            "application/vnd.h2020ipmdecisions.field.withchildren+json",
+            "application/vnd.h2020ipmdecisions.field.withchildren.hateoas+json")]
         [HttpGet("", Name = "api.field.get.all")]
         [HttpHead]
         // GET: api/farms/1/fields
@@ -73,15 +76,18 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [Produces(MediaTypeNames.Application.Json)]
+        [Produces(MediaTypeNames.Application.Json,
+            "application/vnd.h2020ipmdecisions.hateoas+json",
+            "application/vnd.h2020ipmdecisions.field.withchildren+json",
+            "application/vnd.h2020ipmdecisions.field.withchildren.hateoas+json")]
         [HttpGet("{id:guid}", Name = "api.field.get.fieldbyid")]
         // GET:  api/farms/1/fields/1
         public async Task<IActionResult> GetFieldById(
             [FromRoute] Guid farmId, Guid id,
-            [FromQuery] string fields,
+            [FromQuery] ChildrenResourceParameter resourceParameter,
             [FromHeader(Name = "Accept")] string mediaType)
         {
-            var response = await this.businessLogic.GetFieldDto(id, fields, mediaType);
+            var response = await this.businessLogic.GetFieldDto(id, resourceParameter, mediaType);
 
             if (!response.IsSuccessful)
                 return response.RequestResult;
@@ -93,7 +99,8 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [Produces(MediaTypeNames.Application.Json)]
+        [Produces(MediaTypeNames.Application.Json,
+        "application/vnd.h2020ipmdecisions.hateoas+json")]
         [HttpPost("", Name = "api.field.post.field")]
         // POST: api/farms/1/fields
         public async Task<IActionResult> Post(

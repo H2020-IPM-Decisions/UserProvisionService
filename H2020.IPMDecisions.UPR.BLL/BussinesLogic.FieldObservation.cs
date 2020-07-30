@@ -122,17 +122,18 @@ namespace H2020.IPMDecisions.UPR.BLL
 
                 var links = UrlCreatorHelper.CreateLinksForFieldObservations(
                     this.url,
+                    fieldId,
                     resourceParameter,
                     observationsAsEntities.HasNext,
                     observationsAsEntities.HasPrevious);
 
-                var shapedObservatiosToReturn = this.mapper
+                var shapedObservationsToReturn = this.mapper
                     .Map<IEnumerable<FieldObservationDto>>(observationsAsEntities)
                     .ShapeData(resourceParameter.Fields);
 
                 var dataToReturn = new ShapedDataWithLinks()
                 {
-                    Value = shapedObservatiosToReturn,
+                    Value = shapedObservationsToReturn,
                     Links = links,
                     PaginationMetaData = paginationMetaData
                 };

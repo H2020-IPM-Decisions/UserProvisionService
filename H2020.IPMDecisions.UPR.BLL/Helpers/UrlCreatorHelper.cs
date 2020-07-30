@@ -276,6 +276,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
         #region Observations
         internal static IEnumerable<LinkDto> CreateLinksForFieldObservations(
             this IUrlHelper url,
+            Guid fieldId,
             FieldObservationResourceParameter resourceParameter,
             bool hasNextPage,
             bool hasPreviousPage)
@@ -283,21 +284,21 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
             var links = new List<LinkDto>();
 
             links.Add(new LinkDto(
-                CreateFieldObservationResourceUri(url, resourceParameter, ResourceUriType.Current),
+                CreateFieldObservationResourceUri(url, fieldId, resourceParameter, ResourceUriType.Current),
                 "self",
                 "GET"));
 
             if (hasNextPage)
             {
                 links.Add(new LinkDto(
-                CreateFieldObservationResourceUri(url, resourceParameter, ResourceUriType.NextPage),
+                CreateFieldObservationResourceUri(url, fieldId, resourceParameter, ResourceUriType.NextPage),
                 "next_page",
                 "GET"));
             }
             if (hasPreviousPage)
             {
                 links.Add(new LinkDto(
-               CreateFieldObservationResourceUri(url, resourceParameter, ResourceUriType.PreviousPage),
+               CreateFieldObservationResourceUri(url, fieldId, resourceParameter, ResourceUriType.PreviousPage),
                "previous_page",
                "GET"));
             }
@@ -306,6 +307,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
 
         private static string CreateFieldObservationResourceUri(
             IUrlHelper url,
+            Guid fieldId,
             FieldObservationResourceParameter resourceParameter,
             ResourceUriType type)
         {
@@ -315,6 +317,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
                     return url.Link("api.observation.get.all",
                     new
                     {
+                        fieldId,
                         fields = resourceParameter.Fields,
                         orderBy = resourceParameter.OrderBy,
                         pageNumber = resourceParameter.PageNumber - 1,
@@ -325,6 +328,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
                     return url.Link("api.observation.get.all",
                     new
                     {
+                        fieldId,
                         fields = resourceParameter.Fields,
                         orderBy = resourceParameter.OrderBy,
                         pageNumber = resourceParameter.PageNumber + 1,
@@ -336,6 +340,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
                     return url.Link("api.observation.get.all",
                     new
                     {
+                        fieldId,
                         fields = resourceParameter.Fields,
                         orderBy = resourceParameter.OrderBy,
                         pageNumber = resourceParameter.PageNumber,
@@ -343,6 +348,42 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
                         searchQuery = resourceParameter.SearchQuery
                     });
             }
+        }
+
+        internal static IEnumerable<LinkDto> CreateLinksForFieldObservation(
+           this IUrlHelper url,
+           Guid id,
+           Guid fieldId,
+           string fields = "")
+        {
+            var links = new List<LinkDto>();
+
+            if (string.IsNullOrWhiteSpace(fields))
+            {
+                links.Add(new LinkDto(
+                url.Link("api.observation.get.observationbyid", new { fieldId, id }),
+                "self",
+                "GET"));
+            }
+            else
+            {
+                links.Add(new LinkDto(
+                 url.Link("api.observation.get.observationbyid", new { fieldId, id, fields }),
+                 "self",
+                 "GET"));
+            }
+
+            links.Add(new LinkDto(
+                url.Link("api.observation.delete.observationbyid", new { fieldId, id }),
+                "delete_field_observation",
+                "DELETE"));
+
+            links.Add(new LinkDto(
+                url.Link("api.observation.patch.observationbyid", new { fieldId, id }),
+                "update_field_observation",
+                "PATCH"));
+
+            return links;
         }
         #endregion
     }

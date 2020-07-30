@@ -346,11 +346,11 @@ namespace H2020.IPMDecisions.UPR.BLL
             try
             {
                 var fieldsToReturn = ShapeFieldsAsChildren(
-                farmAsEntity,
-                pageNumber,
-                pageSize,
-                childrenResourceParameter,
-                includeLinks);
+                    farmAsEntity,
+                    pageNumber,
+                    pageSize,
+                    childrenResourceParameter,
+                    includeLinks);
 
                 var farmToReturnWithChildren = this.mapper.Map<FarmWithChildrenDto>(farmAsEntity);
                 farmToReturnWithChildren.FieldsDto = fieldsToReturn;
@@ -361,7 +361,6 @@ namespace H2020.IPMDecisions.UPR.BLL
                 {
                     farmToReturnWithChildrenShaped.Add("links", links);
                 }
-
                 return farmToReturnWithChildrenShaped;
             }
             catch (Exception ex)

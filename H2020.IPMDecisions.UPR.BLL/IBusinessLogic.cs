@@ -31,7 +31,7 @@ namespace H2020.IPMDecisions.UPR.BLL
         Task<GenericResponse<FieldDto>> AddNewField(FieldForCreationDto fieldForCreationDto, HttpContext httpContext, Guid id);
         Task<GenericResponse> DeleteField(Guid id);
         Task<GenericResponse<ShapedDataWithLinks>> GetFields(Guid farmId, FieldResourceParameter resourceParameter, string mediaType);
-        Task<GenericResponse<FieldDto>> GetFieldDto(Guid id, string fields, string mediaType);
+        Task<GenericResponse<IDictionary<string, object>>> GetFieldDto(Guid id, ChildrenResourceParameter childrenResourceParameter, string mediaType);
         Task<GenericResponse<Field>> GetField(Guid id);
         FieldForCreationDto MapToFieldForCreation(FieldForUpdateDto fieldForUpdateDto);
         FieldForUpdateDto MapToFieldForUpdateDto(Field field);
