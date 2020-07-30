@@ -56,21 +56,46 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
                 resourceParameter.PageSize);
         }
 
-        public async Task<PagedList<Field>> FindAllAsync(FieldResourceParameter resourceParameter, Guid? farmId = null)
+        public async Task<PagedList<Field>> FindAllAsync(FieldResourceParameter resourceParameter, Guid farmId)
         {
+            if (string.IsNullOrEmpty(farmId.ToString()))
+            {
+                return await FindAllAsync(resourceParameter);
+            }
+
             if (resourceParameter is null)
                 throw new ArgumentNullException(nameof(resourceParameter));
 
             var collection = this.context.Field as IQueryable<Field>;
-
-            if (!string.IsNullOrEmpty(farmId.ToString()))
-            {
-                collection = collection.Where(f =>
-                    f.FarmId == farmId);
-            }
+            collection = collection.Where(f =>
+                    f.FarmId == farmId);           
 
             collection = ApplyResourceParameter(resourceParameter, collection);
             
+            return await PagedList<Field>.CreateAsync(
+                collection,
+                resourceParameter.PageNumber,
+                resourceParameter.PageSize);
+        }
+
+        public async Task<PagedList<Field>> FindAllAsync(FieldResourceParameter resourceParameter, Guid farmId, bool includeAssociatedData)
+        {
+            if (!includeAssociatedData)
+            {
+                return await FindAllAsync(resourceParameter, farmId);
+            }
+
+            var collection = this.context.Field as IQueryable<Field>;
+
+            collection = collection
+               .Where(f =>
+                   f.FarmId == farmId)
+               .Include(f => f.FieldObservations)
+               .Include(f => f.FieldCropDecisionCombinations)
+                   .ThenInclude(fcdc => fcdc.CropDecisionCombination);
+
+            collection = ApplyResourceParameter(resourceParameter, collection);
+
             return await PagedList<Field>.CreateAsync(
                 collection,
                 resourceParameter.PageNumber,
@@ -123,6 +148,24 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
                 .Field
                 .Where(f =>
                     f.Id == id)
+                .FirstOrDefaultAsync();
+        }
+
+        public async Task<Field> FindByIdAsync(Guid id, bool includeAssociatedData)
+        {
+            if (!includeAssociatedData)
+            {
+                return await FindByIdAsync(id);
+            }
+
+            return await this
+                .context
+                .Field
+                .Where(f =>
+                    f.Id == id)
+                .Include(f => f.FieldObservations)
+                .Include(f => f.FieldCropDecisionCombinations)
+                    .ThenInclude(fcdc => fcdc.CropDecisionCombination)
                 .FirstOrDefaultAsync();
         }
 
