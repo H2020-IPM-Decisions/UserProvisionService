@@ -9,6 +9,9 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
             CreateMap<ChildrenResourceParameter, FieldResourceParameter>()
                 .ForMember(dest => dest.Fields, opt => opt.Ignore());
 
+            CreateMap<ChildrenResourceParameter, FieldObservationResourceParameter>()
+                .ForMember(dest => dest.Fields, opt => opt.Ignore());
+
             CreateMap<FarmResourceParameter, FieldResourceParameter>()
                .ForMember(dest => dest.PageNumber, opt => opt.MapFrom(src => src.ChildPageNumber))
                .ForMember(dest => dest.PageSize, opt => opt.MapFrom(src => src.ChildPageSize));

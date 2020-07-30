@@ -46,8 +46,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                 var userProfile = await GetUserProfile(userId);
                 if (userProfile.Result == null)
                 {
-                    // ToDo Create empty profile
-                    return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, "Please add User Profile first.");
+                    return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, "Please create an `User Profile` first.");
                 }
 
                 var farmAsEntity = this.mapper.Map<Farm>(farmForCreationDto);
@@ -80,8 +79,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                 var userProfile = await GetUserProfile(userId);
                 if (userProfile.Result == null)
                 {
-                    // ToDo Create empty profile
-                    return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, "Please add User Profile first.");
+                    return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, "Please create an `User Profile` first.");
                 }
                 var farmAsEntity = this.mapper.Map<Farm>(farmForCreationDto);
 
@@ -161,16 +159,9 @@ namespace H2020.IPMDecisions.UPR.BLL
 
                 var includeLinks = parsedMediaType.SubTypeWithoutSuffix
                     .EndsWith("hateoas", StringComparison.InvariantCultureIgnoreCase);
-
-                var primaryMediaType = includeLinks ?
-                    parsedMediaType.SubTypeWithoutSuffix
-                    .Substring(0, parsedMediaType.SubTypeWithoutSuffix.Length - 8)
-                    : parsedMediaType.SubTypeWithoutSuffix;
-
-                bool includeChildren = primaryMediaType.ToString().Contains("withchildren");
+                bool includeChildren = parsedMediaType.SubTypeWithoutSuffix.ToString().Contains("withchildren");
 
                 Farm farmAsEntity = await FindFarm(id, userId, isAdmin, includeChildren);
-
                 if (farmAsEntity == null) return GenericResponseBuilder.NotFound<IDictionary<string, object>>();
 
                 IEnumerable<LinkDto> links = new List<LinkDto>();
@@ -197,7 +188,6 @@ namespace H2020.IPMDecisions.UPR.BLL
 
                 if (includeLinks)
                 {
-                    links = UrlCreatorHelper.CreateLinksForFarm(url, id, childrenResourceParameter.Fields);
                     farmToReturn.Add("links", links);
                 }
 
@@ -226,19 +216,12 @@ namespace H2020.IPMDecisions.UPR.BLL
 
                 var includeLinks = parsedMediaType.SubTypeWithoutSuffix
                     .EndsWith("hateoas", StringComparison.InvariantCultureIgnoreCase);
-
-                var primaryMediaType = includeLinks ?
-                    parsedMediaType.SubTypeWithoutSuffix
-                    .Substring(0, parsedMediaType.SubTypeWithoutSuffix.Length - 8)
-                    : parsedMediaType.SubTypeWithoutSuffix;
-
-                bool includeChildren = primaryMediaType.ToString().Contains("withchildren");
+                bool includeChildren = parsedMediaType.SubTypeWithoutSuffix.ToString().Contains("withchildren");
 
                 var farmsAsEntities = await this
                     .dataService
                     .Farms
                     .FindAllAsync(resourceParameter, userId, includeChildren);
-
                 if (farmsAsEntities.Count == 0) return GenericResponseBuilder.NotFound<ShapedDataWithLinks>();
 
                 var paginationMetaData = MiscellaneousHelper.CreatePaginationMetadata(farmsAsEntities);
@@ -369,7 +352,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                 childrenResourceParameter,
                 includeLinks);
 
-                var farmToReturnWithChildren = this.mapper.Map<FarmWithShapedChildrenDto>(farmAsEntity);
+                var farmToReturnWithChildren = this.mapper.Map<FarmWithChildrenDto>(farmAsEntity);
                 farmToReturnWithChildren.FieldsDto = fieldsToReturn;
 
                 var farmToReturnWithChildrenShaped = farmToReturnWithChildren.ShapeData("") as IDictionary<string, object>;
