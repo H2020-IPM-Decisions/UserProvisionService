@@ -1,6 +1,6 @@
 namespace H2020.IPMDecisions.UPR.Core.Enums
 {
-    public enum UserFarmTypes
+    public enum UserFarmTypeEnum
     {
         Unknown = 0,
         Owner = 1,

@@ -1,10 +1,6 @@
-using System;
-using System.Collections.Generic;
 using H2020.IPMDecisions.UPR.Core.Entities;
-using H2020.IPMDecisions.UPR.Core.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace H2020.IPMDecisions.UPR.Data.Persistence.Configurations
 {

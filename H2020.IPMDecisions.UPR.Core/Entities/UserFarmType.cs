@@ -7,7 +7,7 @@ namespace H2020.IPMDecisions.UPR.Core.Entities
     public class UserFarmType
     {
         [Key]
-        public UserFarmTypes Id { get; set; }
+        public UserFarmTypeEnum Id { get; set; }
         [Required]
         public string Description { get; set; }
 

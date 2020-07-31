@@ -13,8 +13,8 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Extensions
         {
             modelBuilder.Entity<UserFarmType>()
                 .HasData(
-                    Enum.GetValues(typeof(UserFarmTypes))
-                    .Cast<UserFarmTypes>()
+                    Enum.GetValues(typeof(UserFarmTypeEnum))
+                    .Cast<UserFarmTypeEnum>()
                     .Select(e => new UserFarmType()
                     {
                         Id = e,

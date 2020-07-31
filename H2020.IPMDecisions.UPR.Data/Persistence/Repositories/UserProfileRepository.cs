@@ -84,7 +84,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
             this.context.UserProfile.Update(entity);
         }
 
-        public async void AddFarm(UserProfile userProfile, Farm farm, UserFarmTypes userType = UserFarmTypes.Unknown, bool isAuthorised = false)
+        public async void AddFarm(UserProfile userProfile, Farm farm, UserFarmTypeEnum userType = UserFarmTypeEnum.Unknown, bool isAuthorised = false)
         {
 
             var userTypeFromDb = await this
@@ -93,9 +93,9 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
                 .FirstOrDefaultAsync(s => s.Description.Equals(userType.ToString()));
 
             if (userTypeFromDb == null)
-                userType = UserFarmTypes.Unknown;
+                userType = UserFarmTypeEnum.Unknown;
 
-            if (userTypeFromDb.Description == UserFarmTypes.Owner.ToString())
+            if (userTypeFromDb.Description == UserFarmTypeEnum.Owner.ToString())
                 isAuthorised = true;            
 
             userProfile.UserFarms = new List<UserFarm>
