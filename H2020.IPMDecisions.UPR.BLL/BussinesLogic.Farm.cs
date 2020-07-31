@@ -1,6 +1,7 @@
 using H2020.IPMDecisions.UPR.BLL.Helpers;
 using H2020.IPMDecisions.UPR.Core.Dtos;
 using H2020.IPMDecisions.UPR.Core.Entities;
+using H2020.IPMDecisions.UPR.Core.Enums;
 using H2020.IPMDecisions.UPR.Core.Helpers;
 using H2020.IPMDecisions.UPR.Core.Models;
 using H2020.IPMDecisions.UPR.Core.ResourceParameters;
@@ -52,7 +53,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                 var farmAsEntity = this.mapper.Map<Farm>(farmForCreationDto);
                 farmAsEntity.Id = id;
 
-                this.dataService.UserProfiles.AddFarm(userProfile.Result, farmAsEntity);
+                this.dataService.UserProfiles.AddFarm(userProfile.Result, farmAsEntity, UserFarmTypes.Owner, false);
                 await this.dataService.CompleteAsync();
 
                 var farmToReturn = this.mapper.Map<FarmDto>(farmAsEntity)
@@ -83,7 +84,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                 }
                 var farmAsEntity = this.mapper.Map<Farm>(farmForCreationDto);
 
-                this.dataService.UserProfiles.AddFarm(userProfile.Result, farmAsEntity);
+                this.dataService.UserProfiles.AddFarm(userProfile.Result, farmAsEntity, UserFarmTypes.Owner, false);
                 await this.dataService.CompleteAsync();
 
                 var farmToReturn = this.mapper.Map<FarmDto>(farmAsEntity)

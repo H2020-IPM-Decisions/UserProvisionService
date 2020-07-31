@@ -1,6 +1,7 @@
 using H2020.IPMDecisions.UPR.Core;
 using H2020.IPMDecisions.UPR.Core.Entities;
 using H2020.IPMDecisions.UPR.Data.Persistence.Configurations;
+using H2020.IPMDecisions.UPR.Data.Persistence.Extensions;
 using Microsoft.EntityFrameworkCore;
 
 namespace H2020.IPMDecisions.UPR.Data.Persistence
@@ -14,6 +15,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence
         public DbSet<UserAddress> UserAddress { get; set; }
         public DbSet<UserFarm> UserFarm { get; set; }
         public DbSet<UserProfile> UserProfile { get; set; }
+        public DbSet<UserFarmType> UserFarmType { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
@@ -33,8 +35,11 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence
             modelBuilder.ApplyConfiguration(new FieldObservationConfiguration());
             modelBuilder.ApplyConfiguration(new PestConfiguration());
             modelBuilder.ApplyConfiguration(new UserFarmConfiguration());
+            modelBuilder.ApplyConfiguration(new UserFarmTypeConfiguration());
             modelBuilder.ApplyConfiguration(new UserProfileConfiguration());
             modelBuilder.ApplyConfiguration(new UserAddressConfiguration());
+
+            modelBuilder.Seed();
         }
     }
 }

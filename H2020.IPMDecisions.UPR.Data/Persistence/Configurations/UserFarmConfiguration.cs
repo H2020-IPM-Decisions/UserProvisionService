@@ -27,6 +27,9 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Configurations
                 .HasConstraintName("FK_UserFarm_Farm")
                 .OnDelete(DeleteBehavior.Cascade)
                 .IsRequired();
+
+            builder.Property(uf => uf.Authorised)
+                .IsRequired();
         }
     }
 }

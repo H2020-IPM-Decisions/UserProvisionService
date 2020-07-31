@@ -11,6 +11,7 @@ namespace H2020.IPMDecisions.UPR.Core
         DbSet<FieldObservation> FieldObservation { get; set; }
         DbSet<UserAddress> UserAddress { get; set; }
         DbSet<UserFarm> UserFarm { get; set; }
+        DbSet<UserFarmType> UserFarmType { get; set; }
         DbSet<UserProfile> UserProfile { get; set; }
     }
 }

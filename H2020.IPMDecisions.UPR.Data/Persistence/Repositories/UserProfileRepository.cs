@@ -4,6 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using H2020.IPMDecisions.UPR.Core.Entities;
+using H2020.IPMDecisions.UPR.Core.Enums;
 using H2020.IPMDecisions.UPR.Core.Helpers;
 using H2020.IPMDecisions.UPR.Core.ResourceParameters;
 using H2020.IPMDecisions.UPR.Core.Services;
@@ -83,14 +84,28 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
             this.context.UserProfile.Update(entity);
         }
 
-        public void AddFarm(UserProfile userProfile, Farm farm)
+        public async void AddFarm(UserProfile userProfile, Farm farm, UserFarmTypes userType = UserFarmTypes.Unknown, bool isAuthorised = false)
         {
+
+            var userTypeFromDb = await this
+                .context
+                .UserFarmType
+                .FirstOrDefaultAsync(s => s.Description.Equals(userType.ToString()));
+
+            if (userTypeFromDb == null)
+                userType = UserFarmTypes.Unknown;
+
+            if (userTypeFromDb.Description == UserFarmTypes.Owner.ToString())
+                isAuthorised = true;            
+
             userProfile.UserFarms = new List<UserFarm>
             {
                 new UserFarm
                 {
                     UserProfile = userProfile,
-                    Farm = farm
+                    Farm = farm,
+                    Authorised = isAuthorised,
+                    UserFarmType = userTypeFromDb      
                 }
             };
         }
