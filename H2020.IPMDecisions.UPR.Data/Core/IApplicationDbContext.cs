@@ -6,6 +6,8 @@ namespace H2020.IPMDecisions.UPR.Core
     public interface IApplicationDbContext
     {
         DbSet<CropDecisionCombination> CropDecisionCombination { get; set; }
+        DbSet<DataSharingRequest> DataSharingRequest { get; set; }
+        DbSet<DataSharingRequestStatus> DataSharingRequestStatus { get; set; }
         DbSet<Farm> Farm { get; set; }
         DbSet<Field> Field { get; set; }
         DbSet<FieldObservation> FieldObservation { get; set; }

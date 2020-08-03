@@ -9,6 +9,8 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence
     public class ApplicationDbContext : DbContext, IApplicationDbContext
     {
         public DbSet<CropDecisionCombination> CropDecisionCombination { get; set; }
+        public DbSet<DataSharingRequest> DataSharingRequest { get; set; }
+        public DbSet<DataSharingRequestStatus> DataSharingRequestStatus { get; set; }
         public DbSet<Farm> Farm { get; set; }
         public DbSet<Field> Field { get; set; }
         public DbSet<FieldObservation> FieldObservation { get; set; }
@@ -28,6 +30,8 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence
 
             modelBuilder.ApplyConfiguration(new CropConfiguration());
             modelBuilder.ApplyConfiguration(new CropDecisionCombinationConfiguration());
+            modelBuilder.ApplyConfiguration(new DataSharingRequestConfiguration());
+            modelBuilder.ApplyConfiguration(new DataSharingRequestStatusConfiguration());
             modelBuilder.ApplyConfiguration(new DssConfiguration());
             modelBuilder.ApplyConfiguration(new FarmConfiguration());
             modelBuilder.ApplyConfiguration(new FieldConfiguration());

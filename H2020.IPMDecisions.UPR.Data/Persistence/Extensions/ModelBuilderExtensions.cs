@@ -21,6 +21,17 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Extensions
                         Description = e.ToString()
                     })
                 );
+
+            modelBuilder.Entity<DataSharingRequestStatus>()
+            .HasData(
+                Enum.GetValues(typeof(RequestStatusEnum))
+                .Cast<RequestStatusEnum>()
+                .Select(e => new DataSharingRequestStatus()
+                {
+                    Id = e,
+                    Description = e.ToString()
+                })
+            );
         }        
     }
 }

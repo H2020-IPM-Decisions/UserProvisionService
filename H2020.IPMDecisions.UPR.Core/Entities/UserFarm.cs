@@ -11,6 +11,6 @@ namespace H2020.IPMDecisions.UPR.Core.Entities
         public Farm Farm { get; set; }
 
         public bool Authorised { get; set; }
-        public virtual UserFarmType UserFarmType { get; set; }        
+        public virtual UserFarmType UserFarmType { get; set; }
     }
 }
