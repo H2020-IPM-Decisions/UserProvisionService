@@ -63,7 +63,20 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence
                 return fieldObservations;
             }
         }
-        
+
+        private IDataShareRequestRepository dataShareRequests;
+        public IDataShareRequestRepository DataShareRequests
+        {
+            get
+            {
+                if (dataShareRequests == null)
+                {
+                    dataShareRequests = new DataShareRequestRepository(this.context);
+                }
+                return dataShareRequests;
+            }
+        }
+
         public DataService(
             ApplicationDbContext context,
             IPropertyMappingService propertyMappingService)

@@ -86,7 +86,6 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
 
         public async void AddFarm(UserProfile userProfile, Farm farm, UserFarmTypeEnum userType = UserFarmTypeEnum.Unknown, bool isAuthorised = false)
         {
-
             var userTypeFromDb = await this
                 .context
                 .UserFarmType

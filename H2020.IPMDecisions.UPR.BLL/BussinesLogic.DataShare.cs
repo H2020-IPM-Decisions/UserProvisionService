@@ -1,8 +1,8 @@
 using H2020.IPMDecisions.UPR.Core.Dtos;
+using H2020.IPMDecisions.UPR.Core.Enums;
 using H2020.IPMDecisions.UPR.Core.Models;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 
@@ -16,20 +16,43 @@ namespace H2020.IPMDecisions.UPR.BLL
             {
                 if (!MediaTypeHeaderValue.TryParse(mediaType,
                        out MediaTypeHeaderValue parsedMediaType))
-                    return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, "Wrong media type."); 
+                    return GenericResponseBuilder.NoSuccess("Wrong media type.");
                 
-                var refereeUserId = await this.internalCommunicationProvider.GetUserIdFromIdpMicroservice(dataShareRequestDto.Email.ToString());
-                if (string.IsNullOrEmpty(refereeUserId))
+                var requesteeUserId = await this.internalCommunicationProvider.GetUserIdFromIdpMicroservice(dataShareRequestDto.Email.ToString());
+                if (string.IsNullOrEmpty(requesteeUserId))
                 {
+                    return GenericResponseBuilder.NoSuccess("User requested not in the system.");
+                }
+                var requesteeUserIdAsGuid = Guid.Parse(requesteeUserId);
+                var requesteeUserProfileExists = await GetUserProfile(requesteeUserIdAsGuid);
+                if (requesteeUserProfileExists.Result == null)
+                {
+                    return GenericResponseBuilder.NoSuccess("User requested do not have a profile in the system.");
+                }
 
+                var requesterUserProfileExists = await GetUserProfile(userId);
+                if (requesterUserProfileExists.Result == null)
+                {
+                    return GenericResponseBuilder.NoSuccess("User requesting data share do not have a profile in the system.");
                 }                
-                // check if has profile in here
+                var requestExist = await this.dataService.DataShareRequests.FindByCondition(
+                        d => (d.RequesterId == requesterUserProfileExists.Result.Id) 
+                        && (d.RequesteeId == requesteeUserProfileExists.Result.Id)
+                        && (d.RequestStatus.Description == RequestStatusEnum.Pending.ToString()));
+                
+                if (requestExist != null)
+                {
+                    return GenericResponseBuilder.NoSuccess("Already requested data from this user.");
+                }
+                await this.dataService.DataShareRequests.Create(
+                    requesterUserProfileExists.Result.Id,
+                    requesteeUserProfileExists.Result.Id,
+                    RequestStatusEnum.Pending);
 
-                // if Ok, add request
+                await this.dataService.CompleteAsync();
 
-                // Send email with request
+                // ToDo: Send email with request
 
-                // return Ok
                 return GenericResponseBuilder.Success();
             }
             catch (Exception ex)

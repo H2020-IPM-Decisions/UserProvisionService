@@ -11,5 +11,6 @@ namespace H2020.IPMDecisions.UPR.Data.Core
         IFarmRepository Farms { get; }
         IFieldRepository Fields { get; }
         IFieldObservationRepository FieldObservations { get; }
+        IDataShareRequestRepository DataShareRequests { get; }
     }
 }
