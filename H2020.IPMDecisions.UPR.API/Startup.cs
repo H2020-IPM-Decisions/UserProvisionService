@@ -41,6 +41,7 @@ namespace H2020.IPMDecisions.UPR.API
             services.ConfigureCors(Configuration);
             services.ConfigureContentNegotiation();
             services.ConfigureJwtAuthentication(Configuration);
+            services.ConfigureInternalCommunicationHttpService(Configuration);
 
             services.AddTransient<IPropertyMappingService, PropertyMappingService>();
             services.AddTransient<IPropertyCheckerService, PropertyCheckerService>();

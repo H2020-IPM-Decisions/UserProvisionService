@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using H2020.IPMDecisions.UPR.API.Filters;
+using H2020.IPMDecisions.UPR.BLL.Providers;
 using H2020.IPMDecisions.UPR.Data.Persistence;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -181,6 +182,15 @@ namespace H2020.IPMDecisions.APG.API.Extensions
         public static void ConfigureLogger(this IServiceCollection services, IConfiguration config)
         {
             LogManager.Configuration = new NLogLoggingConfiguration(config.GetSection("NLog"));
+        }
+
+        public static void ConfigureInternalCommunicationHttpService(this IServiceCollection services, IConfiguration config)
+        {
+            services.AddHttpClient<IMicroservicesInternalCommunicationHttpProvider, MicroservicesInternalCommunicationHttpProvider>(client =>
+            {
+                client.BaseAddress = new Uri(config["MicroserviceInternalCommunication:ApiGatewayAddress"]);
+                client.DefaultRequestHeaders.Add(config["MicroserviceInternalCommunication:SecurityTokenCustomHeader"], config["MicroserviceInternalCommunication:SecurityToken"]);
+            });
         }
 
         private static IEnumerable<string> Audiences(string audiences)

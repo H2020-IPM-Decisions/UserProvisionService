@@ -1,5 +1,6 @@
 using System;
 using AutoMapper;
+using H2020.IPMDecisions.UPR.BLL.Providers;
 using H2020.IPMDecisions.UPR.Core.Services;
 using H2020.IPMDecisions.UPR.Data.Core;
 using Microsoft.AspNetCore.Mvc;
@@ -15,6 +16,7 @@ namespace H2020.IPMDecisions.UPR.BLL
         private readonly IPropertyCheckerService propertyCheckerService;
         private readonly IPropertyMappingService propertyMappingService;
         private readonly ILogger<BusinessLogic> logger;
+        private readonly IMicroservicesInternalCommunicationHttpProvider internalCommunicationProvider;
 
         public BusinessLogic(
             IMapper mapper,
@@ -22,7 +24,8 @@ namespace H2020.IPMDecisions.UPR.BLL
             IUrlHelper url,
             IPropertyCheckerService propertyCheckerService,
             IPropertyMappingService propertyMappingService,
-            ILogger<BusinessLogic> logger)
+            ILogger<BusinessLogic> logger,
+            IMicroservicesInternalCommunicationHttpProvider internalCommunicationProvider) 
         {
             this.mapper = mapper 
                 ?? throw new ArgumentNullException(nameof(mapper));
@@ -36,6 +39,8 @@ namespace H2020.IPMDecisions.UPR.BLL
                 ?? throw new ArgumentNullException(nameof(propertyMappingService));
             this.logger = logger
                 ?? throw new ArgumentNullException(nameof(logger));
+            this.internalCommunicationProvider = internalCommunicationProvider
+                ?? throw new ArgumentNullException(nameof(internalCommunicationProvider));
         }
     }
 }
