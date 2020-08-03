@@ -1,7 +1,7 @@
 using System;
-using System.Net;
 using System.Net.Mime;
 using System.Threading.Tasks;
+using H2020.IPMDecisions.UPR.API.Filters;
 using H2020.IPMDecisions.UPR.BLL;
 using H2020.IPMDecisions.UPR.Core.Dtos;
 using H2020.IPMDecisions.UPR.Core.ResourceParameters;
@@ -16,6 +16,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
     [ApiController]
     [Route("api/datashare")]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [ServiceFilter(typeof(AddUserIdToContextFilter))]
     public class DataSharingController : ControllerBase
     {
         private readonly IBusinessLogic businessLogic;
@@ -70,10 +71,15 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         [Produces(MediaTypeNames.Application.Json)]
         [HttpPost("", Name = "api.datashare.post.datashare")]
         // POST: api/datashare
-        public IActionResult Post(
-            [FromBody] Object dataShareRequestDto,
+        public async Task<IActionResult> Post(
+            [FromBody] DataShareRequestDto dataShareRequestDto,
             [FromHeader(Name = "Accept")] string mediaType)
         {
+            var userId = Guid.Parse(HttpContext.Items["userId"].ToString());
+            var response = await this.businessLogic.RequestDataShare(userId, dataShareRequestDto, mediaType);
+            
+            if (!response.IsSuccessful)
+                return BadRequest(new { message = response.ErrorMessage });
             return Ok();
         }
 

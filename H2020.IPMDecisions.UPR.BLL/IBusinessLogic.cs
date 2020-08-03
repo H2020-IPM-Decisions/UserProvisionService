@@ -55,5 +55,10 @@ namespace H2020.IPMDecisions.UPR.BLL
         UserProfileForUpdateDto MapToUserProfileForUpdateDto(UserProfile userProfile);
         Task<GenericResponse> UpdateUserProfile(UserProfile userProfile, UserProfileForUpdateDto userProfileToPatch);
         #endregion
+
+        #region Data Sharing
+        Task<GenericResponse> RequestDataShare(Guid userId, DataShareRequestDto dataShareRequestDto, string mediaType);
+
+        #endregion
     }
 }
