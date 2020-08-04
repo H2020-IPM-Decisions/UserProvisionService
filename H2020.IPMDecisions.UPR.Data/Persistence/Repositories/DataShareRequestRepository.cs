@@ -84,6 +84,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
             return await this.context
                 .DataSharingRequest
                 .Where(expression)
+                .Include(d => d.RequestStatus)
                 .FirstOrDefaultAsync();
         }
 
