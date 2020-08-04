@@ -1,5 +1,6 @@
 using System;
 using System.Net.Mime;
+using System.Text.Json;
 using System.Threading.Tasks;
 using H2020.IPMDecisions.UPR.API.Filters;
 using H2020.IPMDecisions.UPR.BLL;
@@ -43,11 +44,23 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         [HttpGet("", Name = "api.datashare.get.all")]
         [HttpHead]
         // GET: api/datashare
-        public IActionResult Get(
-            [FromQuery] Object resourceParameter,
-            [FromHeader(Name = "Accept")] string mediaType)
+        public async Task<IActionResult> GetAsync(
+            [FromQuery] DataShareResourceParameter resourceParameter)
         {
-            return Ok();
+            var userId = Guid.Parse(HttpContext.Items["userId"].ToString());
+            var response = await this.businessLogic.GetDataShareRequests(userId, resourceParameter);
+
+            if (!response.IsSuccessful)
+                return response.RequestResult;
+
+            Response.Headers.Add("X-Pagination",
+                JsonSerializer.Serialize(response.Result.PaginationMetaData));
+
+            return Ok(new
+            {
+                value = response.Result.Value,
+                links = response.Result.Links
+            });
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -58,8 +71,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         // GET:  api/datashare/1
         public IActionResult GetDataShareById(
             [FromRoute] Guid id,
-            [FromQuery] BaseResourceParameter resourceParameter,
-            [FromHeader(Name = "Accept")] string mediaType)
+            [FromQuery] DataShareResourceParameter resourceParameter)
         {
             return Ok();
         }
@@ -72,11 +84,10 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         [HttpPost("", Name = "api.datashare.post.datashare")]
         // POST: api/datashare
         public async Task<IActionResult> Post(
-            [FromBody] DataShareRequestDto dataShareRequestDto,
-            [FromHeader(Name = "Accept")] string mediaType)
+            [FromBody] DataShareRequestForCreationDto dataShareRequestDto)
         {
             var userId = Guid.Parse(HttpContext.Items["userId"].ToString());
-            var response = await this.businessLogic.RequestDataShare(userId, dataShareRequestDto, mediaType);
+            var response = await this.businessLogic.AddRequestDataShare(userId, dataShareRequestDto);
             
             if (!response.IsSuccessful)
                 return BadRequest(new { message = response.ErrorMessage });

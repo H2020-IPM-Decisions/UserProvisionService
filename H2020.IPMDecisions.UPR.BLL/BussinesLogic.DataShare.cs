@@ -1,23 +1,23 @@
+using H2020.IPMDecisions.UPR.BLL.Helpers;
 using H2020.IPMDecisions.UPR.Core.Dtos;
+using H2020.IPMDecisions.UPR.Core.Entities;
 using H2020.IPMDecisions.UPR.Core.Enums;
+using H2020.IPMDecisions.UPR.Core.Helpers;
 using H2020.IPMDecisions.UPR.Core.Models;
+using H2020.IPMDecisions.UPR.Core.ResourceParameters;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Net.Http.Headers;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace H2020.IPMDecisions.UPR.BLL
 {
     public partial class BusinessLogic : IBusinessLogic
     {
-        public async Task<GenericResponse<bool>> RequestDataShare(Guid userId, DataShareRequestDto dataShareRequestDto, string mediaType)
+        public async Task<GenericResponse<bool>> AddRequestDataShare(Guid userId, DataShareRequestForCreationDto dataShareRequestDto)
         {
             try
             {
-                if (!MediaTypeHeaderValue.TryParse(mediaType,
-                       out MediaTypeHeaderValue parsedMediaType))
-                    return GenericResponseBuilder.NoSuccess<bool>(false, "Wrong media type.");
-                
                 var requesteeUserId = await this.internalCommunicationProvider.GetUserIdFromIdpMicroservice(dataShareRequestDto.Email.ToString());
                 if (string.IsNullOrEmpty(requesteeUserId))
                 {
@@ -79,7 +79,54 @@ namespace H2020.IPMDecisions.UPR.BLL
             catch (Exception ex)
             {
                 logger.LogError(string.Format("Error in BLL - RequestDataShare. {0}", ex.Message));
-                return GenericResponseBuilder.NoSuccess<bool>(false, ex.Message.ToString());
+                String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
+                return GenericResponseBuilder.NoSuccess<bool>(false, $"{ex.Message} InnerException: {innerMessage}");
+            }
+        }
+
+        public async Task<GenericResponse<ShapedDataWithLinks>> GetDataShareRequests(Guid userId, DataShareResourceParameter resourceParameter)
+        {
+            try
+            {
+                if (!propertyMappingService.ValidMappingExistsFor<DataShareRequestDto, DataSharingRequest>(resourceParameter.OrderBy))
+                    return GenericResponseBuilder.NoSuccess<ShapedDataWithLinks>(null, "Wrong OrderBy entered");
+
+                var userProfile = await GetUserProfile(userId);
+                if (userProfile.Result == null)
+                    return GenericResponseBuilder.NoSuccess<ShapedDataWithLinks>(null, "Please create an `User Profile` first.");
+                
+                var requestsAsEntities = await this
+                    .dataService
+                    .DataShareRequests
+                    .FindAllAsync(userProfile.Result.Id, resourceParameter);
+                    
+                if (requestsAsEntities.Count == 0) return GenericResponseBuilder.NotFound<ShapedDataWithLinks>();
+
+                var paginationMetaData = MiscellaneousHelper.CreatePaginationMetadata(requestsAsEntities);
+                var paginationLinks = UrlCreatorHelper.CreateLinksForRequests(
+                    url,
+                    resourceParameter,
+                    requestsAsEntities.HasNext,
+                    requestsAsEntities.HasPrevious);
+
+                var shapedRequestsToReturn = this.mapper
+                   .Map<IEnumerable<DataShareRequestDto>>(requestsAsEntities)
+                   .ShapeData();
+
+                var requestsToReturn = new ShapedDataWithLinks()
+                {
+                    Value = shapedRequestsToReturn,
+                    Links = paginationLinks,
+                    PaginationMetaData = paginationMetaData
+                };
+
+                return GenericResponseBuilder.Success<ShapedDataWithLinks>(requestsToReturn);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(string.Format("Error in BLL - GetDataShareRequests. {0}", ex.Message), ex);
+                String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
+                return GenericResponseBuilder.NoSuccess<ShapedDataWithLinks>(null, $"{ex.Message} InnerException: {innerMessage}");
             }
         }
 

@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using H2020.IPMDecisions.UPR.Core.Dtos;
 using H2020.IPMDecisions.UPR.Core.Entities;
 using H2020.IPMDecisions.UPR.Core.Enums;
 using H2020.IPMDecisions.UPR.Core.Helpers;
 using H2020.IPMDecisions.UPR.Core.ResourceParameters;
+using H2020.IPMDecisions.UPR.Core.Services;
 using H2020.IPMDecisions.UPR.Data.Core.Repositories;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,10 +17,13 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
     internal class DataShareRequestRepository : IDataShareRequestRepository
     {
         private ApplicationDbContext context;
-
-        public DataShareRequestRepository(ApplicationDbContext context)
+        private IPropertyMappingService propertyMappingService;
+        public DataShareRequestRepository(ApplicationDbContext context, IPropertyMappingService propertyMappingService)
         {
-            this.context = context;
+            this.context = context
+                ?? throw new ArgumentNullException(nameof(context));
+            this.propertyMappingService = propertyMappingService
+            ?? throw new ArgumentNullException(nameof(propertyMappingService));
         }
 
         public void Create(DataSharingRequest entity)
@@ -33,13 +38,13 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
                 .DataSharingRequestStatus
                 .FirstOrDefaultAsync(d => d.Description.Equals(requestStatus.ToString()));
 
-                var dataShareRequest = new DataSharingRequest()
-                {
-                    RequesteeId = requesteeId,
-                    RequesterId = requesterId,
-                    RequestStatus = statusFromDb
-                };
-                Create(dataShareRequest);
+            var dataShareRequest = new DataSharingRequest()
+            {
+                RequesteeId = requesteeId,
+                RequesterId = requesterId,
+                RequestStatus = statusFromDb
+            };
+            Create(dataShareRequest);
         }
 
         public void Delete(DataSharingRequest entity)
@@ -54,12 +59,47 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
                 .ToListAsync<DataSharingRequest>();
         }
 
-        public async Task<PagedList<DataSharingRequest>> FindAllAsync(BaseResourceParameter resourceParameter)
+        public async Task<PagedList<DataSharingRequest>> FindAllAsync(DataShareResourceParameter resourceParameter)
         {
             if (resourceParameter is null)
                 throw new ArgumentNullException(nameof(resourceParameter));
 
             var collection = this.context.DataSharingRequest as IQueryable<DataSharingRequest>;
+
+            collection = collection
+                .Include(d => d.RequestStatus)
+                .Include(d => d.Requestee)
+                .Include(d => d.Requester);
+
+            collection = ApplyResourceParameter(resourceParameter, collection);
+
+            return await PagedList<DataSharingRequest>.CreateAsync(
+                collection,
+                resourceParameter.PageNumber,
+                resourceParameter.PageSize);
+        }
+
+        public async Task<PagedList<DataSharingRequest>> FindAllAsync(Guid userId, DataShareResourceParameter resourceParameter)
+        {
+            if (string.IsNullOrEmpty(userId.ToString()))
+            {
+                return await FindAllAsync(resourceParameter);
+            }
+
+            if (resourceParameter is null)
+                throw new ArgumentNullException(nameof(resourceParameter));
+
+            var collection = this.context.DataSharingRequest as IQueryable<DataSharingRequest>;
+
+            collection = collection.Where(d => d.RequesteeId == userId
+            || d.RequesterId == userId);
+
+            collection = collection
+                .Include(d => d.RequestStatus)
+                .Include(d => d.Requestee)
+                .Include(d => d.Requester);
+
+            collection = ApplyResourceParameter(resourceParameter, collection);
 
             return await PagedList<DataSharingRequest>.CreateAsync(
                 collection,
@@ -102,5 +142,25 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
         {
             this.context.Update(entity);
         }
+
+        #region Helpers
+        private IQueryable<DataSharingRequest> ApplyResourceParameter(DataShareResourceParameter resourceParameter, IQueryable<DataSharingRequest> collection)
+        {
+            if (!string.IsNullOrEmpty(resourceParameter.RequestStatus))
+            {
+                collection = collection.Where(d =>
+                    d.RequestStatus.Description.ToLower() == resourceParameter.RequestStatus.ToLower().Trim());                   
+            }
+
+            if (!string.IsNullOrEmpty(resourceParameter.OrderBy))
+            {
+                var propertyMappingDictionary =
+                    this.propertyMappingService.GetPropertyMapping<DataShareRequestDto, DataSharingRequest>();
+
+                collection = collection.ApplySort(resourceParameter.OrderBy, propertyMappingDictionary);
+            }
+            return collection;
+        }
+        #endregion
     }
 }

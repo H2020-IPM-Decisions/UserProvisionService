@@ -114,7 +114,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
                 "PATCH"));
 
             links.Add(new LinkDto(
-                url.Link("api.field.get.all", new { farmId = id}),
+                url.Link("api.field.get.all", new { farmId = id }),
                 "farm_fields",
                 "GET"));
 
@@ -384,6 +384,76 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
                 "PATCH"));
 
             return links;
+        }
+        #endregion
+
+        #region DataShare
+        internal static IEnumerable<LinkDto> CreateLinksForRequests(
+            IUrlHelper url,
+            DataShareResourceParameter resourceParameter,
+            bool hasNextPage,
+            bool hasPreviousPage)
+        {
+            var links = new List<LinkDto>();
+
+            links.Add(new LinkDto(
+                CreateDataRequestResourceUri(url, resourceParameter, ResourceUriType.Current),
+                "self",
+                "GET"));
+
+            if (hasNextPage)
+            {
+                links.Add(new LinkDto(
+                CreateDataRequestResourceUri(url, resourceParameter, ResourceUriType.NextPage),
+                "next_page",
+                "GET"));
+            }
+            if (hasPreviousPage)
+            {
+                links.Add(new LinkDto(
+               CreateDataRequestResourceUri(url, resourceParameter, ResourceUriType.PreviousPage),
+               "previous_page",
+               "GET"));
+            }
+            return links;
+        }
+
+        private static string CreateDataRequestResourceUri(
+            IUrlHelper url,
+            DataShareResourceParameter resourceParameter,
+            ResourceUriType type)
+        {
+            switch (type)
+            {
+                case ResourceUriType.PreviousPage:
+                    return url.Link("api.datashare.get.all",
+                    new
+                    {
+                        orderBy = resourceParameter.OrderBy,
+                        pageNumber = resourceParameter.PageNumber - 1,
+                        pageSize = resourceParameter.PageSize,
+                        requeststatus = resourceParameter.RequestStatus
+                    });
+                case ResourceUriType.NextPage:
+                    return url.Link("api.datashare.get.all",
+                    new
+                    {
+                        orderBy = resourceParameter.OrderBy,
+                        pageNumber = resourceParameter.PageNumber + 1,
+                        pageSize = resourceParameter.PageSize,
+                        requeststatus = resourceParameter.RequestStatus
+                    });
+                case ResourceUriType.Current:
+                default:
+                    return url.Link("api.datashare.get.all",
+                    new
+                    {
+                        orderBy = resourceParameter.OrderBy,
+                        pageNumber = resourceParameter.PageNumber,
+                        pageSize = resourceParameter.PageSize,
+                        requeststatus = resourceParameter.RequestStatus
+                    });
+            }
         }
         #endregion
     }

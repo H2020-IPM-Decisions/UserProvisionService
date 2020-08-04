@@ -71,7 +71,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence
             {
                 if (dataShareRequests == null)
                 {
-                    dataShareRequests = new DataShareRequestRepository(this.context);
+                    dataShareRequests = new DataShareRequestRepository(this.context, this.propertyMappingService);
                 }
                 return dataShareRequests;
             }

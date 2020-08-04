@@ -57,7 +57,8 @@ namespace H2020.IPMDecisions.UPR.BLL
         #endregion
 
         #region Data Sharing
-        Task<GenericResponse<bool>> RequestDataShare(Guid userId, DataShareRequestDto dataShareRequestDto, string mediaType);
+        Task<GenericResponse<bool>> AddRequestDataShare(Guid userId, DataShareRequestForCreationDto dataShareRequestDto);
+        Task<GenericResponse<ShapedDataWithLinks>> GetDataShareRequests(Guid userId, DataShareResourceParameter resourceParameter);
         #endregion
     }
 }

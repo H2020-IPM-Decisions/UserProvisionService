@@ -8,32 +8,41 @@ namespace H2020.IPMDecisions.UPR.Core.Services
 {
     public class PropertyMappingService : IPropertyMappingService
     {
-        private Dictionary<string, PropertyMappingValue> _FarmMappingService =
+        private Dictionary<string, PropertyMappingValue> _farmMappingService =
             new Dictionary<string, PropertyMappingValue>(StringComparer.OrdinalIgnoreCase)
             {
                 { "Name", new PropertyMappingValue(new List<string>() { "Name" })},
             };
 
-        private Dictionary<string, PropertyMappingValue> _FieldMappingService =
+        private Dictionary<string, PropertyMappingValue> _fieldMappingService =
             new Dictionary<string, PropertyMappingValue>(StringComparer.OrdinalIgnoreCase)
             {
                 { "Name", new PropertyMappingValue(new List<string>() { "Name" })},
             };
 
-        private Dictionary<string, PropertyMappingValue> _FieldObservationMappingService =
+        private Dictionary<string, PropertyMappingValue> _fieldObservationMappingService =
             new Dictionary<string, PropertyMappingValue>(StringComparer.OrdinalIgnoreCase)
             {
                 { "PestEppoCode", new PropertyMappingValue(new List<string>() { "PestEppoCode" })},
                 { "CropEppoCode", new PropertyMappingValue(new List<string>() { "CropEppoCode" })},
             };
 
+        private Dictionary<string, PropertyMappingValue> _dataShareMappingService =
+            new Dictionary<string, PropertyMappingValue>(StringComparer.OrdinalIgnoreCase)
+            {
+                { "RequestStatus", new PropertyMappingValue(new List<string>() { "RequestStatus" })},
+                { "RequesteeName", new PropertyMappingValue(new List<string>() { "Requestee" })},
+                { "RequesterName", new PropertyMappingValue(new List<string>() { "Requester" })},
+            };
+
         public IList<IPropertyMapping> propertyMappings = new List<IPropertyMapping>();
 
         public PropertyMappingService()
         {
-            this.propertyMappings.Add(new PropertyMapping<FarmDto, Farm>(_FarmMappingService));
-            this.propertyMappings.Add(new PropertyMapping<FieldDto, Field>(_FieldMappingService));
-            this.propertyMappings.Add(new PropertyMapping<FieldObservationDto, FieldObservation>(_FieldObservationMappingService));
+            this.propertyMappings.Add(new PropertyMapping<FarmDto, Farm>(_farmMappingService));
+            this.propertyMappings.Add(new PropertyMapping<FieldDto, Field>(_fieldMappingService));
+            this.propertyMappings.Add(new PropertyMapping<FieldObservationDto, FieldObservation>(_fieldObservationMappingService));
+            this.propertyMappings.Add(new PropertyMapping<DataShareRequestDto, DataSharingRequest>(_dataShareMappingService));
         }
 
         public Dictionary<string, PropertyMappingValue> GetPropertyMapping<TSource, TDestination>()
