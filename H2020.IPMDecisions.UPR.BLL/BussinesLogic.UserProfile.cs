@@ -64,7 +64,8 @@ namespace H2020.IPMDecisions.UPR.BLL
             catch (Exception ex)
             {
                 logger.LogError(string.Format("Error in BLL - AddNewUserProfile. {0}", ex.Message), ex);
-                return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, $"{ex.Message} InnerException: {ex.InnerException.Message}");
+                String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
+                return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, $"{ex.Message} InnerException: {innerMessage}");
             }
         }      
 
@@ -84,7 +85,8 @@ namespace H2020.IPMDecisions.UPR.BLL
             catch (Exception ex)
             {
                 logger.LogError(string.Format("Error in BLL - AddNewUserProfile. {0}", ex.Message), ex);
-                return GenericResponseBuilder.NoSuccess<UserProfileDto>(null, $"{ex.Message} InnerException: {ex.InnerException.Message}");
+                String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
+                return GenericResponseBuilder.NoSuccess<UserProfileDto>(null, $"{ex.Message} InnerException: {innerMessage}");
             }
         }
 
@@ -106,7 +108,8 @@ namespace H2020.IPMDecisions.UPR.BLL
             catch (Exception ex)
             {
                 logger.LogError(string.Format("Error in BLL - DeleteUserProfileClient. {0}", ex.Message), ex);
-                return GenericResponseBuilder.NoSuccess($"{ex.Message} InnerException: {ex.InnerException.Message}");
+                String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
+                return GenericResponseBuilder.NoSuccess($"{ex.Message} InnerException: {innerMessage}");
             }
         }
 
@@ -125,7 +128,8 @@ namespace H2020.IPMDecisions.UPR.BLL
             catch (Exception ex)
             {
                 logger.LogError(string.Format("Error in BLL - GetUserProfile. {0}", ex.Message), ex);
-                return GenericResponseBuilder.NoSuccess<UserProfile>(null, $"{ex.Message} InnerException: {ex.InnerException.Message}");
+                String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
+                return GenericResponseBuilder.NoSuccess<UserProfile>(null, $"{ex.Message} InnerException: {innerMessage}");
             }
         }
 
@@ -174,7 +178,8 @@ namespace H2020.IPMDecisions.UPR.BLL
             catch (Exception ex)
             {
                 logger.LogError(string.Format("Error in BLL - GetUserProfileDto. {0}", ex.Message), ex);
-                return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, $"{ex.Message} InnerException: {ex.InnerException.Message}");
+                String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
+                return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, $"{ex.Message} InnerException: {innerMessage}");
             }
         }
 
@@ -192,7 +197,8 @@ namespace H2020.IPMDecisions.UPR.BLL
             catch (Exception ex)
             {
                 logger.LogError(string.Format("Error in BLL - UpdateUserProfile. {0}", ex.Message), ex);
-                return GenericResponseBuilder.NoSuccess($"{ex.Message} InnerException: {ex.InnerException.Message}");
+                String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
+                return GenericResponseBuilder.NoSuccess($"{ex.Message} InnerException: {innerMessage}");
             }
         }
 

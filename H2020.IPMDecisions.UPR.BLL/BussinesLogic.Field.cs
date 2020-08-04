@@ -37,7 +37,8 @@ namespace H2020.IPMDecisions.UPR.BLL
             catch (Exception ex)
             {
                 logger.LogError(string.Format("Error in BLL - AddNewField. {0}", ex.Message), ex);
-                return GenericResponseBuilder.NoSuccess<FieldDto>(null, $"{ex.Message} InnerException: {ex.InnerException.Message}");
+                String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
+                return GenericResponseBuilder.NoSuccess<FieldDto>(null, $"{ex.Message} InnerException: {innerMessage}");
             }
         }
 
@@ -60,7 +61,8 @@ namespace H2020.IPMDecisions.UPR.BLL
             catch (Exception ex)
             {
                 logger.LogError(string.Format("Error in BLL - AddNewField. {0}", ex.Message), ex);
-                return GenericResponseBuilder.NoSuccess<FieldDto>(null, $"{ex.Message} InnerException: {ex.InnerException.Message}");
+                String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
+                return GenericResponseBuilder.NoSuccess<FieldDto>(null, $"{ex.Message} InnerException: {innerMessage}");
             }
         }
 
@@ -83,7 +85,8 @@ namespace H2020.IPMDecisions.UPR.BLL
             catch (Exception ex)
             {
                 logger.LogError(string.Format("Error in BLL - DeleteField. {0}", ex.Message), ex);
-                return GenericResponseBuilder.NoSuccess($"{ex.Message} InnerException: {ex.InnerException.Message}");
+                String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
+                return GenericResponseBuilder.NoSuccess($"{ex.Message} InnerException: {innerMessage}");
             }
         }
 
@@ -145,7 +148,8 @@ namespace H2020.IPMDecisions.UPR.BLL
             catch (Exception ex)
             {
                 logger.LogError(string.Format("Error in BLL - GetFields. {0}", ex.Message), ex);
-                return GenericResponseBuilder.NoSuccess<ShapedDataWithLinks>(null, $"{ex.Message} InnerException: {ex.InnerException.Message}");
+                String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
+                return GenericResponseBuilder.NoSuccess<ShapedDataWithLinks>(null, $"{ex.Message} InnerException: {innerMessage}");
             }
         }
 
@@ -165,7 +169,8 @@ namespace H2020.IPMDecisions.UPR.BLL
             catch (Exception ex)
             {
                 logger.LogError(string.Format("Error in BLL - GetField. {0}", ex.Message), ex);
-                return GenericResponseBuilder.NoSuccess<Field>(null, $"{ex.Message} InnerException: {ex.InnerException.Message}");
+                String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
+                return GenericResponseBuilder.NoSuccess<Field>(null, $"{ex.Message} InnerException: {innerMessage}");
             }
         }
 
@@ -266,7 +271,8 @@ namespace H2020.IPMDecisions.UPR.BLL
             catch (Exception ex)
             {
                 logger.LogError(string.Format("Error in BLL - GetFieldDto. {0}", ex.Message), ex);
-                return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, $"{ex.Message} InnerException: {ex.InnerException.Message}");
+                String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
+                return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, $"{ex.Message} InnerException: {innerMessage}");
             }
         }
 
@@ -284,7 +290,8 @@ namespace H2020.IPMDecisions.UPR.BLL
             catch (Exception ex)
             {
                 logger.LogError(string.Format("Error in BLL - UpdateField. {0}", ex.Message), ex);
-                return GenericResponseBuilder.NoSuccess($"{ex.Message} InnerException: {ex.InnerException.Message}");
+                String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
+                return GenericResponseBuilder.NoSuccess($"{ex.Message} InnerException: {innerMessage}");
             }
         }
 

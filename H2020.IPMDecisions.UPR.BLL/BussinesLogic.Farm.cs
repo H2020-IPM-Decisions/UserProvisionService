@@ -36,7 +36,8 @@ namespace H2020.IPMDecisions.UPR.BLL
             catch (Exception ex)
             {
                 logger.LogError(string.Format("Error in BLL - DeleteFarm. {0}", ex.Message));
-                return GenericResponseBuilder.NoSuccess($"{ex.Message} InnerException: {ex.InnerException.Message}");
+                String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
+                return GenericResponseBuilder.NoSuccess($"{ex.Message} InnerException: {innerMessage}");
             }
         }
 
@@ -65,7 +66,8 @@ namespace H2020.IPMDecisions.UPR.BLL
             catch (Exception ex)
             {
                 logger.LogError(string.Format("Error in BLL - LinkNewFarmToUserProfile. {0}", ex.Message), ex);
-                return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, $"{ex.Message} InnerException: {ex.InnerException.Message}");
+                String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
+                return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, $"{ex.Message} InnerException: {innerMessage}");
             }
         }
 
@@ -103,7 +105,8 @@ namespace H2020.IPMDecisions.UPR.BLL
             catch (Exception ex)
             {
                 logger.LogError(string.Format("Error in BLL - LinkNewFarmToUserProfile. {0}", ex.Message), ex);
-                return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, $"{ex.Message} InnerException: {ex.InnerException.Message}");
+                String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
+                return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, $"{ex.Message} InnerException: {innerMessage}");
             }
         }
 
@@ -136,7 +139,8 @@ namespace H2020.IPMDecisions.UPR.BLL
             catch (Exception ex)
             {
                 logger.LogError(string.Format("Error in BLL - GetFarm. {0}", ex.Message), ex);
-                return GenericResponseBuilder.NoSuccess<Farm>(null, $"{ex.Message} InnerException: {ex.InnerException.Message}");
+                String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
+                return GenericResponseBuilder.NoSuccess<Farm>(null, $"{ex.Message} InnerException: {innerMessage}");
             }
         }
 
@@ -197,7 +201,8 @@ namespace H2020.IPMDecisions.UPR.BLL
             catch (Exception ex)
             {
                 logger.LogError(string.Format("Error in BLL - GetFarmDto. {0}", ex.Message), ex);
-                return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, $"{ex.Message} InnerException: {ex.InnerException.Message}");
+                String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
+                return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, $"{ex.Message} InnerException: {innerMessage}");
             }
         }       
 
@@ -285,7 +290,8 @@ namespace H2020.IPMDecisions.UPR.BLL
             catch (Exception ex)
             {
                 logger.LogError(string.Format("Error in BLL - GetFarms. {0}", ex.Message), ex);
-                return GenericResponseBuilder.NoSuccess<ShapedDataWithLinks>(null, $"{ex.Message} InnerException: {ex.InnerException.Message}");
+                String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
+                return GenericResponseBuilder.NoSuccess<ShapedDataWithLinks>(null, $"{ex.Message} InnerException: {innerMessage}");
             }
         }
 
@@ -303,7 +309,8 @@ namespace H2020.IPMDecisions.UPR.BLL
             catch (Exception ex)
             {
                 logger.LogError(string.Format("Error in BLL - UpdateFarm. {0}", ex.Message), ex);
-                return GenericResponseBuilder.NoSuccess($"{ex.Message} InnerException: {ex.InnerException.Message}");
+                String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
+                return GenericResponseBuilder.NoSuccess($"{ex.Message} InnerException: {innerMessage}");
             }
         }
 
