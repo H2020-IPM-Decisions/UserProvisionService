@@ -77,6 +77,19 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence
             }
         }
 
+        private IDataSharingRequestStatusRepository dataSharingRequestStatuses;
+        public IDataSharingRequestStatusRepository DataSharingRequestStatuses 
+        {
+            get 
+            {
+                if (dataSharingRequestStatuses == null)
+                {
+                    dataSharingRequestStatuses = new DataSharingRequestStatusRepository(this.context);
+                }
+                return dataSharingRequestStatuses;
+            }
+        }
+
         public DataService(
             ApplicationDbContext context,
             IPropertyMappingService propertyMappingService)

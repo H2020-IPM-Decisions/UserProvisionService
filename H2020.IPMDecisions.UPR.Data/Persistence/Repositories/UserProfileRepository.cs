@@ -95,18 +95,30 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
                 userType = UserFarmTypeEnum.Unknown;
 
             if (userTypeFromDb.Description == UserFarmTypeEnum.Owner.ToString())
-                isAuthorised = true;            
+                isAuthorised = true;
 
-            userProfile.UserFarms = new List<UserFarm>
-            {
-                new UserFarm
+            if (userProfile.UserFarms == null) {
+                userProfile.UserFarms = new List<UserFarm>
+                {
+                    new UserFarm
+                    {
+                        UserProfile = userProfile,
+                        Farm = farm,
+                        Authorised = isAuthorised,
+                        UserFarmType = userTypeFromDb
+                    }
+                };
+            }
+            else {
+                var newUserFarm = new UserFarm
                 {
                     UserProfile = userProfile,
                     Farm = farm,
                     Authorised = isAuthorised,
-                    UserFarmType = userTypeFromDb      
-                }
-            };
+                    UserFarmType = userTypeFromDb
+                };
+                userProfile.UserFarms.Add(newUserFarm);
+            }
         }
     }
 }
