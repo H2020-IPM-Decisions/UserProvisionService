@@ -9,16 +9,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Configurations
     {
         public void Configure(EntityTypeBuilder<UserProfile> builder)
         {
-            builder.HasKey(u => u.Id);
-
-            builder.Property(u => u.Id)
-                .ValueGeneratedOnAdd();
-
-            builder.HasIndex(u => u.UserId)
-                .IsUnique();
-
-            builder.Property(u => u.UserId)
-                .IsRequired();
+            builder.HasKey(u => u.UserId);
 
             builder.Property(u => u.UserId)
                 .ValueGeneratedNever();
@@ -31,6 +22,12 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Configurations
                 .HasForeignKey(e => e.UserAddressId)
                 .HasConstraintName("FK_User_UserAddress")
                 .OnDelete(DeleteBehavior.Cascade);
+
+            builder.HasMany<DataSharingRequest>(u => u.DataSharingRequests)
+                .WithOne(d => d.Requestee)
+                .HasForeignKey(u => u.RequesteeId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .IsRequired();
         }
     }
 }

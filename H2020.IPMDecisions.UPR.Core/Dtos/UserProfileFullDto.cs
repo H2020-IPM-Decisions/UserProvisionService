@@ -4,7 +4,6 @@ namespace H2020.IPMDecisions.UPR.Core.Dtos
 {
     public class UserProfileFullDto
     {
-        public Guid Id { get; set; }
         public Guid UserId { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }

@@ -7,8 +7,6 @@ namespace H2020.IPMDecisions.UPR.Core.Entities
     public class UserProfile
     {
         [Key]
-        public Guid Id { get; set; }
-        [Required]
         public Guid UserId { get; set; }
         [Required]
         [MaxLength(80)]
@@ -20,5 +18,7 @@ namespace H2020.IPMDecisions.UPR.Core.Entities
         public UserAddress UserAddress {get; set; }
 
         public IList<UserFarm> UserFarms { get; set; }
+        public ICollection<DataSharingRequest> DataSharingRequests { get; set; }
+
     }
 }

@@ -38,8 +38,8 @@ namespace H2020.IPMDecisions.UPR.BLL
                 }
 
                 var requestExist = await this.dataService.DataShareRequests.FindByCondition(
-                        d => (d.RequesterId == requesterUserProfileExists.Result.Id)
-                        && (d.RequesteeId == requesteeUserProfileExists.Result.Id), true);
+                        d => (d.RequesterId == userId)
+                        && (d.RequesteeId == Guid.Parse(requesteeUserId)), true);
 
                 if (requestExist != null
                     && (
@@ -55,8 +55,8 @@ namespace H2020.IPMDecisions.UPR.BLL
                 }
 
                 await this.dataService.DataShareRequests.Create(
-                    requesterUserProfileExists.Result.Id,
-                    requesteeUserProfileExists.Result.Id,
+                    userId,
+                    Guid.Parse(requesteeUserId),
                     RequestStatusEnum.Pending);
                 await this.dataService.CompleteAsync();
 
@@ -99,9 +99,9 @@ namespace H2020.IPMDecisions.UPR.BLL
                 var requestsAsEntities = await this
                     .dataService
                     .DataShareRequests
-                    .FindAllAsync(userProfile.Result.Id, resourceParameter);
+                    .FindAllAsync(userId, resourceParameter);
 
-                if (requestsAsEntities.Count == 0) return GenericResponseBuilder.NotFound<ShapedDataWithLinks>();
+                if (requestsAsEntities.Count() == 0) return GenericResponseBuilder.NotFound<ShapedDataWithLinks>();
 
                 var paginationMetaData = MiscellaneousHelper.CreatePaginationMetadata(requestsAsEntities);
                 var paginationLinks = UrlCreatorHelper.CreateLinksForRequests(
@@ -148,7 +148,7 @@ namespace H2020.IPMDecisions.UPR.BLL
 
                 var requestExist = await this.dataService.DataShareRequests.FindByCondition(
                        d => (d.RequesterId == dataShareRequestDto.RequesterId)
-                       && (d.RequesteeId == requesteeUserProfileExists.Result.Id)
+                       && (d.RequesteeId == userId)
                        && (d.RequestStatus.Description.Equals(RequestStatusEnum.Pending.ToString())), true);
                 if (requestExist == null)
                 {
@@ -173,7 +173,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                     .Where(f => 
                         dataShareRequestDto.Farms.Any(d => f.FarmId.Equals(d))).ToList();
 
-                if (farmsThatBelongToUser.Count == 0)
+                if (farmsThatBelongToUser.Count() == 0)
                 {
                     return GenericResponseBuilder.NoSuccess<bool>(false, "Farms do not belong to the user.");
                 }

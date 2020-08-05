@@ -3,6 +3,7 @@ using System;
 using H2020.IPMDecisions.UPR.Data.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetTopologySuite.Geometries;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -10,9 +11,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace H2020.IPMDecisions.UPR.Data.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200805144140_RemoveUniqueUserId")]
+    partial class RemoveUniqueUserId
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -287,24 +289,34 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Migrations
 
             modelBuilder.Entity("H2020.IPMDecisions.UPR.Core.Entities.UserFarm", b =>
                 {
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("FarmId")
-                        .HasColumnType("uuid");
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
                     b.Property<bool>("Authorised")
                         .HasColumnType("boolean");
+
+                    b.Property<Guid>("FarmId")
+                        .HasColumnType("uuid");
 
                     b.Property<string>("UserFarmTypeDescription")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.HasKey("UserId", "FarmId");
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("UserProfileId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
 
                     b.HasIndex("FarmId");
 
                     b.HasIndex("UserFarmTypeDescription");
+
+                    b.HasIndex("UserProfileId");
 
                     b.ToTable("UserFarm");
                 });
@@ -345,7 +357,8 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Migrations
 
             modelBuilder.Entity("H2020.IPMDecisions.UPR.Core.Entities.UserProfile", b =>
                 {
-                    b.Property<Guid>("UserId")
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<string>("FirstName")
@@ -365,7 +378,10 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Migrations
                     b.Property<Guid?>("UserAddressId")
                         .HasColumnType("uuid");
 
-                    b.HasKey("UserId");
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
 
                     b.HasIndex("UserAddressId");
 
@@ -407,7 +423,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Migrations
                         .IsRequired();
 
                     b.HasOne("H2020.IPMDecisions.UPR.Core.Entities.UserProfile", "Requestee")
-                        .WithMany("DataSharingRequests")
+                        .WithMany()
                         .HasForeignKey("RequesteeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -461,7 +477,6 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Migrations
                     b.HasOne("H2020.IPMDecisions.UPR.Core.Entities.Farm", "Farm")
                         .WithMany("UserFarms")
                         .HasForeignKey("FarmId")
-                        .HasConstraintName("FK_UserFarm_Farm")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -474,10 +489,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Migrations
 
                     b.HasOne("H2020.IPMDecisions.UPR.Core.Entities.UserProfile", "UserProfile")
                         .WithMany("UserFarms")
-                        .HasForeignKey("UserId")
-                        .HasConstraintName("FK_UserFarm_User")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("UserProfileId");
                 });
 
             modelBuilder.Entity("H2020.IPMDecisions.UPR.Core.Entities.UserProfile", b =>

@@ -76,7 +76,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
                 .UserProfile
                 .Include(u => u.UserAddress)
                 .SingleOrDefaultAsync(a =>
-                    a.Id == id);
+                    a.UserId == id);
         }
 
         public void Update(UserProfile entity)

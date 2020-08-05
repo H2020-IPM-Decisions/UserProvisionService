@@ -16,7 +16,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Configurations
 
             builder.HasOne<UserProfile>(uf => uf.UserProfile)
                 .WithMany(u => u.UserFarms)
-                .HasPrincipalKey(uf => uf.UserId)
+                .HasForeignKey(uf => uf.UserId)
                 .HasConstraintName("FK_UserFarm_User")
                 .OnDelete(DeleteBehavior.Cascade)
                 .IsRequired();

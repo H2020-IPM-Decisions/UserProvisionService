@@ -239,7 +239,6 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
         #region Profiles
         internal static IEnumerable<LinkDto> CreateLinksForUserProfile(
             this IUrlHelper url,
-            Guid userId,
             string fields = "")
         {
             var links = new List<LinkDto>();
@@ -247,25 +246,25 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
             if (string.IsNullOrWhiteSpace(fields))
             {
                 links.Add(new LinkDto(
-                url.Link("api.userprofile.get.profilebyid", new { userId }),
+                url.Link("api.userprofile.get.profilebyid", new { }),
                 "self",
                 "GET"));
             }
             else
             {
                 links.Add(new LinkDto(
-                 url.Link("api.userprofile.get.profilebyid", new { userId, fields }),
+                 url.Link("api.userprofile.get.profilebyid", new { fields }),
                  "self",
                  "GET"));
             }
 
             links.Add(new LinkDto(
-                url.Link("api.userprofile.delete.profilebyid", new { userId }),
+                url.Link("api.userprofile.delete.profilebyid", new { }),
                 "delete_user_profile",
                 "DELETE"));
 
             links.Add(new LinkDto(
-                url.Link("api.userprofile.patch.profilebyid", new { userId }),
+                url.Link("api.userprofile.patch.profilebyid", new { }),
                 "update_user_profile",
                 "PATCH"));
 

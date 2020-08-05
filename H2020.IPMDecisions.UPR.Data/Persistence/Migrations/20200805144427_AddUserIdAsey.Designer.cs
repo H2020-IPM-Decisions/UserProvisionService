@@ -3,6 +3,7 @@ using System;
 using H2020.IPMDecisions.UPR.Data.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetTopologySuite.Geometries;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -10,9 +11,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace H2020.IPMDecisions.UPR.Data.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200805144427_AddUserIdAsey")]
+    partial class AddUserIdAsey
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -296,6 +298,9 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Migrations
                     b.Property<bool>("Authorised")
                         .HasColumnType("boolean");
 
+                    b.Property<int>("Id")
+                        .HasColumnType("integer");
+
                     b.Property<string>("UserFarmTypeDescription")
                         .IsRequired()
                         .HasColumnType("text");
@@ -461,7 +466,6 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Migrations
                     b.HasOne("H2020.IPMDecisions.UPR.Core.Entities.Farm", "Farm")
                         .WithMany("UserFarms")
                         .HasForeignKey("FarmId")
-                        .HasConstraintName("FK_UserFarm_Farm")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -475,7 +479,6 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Migrations
                     b.HasOne("H2020.IPMDecisions.UPR.Core.Entities.UserProfile", "UserProfile")
                         .WithMany("UserFarms")
                         .HasForeignKey("UserId")
-                        .HasConstraintName("FK_UserFarm_User")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

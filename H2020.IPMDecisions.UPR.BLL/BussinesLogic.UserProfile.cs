@@ -31,7 +31,6 @@ namespace H2020.IPMDecisions.UPR.BLL
                 userProfileEntity.UserId = userId;
 
                 this.dataService.UserProfiles.Create(userProfileEntity);
-
                 await this.dataService.CompleteAsync();
 
                 var includeLinks = parsedMediaType.SubTypeWithoutSuffix
@@ -48,8 +47,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                         .ShapeData()
                         as IDictionary<string, object>;
 
-                    AddLinksToUserProfileAsDictionary(userId, includeLinks, userProfileFullToReturn);
-
+                    AddLinksToUserProfileAsDictionary(includeLinks, userProfileFullToReturn);
                     return GenericResponseBuilder.Success<IDictionary<string, object>>(userProfileFullToReturn);
                 }
 
@@ -57,7 +55,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                     .ShapeData()
                     as IDictionary<string, object>;
 
-                AddLinksToUserProfileAsDictionary(userId, includeLinks, userProfileToReturn);
+                AddLinksToUserProfileAsDictionary(includeLinks, userProfileToReturn);
 
                 return GenericResponseBuilder.Success<IDictionary<string, object>>(userProfileToReturn);
             }
@@ -95,8 +93,8 @@ namespace H2020.IPMDecisions.UPR.BLL
             try
             {
                 var existingUserProfile = await this.dataService
-                .UserProfiles
-                .FindByCondition(u => u.UserId == userId);
+                    .UserProfiles
+                    .FindByCondition(u => u.UserId == userId);
 
                 if (existingUserProfile == null) return GenericResponseBuilder.Success();
 
@@ -164,7 +162,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                         .ShapeData(fields)
                         as IDictionary<string, object>;
 
-                    AddLinksToUserProfileAsDictionary(userId, includeLinks, userProfileFullToReturn);
+                    AddLinksToUserProfileAsDictionary(includeLinks, userProfileFullToReturn);
                     return GenericResponseBuilder.Success<IDictionary<string, object>>(userProfileFullToReturn);
                 }
                 
@@ -172,7 +170,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                         .ShapeData(fields)
                         as IDictionary<string, object>;
 
-                AddLinksToUserProfileAsDictionary(userId, includeLinks, userProfileToReturn);
+                AddLinksToUserProfileAsDictionary(includeLinks, userProfileToReturn);
                 return GenericResponseBuilder.Success<IDictionary<string, object>>(userProfileToReturn);
             }
             catch (Exception ex)
@@ -213,11 +211,11 @@ namespace H2020.IPMDecisions.UPR.BLL
             return this.mapper.Map<UserProfileForUpdateDto>(userProfile);
         }
 
-        private void AddLinksToUserProfileAsDictionary(Guid userId, bool includeLinks, IDictionary<string, object> userProfileAsDictionary)
+        private void AddLinksToUserProfileAsDictionary(bool includeLinks, IDictionary<string, object> userProfileAsDictionary)
         {
             if (includeLinks)
             {
-                var links = UrlCreatorHelper.CreateLinksForUserProfile(this.url, userId);
+                var links = UrlCreatorHelper.CreateLinksForUserProfile(this.url);
                 userProfileAsDictionary.Add("links", links);
             }
         }
