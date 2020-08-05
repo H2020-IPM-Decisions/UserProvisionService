@@ -8,6 +8,12 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Configurations
     {
         public void Configure(EntityTypeBuilder<DataSharingRequest> builder)
         {
+            builder.HasKey(d =>
+                 new
+                 {
+                     d.RequesteeId,
+                     d.RequesterId
+                 });
         }
     }
 }
