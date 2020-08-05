@@ -125,6 +125,9 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
                 .DataSharingRequest
                 .Where(expression)
                 .Include(d => d.RequestStatus)
+                .Include(d => d.Requestee)
+                    .ThenInclude(u => u.UserFarms)
+                        .ThenInclude(uf => uf.Farm)
                 .FirstOrDefaultAsync();
         }
 

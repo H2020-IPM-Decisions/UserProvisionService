@@ -113,13 +113,13 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
         }
 
-        public async Task<GenericResponse<UserProfile>> GetUserProfileByUserId(Guid userId)
+        public async Task<GenericResponse<UserProfile>> GetUserProfileByUserId(Guid userId, bool includeAssociatedData = false)
         {
             try
             {
                 var existingUserProfile = await this.dataService
                     .UserProfiles
-                    .FindByCondition(u => u.UserId == userId);
+                    .FindByCondition(u => u.UserId == userId, includeAssociatedData);
 
                 if (existingUserProfile == null) return GenericResponseBuilder.Success<UserProfile>(null);
 
