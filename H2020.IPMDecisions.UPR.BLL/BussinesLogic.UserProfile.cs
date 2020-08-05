@@ -21,7 +21,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                        out MediaTypeHeaderValue parsedMediaType))
                     return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, "Wrong media type.");
 
-                var currentUserProfileExists = await GetUserProfile(userId);
+                var currentUserProfileExists = await GetUserProfileByUserId(userId);
                 if (currentUserProfileExists.Result != null)
                 {
                     return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, "User profile aready exits. Please use `PATCH` method for partial updates.");
@@ -113,7 +113,7 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
         }
 
-        public async Task<GenericResponse<UserProfile>> GetUserProfile(Guid userId)
+        public async Task<GenericResponse<UserProfile>> GetUserProfileByUserId(Guid userId)
         {
             try
             {

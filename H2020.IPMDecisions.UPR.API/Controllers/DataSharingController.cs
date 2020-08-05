@@ -81,6 +81,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [Produces(MediaTypeNames.Application.Json)]
+        [Authorize(Policy = "advisor")]
         [HttpPost("", Name = "api.datashare.post.datashare")]
         // POST: api/datashare
         public async Task<IActionResult> Post(
@@ -89,6 +90,25 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
             var userId = Guid.Parse(HttpContext.Items["userId"].ToString());
             var response = await this.businessLogic.AddRequestDataShare(userId, dataShareRequestDto);
             
+            if (!response.IsSuccessful)
+                return BadRequest(new { message = response.ErrorMessage });
+            return Ok();
+        }
+
+        [Consumes(MediaTypeNames.Application.Json)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [Produces(MediaTypeNames.Application.Json)]
+        [Authorize(Policy = "farmer")]
+        [HttpPost("Reply", Name = "api.datashare.post.datasharereply")]
+        // POST: api/datashare/reply
+        public async Task<IActionResult> PostReplyAsync(
+            [FromBody] DataShareRequestReplyDto dataShareRequestDto)
+        {
+            var userId = Guid.Parse(HttpContext.Items["userId"].ToString());
+            var response = await this.businessLogic.ReplyToDataShareRequest(userId, dataShareRequestDto);
+
             if (!response.IsSuccessful)
                 return BadRequest(new { message = response.ErrorMessage });
             return Ok();

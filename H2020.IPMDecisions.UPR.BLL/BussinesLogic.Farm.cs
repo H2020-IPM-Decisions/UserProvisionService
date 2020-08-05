@@ -45,7 +45,7 @@ namespace H2020.IPMDecisions.UPR.BLL
         {
             try
             {
-                var userProfile = await GetUserProfile(userId);
+                var userProfile = await GetUserProfileByUserId(userId);
                 if (userProfile.Result == null)
                 {
                     return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, "Please create an `User Profile` first.");
@@ -79,7 +79,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                        out MediaTypeHeaderValue parsedMediaType))
                     return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, "Wrong media type.");
 
-                var userProfile = await GetUserProfile(userId);
+                var userProfile = await GetUserProfileByUserId(userId);
                 if (userProfile.Result == null)
                 {
                     return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, "Please create an `User Profile` first.");

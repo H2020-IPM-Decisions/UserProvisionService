@@ -49,7 +49,7 @@ namespace H2020.IPMDecisions.UPR.BLL
         Task<GenericResponse<IDictionary<string, object>>> AddNewUserProfile(Guid userId, UserProfileForCreationDto userProfileForCreation, string mediaType);
         Task<GenericResponse<UserProfileDto>> AddNewUserProfile(Guid userId, UserProfileForCreationDto userProfileForCreation);
         Task<GenericResponse> DeleteUserProfileClient(Guid userId);
-        Task<GenericResponse<UserProfile>> GetUserProfile(Guid userId);
+        Task<GenericResponse<UserProfile>> GetUserProfileByUserId(Guid userId);
         Task<GenericResponse<IDictionary<string, object>>> GetUserProfileDto(Guid userId, string fields, string mediaType);
         UserProfileForCreationDto MapToUserProfileForCreation(UserProfileForUpdateDto userProfileDto);
         UserProfileForUpdateDto MapToUserProfileForUpdateDto(UserProfile userProfile);
@@ -59,6 +59,7 @@ namespace H2020.IPMDecisions.UPR.BLL
         #region Data Sharing
         Task<GenericResponse<bool>> AddRequestDataShare(Guid userId, DataShareRequestForCreationDto dataShareRequestDto);
         Task<GenericResponse<ShapedDataWithLinks>> GetDataShareRequests(Guid userId, DataShareResourceParameter resourceParameter);
+        Task<GenericResponse> ReplyToDataShareRequest(Guid userId, DataShareRequestReplyDto dataShareRequestDto);
         #endregion
     }
 }

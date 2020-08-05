@@ -24,13 +24,13 @@ namespace H2020.IPMDecisions.UPR.BLL
                     return GenericResponseBuilder.NoSuccess<bool>(false, "User requested not in the system.");
                 }
 
-                var requesteeUserProfileExists = await GetUserProfile(Guid.Parse(requesteeUserId));
+                var requesteeUserProfileExists = await GetUserProfileByUserId(Guid.Parse(requesteeUserId));
                 if (requesteeUserProfileExists.Result == null)
                 {
                     return GenericResponseBuilder.NoSuccess<bool>(false, "User requested do not have a profile in the system.");
                 }
 
-                var requesterUserProfileExists = await GetUserProfile(userId);
+                var requesterUserProfileExists = await GetUserProfileByUserId(userId);
                 if (requesterUserProfileExists.Result == null)
                 {
                     return GenericResponseBuilder.NoSuccess<bool>(false, "User requesting data share do not have a profile in the system.");
@@ -91,7 +91,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                 if (!propertyMappingService.ValidMappingExistsFor<DataShareRequestDto, DataSharingRequest>(resourceParameter.OrderBy))
                     return GenericResponseBuilder.NoSuccess<ShapedDataWithLinks>(null, "Wrong OrderBy entered");
 
-                var userProfile = await GetUserProfile(userId);
+                var userProfile = await GetUserProfileByUserId(userId);
                 if (userProfile.Result == null)
                     return GenericResponseBuilder.NoSuccess<ShapedDataWithLinks>(null, "Please create an `User Profile` first.");
                 
@@ -127,6 +127,37 @@ namespace H2020.IPMDecisions.UPR.BLL
                 logger.LogError(string.Format("Error in BLL - GetDataShareRequests. {0}", ex.Message), ex);
                 String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
                 return GenericResponseBuilder.NoSuccess<ShapedDataWithLinks>(null, $"{ex.Message} InnerException: {innerMessage}");
+            }
+        }
+
+        public async Task<GenericResponse> ReplyToDataShareRequest(Guid userId, DataShareRequestReplyDto dataShareRequestDto)
+        {
+            try
+            {
+                // get user profile ID from requestee
+                var requesteeUserProfileExists = await GetUserProfileByUserId(userId);
+                if (requesteeUserProfileExists.Result == null)
+                {
+                    return GenericResponseBuilder.NoSuccess<bool>(false, "User do not have a profile in the system.");
+                }
+
+                // check if data request exists
+
+                // check if farms belong to user
+
+                // update request
+
+                // add farms to advisor
+
+                // send email
+                throw new NotImplementedException();
+
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(string.Format("Error in BLL - ReplyToDataShareRequest. {0}", ex.Message), ex);
+                String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
+                return GenericResponseBuilder.NoSuccess($"{ex.Message} InnerException: {innerMessage}");
             }
         }
 

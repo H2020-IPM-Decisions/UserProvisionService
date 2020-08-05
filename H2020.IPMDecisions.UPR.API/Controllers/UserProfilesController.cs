@@ -103,7 +103,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
             JsonPatchDocument<UserProfileForUpdateDto> patchDocument)
         {
             var userId = Guid.Parse(HttpContext.Items["userId"].ToString());
-            var userProfileResponse = await this.businessLogic.GetUserProfile(userId);
+            var userProfileResponse = await this.businessLogic.GetUserProfileByUserId(userId);
 
             if (!userProfileResponse.IsSuccessful)
                 return BadRequest(new { message = userProfileResponse.ErrorMessage });
