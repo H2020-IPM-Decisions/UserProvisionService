@@ -19,51 +19,56 @@ namespace H2020.IPMDecisions.UPR.BLL
         {
             try
             {
-                var requesteeUserId = await this.internalCommunicationProvider.GetUserIdFromIdpMicroservice(dataShareRequestDto.Email.ToString());
-                if (string.IsNullOrEmpty(requesteeUserId))
+                var farmerUserId = await this.internalCommunicationProvider.GetUserIdFromIdpMicroservice(dataShareRequestDto.Email.ToString());
+                if (string.IsNullOrEmpty(farmerUserId))
                 {
                     return GenericResponseBuilder.NoSuccess<bool>(false, "User requested not in the system.");
                 }
 
-                var requesteeUserProfileExists = await GetUserProfileByUserId(Guid.Parse(requesteeUserId));
-                if (requesteeUserProfileExists.Result == null)
+                var farmerProfile = await GetUserProfileByUserId(Guid.Parse(farmerUserId));
+                if (farmerProfile.Result == null)
                 {
                     return GenericResponseBuilder.NoSuccess<bool>(false, "User requested do not have a profile in the system.");
                 }
 
-                var requesterUserProfileExists = await GetUserProfileByUserId(userId);
-                if (requesterUserProfileExists.Result == null)
+                if (Guid.Parse(farmerUserId) == userId)
+                {
+                    return GenericResponseBuilder.NoSuccess<bool>(false, "User can not request its own data.");
+                }
+
+                var advisorProfile = await GetUserProfileByUserId(userId);
+                if (advisorProfile.Result == null)
                 {
                     return GenericResponseBuilder.NoSuccess<bool>(false, "User requesting data share do not have a profile in the system.");
                 }
 
-                var requestExist = await this.dataService.DataShareRequests.FindByCondition(
+                var requestExists = await this.dataService.DataShareRequests.FindByCondition(
                         d => (d.RequesterId == userId)
-                        && (d.RequesteeId == Guid.Parse(requesteeUserId)), true);
+                        && (d.RequesteeId == Guid.Parse(farmerUserId)), true);
 
-                if (requestExist != null
+                if (requestExists != null
                     && (
-                        requestExist.RequestStatus.Description.Equals(RequestStatusEnum.Revoked.ToString())
-                        || requestExist.RequestStatus.Description.Equals(RequestStatusEnum.Declined.ToString())
+                        requestExists.RequestStatus.Description.Equals(RequestStatusEnum.Revoked.ToString())
+                        || requestExists.RequestStatus.Description.Equals(RequestStatusEnum.Declined.ToString())
                     ))
                 {
                     return GenericResponseBuilder.NoSuccess<bool>(false, "The user has declined or revoked access to the data.");
                 }
-                else if (requestExist != null)
+                else if (requestExists != null)
                 {
                     return GenericResponseBuilder.NoSuccess<bool>(false, "You have already requested data to this user.");
                 }
 
                 await this.dataService.DataShareRequests.Create(
                     userId,
-                    Guid.Parse(requesteeUserId),
+                    Guid.Parse(farmerUserId),
                     RequestStatusEnum.Pending);
                 await this.dataService.CompleteAsync();
 
                 var requesterFullName = string.Format(
                     "{0} {1}",
-                    requesterUserProfileExists.Result.FirstName,
-                    requesterUserProfileExists.Result.LastName)
+                    advisorProfile.Result.FirstName,
+                    advisorProfile.Result.LastName)
                     .Trim();
 
                 var emailSent = await this.internalCommunicationProvider.SendDataRequestEmail(
@@ -140,17 +145,17 @@ namespace H2020.IPMDecisions.UPR.BLL
                 {
                     return GenericResponseBuilder.NoSuccess<bool>(false, "The method is for accepting or declining requests.");
                 }
-                var requesteeUserProfileExists = await GetUserProfileByUserId(userId,true);
-                if (requesteeUserProfileExists.Result == null)
+                var farmerProfile = await GetUserProfileByUserId(userId, true);
+                if (farmerProfile.Result == null)
                 {
                     return GenericResponseBuilder.NoSuccess<bool>(false, "User do not have a profile in the system.");
                 }
 
-                var requestExist = await this.dataService.DataShareRequests.FindByCondition(
+                var requestExists = await this.dataService.DataShareRequests.FindByCondition(
                        d => (d.RequesterId == dataShareRequestDto.RequesterId)
                        && (d.RequesteeId == userId)
                        && (d.RequestStatus.Description.Equals(RequestStatusEnum.Pending.ToString())), true);
-                if (requestExist == null)
+                if (requestExists == null)
                 {
                     return GenericResponseBuilder.NoSuccess<bool>(false, "Request do not exist in the system.");
                 }
@@ -162,24 +167,23 @@ namespace H2020.IPMDecisions.UPR.BLL
 
                 if (dataShareRequestDto.Reply.Equals(RequestStatusEnum.Declined.ToString(), StringComparison.OrdinalIgnoreCase))
                 {
-                    requestExist.RequestStatus = statusFromDb;
-                    this.dataService.DataShareRequests.Update(requestExist);
+                    requestExists.RequestStatus = statusFromDb;
+                    this.dataService.DataShareRequests.Update(requestExists);
                     await this.dataService.CompleteAsync();
                     return GenericResponseBuilder.Success();
                 }
                 
-                var farmsThatBelongToUser = requestExist
+                var farmsThatBelongToUser = requestExists
                     .Requestee.UserFarms
                     .Where(f => 
                         dataShareRequestDto.Farms.Any(d => f.FarmId.Equals(d))).ToList();
-
                 if (farmsThatBelongToUser.Count() == 0)
                 {
                     return GenericResponseBuilder.NoSuccess<bool>(false, "Farms do not belong to the user.");
                 }
 
-                var requesterUserProfileExists = await this.dataService.UserProfiles.FindByIdAsync(dataShareRequestDto.RequesterId);
-                if (requesterUserProfileExists == null)
+                var advisorProfile = await this.dataService.UserProfiles.FindByIdAsync(dataShareRequestDto.RequesterId);
+                if (advisorProfile == null)
                 {
                     return GenericResponseBuilder.NoSuccess<bool>(false, "User do not have a profile in the system.");
                 }
@@ -187,12 +191,13 @@ namespace H2020.IPMDecisions.UPR.BLL
                 foreach (var farm in farmsThatBelongToUser)
                 {
                     await this.dataService.UserProfiles.AddFarm(
-                        requesterUserProfileExists,
+                        advisorProfile,
                         farm.Farm,
                         UserFarmTypeEnum.Advisor,
                         true);
                 }
-                requestExist.RequestStatus = statusFromDb;
+                requestExists.RequestStatus = statusFromDb;
+                this.dataService.DataShareRequests.Update(requestExists);
                 await this.dataService.CompleteAsync();
 
                 return GenericResponseBuilder.Success();
