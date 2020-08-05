@@ -8,6 +8,7 @@ using H2020.IPMDecisions.UPR.Core.ResourceParameters;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace H2020.IPMDecisions.UPR.BLL
@@ -37,10 +38,10 @@ namespace H2020.IPMDecisions.UPR.BLL
                 }
 
                 var requestExist = await this.dataService.DataShareRequests.FindByCondition(
-                        d => (d.RequesterId == requesterUserProfileExists.Result.Id) 
+                        d => (d.RequesterId == requesterUserProfileExists.Result.Id)
                         && (d.RequesteeId == requesteeUserProfileExists.Result.Id), true);
 
-                if (requestExist != null 
+                if (requestExist != null
                     && (
                         requestExist.RequestStatus.Description.Equals(RequestStatusEnum.Revoked.ToString())
                         || requestExist.RequestStatus.Description.Equals(RequestStatusEnum.Declined.ToString())
@@ -60,15 +61,15 @@ namespace H2020.IPMDecisions.UPR.BLL
                 await this.dataService.CompleteAsync();
 
                 var requesterFullName = string.Format(
-                    "{0} {1}", 
-                    requesterUserProfileExists.Result.FirstName, 
+                    "{0} {1}",
+                    requesterUserProfileExists.Result.FirstName,
                     requesterUserProfileExists.Result.LastName)
                     .Trim();
 
                 var emailSent = await this.internalCommunicationProvider.SendDataRequestEmail(
                     requesterFullName,
                     dataShareRequestDto.Email.ToString());
-                
+
                 if (!emailSent)
                 {
                     return GenericResponseBuilder.NoSuccess<bool>(false, "Request created but error sending email.");
@@ -94,12 +95,12 @@ namespace H2020.IPMDecisions.UPR.BLL
                 var userProfile = await GetUserProfileByUserId(userId);
                 if (userProfile.Result == null)
                     return GenericResponseBuilder.NoSuccess<ShapedDataWithLinks>(null, "Please create an `User Profile` first.");
-                
+
                 var requestsAsEntities = await this
                     .dataService
                     .DataShareRequests
                     .FindAllAsync(userProfile.Result.Id, resourceParameter);
-                    
+
                 if (requestsAsEntities.Count == 0) return GenericResponseBuilder.NotFound<ShapedDataWithLinks>();
 
                 var paginationMetaData = MiscellaneousHelper.CreatePaginationMetadata(requestsAsEntities);
@@ -134,24 +135,67 @@ namespace H2020.IPMDecisions.UPR.BLL
         {
             try
             {
-                // get user profile ID from requestee
-                var requesteeUserProfileExists = await GetUserProfileByUserId(userId);
+                if (!(dataShareRequestDto.Reply.Equals(RequestStatusEnum.Accepted.ToString(), StringComparison.OrdinalIgnoreCase)
+                    || dataShareRequestDto.Reply.Equals(RequestStatusEnum.Declined.ToString(), StringComparison.OrdinalIgnoreCase)))
+                {
+                    return GenericResponseBuilder.NoSuccess<bool>(false, "The method is for accepting or declining requests.");
+                }
+                var requesteeUserProfileExists = await GetUserProfileByUserId(userId,true);
                 if (requesteeUserProfileExists.Result == null)
                 {
                     return GenericResponseBuilder.NoSuccess<bool>(false, "User do not have a profile in the system.");
                 }
 
-                // check if data request exists
+                var requestExist = await this.dataService.DataShareRequests.FindByCondition(
+                       d => (d.RequesterId == dataShareRequestDto.RequesterId)
+                       && (d.RequesteeId == requesteeUserProfileExists.Result.Id)
+                       && (d.RequestStatus.Description.Equals(RequestStatusEnum.Pending.ToString())), true);
+                if (requestExist == null)
+                {
+                    return GenericResponseBuilder.NoSuccess<bool>(false, "Request do not exist in the system.");
+                }
 
-                // check if farms belong to user
+                var statusFromDb = await this
+                    .dataService
+                    .DataSharingRequestStatuses
+                    .FindByCondition(d => d.Description.Equals(dataShareRequestDto.Reply.ToString()));
 
-                // update request
+                if (dataShareRequestDto.Reply.Equals(RequestStatusEnum.Declined.ToString(), StringComparison.OrdinalIgnoreCase))
+                {
+                    requestExist.RequestStatus = statusFromDb;
+                    this.dataService.DataShareRequests.Update(requestExist);
+                    await this.dataService.CompleteAsync();
+                    return GenericResponseBuilder.Success();
+                }
+                
+                var farmsThatBelongToUser = requestExist
+                    .Requestee.UserFarms
+                    .Where(f => 
+                        dataShareRequestDto.Farms.Any(d => f.FarmId.Equals(d))).ToList();
 
-                // add farms to advisor
+                if (farmsThatBelongToUser.Count == 0)
+                {
+                    return GenericResponseBuilder.NoSuccess<bool>(false, "Farms do not belong to the user.");
+                }
 
-                // send email
-                throw new NotImplementedException();
+                var requesterUserProfileExists = await this.dataService.UserProfiles.FindByIdAsync(dataShareRequestDto.RequesterId);
+                if (requesterUserProfileExists == null)
+                {
+                    return GenericResponseBuilder.NoSuccess<bool>(false, "User do not have a profile in the system.");
+                }
 
+                foreach (var farm in farmsThatBelongToUser)
+                {
+                    await this.dataService.UserProfiles.AddFarm(
+                        requesterUserProfileExists,
+                        farm.Farm,
+                        UserFarmTypeEnum.Advisor,
+                        true);
+                }
+                requestExist.RequestStatus = statusFromDb;
+                await this.dataService.CompleteAsync();
+
+                return GenericResponseBuilder.Success();
             }
             catch (Exception ex)
             {
@@ -162,7 +206,7 @@ namespace H2020.IPMDecisions.UPR.BLL
         }
 
         #region Helpers
-        
+
         #endregion
     }
 }
