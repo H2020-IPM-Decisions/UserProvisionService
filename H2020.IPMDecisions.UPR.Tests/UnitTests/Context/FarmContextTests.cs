@@ -13,8 +13,7 @@ namespace H2020.IPMDecisions.UPR.Tests.UnitTests.Context
     [Collection("WithDatabase")]
     [Trait("Category", "Docker")]
     public class FarmContextTests
-    {
-
+    {  
         [Fact]
         public async Task AddNewFarm_WithUserProfileSameTime_True()
         {
@@ -29,7 +28,7 @@ namespace H2020.IPMDecisions.UPR.Tests.UnitTests.Context
                 var farm = new Farm()
                 {
                     Name = "My Farm",
-                    Location = location
+                    Location = location,
                 };
 
                 var userProfile = new UserProfile()
@@ -38,11 +37,14 @@ namespace H2020.IPMDecisions.UPR.Tests.UnitTests.Context
                     FirstName = "1"
                 };
 
+                var userFarmType = context.UserFarmType.FirstOrDefault(u => u.Description.Equals("Owner"));
+
                 userProfile.UserFarms = new List<UserFarm>{
                     new UserFarm
                     {
                         UserProfile = userProfile,
-                        Farm = farm
+                        Farm = farm,
+                        UserFarmType = userFarmType
                     }
                 };
 
@@ -57,7 +59,7 @@ namespace H2020.IPMDecisions.UPR.Tests.UnitTests.Context
                    .Include(u => u.UserAddress)
                    .Include(u => u.UserFarms)
                    .SingleOrDefaultAsync(u =>
-                   u.Id == userProfile.Id);
+                   u.UserId == userProfile.UserId);
 
                 Assert.Equal(3, dbEntries);
                 userProfileObject.UserAddress.Should().BeNull();
@@ -87,6 +89,9 @@ namespace H2020.IPMDecisions.UPR.Tests.UnitTests.Context
                     UserId = Guid.NewGuid(),
                     FirstName = "1"
                 };
+
+                var userFarmType = context.UserFarmType.FirstOrDefault(u => u.Description.Equals("Owner"));
+
                 // Act
 
                 context.UserProfile.Add(userProfile);
@@ -96,14 +101,14 @@ namespace H2020.IPMDecisions.UPR.Tests.UnitTests.Context
                 var userProfileFromDb = await context
                   .UserProfile
                   .SingleOrDefaultAsync(u =>
-                  u.Id == userProfile.Id);
-
+                  u.UserId == userProfile.UserId);
 
                 userProfile.UserFarms = new List<UserFarm>{
                     new UserFarm
                     {
                         UserProfile = userProfileFromDb,
-                        Farm = farm
+                        Farm = farm,
+                        UserFarmType = userFarmType
                     }
                 };
 
@@ -115,7 +120,7 @@ namespace H2020.IPMDecisions.UPR.Tests.UnitTests.Context
                    .Include(u => u.UserAddress)
                    .Include(u => u.UserFarms)
                    .SingleOrDefaultAsync(u =>
-                   u.Id == userProfile.Id);
+                   u.UserId == userProfile.UserId);
 
                 Assert.Equal(2, dbEntries);
                 userProfileObject.UserAddress.Should().BeNull();
@@ -152,6 +157,9 @@ namespace H2020.IPMDecisions.UPR.Tests.UnitTests.Context
                     UserId = Guid.NewGuid(),
                     FirstName = "1"
                 };
+
+                var userFarmType = context.UserFarmType.FirstOrDefault(u => u.Description.Equals("Owner"));
+
                 // Act
 
                 context.UserProfile.Add(userProfile);
@@ -161,19 +169,20 @@ namespace H2020.IPMDecisions.UPR.Tests.UnitTests.Context
                 var userProfileFromDb = await context
                   .UserProfile
                   .SingleOrDefaultAsync(u =>
-                  u.Id == userProfile.Id);
-
+                  u.UserId == userProfile.UserId);
 
                 userProfileFromDb.UserFarms = new List<UserFarm>{
                     new UserFarm
                     {
                         UserProfile = userProfileFromDb,
-                        Farm = farm
+                        Farm = farm,
+                        UserFarmType = userFarmType
                     },
                     new UserFarm
                     {
                         UserProfile = userProfileFromDb,
-                        Farm = farm1
+                        Farm = farm1,
+                        UserFarmType = userFarmType
                     }
                 };
 
@@ -185,7 +194,7 @@ namespace H2020.IPMDecisions.UPR.Tests.UnitTests.Context
                    .Include(u => u.UserAddress)
                    .Include(u => u.UserFarms)
                    .SingleOrDefaultAsync(u =>
-                   u.Id == userProfile.Id);
+                   u.UserId == userProfile.UserId);
 
                 Assert.Equal(4, dbEntries);
                 userProfileObject.UserAddress.Should().BeNull();
@@ -202,7 +211,6 @@ namespace H2020.IPMDecisions.UPR.Tests.UnitTests.Context
             using (var databaseFixture = new DatabaseFixture())
             {
                 var context = databaseFixture.DbContext;
-
 
                 var farm = new Farm()
                 {
@@ -221,6 +229,9 @@ namespace H2020.IPMDecisions.UPR.Tests.UnitTests.Context
                     UserId = Guid.NewGuid(),
                     FirstName = "BBB"
                 };
+
+                var userFarmType = context.UserFarmType.FirstOrDefault(u => u.Description.Equals("Owner"));
+
                 // Act
 
                 context.UserProfile.Add(userProfile);
@@ -229,7 +240,8 @@ namespace H2020.IPMDecisions.UPR.Tests.UnitTests.Context
                     new UserFarm
                     {
                         UserProfile = userProfile,
-                        Farm = farm
+                        Farm = farm,
+                        UserFarmType = userFarmType
                     }
                 };
 
@@ -246,7 +258,8 @@ namespace H2020.IPMDecisions.UPR.Tests.UnitTests.Context
                     new UserFarm
                     {
                         UserProfile = newUserProfile,
-                        Farm = farmFromDb
+                        Farm = farmFromDb,
+                        UserFarmType = userFarmType
                     }
                 );
 
@@ -257,8 +270,8 @@ namespace H2020.IPMDecisions.UPR.Tests.UnitTests.Context
                   .Farm
                   .Include(u => u.UserFarms)
                   .ThenInclude(uf => uf.UserProfile)
-                  .SingleOrDefaultAsync(u =>
-                  u.Id == farmFromDb.Id);
+                  .SingleOrDefaultAsync(f =>
+                  f.Id == farmFromDb.Id);
 
                 Assert.Equal(2, dbEntries);
                 farmObject.UserFarms.Should().NotBeNull();

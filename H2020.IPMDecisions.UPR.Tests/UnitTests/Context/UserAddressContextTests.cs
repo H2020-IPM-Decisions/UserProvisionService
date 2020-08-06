@@ -43,7 +43,7 @@ namespace H2020.IPMDecisions.UPR.Tests.UnitTests.Context
                    .UserProfile
                    .Include(u => u.UserAddress)
                    .SingleOrDefaultAsync(u =>
-                   u.Id == userProfile.Id);
+                   u.UserId == userProfile.UserId);
 
                 Assert.Equal(2, dbEntries);
                 userProfileObject.UserAddress.Should().NotBeNull();
@@ -79,7 +79,7 @@ namespace H2020.IPMDecisions.UPR.Tests.UnitTests.Context
                 var userProfileFromDb = await context
                   .UserProfile
                   .SingleOrDefaultAsync(u =>
-                  u.Id == userProfile.Id);
+                  u.UserId == userProfile.UserId);
 
 
                 userProfileFromDb.UserAddress = userAddress;
@@ -89,7 +89,7 @@ namespace H2020.IPMDecisions.UPR.Tests.UnitTests.Context
                 var userProfileObject = await context
                    .UserProfile
                    .SingleOrDefaultAsync(u =>
-                   u.Id == userProfile.Id);
+                   u.UserId == userProfile.UserId);
 
                 Assert.Equal(2, dbEntries);
                 userProfileObject.UserAddress.Should().NotBeNull();

@@ -75,15 +75,13 @@ namespace H2020.IPMDecisions.UPR.Tests.UnitTests.Context
 
                 var userProfile = new UserProfile()
                 {
-                    Id = profileId,
-                    UserId = Guid.NewGuid(),
+                    UserId = profileId,
                     FirstName = "Name"
                 };
 
                 var userProfileDuplicated = new UserProfile()
                 {
-                    Id = profileId,
-                    UserId = Guid.NewGuid(),
+                    UserId = profileId,
                     FirstName = "Other Name"
                 };
 
@@ -94,7 +92,7 @@ namespace H2020.IPMDecisions.UPR.Tests.UnitTests.Context
 
                 // Assert
                 var exception = await Assert.ThrowsAsync<InvalidOperationException>(action);
-                Assert.Contains("instance with the same key value for {'Id'} is already being tracked", exception.Message);
+                Assert.Contains("instance with the same key value for {'UserId'} is already being tracked", exception.Message);
             }
         }
 

@@ -10,6 +10,7 @@ using Microsoft.Extensions.Hosting;
 using NetTopologySuite.Geometries;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -93,6 +94,9 @@ namespace H2020.IPMDecisions.UPR.Tests
                     _context.Database.EnsureDeleted();
                     _context.Database.EnsureCreated();
 
+                    var userFarmType = _context.UserFarmType.FirstOrDefault(u => u.Description.Equals("Owner"));
+
+
                     IList<UserProfile> defaultUsers = new List<UserProfile>()
                     {
                         new UserProfile()
@@ -124,7 +128,8 @@ namespace H2020.IPMDecisions.UPR.Tests
                                 Id = DefaultFarmId,
                                 Name = DefaultFarmName,
                                 Location = new Point(1, 1)
-                             }
+                            },
+                            UserFarmType = userFarmType
                         }
                     };
 
@@ -145,7 +150,8 @@ namespace H2020.IPMDecisions.UPR.Tests
                                 Id = FirstFarmIdUser2Farms,
                                 Name = "AAA",
                                 Location = new Point(11, 10)
-                             }
+                            },
+                            UserFarmType = userFarmType
                         },
                         new UserFarm
                         {
@@ -153,7 +159,8 @@ namespace H2020.IPMDecisions.UPR.Tests
                             Farm = new Farm {
                                 Name = "BBB",
                                 Location = new Point(22, 20)
-                             }
+                            },
+                            UserFarmType = userFarmType
                         }
                     };
 
@@ -173,7 +180,8 @@ namespace H2020.IPMDecisions.UPR.Tests
                             Farm = new Farm {
                                 Name = "AAA",
                                 Location = new Point(10, 10)
-                             }
+                            },
+                            UserFarmType = userFarmType
                         },
                         new UserFarm
                         {
@@ -181,7 +189,8 @@ namespace H2020.IPMDecisions.UPR.Tests
                             Farm = new Farm {
                                 Name = "BBB",
                                 Location = new Point(20, 20)
-                             }
+                            },
+                            UserFarmType = userFarmType
                         },
                         new UserFarm
                         {
@@ -189,7 +198,8 @@ namespace H2020.IPMDecisions.UPR.Tests
                             Farm = new Farm {
                                 Name = "ZZZ",
                                 Location = new Point(30, 30)
-                             }
+                            },
+                            UserFarmType = userFarmType
                         }
                     };
 
