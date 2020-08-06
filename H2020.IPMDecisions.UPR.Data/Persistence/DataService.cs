@@ -26,7 +26,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence
         }
 
         private IFarmRepository farms;
-        public IFarmRepository Farms 
+        public IFarmRepository Farms
         {
             get
             {
@@ -78,9 +78,9 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence
         }
 
         private IDataSharingRequestStatusRepository dataSharingRequestStatuses;
-        public IDataSharingRequestStatusRepository DataSharingRequestStatuses 
+        public IDataSharingRequestStatusRepository DataSharingRequestStatuses
         {
-            get 
+            get
             {
                 if (dataSharingRequestStatuses == null)
                 {
@@ -90,11 +90,24 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence
             }
         }
 
+        private IUserFarmsRepository userFarms;
+        public IUserFarmsRepository UserFarms
+        {
+            get
+            {
+                if (userFarms == null)
+                {
+                    userFarms = new UserFarmsRepository(this.context);
+                }
+                return userFarms;
+            }
+        }
+
         public DataService(
             ApplicationDbContext context,
             IPropertyMappingService propertyMappingService)
-        {            
-            this.propertyMappingService = propertyMappingService 
+        {
+            this.propertyMappingService = propertyMappingService
                 ?? throw new ArgumentNullException(nameof(propertyMappingService));
             this.context = context
                 ?? throw new ArgumentNullException(nameof(context));
