@@ -47,12 +47,9 @@ namespace H2020.IPMDecisions.UPR.BLL
                         && (d.RequesteeId == Guid.Parse(farmerUserId)), true);
 
                 if (requestExists != null
-                    && (
-                        requestExists.RequestStatus.Description.Equals(RequestStatusEnum.Revoked.ToString())
-                        || requestExists.RequestStatus.Description.Equals(RequestStatusEnum.Declined.ToString())
-                    ))
+                    && requestExists.RequestStatus.Description.Equals(RequestStatusEnum.Declined.ToString()))
                 {
-                    return GenericResponseBuilder.NoSuccess<bool>(false, "The user has declined or revoked access to the data.");
+                    return GenericResponseBuilder.NoSuccess<bool>(false, "The user has declined access to the data.");
                 }
                 else if (requestExists != null)
                 {
@@ -150,6 +147,10 @@ namespace H2020.IPMDecisions.UPR.BLL
                 {
                     return GenericResponseBuilder.NoSuccess<bool>(false, "User do not have a profile in the system.");
                 }
+                if (farmerProfile.Result.UserFarms == null || farmerProfile.Result.UserFarms.Count() == 0)
+                {
+                    return GenericResponseBuilder.NoSuccess<bool>(false, "User do not have any farms in the system.");
+                }
 
                 var requestExists = await this.dataService.DataShareRequests.FindByCondition(
                        d => (d.RequesterId == dataShareRequestDto.RequesterId)
@@ -157,7 +158,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                        && (d.RequestStatus.Description.Equals(RequestStatusEnum.Pending.ToString())), true);
                 if (requestExists == null)
                 {
-                    return GenericResponseBuilder.NoSuccess<bool>(false, "Request do not exist in the system.");
+                    return GenericResponseBuilder.NoSuccess<bool>(false, "Request do not exist in the system or already accepted/declined.");
                 }
 
                 var statusFromDb = await this
@@ -172,10 +173,10 @@ namespace H2020.IPMDecisions.UPR.BLL
                     await this.dataService.CompleteAsync();
                     return GenericResponseBuilder.Success();
                 }
-                
+
                 var farmsThatBelongToUser = requestExists
                     .Requestee.UserFarms
-                    .Where(f => 
+                    .Where(f =>
                         dataShareRequestDto.Farms.Any(d => f.FarmId.Equals(d))).ToList();
                 if (farmsThatBelongToUser.Count() == 0)
                 {
@@ -205,6 +206,129 @@ namespace H2020.IPMDecisions.UPR.BLL
             catch (Exception ex)
             {
                 logger.LogError(string.Format("Error in BLL - ReplyToDataShareRequest. {0}", ex.Message), ex);
+                String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
+                return GenericResponseBuilder.NoSuccess($"{ex.Message} InnerException: {innerMessage}");
+            }
+        }
+
+        public async Task<GenericResponse> UpdateDataShareRequest(Guid userId, DataShareRequestUpdateDto dataShareRequestDto)
+        {
+            try
+            {
+                if ((dataShareRequestDto.Reply.Equals(
+                    RequestStatusEnum.Pending.ToString(),
+                    StringComparison.OrdinalIgnoreCase)))
+                {
+                    return GenericResponseBuilder.NoSuccess("You can not change a request back to pending.");
+                }
+
+                var farmerProfile = await GetUserProfileByUserId(userId, true);
+                if (farmerProfile.Result == null)
+                {
+                    return GenericResponseBuilder.NoSuccess<bool>(false, "User do not have a profile in the system.");
+                }
+                if (farmerProfile.Result.UserFarms == null || farmerProfile.Result.UserFarms.Count() == 0)
+                {
+                    return GenericResponseBuilder.NoSuccess<bool>(false, "User do not have any farms in the system.");
+                }
+
+                var requestExists = await this.dataService.DataShareRequests.FindByCondition(
+                       d => (d.RequesterId == dataShareRequestDto.RequesterId)
+                       && (d.RequesteeId == userId), true);
+
+                if (requestExists == null)
+                {
+                    return GenericResponseBuilder.NoSuccess<bool>(false, "Request do not exist in the system.");
+                }
+                else if (requestExists.RequestStatus.Description.Equals(
+                    RequestStatusEnum.Pending.ToString(),
+                    StringComparison.OrdinalIgnoreCase))
+                {
+                    return GenericResponseBuilder.NoSuccess("You can not update a pending request. Please use the 'reply' end point to accept/decline request.");
+                }
+
+                var statusFromDb = await this
+                    .dataService
+                    .DataSharingRequestStatuses
+                    .FindByCondition(d => d.Description.Equals(dataShareRequestDto.Reply.ToString()));
+
+                if (dataShareRequestDto.Reply.Equals(
+                    RequestStatusEnum.Declined.ToString(),
+                    StringComparison.OrdinalIgnoreCase))
+                {
+                    var advisorUserFarmsToDelete = new List<UserFarm>();
+                    foreach (var farm in farmerProfile.Result.UserFarms)
+                    {
+                        var farmWithUserFarms = await this.dataService.Farms.FindByIdAsync(farm.FarmId);
+
+                        if (farmWithUserFarms.UserFarms.Count() <= 1)
+                            continue;
+
+                        var advisorUserFarm = farmWithUserFarms.UserFarms
+                                                    .Where(a => a.UserId == dataShareRequestDto.RequesterId)
+                                                    .FirstOrDefault();
+
+                        if (advisorUserFarm != null) 
+                            advisorUserFarmsToDelete.Add(advisorUserFarm);
+                    }
+
+                    this.dataService.UserFarms.DeleteRange(advisorUserFarmsToDelete);                    
+                }
+                else
+                {
+                    var advisorProfile = await this.dataService.UserProfiles.FindByIdAsync(dataShareRequestDto.RequesterId);
+                    if (advisorProfile == null)
+                    {
+                        return GenericResponseBuilder.NoSuccess<bool>(false, "User do not have a profile in the system.");
+                    }
+
+                    var farmsThatBelongToUser = requestExists
+                        .Requestee
+                        .UserFarms
+                        .Where(f =>
+                            dataShareRequestDto.Farms.Any(d => f.FarmId.Equals(d.FarmId))).ToList();
+
+                    if (farmsThatBelongToUser.Count() == 0)
+                    {
+                        return GenericResponseBuilder.NoSuccess<bool>(false, "Farms do not belong to the user.");
+                    }
+
+                    foreach (var farm in farmsThatBelongToUser)
+                    {
+                        var farmWithUserFarms = await this.dataService.Farms.FindByIdAsync(farm.FarmId);
+                        var advisorUserFarm = farmWithUserFarms.UserFarms
+                                                    .Where(a => a.UserId == dataShareRequestDto.RequesterId)
+                                                    .FirstOrDefault();
+                        
+                        var authorize = dataShareRequestDto
+                                            .Farms
+                                            .Where(f => f.FarmId == farm.FarmId)
+                                            .Select(f => f.Authorize)
+                                            .FirstOrDefault();
+
+                        if (advisorUserFarm == null && authorize)
+                        {
+                            await this.dataService.UserProfiles.AddFarm(
+                                    advisorProfile,
+                                    farm.Farm,
+                                    UserFarmTypeEnum.Advisor,
+                                    true);
+                        }
+                        else if (advisorUserFarm != null && !authorize)
+                        {
+                            this.dataService.UserFarms.Delete(advisorUserFarm);
+                        }
+                    }
+                }
+
+                requestExists.RequestStatus = statusFromDb;
+                this.dataService.DataShareRequests.Update(requestExists);
+                await this.dataService.CompleteAsync();
+                return GenericResponseBuilder.Success();
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(string.Format("Error in BLL - UpdateDataShareRequest. {0}", ex.Message), ex);
                 String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
                 return GenericResponseBuilder.NoSuccess($"{ex.Message} InnerException: {innerMessage}");
             }

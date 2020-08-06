@@ -27,16 +27,6 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
                ?? throw new System.ArgumentNullException(nameof(businessLogic));
         }
 
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [HttpDelete("{id:guid}", Name = "api.datashare.delete.id")]
-        //DELETE: api/datashare/1
-        public IActionResult Delete(
-            [FromRoute] Guid id)
-        {
-            return NoContent();
-        }
-
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -114,16 +104,22 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
             return Ok();
         }
 
-        [Consumes("application/json-patch+json")]
-        [ProducesResponseType(StatusCodes.Status201Created)]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [Consumes(MediaTypeNames.Application.Json)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [HttpPatch("{id:guid}", Name = "api.datashare.patch.id")]
-        //PATCH: api/datashare/1
-        public IActionResult PartialUpdate(
-            [FromRoute] Guid id,
-            JsonPatchDocument<Object> patchDocument)
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [Produces(MediaTypeNames.Application.Json)]
+        [Authorize(Policy = "farmer")]
+        [HttpPost("Update", Name = "api.datashare.post.datashareupdate")]
+        // POST: api/datashare/update
+        public async Task<IActionResult> PostUpdateAsync(
+            [FromBody] DataShareRequestUpdateDto dataShareRequestDto)
         {
+            var userId = Guid.Parse(HttpContext.Items["userId"].ToString());
+            var response = await this.businessLogic.UpdateDataShareRequest(userId, dataShareRequestDto);
+
+            if (!response.IsSuccessful)
+                return BadRequest(new { message = response.ErrorMessage });
             return Ok();
         }
 
@@ -132,7 +128,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         //OPTIONS: api/datashare
         public IActionResult Options()
         {
-            Response.Headers.Add("Allow", "OPTIONS, GET, PATCH, POST, DELETE");
+            Response.Headers.Add("Allow", "OPTIONS, GET, POST");
             return Ok();
         }
     }
