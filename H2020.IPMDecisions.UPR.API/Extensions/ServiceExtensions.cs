@@ -195,7 +195,7 @@ namespace H2020.IPMDecisions.APG.API.Extensions
 
         public static void ConfigureAuthorization(this IServiceCollection services, IConfiguration config)
         {
-            var claimType = config["AccessClaims:ClaimTypeName"];
+            var claimType = config["AccessClaims:ClaimTypeName"].ToLower();
             var accessLevels = AccessLevels(config["AccessClaims:UserAccessLevels"]);
 
             services.AddAuthorization(options =>
@@ -203,7 +203,7 @@ namespace H2020.IPMDecisions.APG.API.Extensions
                 accessLevels.ToList().ForEach(
                     (level =>
                     {
-                        options.AddPolicy(level, policy => policy.RequireClaim(claimType.ToLower(), level.ToLower()));
+                        options.AddPolicy(level.ToLower(), policy => policy.RequireClaim(claimType.ToLower(), level.ToLower()));
                     }
                 ));
             });
@@ -219,7 +219,7 @@ namespace H2020.IPMDecisions.APG.API.Extensions
 
         public static IEnumerable<string> AccessLevels(string levels)
         {
-            var listOfLevels = levels.Split(';').ToList();
+            var listOfLevels = levels.ToLower().Split(';').ToList();
             return listOfLevels;
         }
     }
