@@ -72,7 +72,10 @@ namespace H2020.IPMDecisions.UPR.API
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IHostApplicationLifetime applicationLifetime)
+        public void Configure(
+            IApplicationBuilder app,
+            IWebHostEnvironment env,
+            IHostApplicationLifetime applicationLifetime)
         {
             if (CurrentEnvironment.IsDevelopment())
             {

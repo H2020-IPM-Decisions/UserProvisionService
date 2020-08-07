@@ -100,8 +100,8 @@ namespace H2020.IPMDecisions.APG.API.Extensions
                 .AddDbContext<ApplicationDbContext>(options =>
                 {
                     options.UseNpgsql(
-                        connectionString,                        
-                            b => b.UseNetTopologySuite()                            
+                        connectionString,
+                            b => b.UseNetTopologySuite()
                             .MigrationsAssembly("H2020.IPMDecisions.UPR.Data")
                         );
                 });
@@ -200,12 +200,14 @@ namespace H2020.IPMDecisions.APG.API.Extensions
 
             services.AddAuthorization(options =>
             {
-                accessLevels.ToList().ForEach(
-                    (level =>
-                    {
-                        options.AddPolicy(level.ToLower(), policy => policy.RequireClaim(claimType.ToLower(), level.ToLower()));
-                    }
-                ));
+                accessLevels.ToList().ForEach(level =>
+                {
+                    options.AddPolicy(level,
+                        policy =>
+                        {
+                            policy.RequireClaim(claimType, level.ToLower());
+                        });
+                });
             });
         }
 
@@ -219,7 +221,7 @@ namespace H2020.IPMDecisions.APG.API.Extensions
 
         public static IEnumerable<string> AccessLevels(string levels)
         {
-            var listOfLevels = levels.ToLower().Split(';').ToList();
+            var listOfLevels = levels.Split(';').ToList();
             return listOfLevels;
         }
     }

@@ -9,7 +9,6 @@ using H2020.IPMDecisions.UPR.Core.ResourceParameters;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 
 namespace H2020.IPMDecisions.UPR.API.Controllers
@@ -71,7 +70,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [Produces(MediaTypeNames.Application.Json)]
-        [Authorize(Policy = "advisor")]
+        [Authorize(Policy = "Advisor")]
         [HttpPost("", Name = "api.datashare.post.datashare")]
         // POST: api/datashare
         public async Task<IActionResult> Post(
@@ -90,7 +89,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [Produces(MediaTypeNames.Application.Json)]
-        [Authorize(Policy = "farmer")]
+        [Authorize(Policy = "Farmer")]
         [HttpPost("Reply", Name = "api.datashare.post.datasharereply")]
         // POST: api/datashare/reply
         public async Task<IActionResult> PostReplyAsync(
@@ -109,7 +108,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [Produces(MediaTypeNames.Application.Json)]
-        [Authorize(Policy = "farmer")]
+        [Authorize(Policy = "Farmer")]
         [HttpPost("Update", Name = "api.datashare.post.datashareupdate")]
         // POST: api/datashare/update
         public async Task<IActionResult> PostUpdateAsync(
