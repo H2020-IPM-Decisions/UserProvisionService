@@ -15,7 +15,38 @@ namespace H2020.IPMDecisions.UPR.BLL
 {
     public partial class BusinessLogic : IBusinessLogic
     {
-        public async Task<GenericResponse<bool>> AddRequestDataShare(Guid userId, DataShareRequestForCreationDto dataShareRequestDto)
+        public async Task<GenericResponse> DeleteDataShareRequest(Guid id, Guid userId)
+        {
+            try
+            {
+                var requestsAsEntity = await this
+                    .dataService
+                    .DataShareRequests
+                    .FindByCondition(d => d.Id == id & 
+                        (d.RequesteeId == userId || d.RequesterId == userId), true);
+
+                if (requestsAsEntity == null)
+                {
+                    return GenericResponseBuilder.NoSuccess("Request do not belong to the user.");
+                }
+
+                var advisorUserFarmsToDelete = await GetListOfFarmsSharedAsync(requestsAsEntity.Requestee.UserFarms, requestsAsEntity.RequesterId);
+
+                this.dataService.UserFarms.DeleteRange(advisorUserFarmsToDelete);
+                this.dataService.DataShareRequests.Delete(requestsAsEntity);
+                await this.dataService.CompleteAsync();
+
+                return GenericResponseBuilder.Success();                
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(string.Format("Error in BLL - DeleteDataShareRequest. {0}", ex.Message));
+                String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
+                return GenericResponseBuilder.NoSuccess<bool>(false, $"{ex.Message} InnerException: {innerMessage}");
+            }
+        }
+
+        public async Task<GenericResponse<bool>> AddDataShareRequest(Guid userId, DataShareRequestForCreationDto dataShareRequestDto)
         {
             try
             {
@@ -247,32 +278,12 @@ namespace H2020.IPMDecisions.UPR.BLL
                     return GenericResponseBuilder.NoSuccess("You can not update a pending request. Please use the 'reply' end point to accept/decline request.");
                 }
 
-                var statusFromDb = await this
-                    .dataService
-                    .DataSharingRequestStatuses
-                    .FindByCondition(d => d.Description.Equals(dataShareRequestDto.Reply.ToString()));
-
                 if (dataShareRequestDto.Reply.Equals(
                     RequestStatusEnum.Declined.ToString(),
                     StringComparison.OrdinalIgnoreCase))
                 {
-                    var advisorUserFarmsToDelete = new List<UserFarm>();
-                    foreach (var farm in farmerProfile.Result.UserFarms)
-                    {
-                        var farmWithUserFarms = await this.dataService.Farms.FindByIdAsync(farm.FarmId);
-
-                        if (farmWithUserFarms.UserFarms.Count() <= 1)
-                            continue;
-
-                        var advisorUserFarm = farmWithUserFarms.UserFarms
-                                                    .Where(a => a.UserId == dataShareRequestDto.RequesterId)
-                                                    .FirstOrDefault();
-
-                        if (advisorUserFarm != null) 
-                            advisorUserFarmsToDelete.Add(advisorUserFarm);
-                    }
-
-                    this.dataService.UserFarms.DeleteRange(advisorUserFarmsToDelete);                    
+                    var advisorUserFarmsToDelete = await GetListOfFarmsSharedAsync(farmerProfile.Result.UserFarms, dataShareRequestDto.RequesterId);
+                    this.dataService.UserFarms.DeleteRange(advisorUserFarmsToDelete);
                 }
                 else
                 {
@@ -321,6 +332,11 @@ namespace H2020.IPMDecisions.UPR.BLL
                     }
                 }
 
+                var statusFromDb = await this
+                    .dataService
+                    .DataSharingRequestStatuses
+                    .FindByCondition(d => d.Description.Equals(dataShareRequestDto.Reply.ToString()));
+
                 requestExists.RequestStatus = statusFromDb;
                 this.dataService.DataShareRequests.Update(requestExists);
                 await this.dataService.CompleteAsync();
@@ -335,7 +351,23 @@ namespace H2020.IPMDecisions.UPR.BLL
         }
 
         #region Helpers
+        private async Task<List<UserFarm>> GetListOfFarmsSharedAsync(IList<UserFarm> requesteeFarms, Guid requesterId)
+        {
+            var advisorUserFarms = new List<UserFarm>();
+            foreach (var farm in requesteeFarms)
+            {
+                var farmWithUserFarms = await this.dataService.Farms.FindByIdAsync(farm.FarmId);
+                if (farmWithUserFarms.UserFarms.Count() <= 1)
+                    continue;
 
+                var advisorUserFarm = farmWithUserFarms.UserFarms
+                                            .Where(a => a.UserId == requesterId)
+                                            .FirstOrDefault();
+                if (advisorUserFarm != null)
+                    advisorUserFarms.Add(advisorUserFarm);
+            }
+            return advisorUserFarms;
+        }
         #endregion
     }
 }

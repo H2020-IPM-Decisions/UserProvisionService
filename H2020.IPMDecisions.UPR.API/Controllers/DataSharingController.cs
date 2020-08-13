@@ -26,6 +26,21 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
                ?? throw new System.ArgumentNullException(nameof(businessLogic));
         }
 
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [HttpDelete("{id:guid}", Name = "api.datashare.delete.id")]
+        //DELETE: api/datashare/1
+        public async Task<IActionResult> Delete([FromRoute] Guid id)
+        {
+            var userId = Guid.Parse(HttpContext.Items["userId"].ToString());
+            var response = await this.businessLogic.DeleteDataShareRequest(id, userId);
+
+            if (!response.IsSuccessful)
+                return BadRequest(new { message = response.ErrorMessage });
+
+            return NoContent();
+        }
+
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -52,19 +67,6 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
             });
         }
 
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [Produces(MediaTypeNames.Application.Json)]
-        [HttpGet("{id:guid}", Name = "api.datashare.get.id")]
-        // GET:  api/datashare/1
-        public IActionResult GetDataShareById(
-            [FromRoute] Guid id,
-            [FromQuery] DataShareResourceParameter resourceParameter)
-        {
-            return Ok();
-        }
-
         [Consumes(MediaTypeNames.Application.Json)]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -77,7 +79,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
             [FromBody] DataShareRequestForCreationDto dataShareRequestDto)
         {
             var userId = Guid.Parse(HttpContext.Items["userId"].ToString());
-            var response = await this.businessLogic.AddRequestDataShare(userId, dataShareRequestDto);
+            var response = await this.businessLogic.AddDataShareRequest(userId, dataShareRequestDto);
             
             if (!response.IsSuccessful)
                 return BadRequest(new { message = response.ErrorMessage });
