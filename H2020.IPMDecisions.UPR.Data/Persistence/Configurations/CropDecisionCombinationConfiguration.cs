@@ -13,34 +13,34 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Configurations
             builder.Property(c => c.Id)
                 .ValueGeneratedOnAdd();
 
-            builder.HasIndex(c =>
-                new
-                {
-                    c.CropId,
-                    c.DssId,
-                    c.PestId,
-                });
+            // builder.HasIndex(c =>
+            //     new
+            //     {
+            //         c.CropId,
+            //         c.DssId,
+            //         c.PestId,
+            //     });
 
-            builder.HasOne<Crop>(c => c.Crop)
-                .WithMany(cr => cr.CropDecisionCombinations)
-                .HasForeignKey(c => c.CropId)
-                .HasConstraintName("FK_CropCombination_Crop")
-                .OnDelete(DeleteBehavior.NoAction)
-                .IsRequired();
+            // builder.HasOne<Crop>(c => c.Crop)
+            //     .WithMany(cr => cr.CropDecisionCombinations)
+            //     .HasForeignKey(c => c.CropId)
+            //     .HasConstraintName("FK_CropCombination_Crop")
+            //     .OnDelete(DeleteBehavior.NoAction)
+            //     .IsRequired();
 
-            builder.HasOne<Dss>(c => c.Dss)
-                .WithMany(cr => cr.CropDecisionCombinations)
-                .HasForeignKey(c => c.DssId)
-                .HasConstraintName("FK_CropCombination_Dss")
-                .OnDelete(DeleteBehavior.NoAction)
-                .IsRequired();
+            // builder.HasOne<Dss>(c => c.Dss)
+            //     .WithMany(cr => cr.CropDecisionCombinations)
+            //     .HasForeignKey(c => c.DssId)
+            //     .HasConstraintName("FK_CropCombination_Dss")
+            //     .OnDelete(DeleteBehavior.NoAction)
+            //     .IsRequired();
 
-            builder.HasOne<Pest>(c => c.Pest)
-                .WithMany(cr => cr.CropDecisionCombinations)
-                .HasForeignKey(c => c.PestId)
-                .HasConstraintName("FK_CropCombination_Pest")
-                .OnDelete(DeleteBehavior.NoAction)
-                .IsRequired();
+            // builder.HasOne<Pest>(c => c.Pest)
+            //     .WithMany(cr => cr.CropDecisionCombinations)
+            //     .HasForeignKey(c => c.PestId)
+            //     .HasConstraintName("FK_CropCombination_Pest")
+            //     .OnDelete(DeleteBehavior.NoAction)
+            //     .IsRequired();
         }
     }
 }

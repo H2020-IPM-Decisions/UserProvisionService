@@ -91,8 +91,8 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
                .Where(f =>
                    f.FarmId == farmId)
                .Include(f => f.FieldObservations)
-               .Include(f => f.FieldCropDecisionCombinations)
-                   .ThenInclude(fcdc => fcdc.CropDecisionCombination);
+               .Include(f => f.FieldCropPests)
+                   .ThenInclude(fcp => fcp.CropPest);
 
             collection = ApplyResourceParameter(resourceParameter, collection);
 
@@ -137,7 +137,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
                 .Field
                 .Where(expression)
                 .Include(f => f.FieldObservations)
-                .Include(f => f.FieldCropDecisionCombinations)
+                .Include(f => f.FieldCropPests)
                 .FirstOrDefaultAsync();
         }
 
@@ -164,8 +164,8 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
                 .Where(f =>
                     f.Id == id)
                 .Include(f => f.FieldObservations)
-                .Include(f => f.FieldCropDecisionCombinations)
-                    .ThenInclude(fcdc => fcdc.CropDecisionCombination)
+                .Include(f => f.FieldCropPests)
+                   .ThenInclude(fcp => fcp.CropPest)
                 .FirstOrDefaultAsync();
         }
 

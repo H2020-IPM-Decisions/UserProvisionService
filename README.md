@@ -156,10 +156,3 @@ For the versions available, see the [tags on this repository](https://github.com
 ## Authors
 
 * **ADAS Modelling and Informatics** - *Initial work* - [ADAS](https://www.adas.uk/)
-
-
-
-docker exec -u postgres upr-postgres pg_dump --file "/var/lib/postgresql/data/dbBackup.sql" --username "postgres" --no-password --verbose --format=p --blobs --no-owner --create --section=pre-data --section=post-data --no-privileges --no-tablespaces "H2020.IPMDecisions.UPR"
-
-
- docker cp upr-postgres:/var/lib/postgresql/data/dbBackup.sql C:\Users\m507757\Desktop\docker\

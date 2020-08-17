@@ -17,6 +17,6 @@ namespace H2020.IPMDecisions.UPR.Core.Entities
         public Farm Farm { get; set; }
 
         public ICollection<FieldObservation> FieldObservations { get; set; }
-        public IList<FieldCropDecisionCombination> FieldCropDecisionCombinations { get; set; }
+        public ICollection<FieldCropPest> FieldCropPests { get; set; }
     }
 }
