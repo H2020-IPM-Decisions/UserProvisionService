@@ -94,7 +94,7 @@ namespace H2020.IPMDecisions.UPR.BLL
             {
                 var existingUserProfile = await this.dataService
                     .UserProfiles
-                    .FindByCondition(u => u.UserId == userId);
+                    .FindByConditionAsync(u => u.UserId == userId);
 
                 if (existingUserProfile == null) return GenericResponseBuilder.Success();
 
@@ -117,7 +117,7 @@ namespace H2020.IPMDecisions.UPR.BLL
             {
                 var existingUserProfile = await this.dataService
                     .UserProfiles
-                    .FindByCondition(u => u.UserId == userId, includeAssociatedData);
+                    .FindByConditionAsync(u => u.UserId == userId, includeAssociatedData);
 
                 if (existingUserProfile == null) return GenericResponseBuilder.Success<UserProfile>(null);
 
@@ -144,7 +144,7 @@ namespace H2020.IPMDecisions.UPR.BLL
 
                 var existingUserProfile = await this.dataService
                     .UserProfiles
-                    .FindByCondition(u => u.UserId == userId);
+                    .FindByConditionAsync(u => u.UserId == userId);
 
                 if (existingUserProfile == null) return GenericResponseBuilder.Success<IDictionary<string, object>>(null);
 

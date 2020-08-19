@@ -70,7 +70,7 @@ namespace H2020.IPMDecisions.UPR.API.Filters
             {
                 existingFarm = await this.dataService
                 .Farms
-                .FindByCondition(
+                .FindByConditionAsync(
                     f => f.Id == validatedGuid
                     &&
                     f.UserFarms.Any(uf => uf.UserId == userId)

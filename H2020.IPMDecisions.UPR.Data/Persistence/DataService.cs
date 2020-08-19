@@ -103,6 +103,19 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence
             }
         }
 
+        private ICropPestRepository cropPests;
+        public ICropPestRepository CropPests
+        {
+            get
+            {
+                if (cropPests == null)
+                {
+                    cropPests = new CropPestRepository(this.context);
+                }
+                return cropPests;
+            }
+        }
+
         public DataService(
             ApplicationDbContext context,
             IPropertyMappingService propertyMappingService)

@@ -118,7 +118,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
             return collection;
         }
 
-        public async Task<Field> FindByCondition(Expression<Func<Field, bool>> expression)
+        public async Task<Field> FindByConditionAsync(Expression<Func<Field, bool>> expression)
         {
             return await this.context
                 .Field
@@ -126,11 +126,11 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
                 .FirstOrDefaultAsync();
         }
 
-        public async Task<Field> FindByCondition(Expression<Func<Field, bool>> expression, bool includeAssociatedData)
+        public async Task<Field> FindByConditionAsync(Expression<Func<Field, bool>> expression, bool includeAssociatedData)
         {
             if (!includeAssociatedData)
             {
-                return await FindByCondition(expression);
+                return await FindByConditionAsync(expression);
             }
 
             return await this.context

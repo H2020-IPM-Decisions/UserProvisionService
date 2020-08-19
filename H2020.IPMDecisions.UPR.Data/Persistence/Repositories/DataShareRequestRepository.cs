@@ -107,7 +107,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
                 resourceParameter.PageSize);
         }
 
-        public async Task<DataSharingRequest> FindByCondition(Expression<Func<DataSharingRequest, bool>> expression)
+        public async Task<DataSharingRequest> FindByConditionAsync(Expression<Func<DataSharingRequest, bool>> expression)
         {
             return await this.context
                 .DataSharingRequest
@@ -115,11 +115,11 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
                 .FirstOrDefaultAsync();
         }
 
-        public async Task<DataSharingRequest> FindByCondition(Expression<Func<DataSharingRequest, bool>> expression, bool includeAssociatedData)
+        public async Task<DataSharingRequest> FindByConditionAsync(Expression<Func<DataSharingRequest, bool>> expression, bool includeAssociatedData)
         {
             if (!includeAssociatedData)
             {
-                return await FindByCondition(expression);
+                return await FindByConditionAsync(expression);
             }
             return await this.context
                 .DataSharingRequest

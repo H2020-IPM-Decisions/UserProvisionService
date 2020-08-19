@@ -7,12 +7,13 @@ namespace H2020.IPMDecisions.UPR.Data.Core
     public interface IDataService : IDisposable
     {
         Task CompleteAsync();
-        IUserProfileRepository UserProfiles { get; }
+        ICropPestRepository CropPests { get; }
+        IDataShareRequestRepository DataShareRequests { get; }
+        IDataSharingRequestStatusRepository DataSharingRequestStatuses { get; }
         IFarmRepository Farms { get; }
         IFieldRepository Fields { get; }
         IFieldObservationRepository FieldObservations { get; }
-        IDataShareRequestRepository DataShareRequests { get; }
-        IDataSharingRequestStatusRepository DataSharingRequestStatuses { get; }
         IUserFarmsRepository UserFarms { get; }
+        IUserProfileRepository UserProfiles { get; }
     }
 }

@@ -107,7 +107,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
                 resourceParameter.PageSize);
         }
 
-        public async Task<Farm> FindByCondition(Expression<Func<Farm, bool>> expression)
+        public async Task<Farm> FindByConditionAsync(Expression<Func<Farm, bool>> expression)
         {
             return await this.context
                 .Farm
@@ -115,11 +115,11 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
                 .FirstOrDefaultAsync();
         }
 
-        public async Task<Farm> FindByCondition(Expression<Func<Farm, bool>> expression, bool includeAssociatedData)
+        public async Task<Farm> FindByConditionAsync(Expression<Func<Farm, bool>> expression, bool includeAssociatedData)
         {
             if (!includeAssociatedData)
             {
-                return await FindByCondition(expression);
+                return await FindByConditionAsync(expression);
             }
             return await this.context
                 .Farm

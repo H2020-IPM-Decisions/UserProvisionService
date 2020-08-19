@@ -45,7 +45,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
             throw new NotImplementedException();
         }
 
-        public async Task<UserProfile> FindByCondition(Expression<Func<UserProfile, bool>> expression)
+        public async Task<UserProfile> FindByConditionAsync(Expression<Func<UserProfile, bool>> expression)
         {
             return await this.context
                 .UserProfile
@@ -54,11 +54,11 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
                 .FirstOrDefaultAsync();
         }
         
-        public async Task<UserProfile> FindByCondition(Expression<Func<UserProfile, bool>> expression, bool includeAssociatedData)
+        public async Task<UserProfile> FindByConditionAsync(Expression<Func<UserProfile, bool>> expression, bool includeAssociatedData)
         {
             if (!includeAssociatedData)
             {
-                return await FindByCondition(expression);
+                return await FindByConditionAsync(expression);
             }
 
             return await this.context

@@ -323,7 +323,7 @@ namespace H2020.IPMDecisions.UPR.BLL
             {
                 existingFarm = await this.dataService
                 .Farms
-                .FindByCondition(
+                .FindByConditionAsync(
                     f => f.Id == id
                     &&
                     f.UserFarms.Any(uf => uf.UserId == userId), includeChildren

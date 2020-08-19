@@ -22,7 +22,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                 var requestsAsEntity = await this
                     .dataService
                     .DataShareRequests
-                    .FindByCondition(d => d.Id == id & 
+                    .FindByConditionAsync(d => d.Id == id & 
                         (d.RequesteeId == userId || d.RequesterId == userId), true);
 
                 if (requestsAsEntity == null)
@@ -73,7 +73,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                     return GenericResponseBuilder.NoSuccess<bool>(false, "User requesting data share do not have a profile in the system.");
                 }
 
-                var requestExists = await this.dataService.DataShareRequests.FindByCondition(
+                var requestExists = await this.dataService.DataShareRequests.FindByConditionAsync(
                         d => (d.RequesterId == userId)
                         && (d.RequesteeId == Guid.Parse(farmerUserId)), true);
 
@@ -183,7 +183,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                     return GenericResponseBuilder.NoSuccess<bool>(false, "User do not have any farms in the system.");
                 }
 
-                var requestExists = await this.dataService.DataShareRequests.FindByCondition(
+                var requestExists = await this.dataService.DataShareRequests.FindByConditionAsync(
                        d => (d.RequesterId == dataShareRequestDto.RequesterId)
                        && (d.RequesteeId == userId)
                        && (d.RequestStatus.Description.Equals(RequestStatusEnum.Pending.ToString())), true);
@@ -263,7 +263,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                     return GenericResponseBuilder.NoSuccess<bool>(false, "User do not have any farms in the system.");
                 }
 
-                var requestExists = await this.dataService.DataShareRequests.FindByCondition(
+                var requestExists = await this.dataService.DataShareRequests.FindByConditionAsync(
                        d => (d.RequesterId == dataShareRequestDto.RequesterId)
                        && (d.RequesteeId == userId), true);
 
