@@ -125,7 +125,7 @@ namespace H2020.IPMDecisions.UPR.Tests.UnitTests.Context
                 Assert.Equal(2, dbEntries);
                 userProfileObject.UserAddress.Should().BeNull();
                 userProfileObject.UserFarms.Should().NotBeNull();
-                userProfileObject.UserFarms.Count.Should().Equals(1);
+                userProfileObject.UserFarms.Count.Should().Be(1);
 
             }
         }
@@ -199,7 +199,7 @@ namespace H2020.IPMDecisions.UPR.Tests.UnitTests.Context
                 Assert.Equal(4, dbEntries);
                 userProfileObject.UserAddress.Should().BeNull();
                 userProfileObject.UserFarms.Should().NotBeNull();
-                userProfileObject.UserFarms.Count.Should().Equals(2);
+                userProfileObject.UserFarms.Count.Should().Be(2);
             }
         }
 
@@ -275,7 +275,7 @@ namespace H2020.IPMDecisions.UPR.Tests.UnitTests.Context
 
                 Assert.Equal(2, dbEntries);
                 farmObject.UserFarms.Should().NotBeNull();
-                farmObject.UserFarms.Count.Should().Equals(2);
+                farmObject.UserFarms.Count.Should().Be(2);
 
                 var usersInOrder = farmObject.UserFarms.OrderBy(u => u.UserProfile.FirstName).ToList();
                 usersInOrder.First().UserProfile.FirstName.Should().Be("AAA");
