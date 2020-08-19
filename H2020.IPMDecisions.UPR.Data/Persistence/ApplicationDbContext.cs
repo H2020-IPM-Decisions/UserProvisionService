@@ -8,7 +8,8 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence
 {
     public class ApplicationDbContext : DbContext, IApplicationDbContext
     {
-        public DbSet<CropDecisionCombination> CropDecisionCombination { get; set; }
+        public DbSet<CropPest> CropPest { get; set; }
+        public DbSet<CropPestDssCombination> CropPestDssCombination { get; set; }
         public DbSet<DataSharingRequest> DataSharingRequest { get; set; }
         public DbSet<DataSharingRequestStatus> DataSharingRequestStatus { get; set; }
         public DbSet<Farm> Farm { get; set; }
@@ -28,19 +29,16 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence
         {
             modelBuilder.HasPostgresExtension("postgis");
 
-            modelBuilder.ApplyConfiguration(new CropConfiguration());
-            modelBuilder.ApplyConfiguration(new CropDecisionCombinationConfiguration());
             modelBuilder.ApplyConfiguration(new CropPestConfiguration());
+            modelBuilder.ApplyConfiguration(new CropPestDssCombinationConfiguration());
             modelBuilder.ApplyConfiguration(new FieldCropPestConfiguration());
             modelBuilder.ApplyConfiguration(new DataSharingRequestConfiguration());
             modelBuilder.ApplyConfiguration(new DataSharingRequestStatusConfiguration());
-            modelBuilder.ApplyConfiguration(new DssConfiguration());
             modelBuilder.ApplyConfiguration(new FarmConfiguration());
             modelBuilder.ApplyConfiguration(new FieldConfiguration());
             modelBuilder.ApplyConfiguration(new FieldCropDecisionCombinationConfiguration()); 
             modelBuilder.ApplyConfiguration(new FieldCropPestConfiguration());
             modelBuilder.ApplyConfiguration(new FieldObservationConfiguration());
-            modelBuilder.ApplyConfiguration(new PestConfiguration());
             modelBuilder.ApplyConfiguration(new UserFarmConfiguration());
             modelBuilder.ApplyConfiguration(new UserFarmTypeConfiguration());
             modelBuilder.ApplyConfiguration(new UserProfileConfiguration());
