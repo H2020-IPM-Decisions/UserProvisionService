@@ -1,5 +1,5 @@
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using NetTopologySuite.Geometries;
 
 namespace H2020.IPMDecisions.UPR.Core.Dtos
 {
@@ -9,5 +9,6 @@ namespace H2020.IPMDecisions.UPR.Core.Dtos
         public virtual string Name { get; set; }
         public virtual string Inf1 { get; set; }
         public virtual string Inf2 { get; set; }
+        public ICollection<CropPestForCreationDto> CropPests { get; set; }
     }
 }

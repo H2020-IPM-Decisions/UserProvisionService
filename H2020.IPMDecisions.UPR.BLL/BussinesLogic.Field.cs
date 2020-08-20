@@ -29,6 +29,10 @@ namespace H2020.IPMDecisions.UPR.BLL
                 fieldAsEntity.Farm = farm;
 
                 this.dataService.Fields.Create(fieldAsEntity);
+
+                List<FieldCropPest> listOfCropPest = await CreateCropListForInsertion(fieldForCreationDto.CropPests, fieldAsEntity);
+                fieldAsEntity.FieldCropPests = listOfCropPest;
+
                 await this.dataService.CompleteAsync();
 
                 var fieldToReturn = this.mapper.Map<FieldDto>(fieldAsEntity);
@@ -41,7 +45,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                 return GenericResponseBuilder.NoSuccess<FieldDto>(null, $"{ex.Message} InnerException: {innerMessage}");
             }
         }
-
+        
         public async Task<GenericResponse<FieldDto>> AddNewField(FieldForCreationDto fieldForCreationDto, HttpContext httpContext, Guid id)
         {
             try
@@ -355,6 +359,46 @@ namespace H2020.IPMDecisions.UPR.BLL
                 return null;
             }
         }
+
+        private async Task<List<FieldCropPest>> CreateCropListForInsertion(ICollection<CropPestForCreationDto> cropPestsFromRequest, Field field)
+        {
+            var listOfCropPest = new List<FieldCropPest>();           
+            var cropWithoutDuplicates = cropPestsFromRequest
+                                    .Select(c => new 
+                                        { 
+                                            CropEppoCode = c.CropEppoCode, 
+                                            PestEppoCode = c.PestEppoCode 
+                                        })
+                                    .Distinct();
+            
+            foreach (var cropPest in cropWithoutDuplicates)
+            {
+                var cropPestAsEntity = await this.dataService.CropPests
+                    .FindByConditionAsync
+                    (c => c.CropEppoCode == cropPest.CropEppoCode
+                    && c.PestEppoCode == cropPest.PestEppoCode);
+
+                if (cropPestAsEntity == null)
+                {
+                    cropPestAsEntity = new CropPest()
+                    {
+                        CropEppoCode = cropPest.CropEppoCode,
+                        PestEppoCode = cropPest.PestEppoCode,
+                    };
+                    this.dataService.CropPests.Create(cropPestAsEntity);
+                }
+
+                var newFieldCropPest = new FieldCropPest()
+                {
+                    CropPest = cropPestAsEntity,
+                    Field = field
+                };
+                listOfCropPest.Add(newFieldCropPest);
+            }
+
+            return listOfCropPest;
+        }
+
         #endregion
     }
 }
