@@ -27,7 +27,7 @@ namespace H2020.IPMDecisions.UPR.BLL
         #endregion
 
         #region Field
-        Task<GenericResponse<FieldDto>> AddNewField(FieldForCreationDto fieldForCreationDto, HttpContext httpContext, string mediaType);
+        Task<GenericResponse<IDictionary<string, object>>> AddNewField(FieldForCreationDto fieldForCreationDto, HttpContext httpContext, string mediaType);
         Task<GenericResponse<FieldDto>> AddNewField(FieldForCreationDto fieldForCreationDto, HttpContext httpContext, Guid id);
         Task<GenericResponse> DeleteField(Guid id);
         Task<GenericResponse<ShapedDataWithLinks>> GetFields(Guid farmId, FieldResourceParameter resourceParameter, string mediaType);

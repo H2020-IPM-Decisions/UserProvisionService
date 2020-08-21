@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using H2020.IPMDecisions.UPR.BLL.Helpers;
@@ -152,6 +153,57 @@ namespace H2020.IPMDecisions.UPR.BLL
         }
 
         #region Helpers
+        private ShapedDataWithLinks ShapeFieldObservationsAsChildren(Field field, int pageNumber, int pageSize, BaseResourceParameter resourceParameter, bool includeLinks)
+        {
+            try
+            {
+                var childrenAsPaged = PagedList<FieldObservation>.Create(
+                    field.FieldObservations.AsQueryable(),
+                    pageNumber,
+                    pageSize);
+
+                var fieldResourceParameter = this.mapper.Map<FieldObservationResourceParameter>(resourceParameter);
+                var childrenPaginationLinks = UrlCreatorHelper.CreateLinksForFieldObservations(
+                    this.url,
+                    field.Id,
+                    fieldResourceParameter,
+                    childrenAsPaged.HasNext,
+                    childrenAsPaged.HasPrevious);
+
+                var paginationMetaDataChildren = MiscellaneousHelper.CreatePaginationMetadata(childrenAsPaged);
+
+                var shapedChildrenToReturn = this.mapper
+                    .Map<IEnumerable<FieldObservationDto>>(childrenAsPaged)
+                    .ShapeData("");
+
+                var shapedChildrenToReturnWithLinks = shapedChildrenToReturn.Select(fieldObservation =>
+                {
+                    var fieldObservationAsDictionary = fieldObservation as IDictionary<string, object>;
+                    if (includeLinks)
+                    {
+                        var userLinks = UrlCreatorHelper.CreateLinksForFieldObservation(
+                            this.url,
+                            (Guid)fieldObservationAsDictionary["Id"],
+                            field.Id,
+                            fieldResourceParameter.Fields);
+                        fieldObservationAsDictionary.Add("links", userLinks);
+                    }
+                    return fieldObservationAsDictionary;
+                });
+
+                return new ShapedDataWithLinks()
+                {
+                    Value = shapedChildrenToReturnWithLinks,
+                    Links = childrenPaginationLinks,
+                    PaginationMetaData = paginationMetaDataChildren
+                };
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(string.Format("Error in BLL - ShapeFieldsAsChildren. {0}", ex.Message), ex);
+                return null;
+            }
+        }
         #endregion
     }
 }

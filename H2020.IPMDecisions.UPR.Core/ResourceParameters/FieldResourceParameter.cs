@@ -1,6 +1,6 @@
 namespace H2020.IPMDecisions.UPR.Core.ResourceParameters
 {
-    public class FieldResourceParameter : BaseResourceParameter
+    public class FieldResourceParameter : BaseResourceWithChildrenParameter
     {
         const int maxPageSize = 20;
         private int _pageSize = 10;

@@ -16,18 +16,21 @@ namespace H2020.IPMDecisions.UPR.BLL
 {
     public partial class BusinessLogic : IBusinessLogic
     {
-        public async Task<GenericResponse<FieldDto>> AddNewField(
+        public async Task<GenericResponse<IDictionary<string, object>>> AddNewField(
             FieldForCreationDto fieldForCreationDto,
             HttpContext httpContext,
             string mediaType)
         {
             try
             {
+                if (!MediaTypeHeaderValue.TryParse(mediaType,
+                       out MediaTypeHeaderValue parsedMediaType))
+                    return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, "Wrong media type.");
+
                 var farm = httpContext.Items["farm"] as Farm;
 
                 var fieldAsEntity = this.mapper.Map<Field>(fieldForCreationDto);
                 fieldAsEntity.Farm = farm;
-
                 this.dataService.Fields.Create(fieldAsEntity);
 
                 List<FieldCropPest> listOfCropPest = await CreateCropListForInsertion(fieldForCreationDto.CropPests, fieldAsEntity);
@@ -35,14 +38,30 @@ namespace H2020.IPMDecisions.UPR.BLL
 
                 await this.dataService.CompleteAsync();
 
-                var fieldToReturn = this.mapper.Map<FieldDto>(fieldAsEntity);
-                return GenericResponseBuilder.Success<FieldDto>(fieldToReturn);
+                var includeLinks = parsedMediaType.SubTypeWithoutSuffix
+                    .EndsWith("hateoas", StringComparison.InvariantCultureIgnoreCase);
+                bool includeChildren = parsedMediaType.SubTypeWithoutSuffix.ToString().Contains("withchildren");
+
+                IEnumerable<LinkDto> links = new List<LinkDto>();
+                if (includeLinks)
+                {
+                    links = UrlCreatorHelper.CreateLinksForField(url, fieldAsEntity.Id, fieldAsEntity.FarmId);
+                }
+
+                var fieldToReturn = this.mapper
+                    .Map<FieldDto>(fieldAsEntity)
+                    .ShapeData() as IDictionary<string, object>;
+                if (includeLinks)
+                {
+                    fieldToReturn.Add("links", links);
+                }
+                return GenericResponseBuilder.Success<IDictionary<string, object>>(fieldToReturn);
             }
             catch (Exception ex)
             {
                 logger.LogError(string.Format("Error in BLL - AddNewField. {0}", ex.Message), ex);
                 String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
-                return GenericResponseBuilder.NoSuccess<FieldDto>(null, $"{ex.Message} InnerException: {innerMessage}");
+                return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, $"{ex.Message} InnerException: {innerMessage}");
             }
         }
         
@@ -132,7 +151,24 @@ namespace H2020.IPMDecisions.UPR.BLL
 
                 if (includeChildren)
                 {
-                    
+                    var fieldsAsDictionaryList = fieldsAsEntities.Select(field =>
+                    {
+                        return CreateFieldWithChildrenAsDictionary(
+                      resourceParameter,
+                      resourceParameter.ChildPageNumber,
+                      resourceParameter.ChildPageSize,
+                      includeLinks,
+                      field,
+                      links);
+                    });
+
+                    var farmsToReturnWitChildren = new ShapedDataWithLinks()
+                    {
+                        Value = fieldsAsDictionaryList,
+                        Links = links,
+                        PaginationMetaData = paginationMetaData
+                    };
+                    return GenericResponseBuilder.Success<ShapedDataWithLinks>(farmsToReturnWitChildren);                 
                 }
 
                 var shapedFarmsToReturn = this.mapper
@@ -207,58 +243,13 @@ namespace H2020.IPMDecisions.UPR.BLL
 
                 if (includeChildren)
                 {
-                    //ToDo extract logic into methods in next iteration
-                    var childrenAsPaged = PagedList<FieldObservation>.Create(
-                            fieldAsEntity.FieldObservations.AsQueryable(),
-                            childrenResourceParameter.PageNumber,
-                            childrenResourceParameter.PageSize);
-
-                    var fieldObservationResourceParameter = this.mapper.Map<FieldObservationResourceParameter>(childrenResourceParameter);
-
-                    var childrenPaginationLinks = UrlCreatorHelper.CreateLinksForFieldObservations(
-                        this.url,
-                        id,
-                        fieldObservationResourceParameter,
-                        childrenAsPaged.HasNext,
-                        childrenAsPaged.HasPrevious);                   
-                    
-                    var paginationMetaDataChildren = MiscellaneousHelper.CreatePaginationMetadata(childrenAsPaged);
-                    
-                    var shapedChildrenToReturn = this.mapper
-                        .Map<IEnumerable<FieldObservationDto>>(childrenAsPaged)
-                        .ShapeData();
-
-                    var shapedChildrenToReturnWithLinks = shapedChildrenToReturn.Select(fieldObservation =>
-                        {
-                            var fieldObservationAsDictionary = fieldObservation as IDictionary<string, object>;
-                            if (includeLinks)
-                            {
-                                var userLinks = UrlCreatorHelper.CreateLinksForFieldObservation(
-                                    this.url,
-                                    (Guid)fieldObservationAsDictionary["Id"],
-                                    id,
-                                    fieldObservationResourceParameter.Fields);
-                                fieldObservationAsDictionary.Add("links", userLinks);
-                            }
-                            return fieldObservationAsDictionary;
-                        });
-
-                    var childrenShapedData = new ShapedDataWithLinks()
-                    {
-                        Value = shapedChildrenToReturnWithLinks,
-                        Links = childrenPaginationLinks,
-                        PaginationMetaData = paginationMetaDataChildren
-                    };
-
-                    var fieldToReturnWithChildren = this.mapper.Map<FieldWithChildrenDto>(fieldAsEntity);
-                    fieldToReturnWithChildren.FieldObservationsDto = childrenShapedData;
-
-                    var fieldToReturnWithChildrenShaped = fieldToReturnWithChildren.ShapeData() as IDictionary<string, object>;
-
-                    if (includeLinks)
-                    {
-                        fieldToReturnWithChildrenShaped.Add("links", links);
-                    }
+                    var fieldToReturnWithChildrenShaped = CreateFieldWithChildrenAsDictionary(
+                       childrenResourceParameter,
+                       childrenResourceParameter.PageNumber,
+                       childrenResourceParameter.PageSize,
+                       includeLinks,
+                       fieldAsEntity,
+                       links);
 
                     return GenericResponseBuilder.Success<IDictionary<string, object>>(fieldToReturnWithChildrenShaped);
                 }
@@ -304,10 +295,12 @@ namespace H2020.IPMDecisions.UPR.BLL
         {
             return this.mapper.Map<FieldForCreationDto>(fieldForUpdateDto);
         }
+
         public FieldForUpdateDto MapToFieldForUpdateDto(Field field)
         {
             return this.mapper.Map<FieldForUpdateDto>(field);
         }
+
         private ShapedDataWithLinks ShapeFieldsAsChildren(Farm farm, int pageNumber, int pageSize, BaseResourceParameter resourceParameter, bool includeLinks)
         {
             try
@@ -333,17 +326,17 @@ namespace H2020.IPMDecisions.UPR.BLL
 
                 var shapedChildrenToReturnWithLinks = shapedChildrenToReturn.Select(field =>
                 {
-                    var farmAsDictionary = field as IDictionary<string, object>;
+                    var fieldAsDictionary = field as IDictionary<string, object>;
                     if (includeLinks)
                     {
                         var userLinks = UrlCreatorHelper.CreateLinksForField(
                             this.url,
-                            (Guid)farmAsDictionary["Id"],
+                            (Guid)fieldAsDictionary["Id"],
                             farm.Id,
                             fieldResourceParameter.Fields);
-                        farmAsDictionary.Add("links", userLinks);
+                        fieldAsDictionary.Add("links", userLinks);
                     }
-                    return farmAsDictionary;
+                    return fieldAsDictionary;
                 });
 
                 return new ShapedDataWithLinks()
@@ -362,6 +355,8 @@ namespace H2020.IPMDecisions.UPR.BLL
 
         private async Task<List<FieldCropPest>> CreateCropListForInsertion(ICollection<CropPestForCreationDto> cropPestsFromRequest, Field field)
         {
+            if (cropPestsFromRequest is null) return null;
+
             var listOfCropPest = new List<FieldCropPest>();           
             var cropWithoutDuplicates = cropPestsFromRequest
                                     .Select(c => new 
@@ -399,6 +394,44 @@ namespace H2020.IPMDecisions.UPR.BLL
             return listOfCropPest;
         }
 
+        private IDictionary<string, object> CreateFieldWithChildrenAsDictionary(BaseResourceParameter childrenResourceParameter, int pageNumber, int pageSize, bool includeLinks, Field fieldAsEntity, IEnumerable<LinkDto> links)
+        {
+            try
+            {
+                var fieldObservationsToReturn = ShapeFieldObservationsAsChildren(
+                    fieldAsEntity,
+                    pageNumber,
+                    pageSize,
+                    childrenResourceParameter,
+                    includeLinks);
+
+                //ToDo:
+                // var fieldCropPestToReturn = ShapeFieldCropPestAsChildren(
+                //     fieldAsEntity,
+                //     pageNumber,
+                //     pageSize,
+                //     childrenResourceParameter,
+                //     includeLinks);
+
+                var fieldToReturnWithChildren = this.mapper.Map<FieldWithChildrenDto>(fieldAsEntity);
+                fieldToReturnWithChildren.FieldObservationsDto = fieldObservationsToReturn;
+                // fieldToReturnWithChildren.FieldObservationsDto = fieldCropPestToReturn;
+
+                var fieldToReturnWithChildrenShaped = fieldToReturnWithChildren.ShapeData("") as IDictionary<string, object>;
+
+                if (includeLinks)
+                {
+                    fieldToReturnWithChildrenShaped.Add("links", links);
+                }
+                return fieldToReturnWithChildrenShaped;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(string.Format("Error in BLL - CreateFarmWithChildrenAsDictionary. {0}", ex.Message), ex);
+                return null;
+            }
+
+        }
         #endregion
     }
 }

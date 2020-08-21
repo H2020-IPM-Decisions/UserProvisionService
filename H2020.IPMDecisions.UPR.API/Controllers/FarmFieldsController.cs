@@ -100,7 +100,9 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [Produces(MediaTypeNames.Application.Json,
-        "application/vnd.h2020ipmdecisions.hateoas+json")]
+            "application/vnd.h2020ipmdecisions.hateoas+json",
+            "application/vnd.h2020ipmdecisions.field.withchildren+json",
+            "application/vnd.h2020ipmdecisions.field.withchildren.hateoas+json")]
         [HttpPost("", Name = "api.field.post.field")]
         // POST: api/farms/1/fields
         public async Task<IActionResult> Post(
@@ -117,7 +119,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
                 "api.field.get.fieldbyid",
                 new {
                     farmId,
-                    id = response.Result.Id },
+                    id = response.Result["Id"] },
                 response.Result);
         }
 

@@ -377,11 +377,6 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
                 "delete_field_observation",
                 "DELETE"));
 
-            links.Add(new LinkDto(
-                url.Link("api.observation.patch.observationbyid", new { fieldId, id }),
-                "update_field_observation",
-                "PATCH"));
-
             return links;
         }
         #endregion

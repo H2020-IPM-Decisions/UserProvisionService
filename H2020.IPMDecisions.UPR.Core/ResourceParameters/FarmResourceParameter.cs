@@ -1,6 +1,6 @@
 namespace H2020.IPMDecisions.UPR.Core.ResourceParameters
 {
-    public class FarmResourceParameter : BaseResourceParameter
+    public class FarmResourceParameter : BaseResourceWithChildrenParameter
     {
         const int maxPageSize = 20;
         private int _pageSize = 10;
@@ -9,14 +9,7 @@ namespace H2020.IPMDecisions.UPR.Core.ResourceParameters
             get { return _pageSize; }
             set { _pageSize = (value > maxPageSize) ? maxPageSize : value; }
         }
-        public int ChildPageNumber { get; set; } = 1;
-        const int maxChildPageSize = 5;
-        private int _childPageSize = 5;
-        public int ChildPageSize
-        {
-            get { return _childPageSize; }
-            set { _childPageSize = (value > maxChildPageSize) ? maxChildPageSize : value; }
-        }
+                
         public override string OrderBy
         {
             get => base.OrderBy;
