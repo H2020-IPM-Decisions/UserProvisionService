@@ -7,7 +7,8 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
     {
         public CropPestProfile()
         {
-            // Entities to Dtos            
+            // Entities to Dtos
+            CreateMap<CropPest, CropPestDto>();      
 
             // Dtos to Entities
             CreateMap<CropPestForCreationDto, CropPest>();

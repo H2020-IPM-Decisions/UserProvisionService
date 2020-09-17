@@ -19,7 +19,7 @@ namespace H2020.IPMDecisions.UPR.BLL
         #region Farms
         Task<GenericResponse> DeleteFarm(Guid id, HttpContext httpContext);
         Task<GenericResponse<Farm>> GetFarm(Guid id, HttpContext httpContext);
-        Task<GenericResponse<IDictionary<string, object>>> GetFarmDto(Guid id, HttpContext httpContext, ChildrenResourceParameter childrenResourceParameter, string mediaType);
+        Task<GenericResponse<IDictionary<string, object>>> GetFarmDto(Guid id, HttpContext httpContext, FarmResourceParameter resourceParameter, string mediaType);
         Task<GenericResponse<ShapedDataWithLinks>> GetFarms(Guid userId, FarmResourceParameter resourceParameter, string mediaType);
         FarmForCreationDto MapToFarmForCreation(FarmForUpdateDto farmDto);
         FarmForUpdateDto MapToFarmForUpdateDto(Farm farm);
@@ -31,7 +31,7 @@ namespace H2020.IPMDecisions.UPR.BLL
         Task<GenericResponse<FieldDto>> AddNewField(FieldForCreationDto fieldForCreationDto, HttpContext httpContext, Guid id);
         Task<GenericResponse> DeleteField(Guid id);
         Task<GenericResponse<ShapedDataWithLinks>> GetFields(Guid farmId, FieldResourceParameter resourceParameter, string mediaType);
-        Task<GenericResponse<IDictionary<string, object>>> GetFieldDto(Guid id, ChildrenResourceParameter childrenResourceParameter, string mediaType);
+        Task<GenericResponse<IDictionary<string, object>>> GetFieldDto(Guid id, FieldResourceParameter resourceParameter, string mediaType);
         Task<GenericResponse<Field>> GetField(Guid id);
         FieldForCreationDto MapToFieldForCreation(FieldForUpdateDto fieldForUpdateDto);
         FieldForUpdateDto MapToFieldForUpdateDto(Field field);

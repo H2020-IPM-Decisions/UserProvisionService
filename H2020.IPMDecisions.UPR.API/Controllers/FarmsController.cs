@@ -82,7 +82,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         [HttpGet("{id:guid}", Name = "api.farm.get.farmbyid")]
         // GET:  api/farms/1
         public async Task<IActionResult> GetFarmById([FromRoute] Guid id,
-            [FromQuery] ChildrenResourceParameter resourceParameter,
+            [FromQuery] FarmResourceParameter resourceParameter,
             [FromHeader(Name = "Accept")] string mediaType)
         {
             var response = await this.businessLogic.GetFarmDto(id, HttpContext, resourceParameter, mediaType);

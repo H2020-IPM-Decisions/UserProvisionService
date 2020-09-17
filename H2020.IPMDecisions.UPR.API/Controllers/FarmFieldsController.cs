@@ -84,7 +84,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         // GET:  api/farms/1/fields/1
         public async Task<IActionResult> GetFieldById(
             [FromRoute] Guid farmId, Guid id,
-            [FromQuery] ChildrenResourceParameter resourceParameter,
+            [FromQuery] FieldResourceParameter resourceParameter,
             [FromHeader(Name = "Accept")] string mediaType)
         {
             var response = await this.businessLogic.GetFieldDto(id, resourceParameter, mediaType);

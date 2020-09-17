@@ -6,15 +6,26 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
     {
         public ResourceParametersProfile()
         {
-            CreateMap<ChildrenResourceParameter, FieldResourceParameter>()
-                .ForMember(dest => dest.Fields, opt => opt.Ignore());
-
-            CreateMap<ChildrenResourceParameter, FieldObservationResourceParameter>()
-                .ForMember(dest => dest.Fields, opt => opt.Ignore());
-
             CreateMap<FarmResourceParameter, FieldResourceParameter>()
-               .ForMember(dest => dest.PageNumber, opt => opt.MapFrom(src => src.ChildPageNumber))
-               .ForMember(dest => dest.PageSize, opt => opt.MapFrom(src => src.ChildPageSize));
+                .ForMember(dest => dest.Fields, opt => opt.Ignore())
+                .ForMember(dest => dest.OrderBy, opt => opt.Ignore())
+                .ForMember(dest => dest.SearchQuery, opt => opt.Ignore())
+                .ForMember(dest => dest.PageNumber, opt => opt.MapFrom(src => src.ChildPageNumber))
+                .ForMember(dest => dest.PageSize, opt => opt.MapFrom(src => src.ChildPageSize));
+
+            CreateMap<FieldResourceParameter, FieldObservationResourceParameter>()
+                .ForMember(dest => dest.Fields, opt => opt.Ignore())
+                .ForMember(dest => dest.OrderBy, opt => opt.Ignore())
+                .ForMember(dest => dest.SearchQuery, opt => opt.Ignore())
+                .ForMember(dest => dest.PageNumber, opt => opt.MapFrom(src => src.ChildPageNumber))
+                .ForMember(dest => dest.PageSize, opt => opt.MapFrom(src => src.ChildPageSize));
+
+            CreateMap<FieldResourceParameter, FieldCropPestResourceParameter>()
+                .ForMember(dest => dest.Fields, opt => opt.Ignore())
+                .ForMember(dest => dest.OrderBy, opt => opt.Ignore())
+                .ForMember(dest => dest.SearchQuery, opt => opt.Ignore())
+                .ForMember(dest => dest.PageNumber, opt => opt.MapFrom(src => src.ChildPageNumber))
+                .ForMember(dest => dest.PageSize, opt => opt.MapFrom(src => src.ChildPageSize));            
         }
     }
 }

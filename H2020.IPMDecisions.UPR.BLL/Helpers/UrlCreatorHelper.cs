@@ -55,7 +55,9 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
                         orderBy = resourceParameter.OrderBy,
                         pageNumber = resourceParameter.PageNumber - 1,
                         pageSize = resourceParameter.PageSize,
-                        searchQuery = resourceParameter.SearchQuery
+                        searchQuery = resourceParameter.SearchQuery,
+                        childPageNumber = resourceParameter.ChildPageNumber,
+                        childPageSize = resourceParameter.ChildPageSize
                     });
                 case ResourceUriType.NextPage:
                     return url.Link("api.farm.get.all",
@@ -65,7 +67,9 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
                         orderBy = resourceParameter.OrderBy,
                         pageNumber = resourceParameter.PageNumber + 1,
                         pageSize = resourceParameter.PageSize,
-                        searchQuery = resourceParameter.SearchQuery
+                        searchQuery = resourceParameter.SearchQuery,
+                        childPageNumber = resourceParameter.ChildPageNumber,
+                        childPageSize = resourceParameter.ChildPageSize
                     });
                 case ResourceUriType.Current:
                 default:
@@ -76,7 +80,9 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
                         orderBy = resourceParameter.OrderBy,
                         pageNumber = resourceParameter.PageNumber,
                         pageSize = resourceParameter.PageSize,
-                        searchQuery = resourceParameter.SearchQuery
+                        searchQuery = resourceParameter.SearchQuery,
+                        childPageNumber = resourceParameter.ChildPageNumber,
+                        childPageSize = resourceParameter.ChildPageSize
                     });
             }
         }
@@ -171,7 +177,9 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
                         orderBy = resourceParameter.OrderBy,
                         pageNumber = resourceParameter.PageNumber - 1,
                         pageSize = resourceParameter.PageSize,
-                        searchQuery = resourceParameter.SearchQuery
+                        searchQuery = resourceParameter.SearchQuery,
+                        childPageNumber = resourceParameter.ChildPageNumber,
+                        childPageSize = resourceParameter.ChildPageSize
                     });
                 case ResourceUriType.NextPage:
                     return url.Link("api.field.get.all",
@@ -182,7 +190,9 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
                         orderBy = resourceParameter.OrderBy,
                         pageNumber = resourceParameter.PageNumber + 1,
                         pageSize = resourceParameter.PageSize,
-                        searchQuery = resourceParameter.SearchQuery
+                        searchQuery = resourceParameter.SearchQuery,
+                        childPageNumber = resourceParameter.ChildPageNumber,
+                        childPageSize = resourceParameter.ChildPageSize
                     });
                 case ResourceUriType.Current:
                 default:
@@ -194,7 +204,9 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
                         orderBy = resourceParameter.OrderBy,
                         pageNumber = resourceParameter.PageNumber,
                         pageSize = resourceParameter.PageSize,
-                        searchQuery = resourceParameter.SearchQuery
+                        searchQuery = resourceParameter.SearchQuery,
+                        childPageNumber = resourceParameter.ChildPageNumber,
+                        childPageSize = resourceParameter.ChildPageSize
                     });
             }
         }

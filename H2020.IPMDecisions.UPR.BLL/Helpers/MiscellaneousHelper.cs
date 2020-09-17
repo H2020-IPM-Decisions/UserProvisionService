@@ -16,7 +16,9 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
                 CurrentPage = pagedList.CurrentPage,
                 TotalPages = pagedList.TotalPages,
                 IsFirstPage = pagedList.IsFirstPage,
-                IsLastPage = pagedList.IsLastPage
+                IsLastPage = pagedList.IsLastPage,
+                HasPrevious = pagedList.HasPrevious,
+                HasNext = pagedList.HasNext,
             };
         }
     }

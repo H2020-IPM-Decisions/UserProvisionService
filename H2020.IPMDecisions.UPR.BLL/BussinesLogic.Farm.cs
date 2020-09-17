@@ -147,7 +147,7 @@ namespace H2020.IPMDecisions.UPR.BLL
         public async Task<GenericResponse<IDictionary<string, object>>> GetFarmDto(
             Guid id,
             HttpContext httpContext,
-            ChildrenResourceParameter childrenResourceParameter,
+            FarmResourceParameter resourceParameter,
             string mediaType)
         {
             try
@@ -156,7 +156,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                        out MediaTypeHeaderValue parsedMediaType))
                     return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, "Wrong media type.");
 
-                if (!propertyCheckerService.TypeHasProperties<FarmDto>(childrenResourceParameter.Fields, false))
+                if (!propertyCheckerService.TypeHasProperties<FarmWithChildrenDto>(resourceParameter.Fields, false))
                     return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, "Wrong fields entered");
 
                 var userId = Guid.Parse(httpContext.Items["userId"].ToString());
@@ -172,15 +172,13 @@ namespace H2020.IPMDecisions.UPR.BLL
                 IEnumerable<LinkDto> links = new List<LinkDto>();
                 if (includeLinks)
                 {
-                    links = UrlCreatorHelper.CreateLinksForFarm(url, id, childrenResourceParameter.Fields);
+                    links = UrlCreatorHelper.CreateLinksForFarm(url, id, resourceParameter.Fields);
                 }
 
                 if (includeChildren)
                 {
                     var farmToReturnWithChildrenShaped = CreateFarmWithChildrenAsDictionary(
-                        childrenResourceParameter,
-                        childrenResourceParameter.PageNumber, 
-                        childrenResourceParameter.PageSize,
+                        resourceParameter,
                         includeLinks, 
                         farmAsEntity, 
                         links);
@@ -189,7 +187,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                 }
 
                 var farmToReturn = this.mapper.Map<FarmDto>(farmAsEntity)
-                    .ShapeData(childrenResourceParameter.Fields) as IDictionary<string, object>;
+                    .ShapeData(resourceParameter.Fields) as IDictionary<string, object>;
 
                 if (includeLinks)
                 {
@@ -214,7 +212,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                        out MediaTypeHeaderValue parsedMediaType))
                     return GenericResponseBuilder.NoSuccess<ShapedDataWithLinks>(null, "Wrong media type.");
 
-                if (!propertyCheckerService.TypeHasProperties<FarmDto>(resourceParameter.Fields, true))
+                if (!propertyCheckerService.TypeHasProperties<FarmWithChildrenDto>(resourceParameter.Fields, true))
                     return GenericResponseBuilder.NoSuccess<ShapedDataWithLinks>(null, "Wrong fields entered or missing 'id' field");
 
                 if (!propertyMappingService.ValidMappingExistsFor<FarmDto, Farm>(resourceParameter.OrderBy))
@@ -243,8 +241,6 @@ namespace H2020.IPMDecisions.UPR.BLL
                     {
                         return CreateFarmWithChildrenAsDictionary(
                             resourceParameter,
-                            resourceParameter.ChildPageNumber,
-                            resourceParameter.ChildPageSize,
                             includeLinks,
                             farm,
                             paginationLinks);                        
@@ -349,21 +345,23 @@ namespace H2020.IPMDecisions.UPR.BLL
             return this.mapper.Map<FarmForUpdateDto>(farm);
         }
 
-        private IDictionary<string, object> CreateFarmWithChildrenAsDictionary(BaseResourceParameter childrenResourceParameter, int pageNumber, int pageSize, bool includeLinks, Farm farmAsEntity, IEnumerable<LinkDto> links)
+        private IDictionary<string, object> CreateFarmWithChildrenAsDictionary(FarmResourceParameter resourceParameter, bool includeLinks, Farm farmAsEntity, IEnumerable<LinkDto> links)
         {
             try
             {
+                var fieldResourceParameter = this.mapper.Map<FieldResourceParameter>(resourceParameter);
+
                 var fieldsToReturn = ShapeFieldsAsChildren(
                     farmAsEntity,
-                    pageNumber,
-                    pageSize,
-                    childrenResourceParameter,
+                    fieldResourceParameter,
                     includeLinks);
 
                 var farmToReturnWithChildren = this.mapper.Map<FarmWithChildrenDto>(farmAsEntity);
                 farmToReturnWithChildren.FieldsDto = fieldsToReturn;
 
-                var farmToReturnWithChildrenShaped = farmToReturnWithChildren.ShapeData("") as IDictionary<string, object>;
+                var farmToReturnWithChildrenShaped = farmToReturnWithChildren
+                    .ShapeData(resourceParameter.Fields) 
+                    as IDictionary<string, object>;
 
                 if (includeLinks)
                 {

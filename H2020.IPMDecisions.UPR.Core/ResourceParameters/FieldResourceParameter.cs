@@ -21,5 +21,13 @@ namespace H2020.IPMDecisions.UPR.Core.ResourceParameters
                 base.OrderBy = value;
             }
         }
+
+        const int maxChildPageSize = 10;
+        private int _childPageSize = 5;
+        public override int ChildPageSize
+        {
+            get { return _childPageSize; }
+            set { _childPageSize = (value > maxChildPageSize) ? maxChildPageSize : value; }
+        }
     }
 }

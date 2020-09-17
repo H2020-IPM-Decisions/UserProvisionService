@@ -153,20 +153,19 @@ namespace H2020.IPMDecisions.UPR.BLL
         }
 
         #region Helpers
-        private ShapedDataWithLinks ShapeFieldObservationsAsChildren(Field field, int pageNumber, int pageSize, BaseResourceParameter resourceParameter, bool includeLinks)
+        private ShapedDataWithLinks ShapeFieldObservationsAsChildren(Field field, FieldObservationResourceParameter resourceParameter, bool includeLinks)
         {
             try
             {
                 var childrenAsPaged = PagedList<FieldObservation>.Create(
                     field.FieldObservations.AsQueryable(),
-                    pageNumber,
-                    pageSize);
+                    resourceParameter.PageNumber,
+                    resourceParameter.PageSize);
 
-                var fieldResourceParameter = this.mapper.Map<FieldObservationResourceParameter>(resourceParameter);
                 var childrenPaginationLinks = UrlCreatorHelper.CreateLinksForFieldObservations(
                     this.url,
                     field.Id,
-                    fieldResourceParameter,
+                    resourceParameter,
                     childrenAsPaged.HasNext,
                     childrenAsPaged.HasPrevious);
 
@@ -174,7 +173,7 @@ namespace H2020.IPMDecisions.UPR.BLL
 
                 var shapedChildrenToReturn = this.mapper
                     .Map<IEnumerable<FieldObservationDto>>(childrenAsPaged)
-                    .ShapeData("");
+                    .ShapeData(resourceParameter.Fields);
 
                 var shapedChildrenToReturnWithLinks = shapedChildrenToReturn.Select(fieldObservation =>
                 {
@@ -185,7 +184,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                             this.url,
                             (Guid)fieldObservationAsDictionary["Id"],
                             field.Id,
-                            fieldResourceParameter.Fields);
+                            resourceParameter.Fields);
                         fieldObservationAsDictionary.Add("links", userLinks);
                     }
                     return fieldObservationAsDictionary;
@@ -200,7 +199,7 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
             catch (Exception ex)
             {
-                logger.LogError(string.Format("Error in BLL - ShapeFieldsAsChildren. {0}", ex.Message), ex);
+                logger.LogError(string.Format("Error in BLL - ShapeFieldObservationsAsChildren. {0}", ex.Message), ex);
                 return null;
             }
         }
