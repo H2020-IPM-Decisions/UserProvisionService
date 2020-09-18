@@ -49,6 +49,9 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
                 .ForPath(dest => dest.UserAddress.Postcode,
                     opt => opt.MapFrom(src => src.Postcode));
 
+            CreateMap<UserProfileInternalCallDto, UserProfile>()
+                .ForPath(dest => dest.UserAddress.Street, opt => opt.MapFrom(s => ""));
+
             // Dtos to Dtos
             CreateMap<UserProfileForUpdateDto, UserProfileForCreationDto>();
         }
