@@ -6,6 +6,8 @@ using H2020.IPMDecisions.UPR.Core.Dtos;
 using H2020.IPMDecisions.UPR.Core.Entities;
 using H2020.IPMDecisions.UPR.Core.Models;
 using H2020.IPMDecisions.UPR.Core.Helpers;
+using H2020.IPMDecisions.UPR.BLL.Helpers;
+using Microsoft.Extensions.Logging;
 
 namespace H2020.IPMDecisions.UPR.BLL
 {
@@ -19,40 +21,51 @@ namespace H2020.IPMDecisions.UPR.BLL
                        out MediaTypeHeaderValue parsedMediaType))
                     return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, "Wrong media type.");
 
-                var currentUserProfileExists = await GetUserProfile(userId);
+                var currentUserProfileExists = await GetUserProfileByUserId(userId);
                 if (currentUserProfileExists.Result != null)
                 {
                     return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, "User profile aready exits. Please use `PATCH` method for partial updates.");
                 }
-                    
 
                 var userProfileEntity = this.mapper.Map<UserProfile>(userProfileForCreation);
                 userProfileEntity.UserId = userId;
 
                 this.dataService.UserProfiles.Create(userProfileEntity);
-
                 await this.dataService.CompleteAsync();
+
+                var includeLinks = parsedMediaType.SubTypeWithoutSuffix
+                            .EndsWith("hateoas", StringComparison.InvariantCultureIgnoreCase);
+
+                var primaryMediaType = includeLinks ?
+                    parsedMediaType.SubTypeWithoutSuffix
+                    .Substring(0, parsedMediaType.SubTypeWithoutSuffix.Length - 8)
+                    : parsedMediaType.SubTypeWithoutSuffix;
+
+                if (primaryMediaType == "vnd.h2020ipmdecisions.profile.full")
+                {
+                    var userProfileFullToReturn = this.mapper.Map<UserProfileFullDto>(userProfileEntity)
+                        .ShapeData()
+                        as IDictionary<string, object>;
+
+                    AddLinksToUserProfileAsDictionary(includeLinks, userProfileFullToReturn);
+                    return GenericResponseBuilder.Success<IDictionary<string, object>>(userProfileFullToReturn);
+                }
 
                 var userProfileToReturn = this.mapper.Map<UserProfileDto>(userProfileEntity)
                     .ShapeData()
                     as IDictionary<string, object>;
 
-                var includeLinks = parsedMediaType.SubTypeWithoutSuffix
-                            .EndsWith("hateoas", StringComparison.InvariantCultureIgnoreCase);
-                if (includeLinks)
-                {
-                    var links = CreateLinksForUserProfiles(userId);
-                    userProfileToReturn.Add("links", links);
-                }
+                AddLinksToUserProfileAsDictionary(includeLinks, userProfileToReturn);
 
                 return GenericResponseBuilder.Success<IDictionary<string, object>>(userProfileToReturn);
             }
             catch (Exception ex)
             {
-                //ToDo Log Error
-                return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, $"{ex.Message} InnerException: {ex.InnerException.Message}");
+                logger.LogError(string.Format("Error in BLL - AddNewUserProfile. {0}", ex.Message), ex);
+                String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
+                return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, $"{ex.Message} InnerException: {innerMessage}");
             }
-        }
+        }      
 
         public async Task<GenericResponse<UserProfileDto>> AddNewUserProfile(Guid userId, UserProfileForCreationDto userProfileForCreation)
         {
@@ -69,8 +82,30 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
             catch (Exception ex)
             {
-                //ToDo Log Error
-                return GenericResponseBuilder.NoSuccess<UserProfileDto>(null, $"{ex.Message} InnerException: {ex.InnerException.Message}");
+                logger.LogError(string.Format("Error in BLL - AddNewUserProfile. {0}", ex.Message), ex);
+                String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
+                return GenericResponseBuilder.NoSuccess<UserProfileDto>(null, $"{ex.Message} InnerException: {innerMessage}");
+            }
+        }
+
+        public async Task<GenericResponse> AddNewUserProfile(UserProfileInternalCallDto userProfileDto)
+        {
+            try
+            {
+                var userProfileEntity = this.mapper.Map<UserProfile>(userProfileDto);
+                userProfileEntity.UserId = userProfileDto.UserId;
+
+                this.dataService.UserProfiles.Create(userProfileEntity);
+                await this.dataService.CompleteAsync();
+
+                var userToReturn = this.mapper.Map<UserProfileDto>(userProfileEntity);
+                return GenericResponseBuilder.Success();
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(string.Format("Error in BLL - AddNewUserProfile. {0}", ex.Message), ex);
+                String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
+                return GenericResponseBuilder.NoSuccess($"{ex.Message} InnerException: {innerMessage}");
             }
         }
 
@@ -79,8 +114,8 @@ namespace H2020.IPMDecisions.UPR.BLL
             try
             {
                 var existingUserProfile = await this.dataService
-                .UserProfiles
-                .FindByCondition(u => u.UserId == userId);
+                    .UserProfiles
+                    .FindByConditionAsync(u => u.UserId == userId);
 
                 if (existingUserProfile == null) return GenericResponseBuilder.Success();
 
@@ -91,18 +126,19 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
             catch (Exception ex)
             {
-                // ToDo Log Error
-                return GenericResponseBuilder.NoSuccess($"{ex.Message} InnerException: {ex.InnerException.Message}");
+                logger.LogError(string.Format("Error in BLL - DeleteUserProfileClient. {0}", ex.Message), ex);
+                String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
+                return GenericResponseBuilder.NoSuccess($"{ex.Message} InnerException: {innerMessage}");
             }
         }
 
-        public async Task<GenericResponse<UserProfile>> GetUserProfile(Guid userId)
+        public async Task<GenericResponse<UserProfile>> GetUserProfileByUserId(Guid userId, bool includeAssociatedData = false)
         {
             try
             {
                 var existingUserProfile = await this.dataService
                     .UserProfiles
-                    .FindByCondition(u => u.UserId == userId);
+                    .FindByConditionAsync(u => u.UserId == userId, includeAssociatedData);
 
                 if (existingUserProfile == null) return GenericResponseBuilder.Success<UserProfile>(null);
 
@@ -110,8 +146,9 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
             catch (Exception ex)
             {
-                //ToDo Log Error
-                return GenericResponseBuilder.NoSuccess<UserProfile>(null, $"{ex.Message} InnerException: {ex.InnerException.Message}");
+                logger.LogError(string.Format("Error in BLL - GetUserProfile. {0}", ex.Message), ex);
+                String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
+                return GenericResponseBuilder.NoSuccess<UserProfile>(null, $"{ex.Message} InnerException: {innerMessage}");
             }
         }
 
@@ -128,38 +165,41 @@ namespace H2020.IPMDecisions.UPR.BLL
 
                 var existingUserProfile = await this.dataService
                     .UserProfiles
-                    .FindByCondition(u => u.UserId == userId);
+                    .FindByConditionAsync(u => u.UserId == userId);
 
-                if (existingUserProfile == null) return GenericResponseBuilder.Success<IDictionary<string, object>>(null);                
-
-                var userProfileToReturn = this.mapper.Map<UserProfileDto>(existingUserProfile)
-                    .ShapeData(fields) 
-                    as IDictionary<string, object>;
+                if (existingUserProfile == null) return GenericResponseBuilder.Success<IDictionary<string, object>>(null);
 
                 var includeLinks = parsedMediaType.SubTypeWithoutSuffix
                             .EndsWith("hateoas", StringComparison.InvariantCultureIgnoreCase);
-                if (includeLinks)
+
+                var primaryMediaType = includeLinks ?
+                    parsedMediaType.SubTypeWithoutSuffix
+                    .Substring(0, parsedMediaType.SubTypeWithoutSuffix.Length - 8)
+                    : parsedMediaType.SubTypeWithoutSuffix;
+
+                if (primaryMediaType == "vnd.h2020ipmdecisions.profile.full")
                 {
-                    var links = CreateLinksForUserProfiles(userId);
-                    userProfileToReturn.Add("links", links);
+                    var userProfileFullToReturn = this.mapper.Map<UserProfileFullDto>(existingUserProfile)
+                        .ShapeData(fields)
+                        as IDictionary<string, object>;
+
+                    AddLinksToUserProfileAsDictionary(includeLinks, userProfileFullToReturn);
+                    return GenericResponseBuilder.Success<IDictionary<string, object>>(userProfileFullToReturn);
                 }
+                
+                var userProfileToReturn = this.mapper.Map<UserProfileDto>(existingUserProfile)
+                        .ShapeData(fields)
+                        as IDictionary<string, object>;
+
+                AddLinksToUserProfileAsDictionary(includeLinks, userProfileToReturn);
                 return GenericResponseBuilder.Success<IDictionary<string, object>>(userProfileToReturn);
             }
             catch (Exception ex)
             {
-                //ToDo Log Error
-                return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, $"{ex.Message} InnerException: {ex.InnerException.Message}");
+                logger.LogError(string.Format("Error in BLL - GetUserProfileDto. {0}", ex.Message), ex);
+                String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
+                return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, $"{ex.Message} InnerException: {innerMessage}");
             }
-        }
-
-        public UserProfileForCreationDto MapToUserProfileForCreation(UserProfileForUpdateDto userProfileDto)
-        {
-            return this.mapper.Map<UserProfileForCreationDto>(userProfileDto);
-        }
-
-        public UserProfileForUpdateDto MapToUserProfileForUpdateDto(UserProfile userProfile)
-        {
-            return this.mapper.Map<UserProfileForUpdateDto>(userProfile);
         }
 
         public async Task<GenericResponse> UpdateUserProfile(UserProfile userProfile, UserProfileForUpdateDto userProfileToPatch)
@@ -175,44 +215,30 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
             catch (Exception ex)
             {
-                //ToDo Log Error
-                return GenericResponseBuilder.NoSuccess($"{ex.Message} InnerException: {ex.InnerException.Message}");
+                logger.LogError(string.Format("Error in BLL - UpdateUserProfile. {0}", ex.Message), ex);
+                String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
+                return GenericResponseBuilder.NoSuccess($"{ex.Message} InnerException: {innerMessage}");
             }
         }
 
         #region Helpers
-        private IEnumerable<LinkDto> CreateLinksForUserProfiles(
-           Guid userId,
-           string fields = "")
+        public UserProfileForCreationDto MapToUserProfileForCreation(UserProfileForUpdateDto userProfileDto)
         {
-            var links = new List<LinkDto>();
+            return this.mapper.Map<UserProfileForCreationDto>(userProfileDto);
+        }
 
-            if (string.IsNullOrWhiteSpace(fields))
+        public UserProfileForUpdateDto MapToUserProfileForUpdateDto(UserProfile userProfile)
+        {
+            return this.mapper.Map<UserProfileForUpdateDto>(userProfile);
+        }
+
+        private void AddLinksToUserProfileAsDictionary(bool includeLinks, IDictionary<string, object> userProfileAsDictionary)
+        {
+            if (includeLinks)
             {
-                links.Add(new LinkDto(
-                url.Link("GetUserProfile", new { userId }),
-                "self",
-                "GET"));
+                var links = UrlCreatorHelper.CreateLinksForUserProfile(this.url);
+                userProfileAsDictionary.Add("links", links);
             }
-            else
-            {
-                links.Add(new LinkDto(
-                 url.Link("GetUserProfile", new { userId, fields }),
-                 "self",
-                 "GET"));
-            }
-
-            links.Add(new LinkDto(
-                url.Link("DeleteUserProfile", new { userId }),
-                "delete_user_profile",
-                "DELETE"));
-
-            links.Add(new LinkDto(
-                url.Link("PartialUpdateUserProfile", new { userId }),
-                "update_user_profile",
-                "PATCH"));
-
-            return links;
         }
         #endregion
     }

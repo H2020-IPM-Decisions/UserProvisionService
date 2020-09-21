@@ -41,16 +41,22 @@ namespace H2020.IPMDecisions.UPR.API
             services.ConfigureCors(Configuration);
             services.ConfigureContentNegotiation();
             services.ConfigureJwtAuthentication(Configuration);
+            services.ConfigureAuthorization(Configuration);
+            services.ConfigureInternalCommunicationHttpService(Configuration);
 
             services.AddTransient<IPropertyMappingService, PropertyMappingService>();
             services.AddTransient<IPropertyCheckerService, PropertyCheckerService>();
 
             services.AddAutoMapper(typeof(MainProfile));
 
+            services.ConfigureLogger(Configuration);
             services.AddScoped<IDataService, DataService>();
             services.AddScoped<IBusinessLogic, BusinessLogic>();
 
             services.AddScoped<UserAccessingOwnDataActionFilter>();
+            services.AddScoped<AddUserIdToContextFilter>();
+            services.AddScoped<FarmBelongsToUserActionFilter>();
+            services.AddScoped<FieldBelongsToUserActionFilter>();
 
             services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
             services.AddScoped<IUrlHelper>(serviceProvider =>
@@ -66,7 +72,10 @@ namespace H2020.IPMDecisions.UPR.API
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(
+            IApplicationBuilder app,
+            IWebHostEnvironment env,
+            IHostApplicationLifetime applicationLifetime)
         {
             if (CurrentEnvironment.IsDevelopment())
             {
@@ -96,16 +105,23 @@ namespace H2020.IPMDecisions.UPR.API
             app.UseAuthentication();
             app.UseAuthorization();
 
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "H2020 IPM Decisions - User Provision API");
+            });
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
             });
 
-            app.UseSwagger();
-            app.UseSwaggerUI(c =>
-            {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "H2020 IPM Decisions - Identity Provider API");
-            });
-        }       
+            applicationLifetime.ApplicationStopping.Register(OnShutdown);
+        }
+        
+        private void OnShutdown()
+        {
+            NLog.LogManager.Shutdown();
+        }
     }
 }

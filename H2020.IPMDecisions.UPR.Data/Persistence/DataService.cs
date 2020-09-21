@@ -23,13 +23,104 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence
                 }
                 return userProfiles;
             }
-        }        
+        }
+
+        private IFarmRepository farms;
+        public IFarmRepository Farms
+        {
+            get
+            {
+                if (farms == null)
+                {
+                    farms = new FarmRepository(this.context, this.propertyMappingService);
+                }
+                return farms;
+            }
+        }
+
+        private IFieldRepository fields;
+        public IFieldRepository Fields
+        {
+            get
+            {
+                if (fields == null)
+                {
+                    fields = new FieldRepository(this.context, this.propertyMappingService);
+                }
+                return fields;
+            }
+        }
+
+        private IFieldObservationRepository fieldObservations;
+        public IFieldObservationRepository FieldObservations
+        {
+            get
+            {
+                if (fieldObservations == null)
+                {
+                    fieldObservations = new FieldObservationRepository(this.context, this.propertyMappingService);
+                }
+                return fieldObservations;
+            }
+        }
+
+        private IDataShareRequestRepository dataShareRequests;
+        public IDataShareRequestRepository DataShareRequests
+        {
+            get
+            {
+                if (dataShareRequests == null)
+                {
+                    dataShareRequests = new DataShareRequestRepository(this.context, this.propertyMappingService);
+                }
+                return dataShareRequests;
+            }
+        }
+
+        private IDataSharingRequestStatusRepository dataSharingRequestStatuses;
+        public IDataSharingRequestStatusRepository DataSharingRequestStatuses
+        {
+            get
+            {
+                if (dataSharingRequestStatuses == null)
+                {
+                    dataSharingRequestStatuses = new DataSharingRequestStatusRepository(this.context);
+                }
+                return dataSharingRequestStatuses;
+            }
+        }
+
+        private IUserFarmsRepository userFarms;
+        public IUserFarmsRepository UserFarms
+        {
+            get
+            {
+                if (userFarms == null)
+                {
+                    userFarms = new UserFarmsRepository(this.context);
+                }
+                return userFarms;
+            }
+        }
+
+        private ICropPestRepository cropPests;
+        public ICropPestRepository CropPests
+        {
+            get
+            {
+                if (cropPests == null)
+                {
+                    cropPests = new CropPestRepository(this.context);
+                }
+                return cropPests;
+            }
+        }
 
         public DataService(
             ApplicationDbContext context,
             IPropertyMappingService propertyMappingService)
-        {            
-            this.propertyMappingService = propertyMappingService 
+        {
+            this.propertyMappingService = propertyMappingService
                 ?? throw new ArgumentNullException(nameof(propertyMappingService));
             this.context = context
                 ?? throw new ArgumentNullException(nameof(context));

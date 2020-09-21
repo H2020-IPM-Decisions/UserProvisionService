@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using H2020.IPMDecisions.UPR.API.Filters;
+using H2020.IPMDecisions.UPR.BLL.Providers;
 using H2020.IPMDecisions.UPR.Data.Persistence;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -17,6 +18,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json.Serialization;
+using NLog;
+using NLog.Extensions.Logging;
 
 namespace H2020.IPMDecisions.APG.API.Extensions
 {
@@ -96,8 +99,11 @@ namespace H2020.IPMDecisions.APG.API.Extensions
             services
                 .AddDbContext<ApplicationDbContext>(options =>
                 {
-                    options.UseNpgsql(connectionString,
-                        b => b.MigrationsAssembly("H2020.IPMDecisions.UPR.Data"));
+                    options.UseNpgsql(
+                        connectionString,
+                            b => b.UseNetTopologySuite()
+                            .MigrationsAssembly("H2020.IPMDecisions.UPR.Data")
+                        );
                 });
         }
 
@@ -173,12 +179,50 @@ namespace H2020.IPMDecisions.APG.API.Extensions
             });
         }
 
-        public static IEnumerable<string> Audiences(string audiences)
+        public static void ConfigureLogger(this IServiceCollection services, IConfiguration config)
+        {
+            LogManager.Configuration = new NLogLoggingConfiguration(config.GetSection("NLog"));
+        }
+
+        public static void ConfigureInternalCommunicationHttpService(this IServiceCollection services, IConfiguration config)
+        {
+            services.AddHttpClient<IMicroservicesInternalCommunicationHttpProvider, MicroservicesInternalCommunicationHttpProvider>(client =>
+            {
+                client.BaseAddress = new Uri(config["MicroserviceInternalCommunication:ApiGatewayAddress"]);
+                client.DefaultRequestHeaders.Add(config["MicroserviceInternalCommunication:SecurityTokenCustomHeader"], config["MicroserviceInternalCommunication:SecurityToken"]);
+            });
+        }
+
+        public static void ConfigureAuthorization(this IServiceCollection services, IConfiguration config)
+        {
+            var claimType = config["AccessClaims:ClaimTypeName"].ToLower();
+            var accessLevels = AccessLevels(config["AccessClaims:UserAccessLevels"]);
+
+            services.AddAuthorization(options =>
+            {
+                accessLevels.ToList().ForEach(level =>
+                {
+                    options.AddPolicy(level,
+                        policy =>
+                        {
+                            policy.RequireClaim(claimType, level.ToLower());
+                        });
+                });
+            });
+        }
+
+        private static IEnumerable<string> Audiences(string audiences)
         {
             var listOfAudiences = new List<string>();
             if (string.IsNullOrEmpty(audiences)) return listOfAudiences;
             listOfAudiences = audiences.Split(';').ToList();
             return listOfAudiences;
+        }
+
+        public static IEnumerable<string> AccessLevels(string levels)
+        {
+            var listOfLevels = levels.Split(';').ToList();
+            return listOfLevels;
         }
     }
 }

@@ -1,8 +1,10 @@
 using System;
 using AutoMapper;
+using H2020.IPMDecisions.UPR.BLL.Providers;
 using H2020.IPMDecisions.UPR.Core.Services;
 using H2020.IPMDecisions.UPR.Data.Core;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace H2020.IPMDecisions.UPR.BLL
 {
@@ -12,12 +14,18 @@ namespace H2020.IPMDecisions.UPR.BLL
         private readonly IDataService dataService;
         private readonly IUrlHelper url;
         private readonly IPropertyCheckerService propertyCheckerService;
-        
+        private readonly IPropertyMappingService propertyMappingService;
+        private readonly ILogger<BusinessLogic> logger;
+        private readonly IMicroservicesInternalCommunicationHttpProvider internalCommunicationProvider;
+
         public BusinessLogic(
             IMapper mapper,
             IDataService dataService,
             IUrlHelper url,
-            IPropertyCheckerService propertyCheckerService)
+            IPropertyCheckerService propertyCheckerService,
+            IPropertyMappingService propertyMappingService,
+            ILogger<BusinessLogic> logger,
+            IMicroservicesInternalCommunicationHttpProvider internalCommunicationProvider) 
         {
             this.mapper = mapper 
                 ?? throw new ArgumentNullException(nameof(mapper));
@@ -27,6 +35,12 @@ namespace H2020.IPMDecisions.UPR.BLL
                 ?? throw new ArgumentNullException(nameof(url));
             this.propertyCheckerService = propertyCheckerService
                 ?? throw new ArgumentNullException(nameof(propertyCheckerService));
+            this.propertyMappingService = propertyMappingService 
+                ?? throw new ArgumentNullException(nameof(propertyMappingService));
+            this.logger = logger
+                ?? throw new ArgumentNullException(nameof(logger));
+            this.internalCommunicationProvider = internalCommunicationProvider
+                ?? throw new ArgumentNullException(nameof(internalCommunicationProvider));
         }
     }
 }

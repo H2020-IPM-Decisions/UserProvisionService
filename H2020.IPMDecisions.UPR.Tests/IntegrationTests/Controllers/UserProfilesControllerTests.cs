@@ -1,19 +1,20 @@
+using FluentAssertions;
+using H2020.IPMDecisions.UPR.Core.Dtos;
+using Microsoft.AspNetCore.JsonPatch;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.TestHost;
+using Newtonsoft.Json;
 using System;
+using System.Json;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
-using System.Json;
-using FluentAssertions;
-using Microsoft.AspNetCore.TestHost;
 using Xunit;
-using Newtonsoft.Json;
-using H2020.IPMDecisions.UPR.Core.Dtos;
-using Microsoft.AspNetCore.JsonPatch;
-using Microsoft.AspNetCore.Mvc;
 
 namespace H2020.IPMDecisions.UPR.Tests.IntegrationTests.Controllers
 {
+    [Collection("FakeWebHostWithDb")]
     [Trait("Category", "Docker")]
     public class UserProfilesControllerTests : IClassFixture<FakeWebHostWithDb>
     {
@@ -23,15 +24,14 @@ namespace H2020.IPMDecisions.UPR.Tests.IntegrationTests.Controllers
         {
             this.fakeWebHost = fakeWebHost;
 
-            var tokenUserId = Guid.NewGuid();
-            myAdminToken = TokenGeneratorTests.GenerateToken(tokenUserId, "admin");
+            myAdminToken = TokenGeneratorTests.GenerateToken(fakeWebHost.DefaultAdminUserId, "admin");
         }
 
         #region Admin Role
-        [Fact]
+        [Fact(Skip = "Deprecated")]
         public async void Post_AdminCreatesOtherProfile_Created()
         {
-            // Arrange            
+            // Arrange
             var resourceUserId = Guid.NewGuid();
 
             var httpClient = fakeWebHost.Host.GetTestServer().CreateClient();
@@ -66,7 +66,7 @@ namespace H2020.IPMDecisions.UPR.Tests.IntegrationTests.Controllers
 
         }
 
-        [Fact]
+        [Fact(Skip = "Deprecated")]
         public async void Get_AdminUsesUnexistingUserId_NotFound()
         {
             // Arrange
@@ -90,7 +90,7 @@ namespace H2020.IPMDecisions.UPR.Tests.IntegrationTests.Controllers
             response.StatusCode.Should().Be(HttpStatusCode.NotFound);
         }
 
-        [Fact]
+        [Fact(Skip = "Deprecated")]
         public async void Delete_AdminUsesUnexistingUserId_NotContent()
         {
             // Arrange
@@ -114,7 +114,7 @@ namespace H2020.IPMDecisions.UPR.Tests.IntegrationTests.Controllers
             response.StatusCode.Should().Be(HttpStatusCode.NoContent);
         }
 
-        [Fact]
+        [Fact(Skip = "Deprecated")]
         public async void Patch_AdminUsesUnexistingUserId_CreatesNewUserProfile()
         {
             // Arrange
@@ -150,7 +150,7 @@ namespace H2020.IPMDecisions.UPR.Tests.IntegrationTests.Controllers
             responseDeserialized.FullName.Should().Be("NewName");
         }
 
-        [Fact]
+        [Fact(Skip = "Deprecated")]
         public async void Patch_AdminUsesUnexistingUserIdButNoFirstName_BadRequest()
         {
             // Arrange

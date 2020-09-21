@@ -10,12 +10,12 @@ using H2020.IPMDecisions.UPR.API.Filters;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 
-namespace H2020.IPMDecisions.IDP.API.Controllers
+namespace H2020.IPMDecisions.UPR.API.Controllers
 {
     [ApiController]
-    [Route("api/users/{userId:guid}/profiles")]
+    [Route("api/users/profiles")]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    [ServiceFilter(typeof(UserAccessingOwnDataActionFilter))]
+    [ServiceFilter(typeof(AddUserIdToContextFilter))]
     public class UserProfilesController : ControllerBase
     {
         private readonly IBusinessLogic businessLogic;
@@ -29,35 +29,44 @@ namespace H2020.IPMDecisions.IDP.API.Controllers
         [Consumes(MediaTypeNames.Application.Json)]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [Produces(MediaTypeNames.Application.Json, "application/vnd.h2020ipmdecisions.hateoas+json")]
-        [HttpPost("", Name = "CreateUserProfile")]
-        // POST: api/users/1/profiles
+        [Produces(MediaTypeNames.Application.Json,
+        "application/vnd.h2020ipmdecisions.hateoas+json",
+        "application/vnd.h2020ipmdecisions.profile.full+json",
+        "application/vnd.h2020ipmdecisions.profile.full.hateoas+json",
+        "application/vnd.h2020ipmdecisions.profile.friendly.hateoas+json")]
+        [HttpPost("", Name = "api.userprofile.post.profile")]
+        // POST: api/users/profiles
         public async Task<IActionResult> Post(
-            [FromRoute] Guid userId,
             [FromBody] UserProfileForCreationDto userProfileForCreation,
             [FromHeader(Name = "Accept")] string mediaType)
         {
+            var userId = Guid.Parse(HttpContext.Items["userId"].ToString());
             var response = await businessLogic.AddNewUserProfile(userId, userProfileForCreation, mediaType);
 
             if (!response.IsSuccessful)
                 return BadRequest(new { message = response.ErrorMessage });
 
-            return CreatedAtRoute("GetUserProfile",
+            return CreatedAtRoute("api.userprofile.get.profilebyid",
                  new { userId },
                  response.Result);
         }
 
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [Produces(MediaTypeNames.Application.Json, "application/vnd.h2020ipmdecisions.hateoas+json")]
-        [HttpGet("", Name = "GetUserProfile")]
+        [Produces(MediaTypeNames.Application.Json, 
+        "application/vnd.h2020ipmdecisions.hateoas+json",
+        "application/vnd.h2020ipmdecisions.profile.full+json",
+        "application/vnd.h2020ipmdecisions.profile.full.hateoas+json",
+        "application/vnd.h2020ipmdecisions.profile.friendly.hateoas+json")]
+        [HttpGet("", Name = "api.userprofile.get.profilebyid")]
         [HttpHead]
         // GET:  api/users/1/profiles
-        public async Task<IActionResult> Get([FromRoute] Guid userId,
+        public async Task<IActionResult> Get(
             [FromQuery] string fields,
             [FromHeader(Name = "Accept")] string mediaType)
         {
+            var userId = Guid.Parse(HttpContext.Items["userId"].ToString());
             var response = await businessLogic.GetUserProfileDto(userId, fields, mediaType);
 
             if (!response.IsSuccessful)
@@ -69,12 +78,13 @@ namespace H2020.IPMDecisions.IDP.API.Controllers
             return Ok(response.Result);
         }
 
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [HttpDelete(Name = "DeleteUserProfile")]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [HttpDelete(Name = "api.userprofile.delete.profilebyid")]
         //DELETE :  api/users/1/profiles
-        public async Task<IActionResult> Delete([FromRoute] Guid userId)
+        public async Task<IActionResult> Delete()
         {
+            var userId = Guid.Parse(HttpContext.Items["userId"].ToString());
             var response = await this.businessLogic.DeleteUserProfileClient(userId);
 
             if (!response.IsSuccessful)
@@ -87,13 +97,13 @@ namespace H2020.IPMDecisions.IDP.API.Controllers
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [HttpPatch(Name = "PartialUpdateUserProfile")]
+        [HttpPatch(Name = "api.userprofile.patch.profilebyid")]
         //PATCH :  api/users/1/profiles
         public async Task<IActionResult> PartialUpdate(
-            [FromRoute] Guid userId,
             JsonPatchDocument<UserProfileForUpdateDto> patchDocument)
         {
-            var userProfileResponse = await this.businessLogic.GetUserProfile(userId);
+            var userId = Guid.Parse(HttpContext.Items["userId"].ToString());
+            var userProfileResponse = await this.businessLogic.GetUserProfileByUserId(userId);
 
             if (!userProfileResponse.IsSuccessful)
                 return BadRequest(new { message = userProfileResponse.ErrorMessage });
@@ -114,7 +124,7 @@ namespace H2020.IPMDecisions.IDP.API.Controllers
                 if (!createClientResponse.IsSuccessful)
                     return BadRequest(new { message = createClientResponse.ErrorMessage });
 
-                return CreatedAtRoute("GetUserProfile",
+                return CreatedAtRoute("api.userprofile.get.profilebyid",
                  new { userId },
                  createClientResponse.Result);
             }

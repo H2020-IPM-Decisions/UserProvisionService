@@ -1,9 +1,12 @@
+using Microsoft.AspNetCore.Mvc;
+
 namespace H2020.IPMDecisions.UPR.Core.Models
 {
     public class GenericResponse
     {
         public bool IsSuccessful { get; set; }
         public string ErrorMessage { get; set; }
+        public IActionResult RequestResult { get; set; }
     }
 
     public class GenericResponse<T> : GenericResponse
@@ -36,7 +39,8 @@ namespace H2020.IPMDecisions.UPR.Core.Models
             {
                 IsSuccessful = false,
                 Result = result,
-                ErrorMessage = errorMessage
+                ErrorMessage = errorMessage,
+                RequestResult = new BadRequestObjectResult(new { message = errorMessage })
             };
         }
 
@@ -45,7 +49,26 @@ namespace H2020.IPMDecisions.UPR.Core.Models
             return new GenericResponse()
             {
                 IsSuccessful = false,
-                ErrorMessage = errorMessage
+                ErrorMessage = errorMessage,
+                RequestResult = new BadRequestObjectResult(new { message = errorMessage })
+            };
+        }
+
+        public static GenericResponse<T> Unauthorized<T>()
+        {
+            return new GenericResponse<T>()
+            {
+                IsSuccessful = false,
+                RequestResult = new UnauthorizedResult()
+            };
+        }
+
+        public static GenericResponse<T> NotFound<T>()
+        {
+            return new GenericResponse<T>()
+            {
+                IsSuccessful = false,
+                RequestResult = new NotFoundResult()
             };
         }
     }

@@ -48,15 +48,20 @@ cp appsettingsTemplate.json appsettings.json
 dotnet build
 ```
 
-### Setting up PostgreSQL database on Docker
+### Setting up PostgreSQL with PostGIS Extension database on Docker
 
 This instructions are simplified as they are for testing proposes, please follow official instructions for detailed information.
 
 ```console
-docker run --name postgresdev -d -p 5432:5432 -e POSTGRES_PASSWORD=postgres postgres:12.2
+docker run --name postgresdev -d -p 5432:5432 -e POSTGRES_PASSWORD=postgres postgis/postgis:12-master
 ```
 
 Your `ConnectionStrings\MyPostgreSQLConnection` will be `Host=127.0.0.1;Port=5432;Database=H2020.IPMDecisions.UPR;Username=postgres;Password=postgres`
+
+Use pgAdmin4 to manage your DB
+```
+docker run -p 5555:80 --name pgadmin4 --env PGADMIN_DEFAULT_EMAIL=admin@test.com --env PGADMIN_DEFAULT_PASSWORD=admin -d dpage/pgadmin4
+```
 
 ### How to connect and start the database
 
@@ -151,10 +156,3 @@ For the versions available, see the [tags on this repository](https://github.com
 ## Authors
 
 * **ADAS Modelling and Informatics** - *Initial work* - [ADAS](https://www.adas.uk/)
-
-
-
-docker exec -u postgres upr-postgres pg_dump --file "/var/lib/postgresql/data/dbBackup.sql" --username "postgres" --no-password --verbose --format=p --blobs --no-owner --create --section=pre-data --section=post-data --no-privileges --no-tablespaces "H2020.IPMDecisions.UPR"
-
-
- docker cp upr-postgres:/var/lib/postgresql/data/dbBackup.sql C:\Users\m507757\Desktop\docker\

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using H2020.IPMDecisions.UPR.Core.Entities;
+using H2020.IPMDecisions.UPR.Core.Enums;
 using H2020.IPMDecisions.UPR.Core.Helpers;
 using H2020.IPMDecisions.UPR.Core.ResourceParameters;
 using H2020.IPMDecisions.UPR.Core.Services;
@@ -30,6 +31,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
 
         public void Delete(UserProfile entity)
         {
+            this.context.UserAddress.RemoveRange(entity.UserAddress);
             this.context.UserProfile.Remove(entity);
         }
 
@@ -43,11 +45,28 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
             throw new NotImplementedException();
         }
 
-        public async Task<UserProfile> FindByCondition(Expression<Func<UserProfile, bool>> expression)
+        public async Task<UserProfile> FindByConditionAsync(Expression<Func<UserProfile, bool>> expression)
         {
             return await this.context
                 .UserProfile
                 .Where(expression)
+                .Include(u => u.UserAddress)
+                .FirstOrDefaultAsync();
+        }
+        
+        public async Task<UserProfile> FindByConditionAsync(Expression<Func<UserProfile, bool>> expression, bool includeAssociatedData)
+        {
+            if (!includeAssociatedData)
+            {
+                return await FindByConditionAsync(expression);
+            }
+
+            return await this.context
+                .UserProfile
+                .Where(expression)
+                .Include(u => u.UserAddress)
+                .Include(u => u.UserFarms)
+                    .ThenInclude(uf => uf.Farm)
                 .FirstOrDefaultAsync();
         }
 
@@ -55,13 +74,51 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
         {
             return await this.context
                 .UserProfile
+                .Include(u => u.UserAddress)
                 .SingleOrDefaultAsync(a =>
-                    a.Id == id);
+                    a.UserId == id);
         }
 
         public void Update(UserProfile entity)
         {
             this.context.UserProfile.Update(entity);
+        }
+
+        public async Task AddFarm(UserProfile userProfile, Farm farm, UserFarmTypeEnum userType = UserFarmTypeEnum.Unknown, bool isAuthorised = false)
+        {
+            var userTypeFromDb = await this
+                .context
+                .UserFarmType
+                .FirstOrDefaultAsync(s => s.Description.Equals(userType.ToString()));
+
+            if (userTypeFromDb == null)
+                userType = UserFarmTypeEnum.Unknown;
+
+            if (userTypeFromDb.Description == UserFarmTypeEnum.Owner.ToString())
+                isAuthorised = true;
+
+            if (userProfile.UserFarms == null) {
+                userProfile.UserFarms = new List<UserFarm>
+                {
+                    new UserFarm
+                    {
+                        UserProfile = userProfile,
+                        Farm = farm,
+                        Authorised = isAuthorised,
+                        UserFarmType = userTypeFromDb
+                    }
+                };
+            }
+            else {
+                var newUserFarm = new UserFarm
+                {
+                    UserProfile = userProfile,
+                    Farm = farm,
+                    Authorised = isAuthorised,
+                    UserFarmType = userTypeFromDb
+                };
+                userProfile.UserFarms.Add(newUserFarm);
+            }
         }
     }
 }
