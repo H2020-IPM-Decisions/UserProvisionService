@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using NetTopologySuite.Geometries;
 
@@ -21,5 +22,7 @@ namespace H2020.IPMDecisions.UPR.Core.Entities
 
         public Guid FieldId { get; set; }
         public Field Field { get; set; }
+
+        public ICollection<ObservationAlert> ObservationAlerts { get; set; }
     }
 }

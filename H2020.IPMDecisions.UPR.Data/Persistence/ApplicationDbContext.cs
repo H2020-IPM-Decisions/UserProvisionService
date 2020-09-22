@@ -15,6 +15,10 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence
         public DbSet<Farm> Farm { get; set; }
         public DbSet<Field> Field { get; set; }
         public DbSet<FieldObservation> FieldObservation { get; set; }
+        public DbSet<ForecastAlert> ForecastAlert { get; set; }
+        public DbSet<ForecastResult> ForecastResult { get; set; }
+        public DbSet<ObservationAlert> ObservationAlert { get; set; }
+        public DbSet<ObservationResult> ObservationResult { get; set; }
         public DbSet<UserAddress> UserAddress { get; set; }
         public DbSet<UserFarm> UserFarm { get; set; }
         public DbSet<UserProfile> UserProfile { get; set; }
@@ -38,6 +42,10 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence
             modelBuilder.ApplyConfiguration(new FieldConfiguration());
             modelBuilder.ApplyConfiguration(new FieldCropPestConfiguration());
             modelBuilder.ApplyConfiguration(new FieldObservationConfiguration());
+            modelBuilder.ApplyConfiguration(new ForecastAlertConfiguration());
+            modelBuilder.ApplyConfiguration(new ForecastResultConfiguration());
+            modelBuilder.ApplyConfiguration(new ObservationAlertConfiguration());
+            modelBuilder.ApplyConfiguration(new ObservationResultConfiguration());
             modelBuilder.ApplyConfiguration(new UserFarmConfiguration());
             modelBuilder.ApplyConfiguration(new UserFarmTypeConfiguration());
             modelBuilder.ApplyConfiguration(new UserProfileConfiguration());
