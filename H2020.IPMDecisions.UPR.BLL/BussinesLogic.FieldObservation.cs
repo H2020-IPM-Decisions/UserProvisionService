@@ -116,13 +116,7 @@ namespace H2020.IPMDecisions.UPR.BLL
 
                 if (observationsAsEntities.Count == 0) return GenericResponseBuilder.NotFound<ShapedDataWithLinks>();
 
-                var paginationMetaData = new PaginationMetaData()
-                {
-                    TotalCount = observationsAsEntities.TotalCount,
-                    PageSize = observationsAsEntities.PageSize,
-                    CurrentPage = observationsAsEntities.CurrentPage,
-                    TotalPages = observationsAsEntities.TotalPages
-                };
+                var paginationMetaData = MiscellaneousHelper.CreatePaginationMetadata(observationsAsEntities);
 
                 var links = UrlCreatorHelper.CreateLinksForFieldObservations(
                     this.url,

@@ -462,5 +462,74 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
             }
         }
         #endregion
+
+        #region CropPests
+        internal static IEnumerable<LinkDto> CreateLinksForFieldCropPests(
+            IUrlHelper url,
+            Guid fieldId,
+            FieldCropPestResourceParameter resourceParameter,
+            bool hasNextPage,
+            bool hasPreviousPage)
+        {
+            var links = new List<LinkDto>();
+
+            links.Add(new LinkDto(
+                CreateFieldCropPestResourceUri(url, fieldId, resourceParameter, ResourceUriType.Current),
+                "self",
+                "GET"));
+
+            if (hasNextPage)
+            {
+                links.Add(new LinkDto(
+                CreateFieldCropPestResourceUri(url, fieldId, resourceParameter, ResourceUriType.NextPage),
+                "next_page",
+                "GET"));
+            }
+            if (hasPreviousPage)
+            {
+                links.Add(new LinkDto(
+               CreateFieldCropPestResourceUri(url, fieldId, resourceParameter, ResourceUriType.PreviousPage),
+               "previous_page",
+               "GET"));
+            }
+            return links;
+        }
+
+        private static string CreateFieldCropPestResourceUri(
+            IUrlHelper url,
+            Guid fieldId,
+            FieldCropPestResourceParameter resourceParameter,
+            ResourceUriType type)
+        {
+            switch (type)
+            {
+                case ResourceUriType.PreviousPage:
+                    return url.Link("api.fieldcroppests.get.all",
+                    new
+                    {
+                        fieldId,
+                        pageNumber = resourceParameter.PageNumber - 1,
+                        pageSize = resourceParameter.PageSize,
+                    });
+                case ResourceUriType.NextPage:
+                    return url.Link("api.fieldcroppests.get.all",
+                    new
+                    {
+                        fieldId,
+                        pageNumber = resourceParameter.PageNumber + 1,
+                        pageSize = resourceParameter.PageSize,
+                    });
+                case ResourceUriType.Current:
+                default:
+                    return url.Link("api.fieldcroppests.get.all",
+                    new
+                    {
+                        fieldId,
+                        pageNumber = resourceParameter.PageNumber,
+                        pageSize = resourceParameter.PageSize,
+                    });
+            }
+        }
+        #endregion
     }
 }

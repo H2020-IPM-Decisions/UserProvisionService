@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using H2020.IPMDecisions.UPR.BLL.Helpers;
 using H2020.IPMDecisions.UPR.Core.Dtos;
 using H2020.IPMDecisions.UPR.Core.Entities;
 using H2020.IPMDecisions.UPR.Core.Helpers;
@@ -8,6 +9,7 @@ using H2020.IPMDecisions.UPR.Core.Models;
 using H2020.IPMDecisions.UPR.Core.ResourceParameters;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using Microsoft.Net.Http.Headers;
 
 namespace H2020.IPMDecisions.UPR.BLL
 {
@@ -97,14 +99,80 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
         }
 
-        public Task<GenericResponse<IDictionary<string, object>>> GetFieldCropPest(Guid id, string mediaType)
+        public async Task<GenericResponse<IDictionary<string, object>>> GetFieldCropPest(Guid id, Guid fieldId, string mediaType)
         {
-            throw new NotImplementedException();
+            try
+            {
+                if (!MediaTypeHeaderValue.TryParse(mediaType,
+                        out MediaTypeHeaderValue parsedMediaType))
+                    return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, "Wrong media type.");
+
+
+                var fieldCropPestExist = await this.dataService
+                        .FieldCropPests
+                        .FindByConditionAsync(f =>
+                            f.FieldId == fieldId
+                            & f.CropPestId == id, true);
+
+                if (fieldCropPestExist == null) return GenericResponseBuilder.NotFound<IDictionary<string, object>>();
+
+                var cropPestToReturn = this.mapper
+                    .Map<CropPestDto>(fieldCropPestExist.CropPest)
+                    .ShapeData() as IDictionary<string, object>;
+
+                return GenericResponseBuilder.Success<IDictionary<string, object>>(cropPestToReturn);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(string.Format("Error in BLL - GetFieldCropPest. {0}", ex.Message), ex);
+                String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
+                return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, $"{ex.Message} InnerException: {innerMessage}");
+            }
         }
 
-        public Task<GenericResponse<ShapedDataWithLinks>> GetFieldCropPests(Guid fieldId, FieldCropPestResourceParameter resourceParameter, string mediaType)
+        public async Task<GenericResponse<ShapedDataWithLinks>> GetFieldCropPests(Guid fieldId, FieldCropPestResourceParameter resourceParameter, string mediaType)
         {
-            throw new NotImplementedException();
+            try
+            {
+                if (!MediaTypeHeaderValue.TryParse(mediaType,
+                      out MediaTypeHeaderValue parsedMediaType))
+                    return GenericResponseBuilder.NoSuccess<ShapedDataWithLinks>(null, "Wrong media type.");
+
+                var fieldCropPestAsEntities = await this
+                    .dataService
+                    .FieldCropPests
+                    .FindAllAsync(resourceParameter, fieldId, true);
+
+                if (fieldCropPestAsEntities.Count == 0) return GenericResponseBuilder.NotFound<ShapedDataWithLinks>();
+
+                var paginationMetaData = MiscellaneousHelper.CreatePaginationMetadata(fieldCropPestAsEntities);
+
+                var links = UrlCreatorHelper.CreateLinksForFieldCropPests(
+                    this.url,
+                    fieldId,
+                    resourceParameter,
+                    fieldCropPestAsEntities.HasNext,
+                    fieldCropPestAsEntities.HasPrevious);
+
+                var shapedFieldCropPestToReturn = this.mapper
+                    .Map<IEnumerable<FieldCropPestDto>>(fieldCropPestAsEntities)
+                    .ShapeData();
+
+                var dataToReturn = new ShapedDataWithLinks()
+                {
+                    Value = shapedFieldCropPestToReturn,
+                    Links = links,
+                    PaginationMetaData = paginationMetaData,
+                };
+
+                return GenericResponseBuilder.Success<ShapedDataWithLinks>(dataToReturn);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(string.Format("Error in BLL - GetFieldCropPests. {0}", ex.Message), ex);
+                String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
+                return GenericResponseBuilder.NoSuccess<ShapedDataWithLinks>(null, $"{ex.Message} InnerException: {innerMessage}");
+            }
         }
        
         #region Helpers

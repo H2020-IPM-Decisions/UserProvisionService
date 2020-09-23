@@ -77,7 +77,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
             [FromRoute] Guid fieldId, Guid id,
             [FromHeader(Name = "Accept")] string mediaType)
         {
-            var response = await this.businessLogic.GetFieldCropPest(id, mediaType);
+            var response = await this.businessLogic.GetFieldCropPest(id, fieldId, mediaType);
             if (!response.IsSuccessful)
                 return response.RequestResult;
 
