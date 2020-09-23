@@ -34,8 +34,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         public async Task<IActionResult> Delete(
             [FromRoute] Guid fieldId, Guid id)
         {
-            var response = await this.businessLogic.DeleteFieldCropPest(id);
-
+            var response = await this.businessLogic.DeleteFieldCropPest(id, fieldId);
             if (!response.IsSuccessful)
                 return BadRequest(new { message = response.ErrorMessage });
 
@@ -55,7 +54,6 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
             [FromHeader(Name = "Accept")] string mediaType)
         {
             var response = await this.businessLogic.GetFieldCropPests(fieldId, resourceParameter, mediaType);
-
             if (!response.IsSuccessful)
                 return response.RequestResult;
 
@@ -80,7 +78,6 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
             [FromHeader(Name = "Accept")] string mediaType)
         {
             var response = await this.businessLogic.GetFieldCropPest(id, mediaType);
-
             if (!response.IsSuccessful)
                 return response.RequestResult;
 

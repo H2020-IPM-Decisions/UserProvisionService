@@ -72,9 +72,29 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
         }
 
-        public Task<GenericResponse> DeleteFieldCropPest(Guid id)
+        public async Task<GenericResponse> DeleteFieldCropPest(Guid id, Guid fieldId)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var fieldCropPestExist = await this.dataService
+                        .FieldCropPests
+                        .FindByConditionAsync(f =>
+                            f.FieldId == fieldId
+                            & f.CropPestId == id);
+
+                if (fieldCropPestExist == null) return GenericResponseBuilder.Success();
+
+                this.dataService.FieldCropPests.Delete(fieldCropPestExist);
+                await this.dataService.CompleteAsync();
+
+                return GenericResponseBuilder.Success();
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(string.Format("Error in BLL - DeleteFieldCropPest. {0}", ex.Message), ex);
+                String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
+                return GenericResponseBuilder.NoSuccess($"{ex.Message} InnerException: {innerMessage}");
+            }
         }
 
         public Task<GenericResponse<IDictionary<string, object>>> GetFieldCropPest(Guid id, string mediaType)
