@@ -16,6 +16,13 @@ namespace H2020.IPMDecisions.UPR.BLL
         Task<GenericResponse<IDictionary<string, object>>> LinkNewFarmToUserProfile(FarmForCreationDto farmForCreationDto, Guid userId, string mediaType);
         #endregion
 
+        #region Crop Pest
+        Task<GenericResponse<CropPestDto>> AddNewFieldCropPest(CropPestForCreationDto cropPestForCreationDto, HttpContext httpContext, string mediaType);
+        Task<GenericResponse> DeleteFieldCropPest(Guid id);
+        Task<GenericResponse<IDictionary<string, object>>> GetFieldCropPest(Guid id, string mediaType);
+        Task<GenericResponse<ShapedDataWithLinks>> GetFieldCropPests(Guid fieldId, FieldCropPestResourceParameter resourceParameter, string mediaType);
+        #endregion
+
         #region Farms
         Task<GenericResponse> DeleteFarm(Guid id, HttpContext httpContext);
         Task<GenericResponse<Farm>> GetFarm(Guid id, HttpContext httpContext);
