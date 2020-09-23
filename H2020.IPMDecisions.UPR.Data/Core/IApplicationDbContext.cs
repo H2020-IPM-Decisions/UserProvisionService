@@ -12,6 +12,11 @@ namespace H2020.IPMDecisions.UPR.Core
         DbSet<Farm> Farm { get; set; }
         DbSet<Field> Field { get; set; }
         DbSet<FieldObservation> FieldObservation { get; set; }
+        DbSet<FieldCropPest> FieldCropPest { get; set; }
+        DbSet<ForecastAlert> ForecastAlert { get; set; }
+        DbSet<ForecastResult> ForecastResult { get; set; }
+        DbSet<ObservationAlert> ObservationAlert { get; set; }
+        DbSet<ObservationResult> ObservationResult { get; set; }
         DbSet<UserAddress> UserAddress { get; set; }
         DbSet<UserFarm> UserFarm { get; set; }
         DbSet<UserFarmType> UserFarmType { get; set; }

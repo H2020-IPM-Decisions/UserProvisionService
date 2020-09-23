@@ -100,7 +100,6 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
             [FromHeader(Name = "Accept")] string mediaType)
         {
             var response = await this.businessLogic.AddNewFieldCropPest(cropPestForCreationDto, HttpContext, mediaType);
-
             if (!response.IsSuccessful)
                 return response.RequestResult;
 
@@ -109,7 +108,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
                 new
                 {
                     fieldId,
-                    id = response.Result.Id
+                    id = response.Result["Id"]
                 },
                 response.Result);
         }
