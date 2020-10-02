@@ -8,9 +8,9 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Configurations
     {
         public void Configure(EntityTypeBuilder<DataSharingRequest> builder)
         {
-            builder.HasKey(f => f.Id);
+            builder.HasKey(d => d.Id);
 
-            builder.Property(f => f.Id)
+            builder.Property(d => d.Id)
                 .ValueGeneratedOnAdd();
 
             builder.HasIndex(d =>
