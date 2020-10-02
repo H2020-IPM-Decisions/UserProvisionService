@@ -17,17 +17,9 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Configurations
                 new
                 {
                     o.WeatherStationId,
-                    o.CropPestDssCombinationId,
                     o.FieldObservationId
                 })
-           .IsUnique();
-
-            builder.HasOne<CropPestDssCombination>(o => o.CropPestDssCombination)
-                .WithMany(cp => cp.ObservationAlerts)
-                .HasForeignKey(o => o.CropPestDssCombinationId)
-                .HasConstraintName("FK_ObservationAlert_CropPestDssCombination_Id")
-                .OnDelete(DeleteBehavior.NoAction)
-                .IsRequired();
+                .IsUnique();
 
             builder.HasOne<FieldObservation>(f => f.FieldObservation)
                 .WithMany(fo => fo.ObservationAlerts)

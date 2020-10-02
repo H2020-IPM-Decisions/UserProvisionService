@@ -12,12 +12,6 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Configurations
 
             builder.Property(o => o.Id)
                 .ValueGeneratedOnAdd();
-
-            builder.HasOne<ObservationAlert>(o => o.ObservationAlert)
-            .WithMany(oa => oa.ObservationResults)
-            .HasForeignKey(o => o.ObservationAlertId)
-            .OnDelete(DeleteBehavior.NoAction)
-            .IsRequired();
         }
     }
 }

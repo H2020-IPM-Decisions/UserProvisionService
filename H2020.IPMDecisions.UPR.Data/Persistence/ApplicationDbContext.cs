@@ -9,7 +9,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence
     public class ApplicationDbContext : DbContext, IApplicationDbContext
     {
         public DbSet<CropPest> CropPest { get; set; }
-        public DbSet<CropPestDssCombination> CropPestDssCombination { get; set; }
+        public DbSet<CropPestDss> CropPestDss { get; set; }
         public DbSet<DataSharingRequest> DataSharingRequest { get; set; }
         public DbSet<DataSharingRequestStatus> DataSharingRequestStatus { get; set; }
         public DbSet<Farm> Farm { get; set; }
@@ -35,7 +35,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence
             modelBuilder.HasPostgresExtension("postgis");
 
             modelBuilder.ApplyConfiguration(new CropPestConfiguration());
-            modelBuilder.ApplyConfiguration(new CropPestDssCombinationConfiguration());
+            modelBuilder.ApplyConfiguration(new CropPestDssConfiguration());
             modelBuilder.ApplyConfiguration(new FieldCropPestConfiguration());
             modelBuilder.ApplyConfiguration(new DataSharingRequestConfiguration());
             modelBuilder.ApplyConfiguration(new DataSharingRequestStatusConfiguration());

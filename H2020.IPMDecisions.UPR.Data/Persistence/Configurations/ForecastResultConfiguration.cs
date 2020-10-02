@@ -20,12 +20,6 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Configurations
                 f.Date
             })
             .IsUnique();
-
-            builder.HasOne<ForecastAlert>(f => f.ForecastAlert)
-                .WithMany(fa => fa.ForecastResults)
-                .HasForeignKey(f => f.ForecastAlertId)
-                .OnDelete(DeleteBehavior.NoAction)
-                .IsRequired();
         }
     }
 }
