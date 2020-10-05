@@ -18,6 +18,6 @@ namespace H2020.IPMDecisions.UPR.Core.Entities
         public string PestEppoCode { get; set; }
 
         public ICollection<FieldCropPest> FieldCropPests { get; set; }
-        public ICollection<CropPestDss> CropPestDssCombinations { get; set; }
+        public ICollection<CropPestDss> CropPestDsses { get; set; }
     }
 }
