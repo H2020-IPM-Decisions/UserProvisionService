@@ -17,6 +17,10 @@ namespace H2020.IPMDecisions.UPR.BLL
         #endregion
 
         #region Crop Pest
+        Task<GenericResponse<IDictionary<string, object>>> AddNewFieldCropDecision(CropPestDssForCreationDto cropPestDssForCreationDto, HttpContext httpContext, string mediaType);
+        #endregion
+
+        #region Crop Pest
         Task<GenericResponse<IDictionary<string, object>>> AddNewFieldCropPest(CropPestForCreationDto cropPestForCreationDto, HttpContext httpContext, string mediaType);
         Task<GenericResponse> DeleteFieldCropPest(Guid id, Guid fieldId);
         Task<GenericResponse<IDictionary<string, object>>> GetFieldCropPest(Guid id, Guid fieldId, string mediaType);

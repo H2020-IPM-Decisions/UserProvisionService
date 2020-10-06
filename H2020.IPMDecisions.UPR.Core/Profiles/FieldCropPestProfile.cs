@@ -9,7 +9,8 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
         {
             // Entities to Dtos
             CreateMap<FieldCropPest, FieldCropPestDto>()
-                .ForMember(dest => dest.CropPestDto, opt => opt.MapFrom(src => src.CropPest));
+                .ForMember(dest => dest.CropPestDto, opt => opt.MapFrom(src => src.CropPest))
+                .ForMember(dest => dest.FieldCropPestDssDto, opt => opt.MapFrom(src => src.FieldCropPestDsses));
         }
     }
 }
