@@ -92,7 +92,10 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
                    f.FarmId == farmId)
                .Include(f => f.FieldObservations)
                .Include(f => f.FieldCropPests)
-                   .ThenInclude(fcp => fcp.CropPest);
+                   .ThenInclude(fcp => fcp.CropPest)
+                .Include(f => f.FieldCropPests)
+                    .ThenInclude(fcp => fcp.FieldCropPestDsses)
+                        .ThenInclude(fcpd => fcpd.CropPestDss);
 
             collection = ApplyResourceParameter(resourceParameter, collection);
 
@@ -106,7 +109,11 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
         {
             if (!string.IsNullOrEmpty(resourceParameter.SearchQuery))
             {
-                //ToDo: Check that Columns can do this type of query
+                var searchQuery = resourceParameter.SearchQuery.Trim().ToLower();
+                collection = collection.Where(f =>
+                    f.Name.ToLower().Contains(searchQuery)
+                    || f.Inf1.ToLower().Contains(searchQuery)
+                    || f.Inf2.ToLower().Contains(searchQuery));
             }
             if (!string.IsNullOrEmpty(resourceParameter.OrderBy))
             {
@@ -138,6 +145,8 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
                 .Where(expression)
                 .Include(f => f.FieldObservations)
                 .Include(f => f.FieldCropPests)
+                    .ThenInclude(fcp => fcp.FieldCropPestDsses)
+                        .ThenInclude(fcpd => fcpd.CropPestDss)
                 .FirstOrDefaultAsync();
         }
 
