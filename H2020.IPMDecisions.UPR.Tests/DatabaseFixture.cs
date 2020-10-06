@@ -40,6 +40,7 @@ namespace H2020.IPMDecisions.UPR.Tests
         {
             if (tempDatabase != null)
                 tempDatabase.Drop();
+            DbContext.Database.EnsureDeleted();
         }
     }
 }
