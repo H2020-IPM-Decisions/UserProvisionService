@@ -24,7 +24,6 @@ namespace H2020.IPMDecisions.UPR.BLL
             try
             {
                 var field = httpContext.Items["field"] as Field;
-
                 var duplicatedRecord = field
                     .FieldCropPests          
                     .Any(f => f.FieldCropPestDsses
@@ -77,6 +76,31 @@ namespace H2020.IPMDecisions.UPR.BLL
                 logger.LogError(string.Format("Error in BLL - AddNewFieldCropDecision. {0}", ex.Message), ex);
                 String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
                 return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, $"{ex.Message} InnerException: {innerMessage}");
+            }
+        }
+
+        public async Task<GenericResponse> DeleteFieldCropDecision(Guid id, HttpContext httpContext)
+        {
+            try
+            {
+                var field = httpContext.Items["field"] as Field;
+
+                var fieldCropPestExist = field
+                   .FieldCropPests
+                   .Select(f => f.FieldCropPestDsses
+                       .Where(fcpd => fcpd.Id == id).FirstOrDefault()).FirstOrDefault();
+
+                if (fieldCropPestExist == null) return GenericResponseBuilder.Success();
+                
+                this.dataService.FieldCropPestDsses.Delete(fieldCropPestExist);
+                await this.dataService.CompleteAsync();
+                return GenericResponseBuilder.Success();
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(string.Format("Error in BLL - DeleteFieldCropDecision. {0}", ex.Message), ex);
+                String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
+                return GenericResponseBuilder.NoSuccess($"{ex.Message} InnerException: {innerMessage}");
             }
         }
 
@@ -134,7 +158,6 @@ namespace H2020.IPMDecisions.UPR.BLL
                 String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
                 return GenericResponseBuilder.NoSuccess<ShapedDataWithLinks>(null, $"{ex.Message} InnerException: {innerMessage}");
             }
-            throw new NotImplementedException();
         }
        
         #region Helpers

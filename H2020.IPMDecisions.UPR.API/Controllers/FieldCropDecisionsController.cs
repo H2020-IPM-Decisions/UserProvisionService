@@ -31,10 +31,14 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [HttpDelete("{id:guid}", Name = "api.fieldcropdecisions.delete.cropdecisionbyid")]
         //DELETE: api/fields/1/cropdecisions/1
-        public IActionResult Delete(
+        public async Task<IActionResult> Delete(
             [FromRoute] Guid fieldId, Guid id)
         {
-            throw new NotImplementedException();
+            var response = await this.businessLogic.DeleteFieldCropDecision(id, HttpContext);
+            if (!response.IsSuccessful)
+                return BadRequest(new { message = response.ErrorMessage });
+
+            return NoContent();
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
