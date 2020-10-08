@@ -35,9 +35,43 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
             throw new NotImplementedException();
         }
 
-        public Task<PagedList<FieldCropPestDss>> FindAllAsync(FieldCropPestDssResourceParameter resourceParameter)
+        public async Task<PagedList<FieldCropPestDss>> FindAllAsync(FieldCropPestDssResourceParameter resourceParameter)
         {
-            throw new NotImplementedException();
+            if (resourceParameter is null)
+                throw new ArgumentNullException(nameof(resourceParameter));
+
+            var collection = this.context.FieldCropPest as IQueryable<FieldCropPestDss>;
+            collection = collection
+                .Where(f =>
+                    f.FieldCropPestId == resourceParameter.FieldCropPestId);
+
+            return await PagedList<FieldCropPestDss>.CreateAsync(
+                collection,
+                resourceParameter.PageNumber,
+                resourceParameter.PageSize);
+        }
+
+        public async Task<PagedList<FieldCropPestDss>> FindAllAsync(FieldCropPestDssResourceParameter resourceParameter, bool includeAssociatedData)
+        {
+            if (resourceParameter is null)
+                throw new ArgumentNullException(nameof(resourceParameter));
+
+            if (!includeAssociatedData)
+            {
+                return await FindAllAsync(resourceParameter);
+            }
+
+            var collection = this.context.FieldCropPestDss as IQueryable<FieldCropPestDss>;
+            collection = collection
+                .Where(f =>
+                    f.FieldCropPestId == resourceParameter.FieldCropPestId)
+                .Include(f => f.FieldCropPest)
+                    .ThenInclude(fcp => fcp.CropPest);
+
+            return await PagedList<FieldCropPestDss>.CreateAsync(
+                collection,
+                resourceParameter.PageNumber,
+                resourceParameter.PageSize);
         }
 
         public Task<FieldCropPestDss> FindByConditionAsync(Expression<Func<FieldCropPestDss, bool>> expression)
