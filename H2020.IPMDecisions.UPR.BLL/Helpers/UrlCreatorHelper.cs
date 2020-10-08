@@ -128,6 +128,78 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
         }
         #endregion
 
+        #region FieldCropDecisions
+        internal static IEnumerable<LinkDto> CreateLinksForFieldCropDecisions(
+            IUrlHelper url,
+            Guid fieldId,
+            FieldCropPestDssResourceParameter resourceParameter,
+            bool hasNext,
+            bool hasPrevious)
+        {
+            var links = new List<LinkDto>();
+
+            links.Add(new LinkDto(
+                CreateFieldCropDecisionResourceUri(url, fieldId, resourceParameter, ResourceUriType.Current),
+                "self",
+                "GET"));
+
+            if (hasNext)
+            {
+                links.Add(new LinkDto(
+                CreateFieldCropDecisionResourceUri(url, fieldId, resourceParameter, ResourceUriType.NextPage),
+                "next_page",
+                "GET"));
+            }
+            if (hasPrevious)
+            {
+                links.Add(new LinkDto(
+               CreateFieldCropDecisionResourceUri(url, fieldId, resourceParameter, ResourceUriType.PreviousPage),
+               "previous_page",
+               "GET"));
+            }
+            return links;
+        }
+
+        private static string CreateFieldCropDecisionResourceUri(
+            IUrlHelper url,
+            Guid fieldId,
+            FieldCropPestDssResourceParameter resourceParameter,
+            ResourceUriType type)
+        {
+            switch (type)
+            {
+                case ResourceUriType.PreviousPage:
+                    return url.Link("api.fieldcropdecisions.get.all",
+                    new
+                    {
+                        fieldId,
+                        fieldCropPestId = resourceParameter.FieldCropPestId,
+                        pageNumber = resourceParameter.PageNumber - 1,
+                        pageSize = resourceParameter.PageSize,
+                    });
+                case ResourceUriType.NextPage:
+                    return url.Link("api.fieldcropdecisions.get.all",
+                    new
+                    {
+                        fieldId,
+                        fieldCropPestId = resourceParameter.FieldCropPestId,
+                        pageNumber = resourceParameter.PageNumber + 1,
+                        pageSize = resourceParameter.PageSize,
+                    });
+                case ResourceUriType.Current:
+                default:
+                    return url.Link("api.fieldcropdecisions.get.all",
+                    new
+                    {
+                        fieldId,
+                        fieldCropPestId = resourceParameter.FieldCropPestId,
+                        pageNumber = resourceParameter.PageNumber,
+                        pageSize = resourceParameter.PageSize,
+                    });
+            }
+        }
+        #endregion
+
         #region Fields
         internal static IEnumerable<LinkDto> CreateLinksForFields(
             this IUrlHelper url,
@@ -158,7 +230,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
                "GET"));
             }
             return links;
-        }
+        }        
 
         private static string CreateFieldResourceUri(
             IUrlHelper url,

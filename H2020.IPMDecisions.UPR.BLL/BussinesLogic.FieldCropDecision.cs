@@ -107,9 +107,14 @@ namespace H2020.IPMDecisions.UPR.BLL
                     .dataService
                     .FieldCropPestDsses
                     .FindAllAsync(resourceParameter, true);
+
                 var paginationMetaData = MiscellaneousHelper.CreatePaginationMetadata(fieldCropDssAsEntities);
-                //ToDO
-                // var links = UrlCreatorHelper.CreateLinksForFieldCropPests() 
+                var links = UrlCreatorHelper.CreateLinksForFieldCropDecisions(
+                        this.url,
+                        field.Id,
+                        resourceParameter,
+                        fieldCropDssAsEntities.HasNext,
+                        fieldCropDssAsEntities.HasPrevious);
                 
                 var shapedObservationsToReturn = this.mapper
                     .Map<IEnumerable<FieldCropPestDssDto>>(fieldCropDssAsEntities)
@@ -118,7 +123,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                 var dataToReturn = new ShapedDataWithLinks()
                 {
                     Value = shapedObservationsToReturn,
-                    Links = null,
+                    Links = links,
                     PaginationMetaData = paginationMetaData
                 };
                 return GenericResponseBuilder.Success<ShapedDataWithLinks>(dataToReturn);
