@@ -155,7 +155,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                     fieldCropPestAsEntities.HasPrevious);
 
                 var shapedFieldCropPestToReturn = this.mapper
-                    .Map<IEnumerable<FieldCropPestDto>>(fieldCropPestAsEntities)
+                    .Map<IEnumerable<FieldCropPestWithChildrenDto>>(fieldCropPestAsEntities)
                     .ShapeData();
 
                 var dataToReturn = new ShapedDataWithLinks()

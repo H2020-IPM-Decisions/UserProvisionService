@@ -1,5 +1,6 @@
 using System;
 using System.Net.Mime;
+using System.Text.Json;
 using System.Threading.Tasks;
 using H2020.IPMDecisions.UPR.API.Filters;
 using H2020.IPMDecisions.UPR.BLL;
@@ -43,12 +44,23 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         [HttpGet("", Name = "api.fieldcropdecisions.get.all")]
         [HttpHead]
         // GET: api/fields/1/cropdecisions
-        public IActionResult Get(
+        public async Task<IActionResult> Get(
             [FromRoute] Guid fieldId,
-            [FromQuery] FieldCropPestResourceParameter resourceParameter,
+            [FromQuery] FieldCropPestDssResourceParameter resourceParameter,
             [FromHeader(Name = "Accept")] string mediaType)
         {
-            throw new NotImplementedException();
+            var response = await this.businessLogic.GetFieldCropDecisions(resourceParameter, HttpContext, mediaType);
+            if (!response.IsSuccessful)
+                return response.RequestResult;
+
+            Response.Headers.Add("X-Pagination",
+                JsonSerializer.Serialize(response.Result.PaginationMetaData));
+
+            return Ok(new
+            {
+                value = response.Result.Value,
+                links = response.Result.Links
+            });
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
