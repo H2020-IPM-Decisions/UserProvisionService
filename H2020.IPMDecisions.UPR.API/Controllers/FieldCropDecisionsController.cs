@@ -72,12 +72,16 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [Produces(MediaTypeNames.Application.Json)]
         [HttpGet("{id:guid}", Name = "api.fieldcropdecisions.get.cropdecisionbyid")]
-        // GET:  api/fields/1/cropdecisions/1
+        // GET: api/fields/1/cropdecisions/1
         public IActionResult GetById(
             [FromRoute] Guid fieldId, Guid id,
             [FromHeader(Name = "Accept")] string mediaType)
         {
-            throw new NotImplementedException();
+            var response = this.businessLogic.GetFieldCropDecision(id, HttpContext, mediaType);
+            if (!response.IsSuccessful)
+                return response.RequestResult;
+
+            return Ok(response.Result);
         }
 
         [Consumes(MediaTypeNames.Application.Json)]

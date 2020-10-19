@@ -31,13 +31,12 @@ namespace H2020.IPMDecisions.UPR.BLL
                             fcpd.FieldCropPestId == cropPestDssForCreationDto.FieldCropPestId
                             & fcpd.CropPestDss.DssId == cropPestDssForCreationDto.DssId));
                 if (duplicatedRecord)
-                    return GenericResponseBuilder.Duplicated<IDictionary<string, object>>();                
+                    return GenericResponseBuilder.Duplicated<IDictionary<string, object>>();
 
-                var getFieldCropPest = await this.dataService
+                var getFieldCropPest = field
                     .FieldCropPests
-                    .FindByConditionAsync(f => 
-                        f.Id == cropPestDssForCreationDto.FieldCropPestId
-                        & f.FieldId == field.Id);
+                    .Where(f => f.Id == cropPestDssForCreationDto.FieldCropPestId)
+                    .FirstOrDefault();
                 if (getFieldCropPest == null)
                     return GenericResponseBuilder.NotFound<IDictionary<string, object>>();
 
@@ -86,10 +85,10 @@ namespace H2020.IPMDecisions.UPR.BLL
                 var field = httpContext.Items["field"] as Field;
 
                 var fieldCropPestExist = field
-                   .FieldCropPests
-                   .Select(f => f.FieldCropPestDsses
-                       .Where(fcpd => fcpd.Id == id).FirstOrDefault()).FirstOrDefault();
-
+                    .FieldCropPests
+                    .SelectMany(f => f.FieldCropPestDsses)
+                    .Where(fcp => fcp.Id == id)
+                    .FirstOrDefault();
                 if (fieldCropPestExist == null) return GenericResponseBuilder.Success();
                 
                 this.dataService.FieldCropPestDsses.Delete(fieldCropPestExist);
@@ -101,6 +100,31 @@ namespace H2020.IPMDecisions.UPR.BLL
                 logger.LogError(string.Format("Error in BLL - DeleteFieldCropDecision. {0}", ex.Message), ex);
                 String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
                 return GenericResponseBuilder.NoSuccess($"{ex.Message} InnerException: {innerMessage}");
+            }
+        }
+
+        public GenericResponse<IDictionary<string, object>> GetFieldCropDecision(Guid id, HttpContext httpContext, string mediaType)
+        {
+            try
+            {
+                var field = httpContext.Items["field"] as Field;
+                var fieldCropDssExist = field
+                    .FieldCropPests
+                    .SelectMany(f => f.FieldCropPestDsses)
+                    .Where(x => x.Id == id)
+                    .FirstOrDefault();
+                if (fieldCropDssExist == null) return GenericResponseBuilder.NotFound<IDictionary<string, object>>();
+
+                var fieldCropDssToReturn = this.mapper
+                    .Map<FieldCropPestDssDto>(fieldCropDssExist)
+                    .ShapeData() as IDictionary<string, object>;
+                return GenericResponseBuilder.Success<IDictionary<string, object>>(fieldCropDssToReturn);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(string.Format("Error in BLL - GetFieldCropDecision. {0}", ex.Message), ex);
+                String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
+                return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, $"{ex.Message} InnerException: {innerMessage}");
             }
         }
 

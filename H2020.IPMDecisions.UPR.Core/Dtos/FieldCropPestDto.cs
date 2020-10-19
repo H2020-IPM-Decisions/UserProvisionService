@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 
 namespace H2020.IPMDecisions.UPR.Core.Dtos
 {
