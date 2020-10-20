@@ -54,9 +54,9 @@ namespace H2020.IPMDecisions.UPR.BLL
 
         #region  FieldObservation
         Task<GenericResponse<FieldObservationDto>> AddNewFieldObservation(FieldObservationForCreationDto fieldObservationForCreationDto, HttpContext httpContext, string mediaType);
-        Task<GenericResponse> DeleteFieldObservation(Guid id);
+        Task<GenericResponse> DeleteFieldObservation(Guid id, HttpContext httpContext);
         Task<GenericResponse<ShapedDataWithLinks>> GetFieldObservations(Guid fieldId, FieldObservationResourceParameter resourceParameter, string mediaType);
-        Task<GenericResponse<FieldObservationDto>> GetFieldObservationDto(Guid id, string fields, string mediaType);
+        GenericResponse<FieldObservationDto> GetFieldObservationDto(Guid id, string fields, string mediaType, HttpContext httpContext);
         #endregion
 
         #region  UserProfile

@@ -86,11 +86,11 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
             }
 
             var collection = this.context.Field as IQueryable<Field>;
-
             collection = collection
                .Where(f =>
                    f.FarmId == farmId)
-            //    .Include(f => f.FieldObservations)
+                .Include(f => f.FieldCropPests)
+                    .ThenInclude(f => f.FieldObservations)
                .Include(f => f.FieldCropPests)
                    .ThenInclude(fcp => fcp.CropPest)
                 .Include(f => f.FieldCropPests)
@@ -143,7 +143,8 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
             return await this.context
                 .Field
                 .Where(expression)
-                // .Include(f => f.FieldObservations)
+                .Include(f => f.FieldCropPests)
+                    .ThenInclude(f => f.FieldObservations)
                 .Include(f => f.FieldCropPests)
                     .ThenInclude(f => f.CropPest)
                 .Include(f => f.FieldCropPests)
@@ -174,7 +175,8 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
                 .Field
                 .Where(f =>
                     f.Id == id)
-                // .Include(f => f.FieldObservations)
+                .Include(f => f.FieldCropPests)
+                    .ThenInclude(f => f.FieldObservations)
                 .Include(f => f.FieldCropPests)
                    .ThenInclude(fcp => fcp.CropPest)
                 .FirstOrDefaultAsync();
