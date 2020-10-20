@@ -34,6 +34,12 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Configurations
                 .HasConstraintName("FK_CropPest_Field")
                 .OnDelete(DeleteBehavior.Cascade)
                 .IsRequired();
+
+            builder.HasMany<FieldObservation>(f => f.FieldObservations)
+                .WithOne(fo => fo.FieldCropPest)
+                .HasForeignKey(f => f.FieldCropPestdId)
+                .HasConstraintName("FK_Observation_FieldCropPest")
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

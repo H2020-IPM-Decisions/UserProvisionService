@@ -19,14 +19,6 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Configurations
             builder.Property(f => f.Time)
                 .HasDefaultValueSql("NOW()")
                 .IsRequired();
-
-            builder.Property(f => f.CropEppoCode)
-                .IsRequired()
-                .HasMaxLength(6);
-            
-            builder.Property(f => f.PestEppoCode)
-                .IsRequired()
-                .HasMaxLength(6);
         }
     }
 }

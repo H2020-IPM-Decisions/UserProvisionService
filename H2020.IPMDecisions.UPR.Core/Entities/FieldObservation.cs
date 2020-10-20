@@ -13,15 +13,8 @@ namespace H2020.IPMDecisions.UPR.Core.Entities
         public Point Location { get; set; }
         [Required]
         public DateTime Time { get; set; }
-        [Required]
-        [MaxLength(6)]
-        public string PestEppoCode { get; set; }
-        [Required]
-        [MaxLength(6)]
-        public string CropEppoCode { get; set; }
-
-        public Guid FieldId { get; set; }
-        public Field Field { get; set; }
+        public Guid FieldCropPestdId { get; set; }
+        public FieldCropPest FieldCropPest { get; set; }
 
         public ICollection<ObservationAlert> ObservationAlerts { get; set; }
     }

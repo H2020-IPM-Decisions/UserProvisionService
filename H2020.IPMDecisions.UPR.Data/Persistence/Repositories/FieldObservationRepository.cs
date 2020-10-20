@@ -65,8 +65,9 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence
 
             if (!string.IsNullOrEmpty(fieldId.ToString()))
             {
-                collection = collection.Where(f =>
-                    f.FieldId == fieldId);
+                //ToDo
+                // collection = collection.Where(f =>
+                //     f.FieldId == fieldId);
             }
 
             collection = ApplyResourceParameter(resourceParameter, collection);

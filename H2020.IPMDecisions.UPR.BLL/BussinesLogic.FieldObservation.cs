@@ -23,7 +23,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                 var field = httpContext.Items["field"] as Field;
 
                 var observationAsEntity = this.mapper.Map<FieldObservation>(fieldObservationForCreationDto);
-                observationAsEntity.Field = field;
+                // observationAsEntity.Field = field;
 
                 this.dataService.FieldObservations.Create(observationAsEntity);
                 await this.dataService.CompleteAsync();
@@ -152,7 +152,7 @@ namespace H2020.IPMDecisions.UPR.BLL
             try
             {
                 var childrenAsPaged = PagedList<FieldObservation>.Create(
-                    field.FieldObservations.AsQueryable(),
+                    field.FieldCropPests.SelectMany(f => f.FieldObservations).AsQueryable(),
                     resourceParameter.PageNumber,
                     resourceParameter.PageSize);
 

@@ -401,14 +401,14 @@ namespace H2020.IPMDecisions.UPR.BLL
             try
             {
                 ShapedDataWithLinks fieldObservationsToReturn = null;
-                if (fieldAsEntity.FieldObservations != null && fieldAsEntity.FieldObservations.Count > 0)
-                {
-                    var fieldObservationResourceParameter = this.mapper.Map<FieldObservationResourceParameter>(resourceParameter);
-                    fieldObservationsToReturn = ShapeFieldObservationsAsChildren(
-                                    fieldAsEntity,
-                                    fieldObservationResourceParameter,
-                                    includeLinks);
-                }
+                // if (fieldAsEntity.FieldObservations != null && fieldAsEntity.FieldObservations.Count > 0)
+                // {
+                //     var fieldObservationResourceParameter = this.mapper.Map<FieldObservationResourceParameter>(resourceParameter);
+                //     fieldObservationsToReturn = ShapeFieldObservationsAsChildren(
+                //                     fieldAsEntity,
+                //                     fieldObservationResourceParameter,
+                //                     includeLinks);
+                // }
                 
                 ShapedDataWithLinks fieldCropPestToReturn = null;
                 if (fieldAsEntity.FieldCropPests != null && fieldAsEntity.FieldCropPests.Count > 0)
