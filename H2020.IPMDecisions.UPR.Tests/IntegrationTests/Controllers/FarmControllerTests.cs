@@ -17,7 +17,7 @@ namespace H2020.IPMDecisions.UPR.Tests.IntegrationTests.Controllers
 {
     [Collection("FakeWebHostWithDb")]
     [Trait("Category", "Docker")]
-    public class FarmControllerTests 
+    public class FarmControllerTests
     {
         private FakeWebHostWithDb fakeWebHost;
 
@@ -152,7 +152,7 @@ namespace H2020.IPMDecisions.UPR.Tests.IntegrationTests.Controllers
         {
             // Arrange
             var httpClient = fakeWebHost.Host.GetTestServer().CreateClient();
-            var myAdminUserToken = TokenGeneratorTests.GenerateToken(fakeWebHost.DefaultAdminUserId, "admin");
+            var myAdminUserToken = TokenGeneratorTests.GenerateToken(fakeWebHost.DefaultAdminUserId, "Admin");
 
             httpClient
                  .DefaultRequestHeaders

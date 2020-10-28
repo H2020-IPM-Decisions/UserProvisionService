@@ -32,6 +32,10 @@ namespace H2020.IPMDecisions.UPR.API.Filters
                     context.Result = new BadRequestObjectResult(new { message = "The 'UserId' on token invalid" });
                     return;
                 }
+
+                if (!context.ActionArguments.ContainsKey("userId"))
+                    return;
+
                 if (validatedGuid.ToString() != context.ActionArguments["userId"].ToString())
                 {
                     context.Result = new UnauthorizedResult();

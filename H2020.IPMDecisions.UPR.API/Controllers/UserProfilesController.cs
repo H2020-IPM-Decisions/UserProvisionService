@@ -16,13 +16,14 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
     [Route("api/users/profiles")]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [ServiceFilter(typeof(AddUserIdToContextFilter))]
+    [ServiceFilter(typeof(UserAccessingOwnDataActionFilter))]
     public class UserProfilesController : ControllerBase
     {
         private readonly IBusinessLogic businessLogic;
 
         public UserProfilesController(IBusinessLogic businessLogic)
         {
-            this.businessLogic = businessLogic 
+            this.businessLogic = businessLogic
                 ?? throw new ArgumentNullException(nameof(businessLogic));
         }
 
@@ -35,14 +36,17 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         "application/vnd.h2020ipmdecisions.profile.full.hateoas+json",
         "application/vnd.h2020ipmdecisions.profile.friendly.hateoas+json")]
         [HttpPost("", Name = "api.userprofile.post.profile")]
-        // POST: api/users/profiles
+        // POST: api/users/profiles?userid=1
         public async Task<IActionResult> Post(
+            [FromQuery] Guid userId,
             [FromBody] UserProfileForCreationDto userProfileForCreation,
             [FromHeader(Name = "Accept")] string mediaType)
         {
-            var userId = Guid.Parse(HttpContext.Items["userId"].ToString());
-            var response = await businessLogic.AddNewUserProfile(userId, userProfileForCreation, mediaType);
+            var isAdmin = bool.Parse(HttpContext.Items["isAdmin"].ToString());
+            if (!isAdmin || userId == default(Guid))
+                userId = Guid.Parse(HttpContext.Items["userId"].ToString());
 
+            var response = await businessLogic.AddNewUserProfile(userId, userProfileForCreation, mediaType);
             if (!response.IsSuccessful)
                 return BadRequest(new { message = response.ErrorMessage });
 
@@ -54,42 +58,46 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [Produces(MediaTypeNames.Application.Json, 
+        [Produces(MediaTypeNames.Application.Json,
         "application/vnd.h2020ipmdecisions.hateoas+json",
         "application/vnd.h2020ipmdecisions.profile.full+json",
         "application/vnd.h2020ipmdecisions.profile.full.hateoas+json",
         "application/vnd.h2020ipmdecisions.profile.friendly.hateoas+json")]
         [HttpGet("", Name = "api.userprofile.get.profilebyid")]
         [HttpHead]
-        // GET:  api/users/1/profiles
+        // GET:  api/users/profiles
         public async Task<IActionResult> Get(
-            [FromQuery] string fields,
+            [FromQuery] Guid userId, string fields,
             [FromHeader(Name = "Accept")] string mediaType)
         {
-            var userId = Guid.Parse(HttpContext.Items["userId"].ToString());
-            var response = await businessLogic.GetUserProfileDto(userId, fields, mediaType);
+            var isAdmin = bool.Parse(HttpContext.Items["isAdmin"].ToString());
+            if (!isAdmin || userId == default(Guid))
+                userId = Guid.Parse(HttpContext.Items["userId"].ToString());
 
+            var response = await businessLogic.GetUserProfileDto(userId, fields, mediaType);
             if (!response.IsSuccessful)
                 return BadRequest(new { message = response.ErrorMessage });
-            
+
             if (response.Result == null)
                 return NotFound();
-            
+
             return Ok(response.Result);
         }
 
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [HttpDelete(Name = "api.userprofile.delete.profilebyid")]
-        //DELETE :  api/users/1/profiles
-        public async Task<IActionResult> Delete()
+        //DELETE :  api/users/profiles
+        public async Task<IActionResult> Delete([FromQuery] Guid userId)
         {
-            var userId = Guid.Parse(HttpContext.Items["userId"].ToString());
-            var response = await this.businessLogic.DeleteUserProfileClient(userId);
+            var isAdmin = bool.Parse(HttpContext.Items["isAdmin"].ToString());
+            if (!isAdmin || userId == default(Guid))
+                userId = Guid.Parse(HttpContext.Items["userId"].ToString());
 
+            var response = await this.businessLogic.DeleteUserProfileClient(userId);
             if (!response.IsSuccessful)
                 return BadRequest(new { message = response.ErrorMessage });
-            
+
             return NoContent();
         }
 
@@ -100,11 +108,14 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         [HttpPatch(Name = "api.userprofile.patch.profilebyid")]
         //PATCH :  api/users/1/profiles
         public async Task<IActionResult> PartialUpdate(
+            [FromQuery] Guid userId,
             JsonPatchDocument<UserProfileForUpdateDto> patchDocument)
         {
-            var userId = Guid.Parse(HttpContext.Items["userId"].ToString());
-            var userProfileResponse = await this.businessLogic.GetUserProfileByUserId(userId);
+            var isAdmin = bool.Parse(HttpContext.Items["isAdmin"].ToString());
+            if (!isAdmin || userId == default(Guid))
+                userId = Guid.Parse(HttpContext.Items["userId"].ToString());
 
+            var userProfileResponse = await this.businessLogic.GetUserProfileByUserId(userId);
             if (!userProfileResponse.IsSuccessful)
                 return BadRequest(new { message = userProfileResponse.ErrorMessage });
 
