@@ -86,7 +86,6 @@ namespace H2020.IPMDecisions.UPR.Tests.UnitTests.Context
                 };
 
                 // Act
-
                 await context.UserProfile.AddAsync(userProfile);
                 async Task action() => await context.UserProfile.AddAsync(userProfileDuplicated);
 
