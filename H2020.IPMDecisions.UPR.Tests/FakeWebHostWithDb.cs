@@ -1,6 +1,7 @@
 using DoomedDatabases.Postgres;
 using H2020.IPMDecisions.UPR.API;
 using H2020.IPMDecisions.UPR.Core.Entities;
+using H2020.IPMDecisions.UPR.Core.Enums;
 using H2020.IPMDecisions.UPR.Data.Persistence;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
@@ -33,6 +34,10 @@ namespace H2020.IPMDecisions.UPR.Tests
         public readonly Guid UserWith2FarmsId = Guid.Parse("23482647-f8ae-49e0-881e-93aeead00ac7");
         public readonly string DefaultFarmName = "New Farm";
         public readonly Guid FirstFarmIdUser2Farms = Guid.Parse("843185ed-5f66-4982-a6e6-38379c39fe92");
+        public readonly Guid DefaultAdvisorUserId = Guid.Parse("4d0fc5dc-ab3a-4c5c-9363-e82a37175b83"); // Same as FakeApiGatewayHost
+        public readonly Guid FamerNoUserId = Guid.Parse("4d0fc5dc-ab3a-4c5c-9363-e82a37175b83");
+        public readonly Guid FamerWithDataShareRequest = Guid.Parse("d88ad6d9-c756-4901-ae22-8c7a1c178555");
+        public readonly Guid FamerWithDataShareRequestDeclined = Guid.Parse("91f59dba-cd51-4dc9-ada9-3d21e4f82351");
 
         [Trait("Category", "Docker")]
         public async Task InitializeAsync()
@@ -87,17 +92,18 @@ namespace H2020.IPMDecisions.UPR.Tests
 
         private void Seed()
         {
-            if (!IsDatabaseInitialized)
+            try
             {
-                using (_context)
+                if (!IsDatabaseInitialized)
                 {
-                    _context.Database.EnsureDeleted();
-                    _context.Database.EnsureCreated();
+                    using (_context)
+                    {
+                        _context.Database.EnsureDeleted();
+                        _context.Database.EnsureCreated();
 
-                    var userFarmType = _context.UserFarmType.FirstOrDefault(u => u.Description.Equals("Owner"));
+                        var userFarmType = _context.UserFarmType.FirstOrDefault(u => u.Description.Equals("Owner"));
 
-
-                    IList<UserProfile> defaultUsers = new List<UserProfile>()
+                        IList<UserProfile> defaultUsers = new List<UserProfile>()
                     {
                         new UserProfile()
                         {
@@ -111,15 +117,15 @@ namespace H2020.IPMDecisions.UPR.Tests
                         }
                     };
 
-                    _context.UserProfile.AddRange(defaultUsers);
+                        _context.UserProfile.AddRange(defaultUsers);
 
-                    var userWithFarm = new UserProfile()
-                    {
-                        UserId = DefaultNormalUserId,
-                        FirstName = "Default"
-                    };
+                        var userWithFarm = new UserProfile()
+                        {
+                            UserId = DefaultNormalUserId,
+                            FirstName = "Default"
+                        };
 
-                    userWithFarm.UserFarms = new List<UserFarm>
+                        userWithFarm.UserFarms = new List<UserFarm>
                     {
                         new UserFarm
                         {
@@ -133,15 +139,15 @@ namespace H2020.IPMDecisions.UPR.Tests
                         }
                     };
 
-                    _context.UserProfile.Add(userWithFarm);
+                        _context.UserProfile.Add(userWithFarm);
 
-                    var userWith2Farms = new UserProfile()
-                    {
-                        UserId = UserWith2FarmsId,
-                        FirstName = "FewFarms"
-                    };
+                        var userWith2Farms = new UserProfile()
+                        {
+                            UserId = UserWith2FarmsId,
+                            FirstName = "FewFarms"
+                        };
 
-                    userWith2Farms.UserFarms = new List<UserFarm>
+                        userWith2Farms.UserFarms = new List<UserFarm>
                     {
                         new UserFarm
                         {
@@ -163,16 +169,15 @@ namespace H2020.IPMDecisions.UPR.Tests
                             UserFarmType = userFarmType
                         }
                     };
+                        _context.UserProfile.Add(userWith2Farms);
 
-                    _context.UserProfile.Add(userWith2Farms);
+                        var userWith3Farms = new UserProfile()
+                        {
+                            UserId = UserWith3FarmsId,
+                            FirstName = "FewFarms"
+                        };
 
-                    var userWith3Farms = new UserProfile()
-                    {
-                        UserId = UserWith3FarmsId,
-                        FirstName = "FewFarms"
-                    };
-
-                    userWith3Farms.UserFarms = new List<UserFarm>
+                        userWith3Farms.UserFarms = new List<UserFarm>
                     {
                         new UserFarm
                         {
@@ -202,13 +207,63 @@ namespace H2020.IPMDecisions.UPR.Tests
                             UserFarmType = userFarmType
                         }
                     };
+                        _context.UserProfile.Add(userWith3Farms);
 
-                    _context.UserProfile.Add(userWith3Farms);
+                        var advisor = new UserProfile()
+                        {
+                            UserId = DefaultAdvisorUserId,
+                            FirstName = "Advisor"
+                        };
 
-                    _context.SaveChanges();
-                };
+                        _context.UserProfile.Add(advisor);
+
+                        var farmerDataRequest = new UserProfile()
+                        {
+                            UserId = FamerWithDataShareRequest,
+                            FirstName = "FarmerDataRequest"
+                        };
+
+                        _context.UserProfile.Add(farmerDataRequest);
+
+                        var dataRequest = new DataSharingRequest()
+                        {
+                            Requestee = farmerDataRequest,
+                            Requester = advisor,
+                            RequestStatus = _context
+                                .DataSharingRequestStatus
+                                .FirstOrDefault(d => 
+                                    d.Id.Equals(RequestStatusEnum.Pending))
+                        };
+
+                        _context.DataSharingRequest.Add(dataRequest);
+
+                        var farmerDataRequestDeclined = new UserProfile()
+                        {
+                            UserId = FamerWithDataShareRequestDeclined,
+                            FirstName = "FarmerDataRequestDeclined"
+                        };
+                        _context.UserProfile.Add(farmerDataRequestDeclined);
+
+                        var dataRequestDeclined = new DataSharingRequest()
+                        {
+                            Requestee = farmerDataRequestDeclined,
+                            Requester = advisor,
+                            RequestStatus = _context
+                                .DataSharingRequestStatus
+                                .FirstOrDefault(d =>
+                                    d.Id.Equals(RequestStatusEnum.Declined))
+                        };
+                        _context.DataSharingRequest.Add(dataRequestDeclined);
+
+                        _context.SaveChanges();
+                    };
+                }
+                IsDatabaseInitialized = true;
             }
-            IsDatabaseInitialized = true;
+            catch (Exception ex)
+            {
+                throw ex;
+            }            
         }
     }
 

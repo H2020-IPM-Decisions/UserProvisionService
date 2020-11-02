@@ -95,7 +95,6 @@ namespace H2020.IPMDecisions.UPR.Tests.UnitTests.Context
             }
         }
 
-
         [Fact]
         public async Task AddNewProfile_DuplicateUserId_Exception()
         {

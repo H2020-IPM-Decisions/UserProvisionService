@@ -135,9 +135,9 @@ namespace H2020.IPMDecisions.UPR.Tests.IntegrationTests.Controllers
                  new AuthenticationHeaderValue("Bearer", myExtraUserToken);
 
             httpClient
-            .DefaultRequestHeaders
-            .Accept
-            .Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                .DefaultRequestHeaders
+                .Accept
+                .Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
             // Act
             var response = await httpClient.GetAsync(string.Format("api/farms/{0}", fakeWebHost.DefaultFarmId.ToString()));
@@ -160,9 +160,9 @@ namespace H2020.IPMDecisions.UPR.Tests.IntegrationTests.Controllers
                  new AuthenticationHeaderValue("Bearer", myAdminUserToken);
 
             httpClient
-            .DefaultRequestHeaders
-            .Accept
-            .Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                .DefaultRequestHeaders
+                .Accept
+                .Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
             // Act
             var response = await httpClient.GetAsync(string.Format("api/farms/{0}", fakeWebHost.DefaultFarmId.ToString()));
@@ -404,9 +404,9 @@ namespace H2020.IPMDecisions.UPR.Tests.IntegrationTests.Controllers
                  new AuthenticationHeaderValue("Bearer", myUserToken);
 
             httpClient
-            .DefaultRequestHeaders
-            .Accept
-            .Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                .DefaultRequestHeaders
+                .Accept
+                .Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
             // Act
             var responseBeforeDelete = await httpClient.GetAsync("api/farms");

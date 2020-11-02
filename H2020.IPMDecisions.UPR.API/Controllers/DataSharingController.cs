@@ -72,7 +72,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [Produces(MediaTypeNames.Application.Json)]
-        [Authorize(Policy = "Advisor")]
+        [Authorize(Policy = "advisor")]
         [HttpPost("", Name = "api.datashare.post.datashare")]
         // POST: api/datashare
         public async Task<IActionResult> Post(
@@ -91,7 +91,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [Produces(MediaTypeNames.Application.Json)]
-        [Authorize(Policy = "Farmer")]
+        [Authorize(Policy = "farmer")]
         [HttpPost("Reply", Name = "api.datashare.post.datasharereply")]
         // POST: api/datashare/reply
         public async Task<IActionResult> PostReplyAsync(
@@ -110,7 +110,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [Produces(MediaTypeNames.Application.Json)]
-        [Authorize(Policy = "Farmer")]
+        [Authorize(Policy = "farmer")]
         [HttpPost("Update", Name = "api.datashare.post.datashareupdate")]
         // POST: api/datashare/update
         public async Task<IActionResult> PostUpdateAsync(
