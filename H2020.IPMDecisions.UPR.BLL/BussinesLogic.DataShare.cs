@@ -206,7 +206,8 @@ namespace H2020.IPMDecisions.UPR.BLL
                 }
 
                 var farmsThatBelongToUser = requestExists
-                    .Requestee.UserFarms
+                    .Requestee
+                    .UserFarms
                     .Where(f =>
                         dataShareRequestDto.Farms.Any(d => f.FarmId.Equals(d))).ToList();
                 if (farmsThatBelongToUser.Count() == 0)
