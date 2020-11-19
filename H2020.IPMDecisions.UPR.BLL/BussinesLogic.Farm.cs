@@ -48,7 +48,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                 var userProfile = await GetUserProfileByUserId(userId);
                 if (userProfile.Result == null)
                 {
-                    return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, "Please create an `User Profile` first.");
+                    return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, "Please create a `User Profile` first.");
                 }
 
                 var farmAsEntity = this.mapper.Map<Farm>(farmForCreationDto);
@@ -82,12 +82,17 @@ namespace H2020.IPMDecisions.UPR.BLL
                 var userProfile = await GetUserProfileByUserId(userId);
                 if (userProfile.Result == null)
                 {
-                    return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, "Please create an `User Profile` first.");
+                    return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, "Please create a `User Profile` first.");
                 }
+
+                //check if Weather station and data source exist, if nor create.
+
+                // conver WX and DS into farmwx and farmds
+
                 var farmAsEntity = this.mapper.Map<Farm>(farmForCreationDto);
 
                 await this.dataService.UserProfiles.AddFarm(userProfile.Result, farmAsEntity, UserFarmTypeEnum.Owner, false);
-                await this.dataService.CompleteAsync();
+                // await this.dataService.CompleteAsync();
 
                 var farmToReturn = this.mapper.Map<FarmDto>(farmAsEntity)
                     .ShapeData()

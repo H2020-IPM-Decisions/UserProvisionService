@@ -12,10 +12,10 @@ namespace H2020.IPMDecisions.UPR.Core.Dtos
         public override CustomPointLocation Location { get => base.Location; set => base.Location = value; }
 
         [Required(ErrorMessage = "Weather Station is required")]
-        public override WeatherStationDto WeatherStation { get => base.WeatherStation; set => base.WeatherStation = value; }
+        public override WeatherStationDto WeatherStationDto { get => base.WeatherStationDto; set => base.WeatherStationDto = value; }
 
         [Required(ErrorMessage = "Weather Data Source is required")]
-        public override WeatherDataSourceDto WeatherDataSource { get => base.WeatherDataSource; set => base.WeatherDataSource = value; }
+        public override WeatherDataSourceDto WeatherDataSourceDto { get => base.WeatherDataSourceDto; set => base.WeatherDataSourceDto = value; }
 
     }
 }

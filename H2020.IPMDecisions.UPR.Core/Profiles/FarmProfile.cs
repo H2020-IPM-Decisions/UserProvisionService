@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using H2020.IPMDecisions.UPR.Core.Dtos;
 using H2020.IPMDecisions.UPR.Core.Entities;
 using NetTopologySuite.Geometries;
@@ -16,6 +17,25 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
 
             // Dtos to Entities
             CreateMap<FarmForCreationDto, Farm>()
+                .BeforeMap((src, dest) => 
+                {
+                    dest.FarmWeatherStations = new List<FarmWeatherStation>() 
+                    { 
+                        new FarmWeatherStation() 
+                        {
+                            Farm = dest,
+                            WeatherStationId = src.WeatherStationDto.Id
+                        }
+                    };
+                    dest.FarmWeatherDataSources = new List<FarmWeatherDataSource>()
+                    {
+                        new FarmWeatherDataSource()
+                        {
+                            Farm = dest,
+                            WeatherDataSourceId = src.WeatherDataSourceDto.Id
+                        }
+                    };
+                })
                 .AfterMap((src, dest) =>
                 {
                     dest.Location = new Point(src.Location.X, src.Location.Y) { SRID = src.Location.SRID };
