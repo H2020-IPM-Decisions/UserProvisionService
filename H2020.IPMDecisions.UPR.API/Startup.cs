@@ -101,7 +101,6 @@ namespace H2020.IPMDecisions.UPR.API
 
             app.UseCors("UserProvisionCORS");
             app.UseRouting();
-            app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();
 
