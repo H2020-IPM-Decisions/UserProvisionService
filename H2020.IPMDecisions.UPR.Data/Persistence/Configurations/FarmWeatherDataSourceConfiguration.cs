@@ -12,19 +12,19 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Configurations
                 new
                 {
                     fw.FarmId,
-                    fw.WeatherForecastServiceId
+                    fw.WeatherDataSourceId
                 });
 
             builder.HasOne<Farm>(fw => fw.Farm)
-                .WithMany(f => f.FarmWeatherForecastServices)
+                .WithMany(f => f.FarmWeatherDataSources)
                 .HasForeignKey(fw => fw.FarmId)
                 .HasConstraintName("FK_FarmWeatherDataSource_Farm")
                 .OnDelete(DeleteBehavior.Cascade)
                 .IsRequired();
 
             builder.HasOne<WeatherDataSource>(fw => fw.WeatherDataSource)
-               .WithMany(w => w.FarmWeatherForecastServices)
-               .HasForeignKey(fw => fw.WeatherForecastServiceId)
+               .WithMany(w => w.FarmWeatherDataSources)
+               .HasForeignKey(fw => fw.WeatherDataSourceId)
                .HasConstraintName("FK_FarmWeatherDataSource_WeatherDataSource")
                .OnDelete(DeleteBehavior.Cascade)
                .IsRequired();
