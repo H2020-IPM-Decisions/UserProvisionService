@@ -68,9 +68,16 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
                 throw new ArgumentNullException(nameof(resourceParameter));
 
             var collection = this.context.Farm as IQueryable<Farm>;
-            collection = collection.Where(f =>
+            collection = collection
+                .Where(f =>
                     f.UserFarms.Any
                         (uf => uf.UserId == userId));
+
+            collection = collection
+                .Include(f => f.FarmWeatherDataSources)
+                    .ThenInclude(fwd => fwd.WeatherDataSource)
+                .Include(f => f.FarmWeatherStations)
+                    .ThenInclude(fws => fws.WeatherStation);
 
             collection = ApplyResourceParameter(resourceParameter, collection);
 
@@ -96,6 +103,10 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
                         (uf => uf.UserId == userId));
 
             collection = collection
+                .Include(f => f.FarmWeatherDataSources)
+                    .ThenInclude(fwd => fwd.WeatherDataSource)
+                .Include(f => f.FarmWeatherStations)
+                    .ThenInclude(fws => fws.WeatherStation)
                 .Include(f => f.Fields);
                     // .ThenInclude(fi => fi.FieldObservations);
 
@@ -124,8 +135,12 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
             return await this.context
                 .Farm
                 .Where(expression)
+                .Include(f => f.UserFarms)
                 .Include(f => f.Fields)
-                    // .ThenInclude(fi => fi.FieldObservations)
+                .Include(f => f.FarmWeatherDataSources)
+                    .ThenInclude(fwd => fwd.WeatherDataSource)
+                .Include(f => f.FarmWeatherStations)
+                    .ThenInclude(fws => fws.WeatherStation)
                 .FirstOrDefaultAsync();
         }
 
@@ -152,6 +167,10 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
                 .Farm
                 .Include(f => f.UserFarms)
                 .Include(f => f.Fields)
+                .Include(f => f.FarmWeatherDataSources)
+                    .ThenInclude(fwd => fwd.WeatherDataSource)
+                .Include(f => f.FarmWeatherStations)
+                    .ThenInclude(fws => fws.WeatherStation)
                 .Where(f =>
                     f.Id == id)
                 .FirstOrDefaultAsync();

@@ -89,7 +89,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
 
         internal static IEnumerable<LinkDto> CreateLinksForFarm(
             this IUrlHelper url,
-            Guid id,
+            Guid farmId,
             string fields = "")
         {
             var links = new List<LinkDto>();
@@ -97,30 +97,30 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
             if (string.IsNullOrWhiteSpace(fields))
             {
                 links.Add(new LinkDto(
-                url.Link("api.farm.get.farmbyid", new { id }),
+                url.Link("api.farm.get.farmbyid", new { farmId }),
                 "self",
                 "GET"));
             }
             else
             {
                 links.Add(new LinkDto(
-                 url.Link("api.farm.get.farmbyid", new { id, fields }),
+                 url.Link("api.farm.get.farmbyid", new { farmId, fields }),
                  "self",
                  "GET"));
             }
 
             links.Add(new LinkDto(
-                url.Link("api.farm.delete.farmbyid", new { id }),
+                url.Link("api.farm.delete.farmbyid", new { farmId }),
                 "delete_farm",
                 "DELETE"));
 
             links.Add(new LinkDto(
-                url.Link("api.farm.patch.farmbyid", new { id }),
+                url.Link("api.farm.patch.farmbyid", new { farmId }),
                 "update_farm",
                 "PATCH"));
 
             links.Add(new LinkDto(
-                url.Link("api.field.get.all", new { farmId = id }),
+                url.Link("api.field.get.all", new { farmId = farmId }),
                 "farm_fields",
                 "GET"));
 

@@ -73,14 +73,15 @@ namespace H2020.IPMDecisions.UPR.API.Filters
                 .FindByConditionAsync(
                     f => f.Id == validatedGuid
                     &&
-                    f.UserFarms.Any(uf => uf.UserId == userId)
+                    f.UserFarms.Any(uf => uf.UserId == userId),
+                    true
                 );
             }
             else
             {
                 existingFarm = await this.dataService
                     .Farms
-                    .FindByIdAsync(validatedGuid);
+                    .FindByIdAsync(validatedGuid, true);
             }
             return existingFarm;
         }

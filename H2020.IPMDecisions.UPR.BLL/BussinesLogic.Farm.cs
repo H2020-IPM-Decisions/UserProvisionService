@@ -17,18 +17,14 @@ namespace H2020.IPMDecisions.UPR.BLL
 {
     public partial class BusinessLogic : IBusinessLogic
     {
-        public async Task<GenericResponse> DeleteFarm(Guid id, HttpContext httpContext)
+        public async Task<GenericResponse> DeleteFarm(HttpContext httpContext)
         {
             try
             {
-                var userId = Guid.Parse(httpContext.Items["userId"].ToString());
-                var isAdmin = bool.Parse(httpContext.Items["isAdmin"].ToString());
+                var farm = httpContext.Items["farm"] as Farm;
+                if (farm == null) return GenericResponseBuilder.Success();
 
-                Farm existingFarm = await FindFarm(id, userId, isAdmin, false);
-
-                if (existingFarm == null) return GenericResponseBuilder.Success();
-
-                this.dataService.Farms.Delete(existingFarm);
+                this.dataService.Farms.Delete(farm);
                 await this.dataService.CompleteAsync();
 
                 return GenericResponseBuilder.Success();
@@ -85,14 +81,13 @@ namespace H2020.IPMDecisions.UPR.BLL
                     return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, "Please create a `User Profile` first.");
                 }
 
-                //check if Weather station and data source exist, if nor create.
-
-                // conver WX and DS into farmwx and farmds
+                await EnsureWeatherStationExists(farmForCreationDto.WeatherStationDto);
+                await EnsureWeatherDataSourcesExists(farmForCreationDto.WeatherDataSourceDto);
 
                 var farmAsEntity = this.mapper.Map<Farm>(farmForCreationDto);
 
                 await this.dataService.UserProfiles.AddFarm(userProfile.Result, farmAsEntity, UserFarmTypeEnum.Owner, false);
-                // await this.dataService.CompleteAsync();
+                await this.dataService.CompleteAsync();
 
                 var farmToReturn = this.mapper.Map<FarmDto>(farmAsEntity)
                     .ShapeData()
@@ -125,7 +120,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                 Farm farmAsEntity = await this
                         .dataService
                         .Farms
-                        .FindByIdAsync(id);
+                        .FindByIdAsync(id, true);
 
                 if (farmAsEntity == null) return GenericResponseBuilder.NotFound<Farm>();
 
@@ -149,7 +144,7 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
         }
 
-        public async Task<GenericResponse<IDictionary<string, object>>> GetFarmDto(
+        public GenericResponse<IDictionary<string, object>> GetFarmDto(
             Guid id,
             HttpContext httpContext,
             FarmResourceParameter resourceParameter,
@@ -164,16 +159,12 @@ namespace H2020.IPMDecisions.UPR.BLL
                 if (!propertyCheckerService.TypeHasProperties<FarmWithChildrenDto>(resourceParameter.Fields, false))
                     return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, "Wrong fields entered");
 
-                var userId = Guid.Parse(httpContext.Items["userId"].ToString());
-                var isAdmin = bool.Parse(httpContext.Items["isAdmin"].ToString());
-
                 var includeLinks = parsedMediaType.SubTypeWithoutSuffix
                     .EndsWith("hateoas", StringComparison.InvariantCultureIgnoreCase);
                 bool includeChildren = parsedMediaType.SubTypeWithoutSuffix.ToString().Contains("withchildren");
 
-                Farm farmAsEntity = await FindFarm(id, userId, isAdmin, includeChildren);
-                if (farmAsEntity == null) return GenericResponseBuilder.NotFound<IDictionary<string, object>>();
-
+                var farm = httpContext.Items["farm"] as Farm;
+                if (farm == null) return GenericResponseBuilder.NotFound<IDictionary<string, object>>();
                 IEnumerable<LinkDto> links = new List<LinkDto>();
                 if (includeLinks)
                 {
@@ -185,13 +176,13 @@ namespace H2020.IPMDecisions.UPR.BLL
                     var farmToReturnWithChildrenShaped = CreateFarmWithChildrenAsDictionary(
                         resourceParameter,
                         includeLinks,
-                        farmAsEntity,
+                        farm,
                         links);
 
                     return GenericResponseBuilder.Success<IDictionary<string, object>>(farmToReturnWithChildrenShaped);
                 }
 
-                var farmToReturn = this.mapper.Map<FarmDto>(farmAsEntity)
+                var farmToReturn = this.mapper.Map<FarmDto>(farm)
                     .ShapeData(resourceParameter.Fields) as IDictionary<string, object>;
 
                 if (includeLinks)
@@ -300,6 +291,17 @@ namespace H2020.IPMDecisions.UPR.BLL
         {
             try
             {
+                if (!farm.FarmWeatherDataSources.Any() ||
+                    (farmToPatch.WeatherDataSourceDto.Id != farm.FarmWeatherDataSources.FirstOrDefault().WeatherDataSourceId))
+                {
+                    await EnsureWeatherDataSourcesExists(farmToPatch.WeatherDataSourceDto);
+                }
+                if (!farm.FarmWeatherDataSources.Any() ||
+                    (farmToPatch.WeatherStationDto.Id != farm.FarmWeatherStations.FirstOrDefault().WeatherStationId))
+                {
+                    await EnsureWeatherStationExists(farmToPatch.WeatherStationDto);
+                }
+
                 this.mapper.Map(farmToPatch, farm);
 
                 this.dataService.Farms.Update(farm);

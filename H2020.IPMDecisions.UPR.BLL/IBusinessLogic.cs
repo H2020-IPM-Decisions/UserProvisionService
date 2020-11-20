@@ -31,9 +31,9 @@ namespace H2020.IPMDecisions.UPR.BLL
         #endregion
 
         #region Farms
-        Task<GenericResponse> DeleteFarm(Guid id, HttpContext httpContext);
+        Task<GenericResponse> DeleteFarm(HttpContext httpContext);
         Task<GenericResponse<Farm>> GetFarm(Guid id, HttpContext httpContext);
-        Task<GenericResponse<IDictionary<string, object>>> GetFarmDto(Guid id, HttpContext httpContext, FarmResourceParameter resourceParameter, string mediaType);
+        GenericResponse<IDictionary<string, object>> GetFarmDto(Guid id, HttpContext httpContext, FarmResourceParameter resourceParameter, string mediaType);
         Task<GenericResponse<ShapedDataWithLinks>> GetFarms(Guid userId, FarmResourceParameter resourceParameter, string mediaType);
         FarmForCreationDto MapToFarmForCreation(FarmForUpdateDto farmDto);
         FarmForUpdateDto MapToFarmForUpdateDto(Farm farm);
