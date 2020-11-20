@@ -5,7 +5,7 @@ using H2020.IPMDecisions.UPR.Core.ResourceParameters;
 
 namespace H2020.IPMDecisions.UPR.Data.Core.Repositories
 {
-    public interface IFieldCropPestDssRepository : IRepositoryBase<FieldCropPestDss, FieldCropPestDssResourceParameter>
+    public interface IFieldCropPestDssRepository : IRepositoryBaseWithResourceParameter<FieldCropPestDss, FieldCropPestDssResourceParameter>
     {
         Task<PagedList<FieldCropPestDss>> FindAllAsync(FieldCropPestDssResourceParameter resourceParameter, bool includeAssociatedData);
     }

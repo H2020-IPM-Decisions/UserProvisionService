@@ -15,7 +15,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
 
         public void Delete(UserFarm entity)
         {
-            this.context.UserFarm.Remove(entity);            
+            this.context.UserFarm.Remove(entity);
         }
 
         public void DeleteRange(List<UserFarm> entities)

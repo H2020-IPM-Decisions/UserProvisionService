@@ -117,7 +117,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence
         }
 
         private IFieldCropPestRepository fieldCropPests;
-        public IFieldCropPestRepository FieldCropPests 
+        public IFieldCropPestRepository FieldCropPests
         {
             get
             {
@@ -152,6 +152,32 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence
                     fieldCropPestDsses = new FieldCropPestDssRepository(this.context);
                 }
                 return fieldCropPestDsses;
+            }
+        }
+
+        private IWeatherDataSourcesRepository weatherDataSources;
+        public IWeatherDataSourcesRepository WeatherDataSources
+        {
+            get
+            {
+                if (weatherDataSources == null)
+                {
+                    weatherDataSources = new WeatherDataSourcesRepository(this.context);
+                }
+                return weatherDataSources;
+            }
+        }
+
+        private IWeatherStationRepository weatherStations;
+        public IWeatherStationRepository WeatherStations
+        {
+            get
+            {
+                if (weatherStations == null)
+                {
+                    weatherStations = new WeatherStationRepository(this.context);
+                }
+                return weatherStations;
             }
         }
 

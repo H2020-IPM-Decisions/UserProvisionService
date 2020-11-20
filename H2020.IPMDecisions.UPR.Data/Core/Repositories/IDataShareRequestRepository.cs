@@ -7,7 +7,7 @@ using H2020.IPMDecisions.UPR.Core.ResourceParameters;
 
 namespace H2020.IPMDecisions.UPR.Data.Core.Repositories
 {
-    public interface IDataShareRequestRepository : IRepositoryBase<DataSharingRequest, DataShareResourceParameter>
+    public interface IDataShareRequestRepository : IRepositoryBaseWithResourceParameter<DataSharingRequest, DataShareResourceParameter>
     {
         Task Create(Guid requesterId, Guid requesteeId, RequestStatusEnum requestStatus);
         Task<PagedList<DataSharingRequest>> FindAllAsync(Guid userId, DataShareResourceParameter resourceParameter);

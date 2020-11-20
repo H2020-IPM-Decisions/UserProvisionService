@@ -27,12 +27,14 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence
         public DbSet<UserFarm> UserFarm { get; set; }
         public DbSet<UserProfile> UserProfile { get; set; }
         public DbSet<UserFarmType> UserFarmType { get; set; }
-        
+        public DbSet<WeatherDataSource> WeatherDataSource { get; set; }
+        public DbSet<WeatherStation> WeatherStation { get; set; }
+
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {
         }
-        
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.HasPostgresExtension("postgis");

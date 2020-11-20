@@ -24,5 +24,7 @@ namespace H2020.IPMDecisions.UPR.Core
         DbSet<UserFarm> UserFarm { get; set; }
         DbSet<UserFarmType> UserFarmType { get; set; }
         DbSet<UserProfile> UserProfile { get; set; }
+        DbSet<WeatherDataSource> WeatherDataSource { get; set; }
+        DbSet<WeatherStation> WeatherStation { get; set; }
     }
 }
