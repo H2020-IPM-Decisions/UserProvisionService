@@ -130,7 +130,6 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
             JsonPatchDocument<FarmForUpdateDto> patchDocument)
         {
             var farm = HttpContext.Items["farm"] as Farm;
-
             FarmForUpdateDto farmToPatch =
                 this.businessLogic.MapToFarmForUpdateDto(farm);
             patchDocument.ApplyTo(farmToPatch, ModelState);

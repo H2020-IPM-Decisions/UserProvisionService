@@ -25,7 +25,7 @@ namespace H2020.IPMDecisions.UPR.BLL
             {
                 var field = httpContext.Items["field"] as Field;
                 var duplicatedRecord = field
-                    .FieldCropPests          
+                    .FieldCropPests
                     .Any(f => f.FieldCropPestDsses
                         .Any(fcpd =>
                             fcpd.FieldCropPestId == cropPestDssForCreationDto.FieldCropPestId
@@ -40,29 +40,8 @@ namespace H2020.IPMDecisions.UPR.BLL
                 if (getFieldCropPest == null)
                     return GenericResponseBuilder.NotFound<IDictionary<string, object>>();
 
-                var cropPestDssExist = await this.dataService
-                    .CropPestDsses
-                    .FindByConditionAsync(c =>
-                        c.CropPestId == getFieldCropPest.CropPestId
-                        & c.DssId== cropPestDssForCreationDto.DssId);
+                var newFieldCropPestDss = await CreateFieldCropPestDss(getFieldCropPest, cropPestDssForCreationDto.DssId);
 
-                if (cropPestDssExist == null)
-                {
-                    cropPestDssExist = new CropPestDss()
-                    {
-                        CropPestId = getFieldCropPest.CropPestId,
-                        DssId = cropPestDssForCreationDto.DssId,
-                        DssName = cropPestDssForCreationDto.DssId
-                    };
-                    this.dataService.CropPestDsses.Create(cropPestDssExist);
-                }
-                
-                var newFieldCropPestDss = new FieldCropPestDss()
-                {
-                    FieldCropPestId = cropPestDssForCreationDto.FieldCropPestId,
-                    CropPestDssId = cropPestDssExist.Id
-                };
-                this.dataService.FieldCropPestDsses.Create(newFieldCropPestDss);
                 await this.dataService.CompleteAsync();
 
                 var fieldCropPestToReturn = this.mapper
@@ -90,7 +69,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                     .Where(fcp => fcp.Id == id)
                     .FirstOrDefault();
                 if (fieldCropPestExist == null) return GenericResponseBuilder.Success();
-                
+
                 this.dataService.FieldCropPestDsses.Delete(fieldCropPestExist);
                 await this.dataService.CompleteAsync();
                 return GenericResponseBuilder.Success();
@@ -163,7 +142,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                         resourceParameter,
                         fieldCropDssAsEntities.HasNext,
                         fieldCropDssAsEntities.HasPrevious);
-                
+
                 var shapedObservationsToReturn = this.mapper
                     .Map<IEnumerable<FieldCropPestDssDto>>(fieldCropDssAsEntities)
                     .ShapeData(resourceParameter.Fields);
@@ -183,9 +162,35 @@ namespace H2020.IPMDecisions.UPR.BLL
                 return GenericResponseBuilder.NoSuccess<ShapedDataWithLinks>(null, $"{ex.Message} InnerException: {innerMessage}");
             }
         }
-       
+
         #region Helpers
-        
+        private async Task<FieldCropPestDss> CreateFieldCropPestDss(FieldCropPest fieldCropPest, string dssId)
+        {
+            var cropPestDssExist = await this.dataService
+                .CropPestDsses
+                .FindByConditionAsync(c =>
+                 c.CropPestId == fieldCropPest.CropPest.Id
+                 & c.DssId == dssId);
+
+            if (cropPestDssExist == null)
+            {
+                cropPestDssExist = new CropPestDss()
+                {
+                    CropPest = fieldCropPest.CropPest,
+                    DssId = dssId,
+                    DssName = dssId
+                };
+                this.dataService.CropPestDsses.Create(cropPestDssExist);
+            }
+
+            var newFieldCropPestDss = new FieldCropPestDss()
+            {
+                FieldCropPest = fieldCropPest,
+                CropPestDssId = cropPestDssExist.Id
+            };
+            this.dataService.FieldCropPestDsses.Create(newFieldCropPestDss);
+            return newFieldCropPestDss;
+        }
         #endregion
     }
 }
