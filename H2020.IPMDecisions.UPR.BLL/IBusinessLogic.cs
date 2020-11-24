@@ -40,6 +40,10 @@ namespace H2020.IPMDecisions.UPR.BLL
         Task<GenericResponse> UpdateFarm(Farm farm, FarmForUpdateDto farmToPatch);
         #endregion
 
+        #region FarmDss
+        Task<GenericResponse> AddNewFarmDss(FarmDssForCreationDto farmDssDto, HttpContext httpContext, string mediaType);
+        #endregion
+
         #region Field
         Task<GenericResponse<IDictionary<string, object>>> AddNewField(FieldForCreationDto fieldForCreationDto, HttpContext httpContext, string mediaType);
         Task<GenericResponse<FieldDto>> AddNewField(FieldForCreationDto fieldForCreationDto, HttpContext httpContext, Guid id);

@@ -1,7 +1,9 @@
 using System;
 using System.Net.Mime;
+using System.Threading.Tasks;
 using H2020.IPMDecisions.UPR.API.Filters;
 using H2020.IPMDecisions.UPR.BLL;
+using H2020.IPMDecisions.UPR.Core.Dtos;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -31,11 +33,16 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         [Produces(MediaTypeNames.Application.Json)]
         [HttpPost("", Name = "api.farmdss.post.dss")]
         // POST: api/farms/1/dss
-        public IActionResult Post(
+        public async Task<IActionResult> Post(
             [FromRoute] Guid farmId,
-            [FromBody] object todoObject,
+            [FromBody] FarmDssForCreationDto farmDssDto,
             [FromHeader(Name = "Accept")] string mediaType)
         {
+            var response = await this.businessLogic.AddNewFarmDss(farmDssDto, HttpContext, mediaType);
+
+            if (!response.IsSuccessful)
+                return response.RequestResult;
+
             return Ok();
         }
 
