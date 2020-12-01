@@ -22,7 +22,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                 var requestsAsEntity = await this
                     .dataService
                     .DataShareRequests
-                    .FindByConditionAsync(d => d.Id == id & 
+                    .FindByConditionAsync(d => d.Id == id &
                         (d.RequesteeId == userId || d.RequesterId == userId), true);
 
                 if (requestsAsEntity == null)
@@ -36,7 +36,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                 this.dataService.DataShareRequests.Delete(requestsAsEntity);
                 await this.dataService.CompleteAsync();
 
-                return GenericResponseBuilder.Success();                
+                return GenericResponseBuilder.Success();
             }
             catch (Exception ex)
             {
@@ -205,11 +205,24 @@ namespace H2020.IPMDecisions.UPR.BLL
                     return GenericResponseBuilder.Success();
                 }
 
-                var farmsThatBelongToUser = requestExists
-                    .Requestee
-                    .UserFarms
-                    .Where(f =>
-                        dataShareRequestDto.Farms.Any(d => f.FarmId.Equals(d))).ToList();
+                List<UserFarm> farmsThatBelongToUser = new List<UserFarm>();
+
+                if (dataShareRequestDto.AllowAllFarms)
+                {
+                    farmsThatBelongToUser = requestExists
+                        .Requestee
+                        .UserFarms
+                        .ToList();
+                }
+                else
+                {
+                    farmsThatBelongToUser = requestExists
+                        .Requestee
+                        .UserFarms
+                        .Where(f =>
+                            dataShareRequestDto.Farms.Any(d => f.FarmId.Equals(d))).ToList();
+                }
+
                 if (farmsThatBelongToUser.Count() == 0)
                 {
                     return GenericResponseBuilder.NoSuccess<bool>(false, "Farms do not belong to the user.");
@@ -311,7 +324,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                         var advisorUserFarm = farmWithUserFarms.UserFarms
                                                     .Where(a => a.UserId == dataShareRequestDto.RequesterId)
                                                     .FirstOrDefault();
-                        
+
                         var authorize = dataShareRequestDto
                                             .Farms
                                             .Where(f => f.FarmId == farm.FarmId)
