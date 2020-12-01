@@ -116,6 +116,71 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence
             }
         }
 
+        private IFieldCropPestRepository fieldCropPests;
+        public IFieldCropPestRepository FieldCropPests
+        {
+            get
+            {
+                if (fieldCropPests == null)
+                {
+                    fieldCropPests = new FieldCropPestRepository(this.context);
+                }
+                return fieldCropPests;
+            }
+        }
+
+        private ICropPestDssRepository cropPestDsses;
+        public ICropPestDssRepository CropPestDsses
+        {
+            get
+            {
+                if (cropPestDsses == null)
+                {
+                    cropPestDsses = new CropPestDssRepository(this.context);
+                }
+                return cropPestDsses;
+            }
+        }
+
+        private IFieldCropPestDssRepository fieldCropPestDsses;
+        public IFieldCropPestDssRepository FieldCropPestDsses
+        {
+            get
+            {
+                if (fieldCropPestDsses == null)
+                {
+                    fieldCropPestDsses = new FieldCropPestDssRepository(this.context);
+                }
+                return fieldCropPestDsses;
+            }
+        }
+
+        private IWeatherDataSourcesRepository weatherDataSources;
+        public IWeatherDataSourcesRepository WeatherDataSources
+        {
+            get
+            {
+                if (weatherDataSources == null)
+                {
+                    weatherDataSources = new WeatherDataSourcesRepository(this.context);
+                }
+                return weatherDataSources;
+            }
+        }
+
+        private IWeatherStationRepository weatherStations;
+        public IWeatherStationRepository WeatherStations
+        {
+            get
+            {
+                if (weatherStations == null)
+                {
+                    weatherStations = new WeatherStationRepository(this.context);
+                }
+                return weatherStations;
+            }
+        }
+
         public DataService(
             ApplicationDbContext context,
             IPropertyMappingService propertyMappingService)

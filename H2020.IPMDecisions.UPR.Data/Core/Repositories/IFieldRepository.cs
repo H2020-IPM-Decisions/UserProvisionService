@@ -6,7 +6,7 @@ using H2020.IPMDecisions.UPR.Core.ResourceParameters;
 
 namespace H2020.IPMDecisions.UPR.Data.Core.Repositories
 {
-    public interface IFieldRepository : IRepositoryBase<Field, FieldResourceParameter>
+    public interface IFieldRepository : IRepositoryBaseWithResourceParameter<Field, FieldResourceParameter>
     {
         Task<PagedList<Field>> FindAllAsync(FieldResourceParameter resourceParameter, Guid farmId);
         Task<PagedList<Field>> FindAllAsync(FieldResourceParameter resourceParameter, Guid farmId, bool includeAssociatedData);

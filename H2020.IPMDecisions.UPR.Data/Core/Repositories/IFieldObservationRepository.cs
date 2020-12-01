@@ -7,7 +7,7 @@ using H2020.IPMDecisions.UPR.Core.ResourceParameters;
 
 namespace H2020.IPMDecisions.UPR.Data.Core.Repositories
 {
-    public interface IFieldObservationRepository : IRepositoryBase<FieldObservation, FieldObservationResourceParameter>
+    public interface IFieldObservationRepository : IRepositoryBaseWithResourceParameter<FieldObservation, FieldObservationResourceParameter>
     {
         Task<PagedList<FieldObservation>> FindAllAsync(FieldObservationResourceParameter resourceParameter, Guid? fieldId = null);
     }

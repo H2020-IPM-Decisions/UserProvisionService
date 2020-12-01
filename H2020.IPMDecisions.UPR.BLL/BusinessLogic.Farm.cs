@@ -17,18 +17,14 @@ namespace H2020.IPMDecisions.UPR.BLL
 {
     public partial class BusinessLogic : IBusinessLogic
     {
-        public async Task<GenericResponse> DeleteFarm(Guid id, HttpContext httpContext)
+        public async Task<GenericResponse> DeleteFarm(HttpContext httpContext)
         {
             try
             {
-                var userId = Guid.Parse(httpContext.Items["userId"].ToString());
-                var isAdmin = httpContext.Items["isAdmin"];
+                var farm = httpContext.Items["farm"] as Farm;
+                if (farm == null) return GenericResponseBuilder.Success();
 
-                Farm existingFarm = await FindFarm(id, userId, isAdmin, false);
-
-                if (existingFarm == null) return GenericResponseBuilder.Success();
-
-                this.dataService.Farms.Delete(existingFarm);
+                this.dataService.Farms.Delete(farm);
                 await this.dataService.CompleteAsync();
 
                 return GenericResponseBuilder.Success();
@@ -48,7 +44,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                 var userProfile = await GetUserProfileByUserId(userId);
                 if (userProfile.Result == null)
                 {
-                    return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, "Please create an `User Profile` first.");
+                    return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, "Please create a `User Profile` first.");
                 }
 
                 var farmAsEntity = this.mapper.Map<Farm>(farmForCreationDto);
@@ -82,8 +78,12 @@ namespace H2020.IPMDecisions.UPR.BLL
                 var userProfile = await GetUserProfileByUserId(userId);
                 if (userProfile.Result == null)
                 {
-                    return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, "Please create an `User Profile` first.");
+                    return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, "Please create a `User Profile` first.");
                 }
+
+                await EnsureWeatherStationExists(farmForCreationDto.WeatherStationDto);
+                await EnsureWeatherDataSourcesExists(farmForCreationDto.WeatherDataSourceDto);
+
                 var farmAsEntity = this.mapper.Map<Farm>(farmForCreationDto);
 
                 await this.dataService.UserProfiles.AddFarm(userProfile.Result, farmAsEntity, UserFarmTypeEnum.Owner, false);
@@ -115,16 +115,16 @@ namespace H2020.IPMDecisions.UPR.BLL
             try
             {
                 var userId = Guid.Parse(httpContext.Items["userId"].ToString());
-                var isAdmin = httpContext.Items["isAdmin"];
+                var isAdmin = bool.Parse(httpContext.Items["isAdmin"].ToString());
 
                 Farm farmAsEntity = await this
                         .dataService
                         .Farms
-                        .FindByIdAsync(id);
+                        .FindByIdAsync(id, true);
 
                 if (farmAsEntity == null) return GenericResponseBuilder.NotFound<Farm>();
 
-                if (isAdmin == null)
+                if (isAdmin == false)
                 {
                     var belongsToUser = farmAsEntity
                         .UserFarms
@@ -144,7 +144,7 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
         }
 
-        public async Task<GenericResponse<IDictionary<string, object>>> GetFarmDto(
+        public GenericResponse<IDictionary<string, object>> GetFarmDto(
             Guid id,
             HttpContext httpContext,
             FarmResourceParameter resourceParameter,
@@ -159,16 +159,12 @@ namespace H2020.IPMDecisions.UPR.BLL
                 if (!propertyCheckerService.TypeHasProperties<FarmWithChildrenDto>(resourceParameter.Fields, false))
                     return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, "Wrong fields entered");
 
-                var userId = Guid.Parse(httpContext.Items["userId"].ToString());
-                var isAdmin = httpContext.Items["isAdmin"];
-
                 var includeLinks = parsedMediaType.SubTypeWithoutSuffix
                     .EndsWith("hateoas", StringComparison.InvariantCultureIgnoreCase);
                 bool includeChildren = parsedMediaType.SubTypeWithoutSuffix.ToString().Contains("withchildren");
 
-                Farm farmAsEntity = await FindFarm(id, userId, isAdmin, includeChildren);
-                if (farmAsEntity == null) return GenericResponseBuilder.NotFound<IDictionary<string, object>>();
-
+                var farm = httpContext.Items["farm"] as Farm;
+                if (farm == null) return GenericResponseBuilder.NotFound<IDictionary<string, object>>();
                 IEnumerable<LinkDto> links = new List<LinkDto>();
                 if (includeLinks)
                 {
@@ -179,14 +175,14 @@ namespace H2020.IPMDecisions.UPR.BLL
                 {
                     var farmToReturnWithChildrenShaped = CreateFarmWithChildrenAsDictionary(
                         resourceParameter,
-                        includeLinks, 
-                        farmAsEntity, 
+                        includeLinks,
+                        farm,
                         links);
 
                     return GenericResponseBuilder.Success<IDictionary<string, object>>(farmToReturnWithChildrenShaped);
                 }
 
-                var farmToReturn = this.mapper.Map<FarmDto>(farmAsEntity)
+                var farmToReturn = this.mapper.Map<FarmDto>(farm)
                     .ShapeData(resourceParameter.Fields) as IDictionary<string, object>;
 
                 if (includeLinks)
@@ -202,7 +198,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                 String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
                 return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, $"{ex.Message} InnerException: {innerMessage}");
             }
-        }       
+        }
 
         public async Task<GenericResponse<ShapedDataWithLinks>> GetFarms(Guid userId, FarmResourceParameter resourceParameter, string mediaType)
         {
@@ -243,7 +239,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                             resourceParameter,
                             includeLinks,
                             farm,
-                            paginationLinks);                        
+                            paginationLinks);
                     });
 
                     var farmsToReturnWitChildren = new ShapedDataWithLinks()
@@ -295,6 +291,17 @@ namespace H2020.IPMDecisions.UPR.BLL
         {
             try
             {
+                if (!farm.FarmWeatherDataSources.Any() ||
+                    (farmToPatch.WeatherDataSourceDto.Id != farm.FarmWeatherDataSources.FirstOrDefault().WeatherDataSourceId))
+                {
+                    await EnsureWeatherDataSourcesExists(farmToPatch.WeatherDataSourceDto);
+                }
+                if (!farm.FarmWeatherDataSources.Any() ||
+                    (farmToPatch.WeatherStationDto.Id != farm.FarmWeatherStations.FirstOrDefault().WeatherStationId))
+                {
+                    await EnsureWeatherStationExists(farmToPatch.WeatherStationDto);
+                }
+
                 this.mapper.Map(farmToPatch, farm);
 
                 this.dataService.Farms.Update(farm);
@@ -311,11 +318,11 @@ namespace H2020.IPMDecisions.UPR.BLL
         }
 
         #region Helpers
-        private async Task<Farm> FindFarm(Guid id, Guid userId, object isAdmin, bool includeChildren)
+        private async Task<Farm> FindFarm(Guid id, Guid userId, bool isAdmin, bool includeChildren)
         {
             Farm existingFarm = null;
 
-            if (isAdmin == null)
+            if (isAdmin == false)
             {
                 existingFarm = await this.dataService
                 .Farms
@@ -360,7 +367,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                 farmToReturnWithChildren.FieldsDto = fieldsToReturn;
 
                 var farmToReturnWithChildrenShaped = farmToReturnWithChildren
-                    .ShapeData(resourceParameter.Fields) 
+                    .ShapeData(resourceParameter.Fields)
                     as IDictionary<string, object>;
 
                 if (includeLinks)
@@ -374,7 +381,6 @@ namespace H2020.IPMDecisions.UPR.BLL
                 logger.LogError(string.Format("Error in BLL - CreateFarmWithChildrenAsDictionary. {0}", ex.Message), ex);
                 return null;
             }
-            
         }
         #endregion
     }

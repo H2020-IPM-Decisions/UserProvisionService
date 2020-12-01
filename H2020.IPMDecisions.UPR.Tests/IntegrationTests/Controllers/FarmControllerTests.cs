@@ -17,7 +17,7 @@ namespace H2020.IPMDecisions.UPR.Tests.IntegrationTests.Controllers
 {
     [Collection("FakeWebHostWithDb")]
     [Trait("Category", "Docker")]
-    public class FarmControllerTests 
+    public class FarmControllerTests
     {
         private FakeWebHostWithDb fakeWebHost;
 
@@ -48,9 +48,15 @@ namespace H2020.IPMDecisions.UPR.Tests.IntegrationTests.Controllers
             jsonObjectLocation.Add("y", "1");
             jsonObjectLocation.Add("srid", "4236");
 
+            var jsonObjectWeatherData = new JsonObject();
+            jsonObjectWeatherData.Add("id", "1");
+            jsonObjectWeatherData.Add("name", "1");
+
             var jsonObject = new JsonObject();
             jsonObject.Add("name", fakeWebHost.DefaultFarmName);
             jsonObject.Add("location", jsonObjectLocation);
+            jsonObject.Add("weatherStationDto", jsonObjectWeatherData);
+            jsonObject.Add("weatherDataSourceDto", jsonObjectWeatherData);
             var content = new StringContent(
                 jsonObject.ToString(),
                 Encoding.UTF8,
@@ -135,9 +141,9 @@ namespace H2020.IPMDecisions.UPR.Tests.IntegrationTests.Controllers
                  new AuthenticationHeaderValue("Bearer", myExtraUserToken);
 
             httpClient
-            .DefaultRequestHeaders
-            .Accept
-            .Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                .DefaultRequestHeaders
+                .Accept
+                .Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
             // Act
             var response = await httpClient.GetAsync(string.Format("api/farms/{0}", fakeWebHost.DefaultFarmId.ToString()));
@@ -152,7 +158,7 @@ namespace H2020.IPMDecisions.UPR.Tests.IntegrationTests.Controllers
         {
             // Arrange
             var httpClient = fakeWebHost.Host.GetTestServer().CreateClient();
-            var myAdminUserToken = TokenGeneratorTests.GenerateToken(fakeWebHost.DefaultAdminUserId, "admin");
+            var myAdminUserToken = TokenGeneratorTests.GenerateToken(fakeWebHost.DefaultAdminUserId, "Admin");
 
             httpClient
                  .DefaultRequestHeaders
@@ -160,9 +166,9 @@ namespace H2020.IPMDecisions.UPR.Tests.IntegrationTests.Controllers
                  new AuthenticationHeaderValue("Bearer", myAdminUserToken);
 
             httpClient
-            .DefaultRequestHeaders
-            .Accept
-            .Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                .DefaultRequestHeaders
+                .Accept
+                .Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
             // Act
             var response = await httpClient.GetAsync(string.Format("api/farms/{0}", fakeWebHost.DefaultFarmId.ToString()));
@@ -268,6 +274,11 @@ namespace H2020.IPMDecisions.UPR.Tests.IntegrationTests.Controllers
             var myUserToken = TokenGeneratorTests.GenerateToken(fakeWebHost.DefaultNormalUserId);
             var newFarmName = "ThisIsANewName";
 
+            var weatherDataId = "1";
+            var jsonObjectWeatherData = new JsonObject();
+            jsonObjectWeatherData.Add("id", weatherDataId);
+            jsonObjectWeatherData.Add("name", "1");
+
 
             httpClient
                  .DefaultRequestHeaders
@@ -284,8 +295,20 @@ namespace H2020.IPMDecisions.UPR.Tests.IntegrationTests.Controllers
             patchOperation.Add("path", "/Name");
             patchOperation.Add("value", newFarmName);
 
+            var patchOperationWeather = new JsonObject();
+            patchOperationWeather.Add("op", "add");
+            patchOperationWeather.Add("path", "/weatherStationDto");
+            patchOperationWeather.Add("value", jsonObjectWeatherData);
+
+            var patchOperationWeatherDataSource = new JsonObject();
+            patchOperationWeatherDataSource.Add("op", "add");
+            patchOperationWeatherDataSource.Add("path", "/weatherDataSourceDto");
+            patchOperationWeatherDataSource.Add("value", jsonObjectWeatherData);
+
             var patchOperationArray = new JsonArray();
             patchOperationArray.Add(patchOperation);
+            patchOperationArray.Add(patchOperationWeather);
+            patchOperationArray.Add(patchOperationWeatherDataSource);
 
             var patchContent = new StringContent(
                 patchOperationArray.ToString(),
@@ -302,6 +325,9 @@ namespace H2020.IPMDecisions.UPR.Tests.IntegrationTests.Controllers
             responsePatch.StatusCode.Should().Be(HttpStatusCode.NoContent);
             responseGet.StatusCode.Should().Be(HttpStatusCode.OK);
             responseDeserialized.Name.Should().Be(newFarmName);
+            responseDeserialized.Name.Should().Be(newFarmName);
+            responseDeserialized.WeatherDataSourceDto.Id.Should().Be(weatherDataId);
+            responseDeserialized.WeatherStationDto.Id.Should().Be(weatherDataId);
         }
 
         [Fact]
@@ -404,9 +430,9 @@ namespace H2020.IPMDecisions.UPR.Tests.IntegrationTests.Controllers
                  new AuthenticationHeaderValue("Bearer", myUserToken);
 
             httpClient
-            .DefaultRequestHeaders
-            .Accept
-            .Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                .DefaultRequestHeaders
+                .Accept
+                .Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
             // Act
             var responseBeforeDelete = await httpClient.GetAsync("api/farms");
@@ -423,7 +449,7 @@ namespace H2020.IPMDecisions.UPR.Tests.IntegrationTests.Controllers
 
             // Assert
             dataBeforeDelete.Value.Count().Should().Be(3);
-            responseDelete.StatusCode.Should().Be(HttpStatusCode.NoContent);
+            responseDelete.StatusCode.Should().Be(HttpStatusCode.NotFound);
             dataAfterDelete.Value.Count().Should().Be(3);
         }
     }

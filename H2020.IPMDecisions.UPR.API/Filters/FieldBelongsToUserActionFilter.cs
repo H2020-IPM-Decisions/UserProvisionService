@@ -27,7 +27,7 @@ namespace H2020.IPMDecisions.UPR.API.Filters
             try
             {
                 var userId = Guid.Parse(context.HttpContext.Items["userId"].ToString());
-                var isAdmin = context.HttpContext.Items["isAdmin"];
+                var isAdmin = bool.Parse(context.HttpContext.Items["isAdmin"].ToString());
 
                 var fieldId = "";
                 if (!context.ActionArguments.ContainsKey("fieldId"))
@@ -62,25 +62,26 @@ namespace H2020.IPMDecisions.UPR.API.Filters
             }            
         }
 
-        private async Task<Field> FindFieldAsync(Guid userId, object isAdmin, Guid validatedGuid)
+        private async Task<Field> FindFieldAsync(Guid userId, bool isAdmin, Guid validatedGuid)
         {            
             Field existingField;
 
-            if (isAdmin == null)
+            if (isAdmin == false)
             {
                 existingField = await this.dataService
                 .Fields
                 .FindByConditionAsync(
                     f => f.Id == validatedGuid
                     &&
-                    f.Farm.UserFarms.Any(uf => uf.UserId == userId)
+                    f.Farm.UserFarms.Any(uf => uf.UserId == userId), 
+                    true
                 );
             }
             else
             {
                 existingField = await this.dataService
                     .Fields
-                    .FindByIdAsync(validatedGuid);
+                    .FindByIdAsync(validatedGuid, true);
             }
             return existingField;
         }

@@ -16,14 +16,32 @@ namespace H2020.IPMDecisions.UPR.BLL
         Task<GenericResponse<IDictionary<string, object>>> LinkNewFarmToUserProfile(FarmForCreationDto farmForCreationDto, Guid userId, string mediaType);
         #endregion
 
+        #region Crop Decision
+        Task<GenericResponse<IDictionary<string, object>>> AddNewFieldCropDecision(CropPestDssForCreationDto cropPestDssForCreationDto, HttpContext httpContext, string mediaType);
+        Task<GenericResponse> DeleteFieldCropDecision(Guid id, HttpContext httpContext);
+        GenericResponse<IDictionary<string, object>> GetFieldCropDecision(Guid id, HttpContext httpContext, string mediaType);
+        Task<GenericResponse<ShapedDataWithLinks>> GetFieldCropDecisions(FieldCropPestDssResourceParameter resourceParameter, HttpContext httpContext, string mediaType);
+        #endregion
+
+        #region Crop Pest
+        Task<GenericResponse<IDictionary<string, object>>> AddNewFieldCropPest(CropPestForCreationDto cropPestForCreationDto, HttpContext httpContext, string mediaType);
+        Task<GenericResponse> DeleteFieldCropPest(Guid id, Guid fieldId);
+        Task<GenericResponse<IDictionary<string, object>>> GetFieldCropPest(Guid id, Guid fieldId, string mediaType);
+        Task<GenericResponse<ShapedDataWithLinks>> GetFieldCropPests(Guid fieldId, FieldCropPestResourceParameter resourceParameter, string mediaType);
+        #endregion
+
         #region Farms
-        Task<GenericResponse> DeleteFarm(Guid id, HttpContext httpContext);
+        Task<GenericResponse> DeleteFarm(HttpContext httpContext);
         Task<GenericResponse<Farm>> GetFarm(Guid id, HttpContext httpContext);
-        Task<GenericResponse<IDictionary<string, object>>> GetFarmDto(Guid id, HttpContext httpContext, FarmResourceParameter resourceParameter, string mediaType);
+        GenericResponse<IDictionary<string, object>> GetFarmDto(Guid id, HttpContext httpContext, FarmResourceParameter resourceParameter, string mediaType);
         Task<GenericResponse<ShapedDataWithLinks>> GetFarms(Guid userId, FarmResourceParameter resourceParameter, string mediaType);
         FarmForCreationDto MapToFarmForCreation(FarmForUpdateDto farmDto);
         FarmForUpdateDto MapToFarmForUpdateDto(Farm farm);
         Task<GenericResponse> UpdateFarm(Farm farm, FarmForUpdateDto farmToPatch);
+        #endregion
+
+        #region FarmDss
+        Task<GenericResponse<FarmDssDto>> AddNewFarmDss(FarmDssForCreationDto farmDssDto, HttpContext httpContext, string mediaType);
         #endregion
 
         #region Field
@@ -40,9 +58,9 @@ namespace H2020.IPMDecisions.UPR.BLL
 
         #region  FieldObservation
         Task<GenericResponse<FieldObservationDto>> AddNewFieldObservation(FieldObservationForCreationDto fieldObservationForCreationDto, HttpContext httpContext, string mediaType);
-        Task<GenericResponse> DeleteFieldObservation(Guid id);
+        Task<GenericResponse> DeleteFieldObservation(Guid id, HttpContext httpContext);
         Task<GenericResponse<ShapedDataWithLinks>> GetFieldObservations(Guid fieldId, FieldObservationResourceParameter resourceParameter, string mediaType);
-        Task<GenericResponse<FieldObservationDto>> GetFieldObservationDto(Guid id, string fields, string mediaType);
+        GenericResponse<FieldObservationDto> GetFieldObservationDto(Guid id, string fields, string mediaType, HttpContext httpContext);
         #endregion
 
         #region  UserProfile

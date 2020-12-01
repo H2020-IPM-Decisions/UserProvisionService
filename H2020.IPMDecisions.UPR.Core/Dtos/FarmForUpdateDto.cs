@@ -1,10 +1,20 @@
 using System.ComponentModel.DataAnnotations;
+using H2020.IPMDecisions.UPR.Core.Models;
 
 namespace H2020.IPMDecisions.UPR.Core.Dtos
 {
     public class FarmForUpdateDto : FarmForManipulationDto
     {
-        [Required(ErrorMessage = "Name is required")]
+        [Required(ErrorMessage = "Name can not be deleted")]
         public override string Name { get => base.Name; set => base.Name = value; }
+
+        [Required(ErrorMessage = "Farm location can not be deleted")]
+        public override CustomPointLocation Location { get => base.Location; set => base.Location = value; }
+
+        [Required(ErrorMessage = "Weather Station can not be deleted")]
+        public override WeatherStationDto WeatherStationDto { get => base.WeatherStationDto; set => base.WeatherStationDto = value; }
+
+        [Required(ErrorMessage = "Weather Data Source can not be deleted")]
+        public override WeatherDataSourceDto WeatherDataSourceDto { get => base.WeatherDataSourceDto; set => base.WeatherDataSourceDto = value; }
     }
 }

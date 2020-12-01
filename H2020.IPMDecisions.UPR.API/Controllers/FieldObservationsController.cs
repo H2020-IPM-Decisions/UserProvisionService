@@ -34,7 +34,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         public async Task<IActionResult> Delete(
             [FromRoute] Guid fieldId, Guid id)
         {
-            var response = await this.businessLogic.DeleteFieldObservation(id);
+            var response = await this.businessLogic.DeleteFieldObservation(id, HttpContext);
 
             if (!response.IsSuccessful)
                 return BadRequest(new { message = response.ErrorMessage });
@@ -75,13 +75,13 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         [Produces(MediaTypeNames.Application.Json)]
         [HttpGet("{id:guid}", Name = "api.observation.get.observationbyid")]
         // GET:  api/fields/1/observations/1
-        public async Task<IActionResult> GetFielObservationdById(
+        public IActionResult GetFieldObservationById(
             [FromRoute] Guid fieldId, Guid id,
             [FromQuery] string fields,
             [FromHeader(Name = "Accept")] string mediaType)
         {
-            var response = await this.businessLogic.GetFieldObservationDto(id, fields, mediaType);
-
+            var response = this.businessLogic.GetFieldObservationDto(id, fields, mediaType, HttpContext);
+            
             if (!response.IsSuccessful)
                 return response.RequestResult;
 
@@ -120,7 +120,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         //OPTIONS: api/fields/1/observations
         public IActionResult Options([FromRoute] Guid fieldId)
         {
-            Response.Headers.Add("Allow", "OPTIONS, GET, PATCH, POST, DELETE");
+            Response.Headers.Add("Allow", "OPTIONS, GET, POST, DELETE");
             return Ok();
         }
     }

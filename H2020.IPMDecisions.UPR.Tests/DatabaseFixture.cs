@@ -19,7 +19,7 @@ namespace H2020.IPMDecisions.UPR.Tests
 
             // Remember to create integration_test_user in PostgreSQL. User need to be able to create DB
             // Get into docker container: docker exec -it {ContainerID} psql -U {adminUser} postgres
-            //  e.g: CREATE USER yourUsername WITH PASSWORD 'yourPassword' CREATEDB;
+            //  e.g: CREATE USER yourUsername WITH PASSWORD 'yourPassword' SUPERUSER;
             var connectionString = configuration["ConnectionStrings:MyPostgreSQLConnection"];
 
             tempDatabase = new TestDatabaseBuilder()
@@ -40,6 +40,7 @@ namespace H2020.IPMDecisions.UPR.Tests
         {
             if (tempDatabase != null)
                 tempDatabase.Drop();
+            DbContext.Database.EnsureDeleted();
         }
     }
 }

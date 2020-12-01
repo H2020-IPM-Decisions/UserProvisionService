@@ -64,7 +64,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                 return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, $"{ex.Message} InnerException: {innerMessage}");
             }
         }
-        
+
         public async Task<GenericResponse<FieldDto>> AddNewField(FieldForCreationDto fieldForCreationDto, HttpContext httpContext, Guid id)
         {
             try
@@ -169,7 +169,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                         Links = links,
                         PaginationMetaData = paginationMetaData
                     };
-                    return GenericResponseBuilder.Success<ShapedDataWithLinks>(farmsToReturnWitChildren);                 
+                    return GenericResponseBuilder.Success<ShapedDataWithLinks>(farmsToReturnWitChildren);
                 }
 
                 var shapedFarmsToReturn = this.mapper
@@ -355,15 +355,15 @@ namespace H2020.IPMDecisions.UPR.BLL
         {
             if (cropPestsFromRequest is null) return null;
 
-            var listOfCropPest = new List<FieldCropPest>();           
+            var listOfFieldCropPest = new List<FieldCropPest>();
             var cropWithoutDuplicates = cropPestsFromRequest
-                                    .Select(c => new 
-                                        { 
-                                            CropEppoCode = c.CropEppoCode, 
-                                            PestEppoCode = c.PestEppoCode 
-                                        })
+                                    .Select(c => new
+                                    {
+                                        CropEppoCode = c.CropEppoCode,
+                                        PestEppoCode = c.PestEppoCode
+                                    })
                                     .Distinct();
-            
+
             foreach (var cropPest in cropWithoutDuplicates)
             {
                 var cropPestAsEntity = await this.dataService.CropPests
@@ -386,10 +386,10 @@ namespace H2020.IPMDecisions.UPR.BLL
                     CropPest = cropPestAsEntity,
                     Field = field
                 };
-                listOfCropPest.Add(newFieldCropPest);
+                listOfFieldCropPest.Add(newFieldCropPest);
             }
 
-            return listOfCropPest;
+            return listOfFieldCropPest;
         }
 
         private IDictionary<string, object> CreateFieldWithChildrenAsDictionary(
@@ -401,15 +401,15 @@ namespace H2020.IPMDecisions.UPR.BLL
             try
             {
                 ShapedDataWithLinks fieldObservationsToReturn = null;
-                if (fieldAsEntity.FieldObservations != null && fieldAsEntity.FieldObservations.Count > 0)
-                {
-                    var fieldObservationResourceParameter = this.mapper.Map<FieldObservationResourceParameter>(resourceParameter);
-                    fieldObservationsToReturn = ShapeFieldObservationsAsChildren(
-                                    fieldAsEntity,
-                                    fieldObservationResourceParameter,
-                                    includeLinks);
-                }
-                
+                // if (fieldAsEntity.FieldObservations != null && fieldAsEntity.FieldObservations.Count > 0)
+                // {
+                //     var fieldObservationResourceParameter = this.mapper.Map<FieldObservationResourceParameter>(resourceParameter);
+                //     fieldObservationsToReturn = ShapeFieldObservationsAsChildren(
+                //                     fieldAsEntity,
+                //                     fieldObservationResourceParameter,
+                //                     includeLinks);
+                // }
+
                 ShapedDataWithLinks fieldCropPestToReturn = null;
                 if (fieldAsEntity.FieldCropPests != null && fieldAsEntity.FieldCropPests.Count > 0)
                 {
@@ -425,7 +425,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                 fieldToReturnWithChildren.FieldCropPestsDto = fieldCropPestToReturn;
 
                 var fieldToReturnWithChildrenShaped = fieldToReturnWithChildren
-                    .ShapeData(resourceParameter.Fields) 
+                    .ShapeData(resourceParameter.Fields)
                     as IDictionary<string, object>;
 
                 if (includeLinks)

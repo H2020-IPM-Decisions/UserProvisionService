@@ -71,5 +71,14 @@ namespace H2020.IPMDecisions.UPR.Core.Models
                 RequestResult = new NotFoundResult()
             };
         }
+
+        public static GenericResponse<T> Duplicated<T>()
+        {
+            return new GenericResponse<T>()
+            {
+                IsSuccessful = false,
+                RequestResult = new ConflictResult()
+            };
+        }
     }
 }

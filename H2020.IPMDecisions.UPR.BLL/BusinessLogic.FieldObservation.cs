@@ -16,14 +16,20 @@ namespace H2020.IPMDecisions.UPR.BLL
 {
     public partial class BusinessLogic : IBusinessLogic
     {
-        public async  Task<GenericResponse<FieldObservationDto>> AddNewFieldObservation(FieldObservationForCreationDto fieldObservationForCreationDto, HttpContext httpContext, string mediaType)
+        public async Task<GenericResponse<FieldObservationDto>> AddNewFieldObservation(FieldObservationForCreationDto fieldObservationForCreationDto, HttpContext httpContext, string mediaType)
         {
             try
             {
                 var field = httpContext.Items["field"] as Field;
+                var fieldCropPestExist = field
+                    .FieldCropPests
+                    .Where(fcp => fcp.Id == fieldObservationForCreationDto.FieldCropPestId)
+                    .FirstOrDefault();
+
+                if (fieldCropPestExist == null) return GenericResponseBuilder.NotFound<FieldObservationDto>();
 
                 var observationAsEntity = this.mapper.Map<FieldObservation>(fieldObservationForCreationDto);
-                observationAsEntity.Field = field;
+                observationAsEntity.FieldCropPest = fieldCropPestExist;
 
                 this.dataService.FieldObservations.Create(observationAsEntity);
                 await this.dataService.CompleteAsync();
@@ -39,20 +45,21 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
         }
 
-        public async Task<GenericResponse> DeleteFieldObservation(Guid id)
+        public async Task<GenericResponse> DeleteFieldObservation(Guid id, HttpContext httpContext)
         {
             try
             {
-                var existingObservation = await this
-                            .dataService
-                            .FieldObservations
-                            .FindByIdAsync(id);
+                var field = httpContext.Items["field"] as Field;
+                var existingObservation = field
+                    .FieldCropPests
+                    .SelectMany(f => f.FieldObservations)
+                    .Where(fo => fo.Id == id)
+                    .FirstOrDefault();
 
                 if (existingObservation == null) return GenericResponseBuilder.Success();
 
                 this.dataService.FieldObservations.Delete(existingObservation);
                 await this.dataService.CompleteAsync();
-
                 return GenericResponseBuilder.Success();
             }
             catch (Exception ex)
@@ -63,7 +70,7 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
         }
 
-        public async Task<GenericResponse<FieldObservationDto>> GetFieldObservationDto(Guid id, string fields, string mediaType)
+        public GenericResponse<FieldObservationDto> GetFieldObservationDto(Guid id, string fields, string mediaType, HttpContext httpContext)
         {
             try
             {
@@ -74,16 +81,16 @@ namespace H2020.IPMDecisions.UPR.BLL
                 if (!propertyCheckerService.TypeHasProperties<FieldObservationDto>(fields, false))
                     return GenericResponseBuilder.NoSuccess<FieldObservationDto>(null, "Wrong fields entered");
 
-
-                var observationAsEntity = await this
-                            .dataService
-                            .FieldObservations
-                            .FindByIdAsync(id);
+                var field = httpContext.Items["field"] as Field;
+                var observationAsEntity = field
+                    .FieldCropPests
+                    .SelectMany(f => f.FieldObservations)
+                    .Where(fo => fo.Id == id)
+                    .FirstOrDefault();
 
                 if (observationAsEntity == null) return GenericResponseBuilder.NotFound<FieldObservationDto>();
 
                 // ToDo: Shape Data
-
                 var dataToReturn = this.mapper.Map<FieldObservationDto>(observationAsEntity);
                 return GenericResponseBuilder.Success<FieldObservationDto>(dataToReturn);
             }
@@ -116,13 +123,7 @@ namespace H2020.IPMDecisions.UPR.BLL
 
                 if (observationsAsEntities.Count == 0) return GenericResponseBuilder.NotFound<ShapedDataWithLinks>();
 
-                var paginationMetaData = new PaginationMetaData()
-                {
-                    TotalCount = observationsAsEntities.TotalCount,
-                    PageSize = observationsAsEntities.PageSize,
-                    CurrentPage = observationsAsEntities.CurrentPage,
-                    TotalPages = observationsAsEntities.TotalPages
-                };
+                var paginationMetaData = MiscellaneousHelper.CreatePaginationMetadata(observationsAsEntities);
 
                 var links = UrlCreatorHelper.CreateLinksForFieldObservations(
                     this.url,
@@ -158,7 +159,7 @@ namespace H2020.IPMDecisions.UPR.BLL
             try
             {
                 var childrenAsPaged = PagedList<FieldObservation>.Create(
-                    field.FieldObservations.AsQueryable(),
+                    field.FieldCropPests.SelectMany(f => f.FieldObservations).AsQueryable(),
                     resourceParameter.PageNumber,
                     resourceParameter.PageSize);
 

@@ -14,7 +14,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Configurations
                 .ValueGeneratedOnAdd();
 
             builder.HasIndex(f => f.Location)
-                .IsUnique();
+                .IsUnique(false);
 
             builder.Property(f => f.Location)
                 .HasColumnType("geometry (point)")

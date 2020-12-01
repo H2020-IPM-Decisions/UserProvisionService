@@ -89,7 +89,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
 
         internal static IEnumerable<LinkDto> CreateLinksForFarm(
             this IUrlHelper url,
-            Guid id,
+            Guid farmId,
             string fields = "")
         {
             var links = new List<LinkDto>();
@@ -97,34 +97,106 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
             if (string.IsNullOrWhiteSpace(fields))
             {
                 links.Add(new LinkDto(
-                url.Link("api.farm.get.farmbyid", new { id }),
+                url.Link("api.farm.get.farmbyid", new { farmId }),
                 "self",
                 "GET"));
             }
             else
             {
                 links.Add(new LinkDto(
-                 url.Link("api.farm.get.farmbyid", new { id, fields }),
+                 url.Link("api.farm.get.farmbyid", new { farmId, fields }),
                  "self",
                  "GET"));
             }
 
             links.Add(new LinkDto(
-                url.Link("api.farm.delete.farmbyid", new { id }),
+                url.Link("api.farm.delete.farmbyid", new { farmId }),
                 "delete_farm",
                 "DELETE"));
 
             links.Add(new LinkDto(
-                url.Link("api.farm.patch.farmbyid", new { id }),
+                url.Link("api.farm.patch.farmbyid", new { farmId }),
                 "update_farm",
                 "PATCH"));
 
             links.Add(new LinkDto(
-                url.Link("api.field.get.all", new { farmId = id }),
+                url.Link("api.field.get.all", new { farmId = farmId }),
                 "farm_fields",
                 "GET"));
 
             return links;
+        }
+        #endregion
+
+        #region FieldCropDecisions
+        internal static IEnumerable<LinkDto> CreateLinksForFieldCropDecisions(
+            IUrlHelper url,
+            Guid fieldId,
+            FieldCropPestDssResourceParameter resourceParameter,
+            bool hasNext,
+            bool hasPrevious)
+        {
+            var links = new List<LinkDto>();
+
+            links.Add(new LinkDto(
+                CreateFieldCropDecisionResourceUri(url, fieldId, resourceParameter, ResourceUriType.Current),
+                "self",
+                "GET"));
+
+            if (hasNext)
+            {
+                links.Add(new LinkDto(
+                CreateFieldCropDecisionResourceUri(url, fieldId, resourceParameter, ResourceUriType.NextPage),
+                "next_page",
+                "GET"));
+            }
+            if (hasPrevious)
+            {
+                links.Add(new LinkDto(
+               CreateFieldCropDecisionResourceUri(url, fieldId, resourceParameter, ResourceUriType.PreviousPage),
+               "previous_page",
+               "GET"));
+            }
+            return links;
+        }
+
+        private static string CreateFieldCropDecisionResourceUri(
+            IUrlHelper url,
+            Guid fieldId,
+            FieldCropPestDssResourceParameter resourceParameter,
+            ResourceUriType type)
+        {
+            switch (type)
+            {
+                case ResourceUriType.PreviousPage:
+                    return url.Link("api.fieldcropdecisions.get.all",
+                    new
+                    {
+                        fieldId,
+                        fieldCropPestId = resourceParameter.FieldCropPestId,
+                        pageNumber = resourceParameter.PageNumber - 1,
+                        pageSize = resourceParameter.PageSize,
+                    });
+                case ResourceUriType.NextPage:
+                    return url.Link("api.fieldcropdecisions.get.all",
+                    new
+                    {
+                        fieldId,
+                        fieldCropPestId = resourceParameter.FieldCropPestId,
+                        pageNumber = resourceParameter.PageNumber + 1,
+                        pageSize = resourceParameter.PageSize,
+                    });
+                case ResourceUriType.Current:
+                default:
+                    return url.Link("api.fieldcropdecisions.get.all",
+                    new
+                    {
+                        fieldId,
+                        fieldCropPestId = resourceParameter.FieldCropPestId,
+                        pageNumber = resourceParameter.PageNumber,
+                        pageSize = resourceParameter.PageSize,
+                    });
+            }
         }
         #endregion
 
@@ -158,7 +230,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
                "GET"));
             }
             return links;
-        }
+        }        
 
         private static string CreateFieldResourceUri(
             IUrlHelper url,
@@ -458,6 +530,75 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
                         pageNumber = resourceParameter.PageNumber,
                         pageSize = resourceParameter.PageSize,
                         requeststatus = resourceParameter.RequestStatus
+                    });
+            }
+        }
+        #endregion
+
+        #region CropPests
+        internal static IEnumerable<LinkDto> CreateLinksForFieldCropPests(
+            IUrlHelper url,
+            Guid fieldId,
+            FieldCropPestResourceParameter resourceParameter,
+            bool hasNextPage,
+            bool hasPreviousPage)
+        {
+            var links = new List<LinkDto>();
+
+            links.Add(new LinkDto(
+                CreateFieldCropPestResourceUri(url, fieldId, resourceParameter, ResourceUriType.Current),
+                "self",
+                "GET"));
+
+            if (hasNextPage)
+            {
+                links.Add(new LinkDto(
+                CreateFieldCropPestResourceUri(url, fieldId, resourceParameter, ResourceUriType.NextPage),
+                "next_page",
+                "GET"));
+            }
+            if (hasPreviousPage)
+            {
+                links.Add(new LinkDto(
+               CreateFieldCropPestResourceUri(url, fieldId, resourceParameter, ResourceUriType.PreviousPage),
+               "previous_page",
+               "GET"));
+            }
+            return links;
+        }
+
+        private static string CreateFieldCropPestResourceUri(
+            IUrlHelper url,
+            Guid fieldId,
+            FieldCropPestResourceParameter resourceParameter,
+            ResourceUriType type)
+        {
+            switch (type)
+            {
+                case ResourceUriType.PreviousPage:
+                    return url.Link("api.fieldcroppests.get.all",
+                    new
+                    {
+                        fieldId,
+                        pageNumber = resourceParameter.PageNumber - 1,
+                        pageSize = resourceParameter.PageSize,
+                    });
+                case ResourceUriType.NextPage:
+                    return url.Link("api.fieldcroppests.get.all",
+                    new
+                    {
+                        fieldId,
+                        pageNumber = resourceParameter.PageNumber + 1,
+                        pageSize = resourceParameter.PageSize,
+                    });
+                case ResourceUriType.Current:
+                default:
+                    return url.Link("api.fieldcroppests.get.all",
+                    new
+                    {
+                        fieldId,
+                        pageNumber = resourceParameter.PageNumber,
+                        pageSize = resourceParameter.PageSize,
                     });
             }
         }

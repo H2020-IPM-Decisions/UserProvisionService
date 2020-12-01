@@ -32,6 +32,8 @@ namespace H2020.IPMDecisions.UPR.API.Filters
                 var userRoleFromToken = claimsIdentity.FindFirst(ClaimTypes.Role)?.Value;
                 if (userRoleFromToken != null && userRoleFromToken.ToString().ToLower() == "admin")
                     context.HttpContext.Items.Add("isAdmin", true);
+                else
+                    context.HttpContext.Items.Add("isAdmin", false);
 
                 context.HttpContext.Items.Add("userId", validatedGuid);                        
             }

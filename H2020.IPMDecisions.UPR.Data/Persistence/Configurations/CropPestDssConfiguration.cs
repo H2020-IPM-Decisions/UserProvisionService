@@ -4,9 +4,9 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace H2020.IPMDecisions.UPR.Data.Persistence.Configurations
 {
-    internal class CropPestDssCombinationConfiguration : IEntityTypeConfiguration<CropPestDssCombination>
+    internal class CropPestDssConfiguration : IEntityTypeConfiguration<CropPestDss>
     {
-        public void Configure(EntityTypeBuilder<CropPestDssCombination> builder)
+        public void Configure(EntityTypeBuilder<CropPestDss> builder)
         {
             builder.HasKey(c => c.Id);
 
@@ -21,10 +21,16 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Configurations
                     })
                 .IsUnique();
 
+            builder.Property(c => c.DssId)
+                .IsRequired();
+
+            builder.Property(c => c.DssName)
+                .IsRequired();
+
             builder.HasOne<CropPest>(c => c.CropPest)
-                .WithMany(cp => cp.CropPestDssCombinations)
+                .WithMany(cp => cp.CropPestDsses)
                 .HasForeignKey(c => c.CropPestId)
-                .HasConstraintName("FK_CropPestDss_Combination")
+                .HasConstraintName("FK_CropPest_CropPestDss")
                 .OnDelete(DeleteBehavior.NoAction)
                 .IsRequired();
         }

@@ -5,7 +5,7 @@ using H2020.IPMDecisions.UPR.Core.ResourceParameters;
 
 namespace H2020.IPMDecisions.UPR.Data.Core.Repositories
 {
-    public interface IUserProfileRepository : IRepositoryBase<UserProfile, UserProfileResourceParameter>
+    public interface IUserProfileRepository : IRepositoryBaseWithResourceParameter<UserProfile, UserProfileResourceParameter>
     {
         Task AddFarm(UserProfile userProfile, Farm farm, UserFarmTypeEnum userType = UserFarmTypeEnum.Unknown, bool isAuthorised = false);
     }

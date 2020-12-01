@@ -86,7 +86,6 @@ namespace H2020.IPMDecisions.UPR.Tests.UnitTests.Context
                 };
 
                 // Act
-
                 await context.UserProfile.AddAsync(userProfile);
                 async Task action() => await context.UserProfile.AddAsync(userProfileDuplicated);
 
@@ -95,7 +94,6 @@ namespace H2020.IPMDecisions.UPR.Tests.UnitTests.Context
                 Assert.Contains("instance with the same key value for {'UserId'} is already being tracked", exception.Message);
             }
         }
-
 
         [Fact]
         public async Task AddNewProfile_DuplicateUserId_Exception()
