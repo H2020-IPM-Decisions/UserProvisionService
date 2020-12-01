@@ -14,13 +14,13 @@ namespace H2020.IPMDecisions.UPR.BLL
 {
     public partial class BusinessLogic : IBusinessLogic
     {
-        public async Task<GenericResponse> AddNewFarmDss(FarmDssForCreationDto farmDssDto, HttpContext httpContext, string mediaType)
+        public async Task<GenericResponse<FarmDssDto>> AddNewFarmDss(FarmDssForCreationDto farmDssDto, HttpContext httpContext, string mediaType)
         {
             try
             {
                 if (!MediaTypeHeaderValue.TryParse(mediaType,
                        out MediaTypeHeaderValue parsedMediaType))
-                    return GenericResponseBuilder.NoSuccess<ShapedDataWithLinks>(null, "Wrong media type.");
+                    return GenericResponseBuilder.NoSuccess<FarmDssDto>(null, "Wrong media type.");
 
                 var farm = httpContext.Items["farm"] as Farm;
 
@@ -33,16 +33,17 @@ namespace H2020.IPMDecisions.UPR.BLL
                 List<FieldCropPest> fieldCropPests = await CreateCropListForInsertion(cropPestAsCollection, fieldAsEntity);
                 fieldAsEntity.FieldCropPests = fieldCropPests;
 
-                await CreateFieldCropPestDss(fieldCropPests.FirstOrDefault(), farmDssDto.DssId);    
-                await this.dataService.CompleteAsync();               
+                await CreateFieldCropPestDss(fieldCropPests.FirstOrDefault(), farmDssDto.DssId);
+                await this.dataService.CompleteAsync();
 
-                return GenericResponseBuilder.Success();
+                var farmToReturn = this.mapper.Map<FarmDssDto>(farm);
+                return GenericResponseBuilder.Success<FarmDssDto>(farmToReturn);
             }
             catch (Exception ex)
             {
                 logger.LogError(string.Format("Error in BLL - AddNewFarmDss. {0}", ex.Message), ex);
                 String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
-                return GenericResponseBuilder.NoSuccess($"{ex.Message} InnerException: {innerMessage}");
+                return GenericResponseBuilder.NoSuccess<FarmDssDto>(null, $"{ex.Message} InnerException: {innerMessage}");
             }
         }
     }

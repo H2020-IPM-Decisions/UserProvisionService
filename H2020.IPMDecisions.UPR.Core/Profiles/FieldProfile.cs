@@ -24,7 +24,8 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
             {
                 if (string.IsNullOrEmpty(src.FieldName))
                 {
-                    dest.Name = string.Format("{0}_{1}_{2}", "Generated_Field", src.CropPest.CropEppoCode, src.CropPest.PestEppoCode);
+                    dest.Name = string.Format("{0}_{1}_{2}_{3}", 
+                        "Generated_Field", src.CropPest.CropEppoCode, src.CropPest.PestEppoCode, src.DssId);
                 }
                 else
                 {

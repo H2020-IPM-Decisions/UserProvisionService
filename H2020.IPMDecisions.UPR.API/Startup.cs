@@ -28,7 +28,7 @@ namespace H2020.IPMDecisions.UPR.API
             Configuration = configuration;
             CurrentEnvironment = environment;
         }
-        
+
         public void ConfigureServices(IServiceCollection services)
         {
             if (!CurrentEnvironment.IsDevelopment())
@@ -117,7 +117,7 @@ namespace H2020.IPMDecisions.UPR.API
 
             applicationLifetime.ApplicationStopping.Register(OnShutdown);
         }
-        
+
         private void OnShutdown()
         {
             NLog.LogManager.Shutdown();

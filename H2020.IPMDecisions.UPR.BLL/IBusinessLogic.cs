@@ -41,7 +41,7 @@ namespace H2020.IPMDecisions.UPR.BLL
         #endregion
 
         #region FarmDss
-        Task<GenericResponse> AddNewFarmDss(FarmDssForCreationDto farmDssDto, HttpContext httpContext, string mediaType);
+        Task<GenericResponse<FarmDssDto>> AddNewFarmDss(FarmDssForCreationDto farmDssDto, HttpContext httpContext, string mediaType);
         #endregion
 
         #region Field
