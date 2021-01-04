@@ -11,5 +11,6 @@ namespace H2020.IPMDecisions.UPR.Core.Dtos
         public CropPestForCreationDto CropPest { get; set; }
         [Required]
         public string DssId { get; set; }
+        public string DssParameters { get; set; }
     }
 }

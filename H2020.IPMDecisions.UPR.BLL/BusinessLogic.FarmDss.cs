@@ -33,7 +33,10 @@ namespace H2020.IPMDecisions.UPR.BLL
                 List<FieldCropPest> fieldCropPests = await CreateCropListForInsertion(cropPestAsCollection, fieldAsEntity);
                 fieldAsEntity.FieldCropPests = fieldCropPests;
 
-                await CreateFieldCropPestDss(fieldCropPests.FirstOrDefault(), farmDssDto.DssId);
+                await CreateFieldCropPestDss(
+                    fieldCropPests.FirstOrDefault(),
+                    farmDssDto.DssId,
+                    farmDssDto.DssParameters);
                 await this.dataService.CompleteAsync();
 
                 var farmToReturn = this.mapper.Map<FarmDssDto>(farm);

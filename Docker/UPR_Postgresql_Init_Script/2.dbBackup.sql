@@ -156,7 +156,8 @@ CREATE TABLE public."FieldCropPest" (
 CREATE TABLE public."FieldCropPestDss" (
     "Id" uuid NOT NULL,
     "FieldCropPestId" uuid NOT NULL,
-    "CropPestDssId" uuid NOT NULL
+    "CropPestDssId" uuid NOT NULL,
+    "DssParameters" text
 );
 
 

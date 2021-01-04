@@ -9,5 +9,6 @@ namespace H2020.IPMDecisions.UPR.Core.Dtos
         public Guid FieldCropPestId { get; set; }
         [Required]
         public string DssId { get; set; }
+        public string DssParameters { get; set; }
     }
 }

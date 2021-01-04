@@ -1,6 +1,7 @@
 using H2020.IPMDecisions.UPR.Core.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Newtonsoft.Json;
 
 namespace H2020.IPMDecisions.UPR.Data.Persistence.Configurations
 {
@@ -27,6 +28,10 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Configurations
                 .HasConstraintName("FK_FieldCropPestDss_CropPestDss")
                 .OnDelete(DeleteBehavior.Cascade)
                 .IsRequired();
+
+            builder.Property(cpd => cpd.DssParameters).HasConversion(
+                p => JsonConvert.SerializeObject(p, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore }),
+                p => JsonConvert.DeserializeObject<string>(p, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore }));
         }
     }
 }
