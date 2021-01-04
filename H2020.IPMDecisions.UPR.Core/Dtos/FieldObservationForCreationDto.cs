@@ -4,7 +4,7 @@ using H2020.IPMDecisions.UPR.Core.Models;
 
 namespace H2020.IPMDecisions.UPR.Core.Dtos
 {
-    public class FieldObservationForCreationDto 
+    public class FieldObservationForCreationDto
     {
         [Required(ErrorMessage = "Location is required")]
         public CustomPointLocation Location { get; set; }
@@ -15,5 +15,6 @@ namespace H2020.IPMDecisions.UPR.Core.Dtos
 
         [Required(ErrorMessage = "FieldCropPestId is required")]
         public Guid? FieldCropPestId { get; set; }
+        public string Severity { get; set; }
     }
 }
