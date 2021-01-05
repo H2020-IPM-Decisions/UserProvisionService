@@ -40,6 +40,12 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Configurations
                 .HasForeignKey(f => f.FieldCropPestdId)
                 .HasConstraintName("FK_Observation_FieldCropPest")
                 .OnDelete(DeleteBehavior.Cascade);
+
+            builder.HasMany<FieldSprayApplication>(f => f.FieldSprayApplications)
+                .WithOne(s => s.FieldCropPest)
+                .HasForeignKey(f => f.FieldCropPestdId)
+                .HasConstraintName("FK_Spray_FieldCropPest")
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }
