@@ -26,12 +26,13 @@ namespace H2020.IPMDecisions.UPR.BLL
                         (c => c.CropEppoCode == cropPestForCreationDto.CropEppoCode
                         && c.PestEppoCode == cropPestForCreationDto.PestEppoCode);
 
+                var newFieldCropPest = new FieldCropPest();
                 if (cropPestExist == null)
                 {
                     cropPestExist = this.mapper.Map<CropPest>(cropPestForCreationDto);
                     this.dataService.CropPests.Create(cropPestExist);
 
-                    var newFieldCropPest = new FieldCropPest()
+                    newFieldCropPest = new FieldCropPest()
                     {
                         CropPest = cropPestExist,
                         Field = field
@@ -40,7 +41,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                     this.dataService.FieldCropPests.Create(newFieldCropPest);
                     await this.dataService.CompleteAsync();
                 }
-                else 
+                else
                 {
                     var fieldCropPestExist = await this.dataService
                         .FieldCropPests
@@ -48,22 +49,27 @@ namespace H2020.IPMDecisions.UPR.BLL
                             f.FieldId == field.Id
                             & f.CropPestId == cropPestExist.Id);
 
-                    if (fieldCropPestExist == null)
+                    if (fieldCropPestExist != null)
                     {
-                        var newFieldCropPest = new FieldCropPest()
-                        {
-                            CropPest = cropPestExist,
-                            Field = field
-                        };
-
-                        this.dataService.FieldCropPests.Create(newFieldCropPest);
-                        await this.dataService.CompleteAsync();
+                        var returnExistingFieldCropPest = this.mapper
+                            .Map<FieldCropPestDto>(fieldCropPestExist)
+                            .ShapeData() as IDictionary<string, object>;
+                        return GenericResponseBuilder.Success<IDictionary<string, object>>(returnExistingFieldCropPest);
                     }
-                }                
+
+                    newFieldCropPest = new FieldCropPest()
+                    {
+                        CropPest = cropPestExist,
+                        Field = field
+                    };
+                    this.dataService.FieldCropPests.Create(newFieldCropPest);
+                    await this.dataService.CompleteAsync();
+                }
 
                 var cropPestToReturn = this.mapper
-                    .Map<CropPestDto>(cropPestExist)
+                    .Map<FieldCropPestDto>(newFieldCropPest)
                     .ShapeData() as IDictionary<string, object>;
+
                 return GenericResponseBuilder.Success<IDictionary<string, object>>(cropPestToReturn);
             }
             catch (Exception ex)
@@ -82,7 +88,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                         .FieldCropPests
                         .FindByConditionAsync(f =>
                             f.FieldId == fieldId
-                            & f.CropPestId == id);
+                            & f.Id == id);
 
                 if (fieldCropPestExist == null) return GenericResponseBuilder.Success();
 
@@ -112,12 +118,12 @@ namespace H2020.IPMDecisions.UPR.BLL
                         .FieldCropPests
                         .FindByConditionAsync(f =>
                             f.FieldId == fieldId
-                            & f.CropPestId == id, true);
+                            & f.Id == id, true);
 
                 if (fieldCropPestExist == null) return GenericResponseBuilder.NotFound<IDictionary<string, object>>();
 
                 var cropPestToReturn = this.mapper
-                    .Map<CropPestDto>(fieldCropPestExist.CropPest)
+                    .Map<FieldCropPestDto>(fieldCropPestExist)
                     .ShapeData() as IDictionary<string, object>;
 
                 return GenericResponseBuilder.Success<IDictionary<string, object>>(cropPestToReturn);
@@ -174,9 +180,9 @@ namespace H2020.IPMDecisions.UPR.BLL
                 return GenericResponseBuilder.NoSuccess<ShapedDataWithLinks>(null, $"{ex.Message} InnerException: {innerMessage}");
             }
         }
-       
+
         #region Helpers
-        
+
         #endregion
     }
 }
