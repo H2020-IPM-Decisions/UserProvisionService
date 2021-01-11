@@ -68,10 +68,10 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
 
             var collection = this.context.Field as IQueryable<Field>;
             collection = collection.Where(f =>
-                    f.FarmId == farmId);           
+                    f.FarmId == farmId);
 
             collection = ApplyResourceParameter(resourceParameter, collection);
-            
+
             return await PagedList<Field>.CreateAsync(
                 collection,
                 resourceParameter.PageNumber,
@@ -95,7 +95,9 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
                    .ThenInclude(fcp => fcp.CropPest)
                 .Include(f => f.FieldCropPests)
                     .ThenInclude(fcp => fcp.FieldCropPestDsses)
-                        .ThenInclude(fcpd => fcpd.CropPestDss);
+                        .ThenInclude(fcpd => fcpd.CropPestDss)
+                .Include(f => f.FieldCropPests)
+                    .ThenInclude(f => f.FieldSprayApplications);
 
             collection = ApplyResourceParameter(resourceParameter, collection);
 
@@ -150,6 +152,8 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
                 .Include(f => f.FieldCropPests)
                     .ThenInclude(fcp => fcp.FieldCropPestDsses)
                         .ThenInclude(fcpd => fcpd.CropPestDss)
+                .Include(f => f.FieldCropPests)
+                    .ThenInclude(f => f.FieldSprayApplications)
                 .FirstOrDefaultAsync();
         }
 
@@ -179,6 +183,8 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
                     .ThenInclude(f => f.FieldObservations)
                 .Include(f => f.FieldCropPests)
                    .ThenInclude(fcp => fcp.CropPest)
+                .Include(f => f.FieldCropPests)
+                    .ThenInclude(f => f.FieldSprayApplications)
                 .FirstOrDefaultAsync();
         }
 

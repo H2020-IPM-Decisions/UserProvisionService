@@ -41,9 +41,29 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
         }
 
-        public Task<GenericResponse> DeleteFieldSpray(Guid id, HttpContext httpContext)
+        public async Task<GenericResponse> DeleteFieldSpray(Guid id, HttpContext httpContext)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var field = httpContext.Items["field"] as Field;
+                var existingEntity = field
+                    .FieldCropPests
+                    .SelectMany(f => f.FieldSprayApplications)
+                    .Where(fs => fs.Id == id)
+                    .FirstOrDefault();
+
+                if (existingEntity == null) return GenericResponseBuilder.Success();
+
+                this.dataService.FieldSprayApplication.Delete(existingEntity);
+                await this.dataService.CompleteAsync();
+                return GenericResponseBuilder.Success();
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(string.Format("Error in BLL - DeleteFieldSpray. {0}", ex.Message), ex);
+                String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
+                return GenericResponseBuilder.NoSuccess($"{ex.Message} InnerException: {innerMessage}");
+            }
         }
 
         public GenericResponse<FieldSprayApplicationDto> GetFieldSprayDto(Guid id, string fields, string mediaType, HttpContext httpContext)
