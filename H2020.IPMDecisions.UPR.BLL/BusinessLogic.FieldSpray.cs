@@ -1,9 +1,12 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
+using H2020.IPMDecisions.UPR.BLL.Helpers;
 using H2020.IPMDecisions.UPR.Core.Dtos;
 using H2020.IPMDecisions.UPR.Core.Entities;
+using H2020.IPMDecisions.UPR.Core.Helpers;
 using H2020.IPMDecisions.UPR.Core.Models;
 using H2020.IPMDecisions.UPR.Core.ResourceParameters;
 using Microsoft.AspNetCore.Http;
@@ -96,9 +99,51 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
         }
 
-        public Task<GenericResponse<ShapedDataWithLinks>> GetFieldSprays(Guid fieldId, FieldSprayResourceParameter resourceParameter, string mediaType)
+        public async Task<GenericResponse<ShapedDataWithLinks>> GetFieldSprays(Guid fieldId, FieldSprayResourceParameter resourceParameter, string mediaType)
         {
-            throw new NotImplementedException();
+            try
+            {
+                if (!MediaTypeHeaderValue.TryParse(mediaType,
+                      out MediaTypeHeaderValue parsedMediaType))
+                    return GenericResponseBuilder.NoSuccess<ShapedDataWithLinks>(null, "Wrong media type.");
+
+                if (!propertyCheckerService.TypeHasProperties<FieldSprayApplicationDto>(resourceParameter.Fields, true))
+                    return GenericResponseBuilder.NoSuccess<ShapedDataWithLinks>(null, "Wrong fields entered or missing 'id' field");
+
+                var dataAsEntities = await this
+                    .dataService
+                    .FieldSprayApplication
+                    .FindAllAsync(resourceParameter, fieldId);
+
+                if (dataAsEntities.Count == 0) return GenericResponseBuilder.NoSuccess<ShapedDataWithLinks>(null);
+
+                var paginationMetaData = MiscellaneousHelper.CreatePaginationMetadata(dataAsEntities);
+                var links = UrlCreatorHelper.CreateLinksForFieldSprays(
+                    this.url,
+                    fieldId,
+                    resourceParameter,
+                    dataAsEntities.HasNext,
+                    dataAsEntities.HasPrevious);
+
+                var shapedDataToReturn = this.mapper
+                    .Map<IEnumerable<FieldSprayApplicationDto>>(dataAsEntities)
+                    .ShapeData(resourceParameter.Fields);
+
+                var dataToReturn = new ShapedDataWithLinks()
+                {
+                    Value = shapedDataToReturn,
+                    Links = links,
+                    PaginationMetaData = paginationMetaData
+                };
+
+                return GenericResponseBuilder.Success<ShapedDataWithLinks>(dataToReturn);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(string.Format("Error in BLL - GetFieldSprayApplications. {0}", ex.Message), ex);
+                String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
+                return GenericResponseBuilder.NoSuccess<ShapedDataWithLinks>(null, $"{ex.Message} InnerException: {innerMessage}");
+            }
         }
     }
 }

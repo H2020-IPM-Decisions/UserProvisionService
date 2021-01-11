@@ -296,7 +296,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("FieldCropPestdId")
+                    b.Property<Guid>("FieldCropPestId")
                         .HasColumnType("uuid");
 
                     b.Property<string>("Name")
@@ -313,7 +313,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("FieldCropPestdId");
+                    b.HasIndex("FieldCropPestId");
 
                     b.ToTable("FieldSprayApplication");
                 });
@@ -665,7 +665,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Migrations
                 {
                     b.HasOne("H2020.IPMDecisions.UPR.Core.Entities.FieldCropPest", "FieldCropPest")
                         .WithMany("FieldSprayApplications")
-                        .HasForeignKey("FieldCropPestdId")
+                        .HasForeignKey("FieldCropPestId")
                         .HasConstraintName("FK_Spray_FieldCropPest")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();

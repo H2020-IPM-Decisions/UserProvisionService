@@ -1,4 +1,3 @@
-using System;
 using H2020.IPMDecisions.UPR.Core.Models;
 
 namespace H2020.IPMDecisions.UPR.Core.Dtos
@@ -7,5 +6,6 @@ namespace H2020.IPMDecisions.UPR.Core.Dtos
     {
         public ShapedDataWithLinks FieldObservationsDto { get; set; }
         public ShapedDataWithLinks FieldCropPestsDto { get; set; }
+        public ShapedDataWithLinks FieldSpraysDto { get; set; }
     }
 }

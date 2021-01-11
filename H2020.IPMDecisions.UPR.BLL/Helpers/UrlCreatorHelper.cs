@@ -230,7 +230,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
                "GET"));
             }
             return links;
-        }        
+        }
 
         private static string CreateFieldResourceUri(
             IUrlHelper url,
@@ -599,6 +599,81 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
                         fieldId,
                         pageNumber = resourceParameter.PageNumber,
                         pageSize = resourceParameter.PageSize,
+                    });
+            }
+        }
+        #endregion
+
+        #region FieldSpray
+        internal static IEnumerable<LinkDto> CreateLinksForFieldSprays(IUrlHelper url, Guid fieldId, FieldSprayResourceParameter resourceParameter, bool hasNext, bool hasPrevious)
+        {
+            var links = new List<LinkDto>();
+            links.Add(new LinkDto(
+                CreateFieldSprayResourceUri(url, fieldId, resourceParameter, ResourceUriType.Current),
+                "self",
+                "GET"));
+
+            if (hasNext)
+            {
+                links.Add(new LinkDto(
+                CreateFieldSprayResourceUri(url, fieldId, resourceParameter, ResourceUriType.NextPage),
+                "next_page",
+                "GET"));
+            }
+            if (hasPrevious)
+            {
+                links.Add(new LinkDto(
+               CreateFieldSprayResourceUri(url, fieldId, resourceParameter, ResourceUriType.PreviousPage),
+               "previous_page",
+               "GET"));
+            }
+            return links;
+        }
+
+        private static string CreateFieldSprayResourceUri(
+            IUrlHelper url,
+            Guid fieldId,
+            FieldSprayResourceParameter resourceParameter,
+            ResourceUriType type)
+        {
+            switch (type)
+            {
+                case ResourceUriType.PreviousPage:
+                    return url.Link("api.spray.get.all",
+                    new
+                    {
+                        fieldId,
+                        fieldCropPestId = resourceParameter.FieldCropPestId,
+                        fields = resourceParameter.Fields,
+                        orderBy = resourceParameter.OrderBy,
+                        pageNumber = resourceParameter.PageNumber - 1,
+                        pageSize = resourceParameter.PageSize,
+                        searchQuery = resourceParameter.SearchQuery
+                    });
+                case ResourceUriType.NextPage:
+                    return url.Link("api.spray.get.all",
+                    new
+                    {
+                        fieldId,
+                        fields = resourceParameter.Fields,
+                        fieldCropPestId = resourceParameter.FieldCropPestId,
+                        orderBy = resourceParameter.OrderBy,
+                        pageNumber = resourceParameter.PageNumber + 1,
+                        pageSize = resourceParameter.PageSize,
+                        searchQuery = resourceParameter.SearchQuery
+                    });
+                case ResourceUriType.Current:
+                default:
+                    return url.Link("api.spray.get.all",
+                    new
+                    {
+                        fieldId,
+                        fields = resourceParameter.Fields,
+                        fieldCropPestId = resourceParameter.FieldCropPestId,
+                        orderBy = resourceParameter.OrderBy,
+                        pageNumber = resourceParameter.PageNumber,
+                        pageSize = resourceParameter.PageSize,
+                        searchQuery = resourceParameter.SearchQuery
                     });
             }
         }
