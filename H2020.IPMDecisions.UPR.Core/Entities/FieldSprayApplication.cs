@@ -13,7 +13,7 @@ namespace H2020.IPMDecisions.UPR.Core.Entities
         public DateTime Time { get; set; }
         [Required]
         public Double Rate { get; set; }
-        public Guid FieldCropPestdId { get; set; }
+        public Guid FieldCropPestId { get; set; }
         public FieldCropPest FieldCropPest { get; set; }
     }
 }
