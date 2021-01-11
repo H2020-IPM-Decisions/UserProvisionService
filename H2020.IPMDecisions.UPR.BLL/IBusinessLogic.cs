@@ -66,7 +66,7 @@ namespace H2020.IPMDecisions.UPR.BLL
         #region  FieldSpray
         Task<GenericResponse<FieldSprayApplicationDto>> AddNewFieldSpray(FieldSprayApplicationForCreationDto sprayForCreationDto, HttpContext httpContext, string mediaType);
         Task<GenericResponse> DeleteFieldSpray(Guid id, HttpContext httpContext);
-        GenericResponse<FieldSprayApplicationDto> GetFieldSprayDto(Guid id, string fields, string mediaType, HttpContext httpContext);
+        GenericResponse<FieldSprayApplicationDto> GetFieldSprayDto(Guid id, string mediaType, HttpContext httpContext);
         Task<GenericResponse<ShapedDataWithLinks>> GetFieldSprays(Guid fieldId, FieldSprayResourceParameter resourceParameter, string mediaType);
         #endregion
 

@@ -77,10 +77,9 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         // GET:  api/fields/1/sprayapplications/1
         public IActionResult GetFieldSprayById(
             [FromRoute] Guid fieldId, Guid id,
-            [FromQuery] string fields,
             [FromHeader(Name = "Accept")] string mediaType)
         {
-            var response = this.businessLogic.GetFieldSprayDto(id, fields, mediaType, HttpContext);
+            var response = this.businessLogic.GetFieldSprayDto(id, mediaType, HttpContext);
 
             if (!response.IsSuccessful)
                 return response.RequestResult;

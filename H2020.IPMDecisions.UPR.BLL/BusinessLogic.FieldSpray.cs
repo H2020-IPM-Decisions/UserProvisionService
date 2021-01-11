@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using H2020.IPMDecisions.UPR.Core.Dtos;
 using H2020.IPMDecisions.UPR.Core.Entities;
@@ -66,9 +67,33 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
         }
 
-        public GenericResponse<FieldSprayApplicationDto> GetFieldSprayDto(Guid id, string fields, string mediaType, HttpContext httpContext)
+        public GenericResponse<FieldSprayApplicationDto> GetFieldSprayDto(Guid id, string mediaType, HttpContext httpContext)
         {
-            throw new NotImplementedException();
+            try
+            {
+                if (!MediaTypeHeaderValue.TryParse(mediaType,
+                        out MediaTypeHeaderValue parsedMediaType))
+                    return GenericResponseBuilder.NoSuccess<FieldSprayApplicationDto>(null, "Wrong media type.");
+
+                var field = httpContext.Items["field"] as Field;
+                var sprayAsEntity = field
+                    .FieldCropPests
+                    .SelectMany(f => f.FieldSprayApplications)
+                    .Where(fs => fs.Id == id)
+                    .FirstOrDefault();
+
+                if (sprayAsEntity == null) return GenericResponseBuilder.NotFound<FieldSprayApplicationDto>();
+
+                // ToDo: Shape Data
+                var dataToReturn = this.mapper.Map<FieldSprayApplicationDto>(sprayAsEntity);
+                return GenericResponseBuilder.Success<FieldSprayApplicationDto>(dataToReturn);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(string.Format("Error in BLL - GetFieldSprayDto. {0}", ex.Message), ex);
+                String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
+                return GenericResponseBuilder.NoSuccess<FieldSprayApplicationDto>(null, $"{ex.Message} InnerException: {innerMessage}");
+            }
         }
 
         public Task<GenericResponse<ShapedDataWithLinks>> GetFieldSprays(Guid fieldId, FieldSprayResourceParameter resourceParameter, string mediaType)
