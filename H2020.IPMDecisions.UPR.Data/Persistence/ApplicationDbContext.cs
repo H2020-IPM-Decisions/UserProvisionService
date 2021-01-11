@@ -19,6 +19,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence
         public DbSet<FieldObservation> FieldObservation { get; set; }
         public DbSet<FieldCropPest> FieldCropPest { get; set; }
         public DbSet<FieldCropPestDss> FieldCropPestDss { get; set; }
+        public DbSet<FieldSprayApplication> FieldSprayApplication { get; set; }
         public DbSet<ForecastAlert> ForecastAlert { get; set; }
         public DbSet<ForecastResult> ForecastResult { get; set; }
         public DbSet<ObservationAlert> ObservationAlert { get; set; }
@@ -51,6 +52,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence
             modelBuilder.ApplyConfiguration(new FieldCropPestConfiguration());
             modelBuilder.ApplyConfiguration(new FieldCropPestDssConfiguration());
             modelBuilder.ApplyConfiguration(new FieldObservationConfiguration());
+            modelBuilder.ApplyConfiguration(new FieldSprayApplicationConfiguration());
             modelBuilder.ApplyConfiguration(new ForecastAlertConfiguration());
             modelBuilder.ApplyConfiguration(new ForecastResultConfiguration());
             modelBuilder.ApplyConfiguration(new ObservationAlertConfiguration());

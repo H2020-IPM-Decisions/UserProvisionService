@@ -3,6 +3,7 @@ using System;
 using H2020.IPMDecisions.UPR.Data.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetTopologySuite.Geometries;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -10,9 +11,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace H2020.IPMDecisions.UPR.Data.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210104140331_AddSeverityToFieldObservation")]
+    partial class AddSeverityToFieldObservation
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -288,34 +290,6 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Migrations
                     b.HasIndex("FieldCropPestdId");
 
                     b.ToTable("FieldObservation");
-                });
-
-            modelBuilder.Entity("H2020.IPMDecisions.UPR.Core.Entities.FieldSprayApplication", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("FieldCropPestId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<double>("Rate")
-                        .HasColumnType("double precision");
-
-                    b.Property<DateTime>("Time")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp without time zone")
-                        .HasDefaultValueSql("NOW()");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("FieldCropPestId");
-
-                    b.ToTable("FieldSprayApplication");
                 });
 
             modelBuilder.Entity("H2020.IPMDecisions.UPR.Core.Entities.ForecastAlert", b =>
@@ -657,16 +631,6 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Migrations
                         .WithMany("FieldObservations")
                         .HasForeignKey("FieldCropPestdId")
                         .HasConstraintName("FK_Observation_FieldCropPest")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("H2020.IPMDecisions.UPR.Core.Entities.FieldSprayApplication", b =>
-                {
-                    b.HasOne("H2020.IPMDecisions.UPR.Core.Entities.FieldCropPest", "FieldCropPest")
-                        .WithMany("FieldSprayApplications")
-                        .HasForeignKey("FieldCropPestId")
-                        .HasConstraintName("FK_Spray_FieldCropPest")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

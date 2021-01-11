@@ -181,6 +181,19 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence
             }
         }
 
+        private IFieldSprayApplicationRepository fieldSprayApplication;
+        public IFieldSprayApplicationRepository FieldSprayApplication
+        {
+            get
+            {
+                if (fieldSprayApplication == null)
+                {
+                    fieldSprayApplication = new FieldSprayApplicationRepository(this.context);
+                }
+                return fieldSprayApplication;
+            }
+        }
+
         public DataService(
             ApplicationDbContext context,
             IPropertyMappingService propertyMappingService)

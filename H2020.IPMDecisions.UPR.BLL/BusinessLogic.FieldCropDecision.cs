@@ -40,7 +40,10 @@ namespace H2020.IPMDecisions.UPR.BLL
                 if (getFieldCropPest == null)
                     return GenericResponseBuilder.NotFound<IDictionary<string, object>>();
 
-                var newFieldCropPestDss = await CreateFieldCropPestDss(getFieldCropPest, cropPestDssForCreationDto.DssId);
+                var newFieldCropPestDss = await CreateFieldCropPestDss(
+                    getFieldCropPest,
+                    cropPestDssForCreationDto.DssId,
+                    cropPestDssForCreationDto.DssParameters);
 
                 await this.dataService.CompleteAsync();
 
@@ -164,7 +167,7 @@ namespace H2020.IPMDecisions.UPR.BLL
         }
 
         #region Helpers
-        private async Task<FieldCropPestDss> CreateFieldCropPestDss(FieldCropPest fieldCropPest, string dssId)
+        private async Task<FieldCropPestDss> CreateFieldCropPestDss(FieldCropPest fieldCropPest, string dssId, string dssParameters = "")
         {
             var cropPestDssExist = await this.dataService
                 .CropPestDsses
@@ -186,7 +189,8 @@ namespace H2020.IPMDecisions.UPR.BLL
             var newFieldCropPestDss = new FieldCropPestDss()
             {
                 FieldCropPest = fieldCropPest,
-                CropPestDssId = cropPestDssExist.Id
+                CropPestDssId = cropPestDssExist.Id,
+                DssParameters = dssParameters
             };
             this.dataService.FieldCropPestDsses.Create(newFieldCropPestDss);
             return newFieldCropPestDss;

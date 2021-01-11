@@ -16,6 +16,7 @@ namespace H2020.IPMDecisions.UPR.Data.Core
         IFieldObservationRepository FieldObservations { get; }
         IFieldCropPestRepository FieldCropPests { get; }
         IFieldCropPestDssRepository FieldCropPestDsses { get; }
+        IFieldSprayApplicationRepository FieldSprayApplication { get; }
         IUserFarmsRepository UserFarms { get; }
         IUserProfileRepository UserProfiles { get; }
         IWeatherDataSourcesRepository WeatherDataSources { get; }

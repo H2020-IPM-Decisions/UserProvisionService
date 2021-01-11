@@ -15,7 +15,7 @@ namespace H2020.IPMDecisions.UPR.Tests
         {
             stub = WireMockServer.Start(new WireMockServerSettings
             {
-                Urls = new[] { "http://+:5002" },
+                Urls = new[] { "http://+:7008" },
                 StartAdminInterface = true
             });
 

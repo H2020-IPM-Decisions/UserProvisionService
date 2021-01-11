@@ -3,6 +3,7 @@ using System;
 using H2020.IPMDecisions.UPR.Data.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetTopologySuite.Geometries;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -10,9 +11,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace H2020.IPMDecisions.UPR.Data.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210105101005_AddNameColumnToSprayTable")]
+    partial class AddNameColumnToSprayTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -296,7 +298,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("FieldCropPestId")
+                    b.Property<Guid>("FieldCropPestdId")
                         .HasColumnType("uuid");
 
                     b.Property<string>("Name")
@@ -313,7 +315,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("FieldCropPestId");
+                    b.HasIndex("FieldCropPestdId");
 
                     b.ToTable("FieldSprayApplication");
                 });
@@ -665,7 +667,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Migrations
                 {
                     b.HasOne("H2020.IPMDecisions.UPR.Core.Entities.FieldCropPest", "FieldCropPest")
                         .WithMany("FieldSprayApplications")
-                        .HasForeignKey("FieldCropPestId")
+                        .HasForeignKey("FieldCropPestdId")
                         .HasConstraintName("FK_Spray_FieldCropPest")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();

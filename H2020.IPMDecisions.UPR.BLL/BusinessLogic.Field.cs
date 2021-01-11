@@ -420,9 +420,20 @@ namespace H2020.IPMDecisions.UPR.BLL
                                     includeLinks);
                 }
 
+                ShapedDataWithLinks fieldSpraysToReturn = null;
+                // if (fieldAsEntity.FieldSprays != null && fieldAsEntity.FieldSprays.Count > 0)
+                // {
+                //     var fieldObservationResourceParameter = this.mapper.Map<FieldObservationResourceParameter>(resourceParameter);
+                //     fieldObservationsToReturn = ShapeFieldObservationsAsChildren(
+                //                     fieldAsEntity,
+                //                     fieldObservationResourceParameter,
+                //                     includeLinks);
+                // }
+
                 var fieldToReturnWithChildren = this.mapper.Map<FieldWithChildrenDto>(fieldAsEntity);
                 fieldToReturnWithChildren.FieldObservationsDto = fieldObservationsToReturn;
                 fieldToReturnWithChildren.FieldCropPestsDto = fieldCropPestToReturn;
+                fieldToReturnWithChildren.FieldSpraysDto = fieldSpraysToReturn;
 
                 var fieldToReturnWithChildrenShaped = fieldToReturnWithChildren
                     .ShapeData(resourceParameter.Fields)
