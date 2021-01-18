@@ -27,7 +27,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Configurations
 
             builder.HasOne<Widget>(uw => uw.Widget)
                 .WithMany(w => w.UserWidgets)
-                .HasForeignKey(uw => uw.WidgetId)
+                .HasPrincipalKey(uw => uw.Description)
                 .HasConstraintName("FK_UserWidget_Widget")
                 .OnDelete(DeleteBehavior.Cascade)
                 .IsRequired();
