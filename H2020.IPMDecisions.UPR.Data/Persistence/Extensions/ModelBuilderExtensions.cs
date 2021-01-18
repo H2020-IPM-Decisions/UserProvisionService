@@ -12,15 +12,15 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Extensions
         public static void Seed(this ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<UserFarmType>()
-                .HasData(
-                    Enum.GetValues(typeof(UserFarmTypeEnum))
-                    .Cast<UserFarmTypeEnum>()
-                    .Select(e => new UserFarmType()
-                    {
-                        Id = e,
-                        Description = e.ToString()
-                    })
-                );
+            .HasData(
+                Enum.GetValues(typeof(UserFarmTypeEnum))
+                .Cast<UserFarmTypeEnum>()
+                .Select(e => new UserFarmType()
+                {
+                    Id = e,
+                    Description = e.ToString()
+                })
+            );
 
             modelBuilder.Entity<DataSharingRequestStatus>()
             .HasData(
@@ -32,6 +32,17 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Extensions
                     Description = e.ToString()
                 })
             );
-        }        
+
+            modelBuilder.Entity<Widget>()
+            .HasData(
+                Enum.GetValues(typeof(WidgetOption))
+                .Cast<WidgetOption>()
+                .Select(e => new Widget()
+                {
+                    Id = e,
+                    Description = e.ToString()
+                })
+            );
+        }
     }
 }
