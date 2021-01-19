@@ -33,10 +33,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                 fieldAsEntity.Farm = farm;
                 this.dataService.Fields.Create(fieldAsEntity);
 
-                List<FieldCropPest> listOfCropPest = await CreateCropListForInsertion(fieldForCreationDto.CropPests, fieldAsEntity);
-                // ToDo - FieldCrop
-                // fieldAsEntity.FieldCropPests = listOfCropPest;
-
+                await AddCropPestToField(fieldForCreationDto.CropPest, fieldAsEntity);
                 await this.dataService.CompleteAsync();
 
                 var includeLinks = parsedMediaType.SubTypeWithoutSuffix
@@ -77,9 +74,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                 fieldAsEntity.Id = id;
 
                 this.dataService.Fields.Create(fieldAsEntity);
-                List<FieldCropPest> listOfCropPest = await CreateCropListForInsertion(fieldForCreationDto.CropPests, fieldAsEntity);
-                // ToDo - FieldCrop
-                // fieldAsEntity.FieldCropPests = listOfCropPest;
+                await AddCropPestToField(fieldForCreationDto.CropPest, fieldAsEntity);
 
                 await this.dataService.CompleteAsync();
 
@@ -353,46 +348,40 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
         }
 
-        private async Task<List<FieldCropPest>> CreateCropListForInsertion(ICollection<CropPestForCreationDto> cropPestsFromRequest, Field field)
+        private async Task AddCropPestToField(CropPestForCreationDto cropPestRequest, Field field)
         {
-            if (cropPestsFromRequest is null) return null;
+            if (cropPestRequest is null) return;
 
-            var listOfFieldCropPest = new List<FieldCropPest>();
-            var cropWithoutDuplicates = cropPestsFromRequest
-                                    .Select(c => new
-                                    {
-                                        CropEppoCode = c.CropEppoCode,
-                                        PestEppoCode = c.PestEppoCode
-                                    })
-                                    .Distinct();
-
-            foreach (var cropPest in cropWithoutDuplicates)
+            var fieldCrop = new FieldCrop()
             {
-                var cropPestAsEntity = await this.dataService.CropPests
-                    .FindByConditionAsync
-                    (c => c.CropEppoCode == cropPest.CropEppoCode
-                    && c.PestEppoCode == cropPest.PestEppoCode);
+                CropEppoCode = cropPestRequest.CropEppoCode,
+                Field = field
+            };
+            var cropPestAsEntity = await this.dataService.CropPests
+                .FindByConditionAsync
+                (c => c.CropEppoCode == cropPestRequest.CropEppoCode
+                 && c.PestEppoCode == cropPestRequest.PestEppoCode);
 
-                if (cropPestAsEntity == null)
+            if (cropPestAsEntity == null)
+            {
+                cropPestAsEntity = new CropPest()
                 {
-                    cropPestAsEntity = new CropPest()
-                    {
-                        CropEppoCode = cropPest.CropEppoCode,
-                        PestEppoCode = cropPest.PestEppoCode,
-                    };
-                    this.dataService.CropPests.Create(cropPestAsEntity);
-                }
-
-                var newFieldCropPest = new FieldCropPest()
-                {
-                    CropPest = cropPestAsEntity,
-                    // ToDo - FieldCrop
-                    // Field = field
+                    CropEppoCode = cropPestRequest.CropEppoCode,
+                    PestEppoCode = cropPestRequest.PestEppoCode,
                 };
-                listOfFieldCropPest.Add(newFieldCropPest);
+                this.dataService.CropPests.Create(cropPestAsEntity);
             }
+            var newFieldCropPest = new FieldCropPest()
+            {
+                CropPest = cropPestAsEntity,
+                FieldCrop = fieldCrop
+            };
 
-            return listOfFieldCropPest;
+            var fieldCropPests = new List<FieldCropPest>();
+            fieldCropPests.Add(newFieldCropPest);
+
+            field.FieldCrop = fieldCrop;
+            field.FieldCrop.FieldCropPests = fieldCropPests;
         }
 
         private IDictionary<string, object> CreateFieldWithChildrenAsDictionary(
