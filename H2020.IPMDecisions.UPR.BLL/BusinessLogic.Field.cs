@@ -34,7 +34,8 @@ namespace H2020.IPMDecisions.UPR.BLL
                 this.dataService.Fields.Create(fieldAsEntity);
 
                 List<FieldCropPest> listOfCropPest = await CreateCropListForInsertion(fieldForCreationDto.CropPests, fieldAsEntity);
-                fieldAsEntity.FieldCropPests = listOfCropPest;
+                // ToDo - FieldCrop
+                // fieldAsEntity.FieldCropPests = listOfCropPest;
 
                 await this.dataService.CompleteAsync();
 
@@ -77,7 +78,8 @@ namespace H2020.IPMDecisions.UPR.BLL
 
                 this.dataService.Fields.Create(fieldAsEntity);
                 List<FieldCropPest> listOfCropPest = await CreateCropListForInsertion(fieldForCreationDto.CropPests, fieldAsEntity);
-                fieldAsEntity.FieldCropPests = listOfCropPest;
+                // ToDo - FieldCrop
+                // fieldAsEntity.FieldCropPests = listOfCropPest;
 
                 await this.dataService.CompleteAsync();
 
@@ -384,7 +386,8 @@ namespace H2020.IPMDecisions.UPR.BLL
                 var newFieldCropPest = new FieldCropPest()
                 {
                     CropPest = cropPestAsEntity,
-                    Field = field
+                    // ToDo - FieldCrop
+                    // Field = field
                 };
                 listOfFieldCropPest.Add(newFieldCropPest);
             }
@@ -411,14 +414,15 @@ namespace H2020.IPMDecisions.UPR.BLL
                 // }
 
                 ShapedDataWithLinks fieldCropPestToReturn = null;
-                if (fieldAsEntity.FieldCropPests != null && fieldAsEntity.FieldCropPests.Count > 0)
-                {
-                    var fieldCropPestResourceParameter = this.mapper.Map<FieldCropPestResourceParameter>(resourceParameter);
-                    fieldCropPestToReturn = ShapeFieldCropPestAsChildren(
-                                    fieldAsEntity,
-                                    fieldCropPestResourceParameter,
-                                    includeLinks);
-                }
+                // ToDo - FieldCrop
+                //  if (fieldAsEntity.FieldCropPests != null && fieldAsEntity.FieldCropPests.Count > 0)
+                // {
+                //     var fieldCropPestResourceParameter = this.mapper.Map<FieldCropPestResourceParameter>(resourceParameter);
+                //     fieldCropPestToReturn = ShapeFieldCropPestAsChildren(
+                //                     fieldAsEntity,
+                //                     fieldCropPestResourceParameter,
+                //                     includeLinks);
+                // }
 
                 ShapedDataWithLinks fieldSpraysToReturn = null;
                 // if (fieldAsEntity.FieldSprays != null && fieldAsEntity.FieldSprays.Count > 0)

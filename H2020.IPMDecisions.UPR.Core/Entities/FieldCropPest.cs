@@ -8,8 +8,8 @@ namespace H2020.IPMDecisions.UPR.Core.Entities
     {
         [Key]
         public Guid Id { get; set; }
-        public Guid FieldId { get; set; }
-        public Field Field { get; set; }
+        public Guid FieldCropId { get; set; }
+        public FieldCrop FieldCrop { get; set; }
         public Guid CropPestId { get; set; }
         public CropPest CropPest { get; set; }
 

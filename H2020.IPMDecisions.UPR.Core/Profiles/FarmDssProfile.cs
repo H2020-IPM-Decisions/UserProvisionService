@@ -33,15 +33,15 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
                         dest.FieldId = lastField.Id;
                         dest.FieldName = lastField.Name;
 
-                        if (lastField.FieldCropPests.Any())
-                        {
-                            var fieldCropPestDss = lastField.FieldCropPests.LastOrDefault().FieldCropPestDsses.FirstOrDefault();
-                            dest.FieldCropPestDssDto = context
-                                .Mapper
-                                .Map<FieldCropPestDssDto>(fieldCropPestDss);
+                        // if (lastField.FieldCropPests.Any())
+                        // {
+                        //     var fieldCropPestDss = lastField.FieldCropPests.LastOrDefault().FieldCropPestDsses.FirstOrDefault();
+                        //     dest.FieldCropPestDssDto = context
+                        //         .Mapper
+                        //         .Map<FieldCropPestDssDto>(fieldCropPestDss);
 
-                            dest.DssId = fieldCropPestDss.CropPestDss.DssId;
-                        }
+                        //     dest.DssId = fieldCropPestDss.CropPestDss.DssId;
+                        // }
                     }
                 }); ;
         }

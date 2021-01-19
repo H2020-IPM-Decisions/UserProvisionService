@@ -20,22 +20,24 @@ namespace H2020.IPMDecisions.UPR.BLL
         {
             try
             {
-                var field = httpContext.Items["field"] as Field;
-                var fieldCropPestExist = field
-                    .FieldCropPests
-                    .Where(fcp => fcp.Id == sprayForCreationDto.FieldCropPestId)
-                    .FirstOrDefault();
+                // ToDo - FieldCrop
+                // var field = httpContext.Items["field"] as Field;
+                // var fieldCropPestExist = field
+                //     .FieldCropPests
+                //     .Where(fcp => fcp.Id == sprayForCreationDto.FieldCropPestId)
+                //     .FirstOrDefault();
 
-                if (fieldCropPestExist == null) return GenericResponseBuilder.NotFound<FieldSprayApplicationDto>();
+                // if (fieldCropPestExist == null) return GenericResponseBuilder.NotFound<FieldSprayApplicationDto>();
 
-                var objectAsEntity = this.mapper.Map<FieldSprayApplication>(sprayForCreationDto);
-                objectAsEntity.FieldCropPest = fieldCropPestExist;
+                // var objectAsEntity = this.mapper.Map<FieldSprayApplication>(sprayForCreationDto);
+                // objectAsEntity.FieldCropPest = fieldCropPestExist;
 
-                this.dataService.FieldSprayApplication.Create(objectAsEntity);
-                await this.dataService.CompleteAsync();
+                // this.dataService.FieldSprayApplication.Create(objectAsEntity);
+                // await this.dataService.CompleteAsync();
 
-                var fieldToReturn = this.mapper.Map<FieldSprayApplicationDto>(objectAsEntity);
-                return GenericResponseBuilder.Success(fieldToReturn);
+                // var fieldToReturn = this.mapper.Map<FieldSprayApplicationDto>(objectAsEntity);
+                // return GenericResponseBuilder.Success(fieldToReturn);
+                throw new Exception("Database Change");
             }
             catch (Exception ex)
             {
@@ -49,18 +51,21 @@ namespace H2020.IPMDecisions.UPR.BLL
         {
             try
             {
-                var field = httpContext.Items["field"] as Field;
-                var existingEntity = field
-                    .FieldCropPests
-                    .SelectMany(f => f.FieldSprayApplications)
-                    .Where(fs => fs.Id == id)
-                    .FirstOrDefault();
+                // ToDo - FieldCrop
+                // var field = httpContext.Items["field"] as Field;
+                // var existingEntity = field
+                //     .FieldCropPests
+                //     .SelectMany(f => f.FieldSprayApplications)
+                //     .Where(fs => fs.Id == id)
+                //     .FirstOrDefault();
 
-                if (existingEntity == null) return GenericResponseBuilder.Success();
+                // if (existingEntity == null) return GenericResponseBuilder.Success();
 
-                this.dataService.FieldSprayApplication.Delete(existingEntity);
-                await this.dataService.CompleteAsync();
-                return GenericResponseBuilder.Success();
+                // this.dataService.FieldSprayApplication.Delete(existingEntity);
+                // await this.dataService.CompleteAsync();
+                // return GenericResponseBuilder.Success();
+                throw new Exception("Database Change");
+
             }
             catch (Exception ex)
             {
@@ -74,22 +79,25 @@ namespace H2020.IPMDecisions.UPR.BLL
         {
             try
             {
-                if (!MediaTypeHeaderValue.TryParse(mediaType,
-                        out MediaTypeHeaderValue parsedMediaType))
-                    return GenericResponseBuilder.NoSuccess<FieldSprayApplicationDto>(null, "Wrong media type.");
+                // ToDo - FieldCrop
+                // if (!MediaTypeHeaderValue.TryParse(mediaType,
+                //         out MediaTypeHeaderValue parsedMediaType))
+                //     return GenericResponseBuilder.NoSuccess<FieldSprayApplicationDto>(null, "Wrong media type.");
 
-                var field = httpContext.Items["field"] as Field;
-                var sprayAsEntity = field
-                    .FieldCropPests
-                    .SelectMany(f => f.FieldSprayApplications)
-                    .Where(fs => fs.Id == id)
-                    .FirstOrDefault();
+                // var field = httpContext.Items["field"] as Field;
+                // var sprayAsEntity = field
+                //     .FieldCropPests
+                //     .SelectMany(f => f.FieldSprayApplications)
+                //     .Where(fs => fs.Id == id)
+                //     .FirstOrDefault();
 
-                if (sprayAsEntity == null) return GenericResponseBuilder.NotFound<FieldSprayApplicationDto>();
+                // if (sprayAsEntity == null) return GenericResponseBuilder.NotFound<FieldSprayApplicationDto>();
 
-                // ToDo: Shape Data
-                var dataToReturn = this.mapper.Map<FieldSprayApplicationDto>(sprayAsEntity);
-                return GenericResponseBuilder.Success<FieldSprayApplicationDto>(dataToReturn);
+                // // ToDo: Shape Data
+                // var dataToReturn = this.mapper.Map<FieldSprayApplicationDto>(sprayAsEntity);
+                // return GenericResponseBuilder.Success<FieldSprayApplicationDto>(dataToReturn);
+                throw new Exception("Database Change");
+
             }
             catch (Exception ex)
             {

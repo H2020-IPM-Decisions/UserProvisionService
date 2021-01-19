@@ -23,34 +23,37 @@ namespace H2020.IPMDecisions.UPR.BLL
         {
             try
             {
-                var field = httpContext.Items["field"] as Field;
-                var duplicatedRecord = field
-                    .FieldCropPests
-                    .Any(f => f.FieldCropPestDsses
-                        .Any(fcpd =>
-                            fcpd.FieldCropPestId == cropPestDssForCreationDto.FieldCropPestId
-                            & fcpd.CropPestDss.DssId == cropPestDssForCreationDto.DssId));
-                if (duplicatedRecord)
-                    return GenericResponseBuilder.Duplicated<IDictionary<string, object>>();
+                // ToDo - FieldCrop
+                // var field = httpContext.Items["field"] as Field;
+                // var duplicatedRecord = field
+                //     .FieldCropPests
+                //     .Any(f => f.FieldCropPestDsses
+                //         .Any(fcpd =>
+                //             fcpd.FieldCropPestId == cropPestDssForCreationDto.FieldCropPestId
+                //             & fcpd.CropPestDss.DssId == cropPestDssForCreationDto.DssId));
+                // if (duplicatedRecord)
+                //     return GenericResponseBuilder.Duplicated<IDictionary<string, object>>();
 
-                var getFieldCropPest = field
-                    .FieldCropPests
-                    .Where(f => f.Id == cropPestDssForCreationDto.FieldCropPestId)
-                    .FirstOrDefault();
-                if (getFieldCropPest == null)
-                    return GenericResponseBuilder.NotFound<IDictionary<string, object>>();
+                // var getFieldCropPest = field
+                //     .FieldCropPests
+                //     .Where(f => f.Id == cropPestDssForCreationDto.FieldCropPestId)
+                //     .FirstOrDefault();
+                // if (getFieldCropPest == null)
+                //     return GenericResponseBuilder.NotFound<IDictionary<string, object>>();
 
-                var newFieldCropPestDss = await CreateFieldCropPestDss(
-                    getFieldCropPest,
-                    cropPestDssForCreationDto.DssId,
-                    cropPestDssForCreationDto.DssParameters);
+                // var newFieldCropPestDss = await CreateFieldCropPestDss(
+                //     getFieldCropPest,
+                //     cropPestDssForCreationDto.DssId,
+                //     cropPestDssForCreationDto.DssParameters);
 
-                await this.dataService.CompleteAsync();
+                // await this.dataService.CompleteAsync();
 
-                var fieldCropPestToReturn = this.mapper
-                    .Map<FieldCropPestDssDto>(newFieldCropPestDss)
-                    .ShapeData() as IDictionary<string, object>;
-                return GenericResponseBuilder.Success<IDictionary<string, object>>(fieldCropPestToReturn);
+                // var fieldCropPestToReturn = this.mapper
+                //     .Map<FieldCropPestDssDto>(newFieldCropPestDss)
+                //     .ShapeData() as IDictionary<string, object>;
+                // return GenericResponseBuilder.Success<IDictionary<string, object>>(fieldCropPestToReturn);
+                throw new Exception("Database Change");
+
             }
             catch (Exception ex)
             {
@@ -64,18 +67,20 @@ namespace H2020.IPMDecisions.UPR.BLL
         {
             try
             {
-                var field = httpContext.Items["field"] as Field;
+                // ToDo - FieldCrop
+                // var field = httpContext.Items["field"] as Field;
 
-                var fieldCropPestExist = field
-                    .FieldCropPests
-                    .SelectMany(f => f.FieldCropPestDsses)
-                    .Where(fcp => fcp.Id == id)
-                    .FirstOrDefault();
-                if (fieldCropPestExist == null) return GenericResponseBuilder.Success();
+                // var fieldCropPestExist = field
+                //     .FieldCropPests
+                //     .SelectMany(f => f.FieldCropPestDsses)
+                //     .Where(fcp => fcp.Id == id)
+                //     .FirstOrDefault();
+                // if (fieldCropPestExist == null) return GenericResponseBuilder.Success();
 
-                this.dataService.FieldCropPestDsses.Delete(fieldCropPestExist);
-                await this.dataService.CompleteAsync();
-                return GenericResponseBuilder.Success();
+                // this.dataService.FieldCropPestDsses.Delete(fieldCropPestExist);
+                // await this.dataService.CompleteAsync();
+                // return GenericResponseBuilder.Success();
+                throw new Exception("Database Change");
             }
             catch (Exception ex)
             {
@@ -89,18 +94,20 @@ namespace H2020.IPMDecisions.UPR.BLL
         {
             try
             {
-                var field = httpContext.Items["field"] as Field;
-                var fieldCropDssExist = field
-                    .FieldCropPests
-                    .SelectMany(f => f.FieldCropPestDsses)
-                    .Where(x => x.Id == id)
-                    .FirstOrDefault();
-                if (fieldCropDssExist == null) return GenericResponseBuilder.NotFound<IDictionary<string, object>>();
+                // ToDo - FieldCrop
+                // var field = httpContext.Items["field"] as Field;
+                // var fieldCropDssExist = field
+                //     .FieldCropPests
+                //     .SelectMany(f => f.FieldCropPestDsses)
+                //     .Where(x => x.Id == id)
+                //     .FirstOrDefault();
+                // if (fieldCropDssExist == null) return GenericResponseBuilder.NotFound<IDictionary<string, object>>();
 
-                var fieldCropDssToReturn = this.mapper
-                    .Map<FieldCropPestDssDto>(fieldCropDssExist)
-                    .ShapeData() as IDictionary<string, object>;
-                return GenericResponseBuilder.Success<IDictionary<string, object>>(fieldCropDssToReturn);
+                // var fieldCropDssToReturn = this.mapper
+                //     .Map<FieldCropPestDssDto>(fieldCropDssExist)
+                //     .ShapeData() as IDictionary<string, object>;
+                // return GenericResponseBuilder.Success<IDictionary<string, object>>(fieldCropDssToReturn);
+                throw new Exception("Database Change");
             }
             catch (Exception ex)
             {
@@ -125,13 +132,15 @@ namespace H2020.IPMDecisions.UPR.BLL
                     return GenericResponseBuilder.NoSuccess<ShapedDataWithLinks>(null, "Wrong OrderBy entered");
 
                 var field = httpContext.Items["field"] as Field;
-                var fieldCropDssExist = field
-                    .FieldCropPests
-                    .Where(f => f.Id == resourceParameter.FieldCropPestId)
-                    .Select(f => f.FieldCropPestDsses)
-                    .ToList();
 
-                if (fieldCropDssExist.Count == 0) return GenericResponseBuilder.NotFound<ShapedDataWithLinks>();
+                // ToDo - FieldCrop
+                // var fieldCropDssExist = field
+                //     .FieldCropPests
+                //     .Where(f => f.Id == resourceParameter.FieldCropPestId)
+                //     .Select(f => f.FieldCropPestDsses)
+                //     .ToList();
+
+                // if (fieldCropDssExist.Count == 0) return GenericResponseBuilder.NotFound<ShapedDataWithLinks>();
 
                 var fieldCropDssAsEntities = await this
                     .dataService

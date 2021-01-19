@@ -16,7 +16,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Configurations
             builder.HasIndex(cp =>
                 new
                 {
-                    cp.FieldId,
+                    cp.FieldCropId,
                     cp.CropPestId
                 })
                 .IsUnique();
@@ -25,13 +25,6 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Configurations
                 .WithMany(c => c.FieldCropPests)
                 .HasForeignKey(cp => cp.CropPestId)
                 .HasConstraintName("FK_CropPest_Crop")
-                .OnDelete(DeleteBehavior.Cascade)
-                .IsRequired();
-
-            builder.HasOne<Field>(cp => cp.Field)
-                .WithMany(f => f.FieldCropPests)
-                .HasForeignKey(cp => cp.FieldId)
-                .HasConstraintName("FK_CropPest_Field")
                 .OnDelete(DeleteBehavior.Cascade)
                 .IsRequired();
 

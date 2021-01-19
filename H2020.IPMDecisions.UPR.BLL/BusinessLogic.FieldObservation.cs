@@ -20,22 +20,24 @@ namespace H2020.IPMDecisions.UPR.BLL
         {
             try
             {
-                var field = httpContext.Items["field"] as Field;
-                var fieldCropPestExist = field
-                    .FieldCropPests
-                    .Where(fcp => fcp.Id == fieldObservationForCreationDto.FieldCropPestId)
-                    .FirstOrDefault();
+                // ToDo - FieldCrop
+                // var field = httpContext.Items["field"] as Field;
+                // var fieldCropPestExist = field
+                //     .FieldCropPests
+                //     .Where(fcp => fcp.Id == fieldObservationForCreationDto.FieldCropPestId)
+                //     .FirstOrDefault();
 
-                if (fieldCropPestExist == null) return GenericResponseBuilder.NotFound<FieldObservationDto>();
+                // if (fieldCropPestExist == null) return GenericResponseBuilder.NotFound<FieldObservationDto>();
 
-                var observationAsEntity = this.mapper.Map<FieldObservation>(fieldObservationForCreationDto);
-                observationAsEntity.FieldCropPest = fieldCropPestExist;
+                // var observationAsEntity = this.mapper.Map<FieldObservation>(fieldObservationForCreationDto);
+                // observationAsEntity.FieldCropPest = fieldCropPestExist;
 
-                this.dataService.FieldObservations.Create(observationAsEntity);
-                await this.dataService.CompleteAsync();
+                // this.dataService.FieldObservations.Create(observationAsEntity);
+                // await this.dataService.CompleteAsync();
 
-                var fieldToReturn = this.mapper.Map<FieldObservationDto>(observationAsEntity);
-                return GenericResponseBuilder.Success<FieldObservationDto>(fieldToReturn);
+                // var fieldToReturn = this.mapper.Map<FieldObservationDto>(observationAsEntity);
+                // return GenericResponseBuilder.Success<FieldObservationDto>(fieldToReturn);
+                throw new Exception("Database Change");
             }
             catch (Exception ex)
             {
@@ -49,18 +51,20 @@ namespace H2020.IPMDecisions.UPR.BLL
         {
             try
             {
-                var field = httpContext.Items["field"] as Field;
-                var existingObservation = field
-                    .FieldCropPests
-                    .SelectMany(f => f.FieldObservations)
-                    .Where(fo => fo.Id == id)
-                    .FirstOrDefault();
+                // ToDo - FieldCrop
+                // var field = httpContext.Items["field"] as Field;
+                // var existingObservation = field
+                //     .FieldCropPests
+                //     .SelectMany(f => f.FieldObservations)
+                //     .Where(fo => fo.Id == id)
+                //     .FirstOrDefault();
 
-                if (existingObservation == null) return GenericResponseBuilder.Success();
+                // if (existingObservation == null) return GenericResponseBuilder.Success();
 
-                this.dataService.FieldObservations.Delete(existingObservation);
-                await this.dataService.CompleteAsync();
-                return GenericResponseBuilder.Success();
+                // this.dataService.FieldObservations.Delete(existingObservation);
+                // await this.dataService.CompleteAsync();
+                // return GenericResponseBuilder.Success();
+                throw new Exception("Database Change");
             }
             catch (Exception ex)
             {
@@ -74,25 +78,27 @@ namespace H2020.IPMDecisions.UPR.BLL
         {
             try
             {
-                if (!MediaTypeHeaderValue.TryParse(mediaType,
-                        out MediaTypeHeaderValue parsedMediaType))
-                    return GenericResponseBuilder.NoSuccess<FieldObservationDto>(null, "Wrong media type.");
+                // ToDo - FieldCrop
+                // if (!MediaTypeHeaderValue.TryParse(mediaType,
+                //         out MediaTypeHeaderValue parsedMediaType))
+                //     return GenericResponseBuilder.NoSuccess<FieldObservationDto>(null, "Wrong media type.");
 
-                if (!propertyCheckerService.TypeHasProperties<FieldObservationDto>(fields, false))
-                    return GenericResponseBuilder.NoSuccess<FieldObservationDto>(null, "Wrong fields entered");
+                // if (!propertyCheckerService.TypeHasProperties<FieldObservationDto>(fields, false))
+                //     return GenericResponseBuilder.NoSuccess<FieldObservationDto>(null, "Wrong fields entered");
 
-                var field = httpContext.Items["field"] as Field;
-                var observationAsEntity = field
-                    .FieldCropPests
-                    .SelectMany(f => f.FieldObservations)
-                    .Where(fo => fo.Id == id)
-                    .FirstOrDefault();
+                // var field = httpContext.Items["field"] as Field;
+                // var observationAsEntity = field
+                //     .FieldCropPests
+                //     .SelectMany(f => f.FieldObservations)
+                //     .Where(fo => fo.Id == id)
+                //     .FirstOrDefault();
 
-                if (observationAsEntity == null) return GenericResponseBuilder.NotFound<FieldObservationDto>();
+                // if (observationAsEntity == null) return GenericResponseBuilder.NotFound<FieldObservationDto>();
 
-                // ToDo: Shape Data
-                var dataToReturn = this.mapper.Map<FieldObservationDto>(observationAsEntity);
-                return GenericResponseBuilder.Success<FieldObservationDto>(dataToReturn);
+                // // ToDo: Shape Data
+                // var dataToReturn = this.mapper.Map<FieldObservationDto>(observationAsEntity);
+                // return GenericResponseBuilder.Success<FieldObservationDto>(dataToReturn);
+                throw new Exception("Database Change");
             }
             catch (Exception ex)
             {
@@ -158,45 +164,48 @@ namespace H2020.IPMDecisions.UPR.BLL
         {
             try
             {
-                var childrenAsPaged = PagedList<FieldObservation>.Create(
-                    field.FieldCropPests.SelectMany(f => f.FieldObservations).AsQueryable(),
-                    resourceParameter.PageNumber,
-                    resourceParameter.PageSize);
+                // ToDo - FieldCrop
+                // var childrenAsPaged = PagedList<FieldObservation>.Create(
+                //     field.FieldCropPests.SelectMany(f => f.FieldObservations).AsQueryable(),
+                //     resourceParameter.PageNumber,
+                //     resourceParameter.PageSize);
 
-                var childrenPaginationLinks = UrlCreatorHelper.CreateLinksForFieldObservations(
-                    this.url,
-                    field.Id,
-                    resourceParameter,
-                    childrenAsPaged.HasNext,
-                    childrenAsPaged.HasPrevious);
+                // var childrenPaginationLinks = UrlCreatorHelper.CreateLinksForFieldObservations(
+                //     this.url,
+                //     field.Id,
+                //     resourceParameter,
+                //     childrenAsPaged.HasNext,
+                //     childrenAsPaged.HasPrevious);
 
-                var paginationMetaDataChildren = MiscellaneousHelper.CreatePaginationMetadata(childrenAsPaged);
+                // var paginationMetaDataChildren = MiscellaneousHelper.CreatePaginationMetadata(childrenAsPaged);
 
-                var shapedChildrenToReturn = this.mapper
-                    .Map<IEnumerable<FieldObservationDto>>(childrenAsPaged)
-                    .ShapeData(resourceParameter.Fields);
+                // var shapedChildrenToReturn = this.mapper
+                //     .Map<IEnumerable<FieldObservationDto>>(childrenAsPaged)
+                //     .ShapeData(resourceParameter.Fields);
 
-                var shapedChildrenToReturnWithLinks = shapedChildrenToReturn.Select(fieldObservation =>
-                {
-                    var fieldObservationAsDictionary = fieldObservation as IDictionary<string, object>;
-                    if (includeLinks)
-                    {
-                        var userLinks = UrlCreatorHelper.CreateLinksForFieldObservation(
-                            this.url,
-                            (Guid)fieldObservationAsDictionary["Id"],
-                            field.Id,
-                            resourceParameter.Fields);
-                        fieldObservationAsDictionary.Add("links", userLinks);
-                    }
-                    return fieldObservationAsDictionary;
-                });
+                // var shapedChildrenToReturnWithLinks = shapedChildrenToReturn.Select(fieldObservation =>
+                // {
+                //     var fieldObservationAsDictionary = fieldObservation as IDictionary<string, object>;
+                //     if (includeLinks)
+                //     {
+                //         var userLinks = UrlCreatorHelper.CreateLinksForFieldObservation(
+                //             this.url,
+                //             (Guid)fieldObservationAsDictionary["Id"],
+                //             field.Id,
+                //             resourceParameter.Fields);
+                //         fieldObservationAsDictionary.Add("links", userLinks);
+                //     }
+                //     return fieldObservationAsDictionary;
+                // });
 
-                return new ShapedDataWithLinks()
-                {
-                    Value = shapedChildrenToReturnWithLinks,
-                    Links = childrenPaginationLinks,
-                    PaginationMetaData = paginationMetaDataChildren
-                };
+                // return new ShapedDataWithLinks()
+                // {
+                //     Value = shapedChildrenToReturnWithLinks,
+                //     Links = childrenPaginationLinks,
+                //     PaginationMetaData = paginationMetaDataChildren
+                // };
+                throw new Exception("Database Change");
+
             }
             catch (Exception ex)
             {

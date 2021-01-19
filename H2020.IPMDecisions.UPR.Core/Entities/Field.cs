@@ -15,7 +15,7 @@ namespace H2020.IPMDecisions.UPR.Core.Entities
 
         public Guid FarmId { get; set; }
         public Farm Farm { get; set; }
-                
-        public ICollection<FieldCropPest> FieldCropPests { get; set; }
+
+        public ICollection<FieldCrop> FieldCrops { get; set; }
     }
 }

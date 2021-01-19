@@ -19,58 +19,60 @@ namespace H2020.IPMDecisions.UPR.BLL
         {
             try
             {
-                var field = httpContext.Items["field"] as Field;
+                // ToDo - FieldCrop
+                // var field = httpContext.Items["field"] as Field;
 
-                var cropPestExist = await this.dataService.CropPests
-                        .FindByConditionAsync
-                        (c => c.CropEppoCode == cropPestForCreationDto.CropEppoCode
-                        && c.PestEppoCode == cropPestForCreationDto.PestEppoCode);
+                // var cropPestExist = await this.dataService.CropPests
+                //         .FindByConditionAsync
+                //         (c => c.CropEppoCode == cropPestForCreationDto.CropEppoCode
+                //         && c.PestEppoCode == cropPestForCreationDto.PestEppoCode);
 
-                var newFieldCropPest = new FieldCropPest();
-                if (cropPestExist == null)
-                {
-                    cropPestExist = this.mapper.Map<CropPest>(cropPestForCreationDto);
-                    this.dataService.CropPests.Create(cropPestExist);
+                // var newFieldCropPest = new FieldCropPest();
+                // if (cropPestExist == null)
+                // {
+                //     cropPestExist = this.mapper.Map<CropPest>(cropPestForCreationDto);
+                //     this.dataService.CropPests.Create(cropPestExist);
 
-                    newFieldCropPest = new FieldCropPest()
-                    {
-                        CropPest = cropPestExist,
-                        Field = field
-                    };
+                //     newFieldCropPest = new FieldCropPest()
+                //     {
+                //         CropPest = cropPestExist,
+                //         Field = field
+                //     };
 
-                    this.dataService.FieldCropPests.Create(newFieldCropPest);
-                    await this.dataService.CompleteAsync();
-                }
-                else
-                {
-                    var fieldCropPestExist = await this.dataService
-                        .FieldCropPests
-                        .FindByConditionAsync(f =>
-                            f.FieldId == field.Id
-                            & f.CropPestId == cropPestExist.Id);
+                //     this.dataService.FieldCropPests.Create(newFieldCropPest);
+                //     await this.dataService.CompleteAsync();
+                // }
+                // else
+                // {
+                //     var fieldCropPestExist = await this.dataService
+                //         .FieldCropPests
+                //         .FindByConditionAsync(f =>
+                //             f.FieldId == field.Id
+                //             & f.CropPestId == cropPestExist.Id);
 
-                    if (fieldCropPestExist != null)
-                    {
-                        var returnExistingFieldCropPest = this.mapper
-                            .Map<FieldCropPestDto>(fieldCropPestExist)
-                            .ShapeData() as IDictionary<string, object>;
-                        return GenericResponseBuilder.Success<IDictionary<string, object>>(returnExistingFieldCropPest);
-                    }
+                //     if (fieldCropPestExist != null)
+                //     {
+                //         var returnExistingFieldCropPest = this.mapper
+                //             .Map<FieldCropPestDto>(fieldCropPestExist)
+                //             .ShapeData() as IDictionary<string, object>;
+                //         return GenericResponseBuilder.Success<IDictionary<string, object>>(returnExistingFieldCropPest);
+                //     }
 
-                    newFieldCropPest = new FieldCropPest()
-                    {
-                        CropPest = cropPestExist,
-                        Field = field
-                    };
-                    this.dataService.FieldCropPests.Create(newFieldCropPest);
-                    await this.dataService.CompleteAsync();
-                }
+                //     newFieldCropPest = new FieldCropPest()
+                //     {
+                //         CropPest = cropPestExist,
+                //         Field = field
+                //     };
+                //     this.dataService.FieldCropPests.Create(newFieldCropPest);
+                //     await this.dataService.CompleteAsync();
+                // }
 
-                var cropPestToReturn = this.mapper
-                    .Map<FieldCropPestDto>(newFieldCropPest)
-                    .ShapeData() as IDictionary<string, object>;
+                // var cropPestToReturn = this.mapper
+                //     .Map<FieldCropPestDto>(newFieldCropPest)
+                //     .ShapeData() as IDictionary<string, object>;
 
-                return GenericResponseBuilder.Success<IDictionary<string, object>>(cropPestToReturn);
+                // return GenericResponseBuilder.Success<IDictionary<string, object>>(cropPestToReturn);
+                throw new Exception("Database Change");
             }
             catch (Exception ex)
             {
@@ -84,18 +86,21 @@ namespace H2020.IPMDecisions.UPR.BLL
         {
             try
             {
-                var fieldCropPestExist = await this.dataService
-                        .FieldCropPests
-                        .FindByConditionAsync(f =>
-                            f.FieldId == fieldId
-                            & f.Id == id);
+                // ToDo - FieldCrop
+                // var fieldCropPestExist = await this.dataService
+                //         .FieldCropPests
+                //         .FindByConditionAsync(f =>
+                //             f.FieldId == fieldId
+                //             & f.Id == id);
 
-                if (fieldCropPestExist == null) return GenericResponseBuilder.Success();
+                // if (fieldCropPestExist == null) return GenericResponseBuilder.Success();
 
-                this.dataService.FieldCropPests.Delete(fieldCropPestExist);
-                await this.dataService.CompleteAsync();
+                // this.dataService.FieldCropPests.Delete(fieldCropPestExist);
+                // await this.dataService.CompleteAsync();
 
-                return GenericResponseBuilder.Success();
+                // return GenericResponseBuilder.Success();
+                throw new Exception("Database Change");
+
             }
             catch (Exception ex)
             {
@@ -109,24 +114,27 @@ namespace H2020.IPMDecisions.UPR.BLL
         {
             try
             {
-                if (!MediaTypeHeaderValue.TryParse(mediaType,
-                        out MediaTypeHeaderValue parsedMediaType))
-                    return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, "Wrong media type.");
+                // ToDo - FieldCrop
+                // if (!MediaTypeHeaderValue.TryParse(mediaType,
+                //         out MediaTypeHeaderValue parsedMediaType))
+                //     return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, "Wrong media type.");
 
 
-                var fieldCropPestExist = await this.dataService
-                        .FieldCropPests
-                        .FindByConditionAsync(f =>
-                            f.FieldId == fieldId
-                            & f.Id == id, true);
+                // var fieldCropPestExist = await this.dataService
+                //         .FieldCropPests
+                //         .FindByConditionAsync(f =>
+                //             f.FieldId == fieldId
+                //             & f.Id == id, true);
 
-                if (fieldCropPestExist == null) return GenericResponseBuilder.NotFound<IDictionary<string, object>>();
+                // if (fieldCropPestExist == null) return GenericResponseBuilder.NotFound<IDictionary<string, object>>();
 
-                var cropPestToReturn = this.mapper
-                    .Map<FieldCropPestDto>(fieldCropPestExist)
-                    .ShapeData() as IDictionary<string, object>;
+                // var cropPestToReturn = this.mapper
+                //     .Map<FieldCropPestDto>(fieldCropPestExist)
+                //     .ShapeData() as IDictionary<string, object>;
 
-                return GenericResponseBuilder.Success<IDictionary<string, object>>(cropPestToReturn);
+                // return GenericResponseBuilder.Success<IDictionary<string, object>>(cropPestToReturn);
+                throw new Exception("Database Change");
+
             }
             catch (Exception ex)
             {

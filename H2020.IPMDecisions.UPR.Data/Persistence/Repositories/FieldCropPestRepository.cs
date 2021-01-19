@@ -57,7 +57,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
 
             var collection = this.context.FieldCropPest as IQueryable<FieldCropPest>;   
             collection = collection.Where(f =>
-                    f.FieldId == fieldId);
+                    f.FieldCropId == fieldId);
 
             return await PagedList<FieldCropPest>.CreateAsync(
                 collection,
@@ -78,7 +78,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
             var collection = this.context.FieldCropPest as IQueryable<FieldCropPest>;
             collection = collection
                 .Where(f =>
-                    f.FieldId == fieldId)
+                    f.FieldCropId == fieldId)
                 .Include(f => f.CropPest);
 
             return await PagedList<FieldCropPest>.CreateAsync(

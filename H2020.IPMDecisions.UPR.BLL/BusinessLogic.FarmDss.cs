@@ -31,7 +31,8 @@ namespace H2020.IPMDecisions.UPR.BLL
                 var cropPestAsCollection = new Collection<CropPestForCreationDto>();
                 cropPestAsCollection.Add(farmDssDto.CropPest);
                 List<FieldCropPest> fieldCropPests = await CreateCropListForInsertion(cropPestAsCollection, fieldAsEntity);
-                fieldAsEntity.FieldCropPests = fieldCropPests;
+                // ToDo - FieldCrop
+                // fieldAsEntity.FieldCropPests = fieldCropPests;
 
                 await CreateFieldCropPestDss(
                     fieldCropPests.FirstOrDefault(),
