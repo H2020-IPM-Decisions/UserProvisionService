@@ -16,9 +16,9 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Configurations
             builder.Property(f => f.Name)
                 .IsRequired();
 
-            builder.HasMany<FieldCrop>(f => f.FieldCrops)
+            builder.HasOne<FieldCrop>(f => f.FieldCrop)
                 .WithOne(fc => fc.Field)
-                .HasForeignKey(f => f.FieldId)
+                .HasForeignKey<FieldCrop>(f => f.FieldId)
                 .HasConstraintName("FK_Field_FieldCrop")
                 .OnDelete(DeleteBehavior.Cascade);
         }
