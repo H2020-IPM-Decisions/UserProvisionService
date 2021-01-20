@@ -55,9 +55,9 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
             if (resourceParameter is null)
                 throw new ArgumentNullException(nameof(resourceParameter));
 
-            var collection = this.context.FieldCropPest as IQueryable<FieldCropPest>;   
+            var collection = this.context.FieldCropPest as IQueryable<FieldCropPest>;
             collection = collection.Where(f =>
-                    f.FieldCropId == fieldId);
+                f.FieldCrop.FieldId == fieldId);
 
             return await PagedList<FieldCropPest>.CreateAsync(
                 collection,
@@ -70,7 +70,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
             if (resourceParameter is null)
                 throw new ArgumentNullException(nameof(resourceParameter));
 
-            if(!includeAssociatedData)
+            if (!includeAssociatedData)
             {
                 return await FindAllAsync(resourceParameter, fieldId);
             }
@@ -78,7 +78,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
             var collection = this.context.FieldCropPest as IQueryable<FieldCropPest>;
             collection = collection
                 .Where(f =>
-                    f.FieldCropId == fieldId)
+                    f.FieldCrop.FieldId == fieldId)
                 .Include(f => f.CropPest);
 
             return await PagedList<FieldCropPest>.CreateAsync(
@@ -101,7 +101,6 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
             {
                 return await FindByConditionAsync(expression);
             }
-            
             return await this.context
                .FieldCropPest
                .Where(expression)
