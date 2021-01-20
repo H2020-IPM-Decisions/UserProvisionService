@@ -14,6 +14,9 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
 
             CreateMap<FieldCropPest, FieldCropPestDto>()
                 .ForMember(dest => dest.CropPestDto, opt => opt.MapFrom(src => src.CropPest));
+
+            CreateMap<FieldCrop, FieldCropDto>()
+                .ForMember(dest => dest.FieldCropPestWithChildrenDto, opt => opt.Ignore());
         }
     }
 }

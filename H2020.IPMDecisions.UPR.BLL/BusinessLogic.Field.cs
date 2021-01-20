@@ -402,16 +402,15 @@ namespace H2020.IPMDecisions.UPR.BLL
                 //                     includeLinks);
                 // }
 
-                ShapedDataWithLinks fieldCropPestToReturn = null;
-                // ToDo - FieldCrop
-                //  if (fieldAsEntity.FieldCropPests != null && fieldAsEntity.FieldCropPests.Count > 0)
-                // {
-                //     var fieldCropPestResourceParameter = this.mapper.Map<FieldCropPestResourceParameter>(resourceParameter);
-                //     fieldCropPestToReturn = ShapeFieldCropPestAsChildren(
-                //                     fieldAsEntity,
-                //                     fieldCropPestResourceParameter,
-                //                     includeLinks);
-                // }
+                FieldCropDto fieldCropToReturn = null;
+                if (fieldAsEntity.FieldCrop != null)
+                {
+                    var fieldCropPestResourceParameter = this.mapper.Map<FieldCropPestResourceParameter>(resourceParameter);
+                    fieldCropToReturn = ShapeFieldCropWithChildren(
+                                    fieldAsEntity,
+                                    fieldCropPestResourceParameter,
+                                    includeLinks);
+                }
 
                 ShapedDataWithLinks fieldSpraysToReturn = null;
                 // if (fieldAsEntity.FieldSprays != null && fieldAsEntity.FieldSprays.Count > 0)
@@ -425,7 +424,7 @@ namespace H2020.IPMDecisions.UPR.BLL
 
                 var fieldToReturnWithChildren = this.mapper.Map<FieldWithChildrenDto>(fieldAsEntity);
                 fieldToReturnWithChildren.FieldObservationsDto = fieldObservationsToReturn;
-                fieldToReturnWithChildren.FieldCropPestsDto = fieldCropPestToReturn;
+                fieldToReturnWithChildren.FieldCropDto = fieldCropToReturn;
                 fieldToReturnWithChildren.FieldSpraysDto = fieldSpraysToReturn;
 
                 var fieldToReturnWithChildrenShaped = fieldToReturnWithChildren
