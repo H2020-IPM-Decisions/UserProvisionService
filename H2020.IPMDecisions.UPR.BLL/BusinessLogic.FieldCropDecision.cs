@@ -105,7 +105,6 @@ namespace H2020.IPMDecisions.UPR.BLL
                     .Map<FieldCropPestDssDto>(fieldCropDssExist)
                     .ShapeData() as IDictionary<string, object>;
                 return GenericResponseBuilder.Success<IDictionary<string, object>>(fieldCropDssToReturn);
-                throw new Exception("Database Change");
             }
             catch (Exception ex)
             {
