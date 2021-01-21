@@ -201,6 +201,58 @@ namespace H2020.IPMDecisions.UPR.BLL
             this.dataService.FieldCropPestDsses.Create(newFieldCropPestDss);
             return newFieldCropPestDss;
         }
+
+        private ShapedDataWithLinks ShapeFieldCropPestDssAsChildren(FieldCrop fieldCrop, Guid fieldCropPestId, FieldCropPestDssResourceParameter resourceParameter, bool includeLinks)
+        {
+            try
+            {
+                var childrenAsPaged = PagedList<FieldCropPestDss>.Create(
+                    fieldCrop.FieldCropPests.Where(f => f.Id == fieldCropPestId).SelectMany(f => f.FieldCropPestDsses).AsQueryable(),
+                    resourceParameter.PageNumber,
+                    resourceParameter.PageSize);
+
+                resourceParameter.FieldCropPestId = fieldCropPestId;
+                var childrenPaginationLinks = UrlCreatorHelper.CreateLinksForFieldCropDecisions(
+                    this.url,
+                    fieldCrop.FieldId,
+                    resourceParameter,
+                    childrenAsPaged.HasNext,
+                    childrenAsPaged.HasPrevious);
+
+                var paginationMetaDataChildren = MiscellaneousHelper.CreatePaginationMetadata(childrenAsPaged);
+
+                var shapedChildrenToReturn = this.mapper
+                    .Map<IEnumerable<FieldCropPestDssDto>>(childrenAsPaged)
+                    .ShapeData(resourceParameter.Fields);
+
+                var shapedChildrenToReturnWithLinks = shapedChildrenToReturn.Select(fieldCropPestDss =>
+                {
+                    var fieldcropPestDssAsDictionary = fieldCropPestDss as IDictionary<string, object>;
+                    if (includeLinks)
+                    {
+                        var userLinks = UrlCreatorHelper.CreateLinksForFieldCropDecision(
+                            this.url,
+                            (Guid)fieldcropPestDssAsDictionary["Id"],
+                            fieldCrop.FieldId,
+                            resourceParameter.Fields);
+                        fieldcropPestDssAsDictionary.Add("links", userLinks);
+                    }
+                    return fieldcropPestDssAsDictionary;
+                });
+
+                return new ShapedDataWithLinks()
+                {
+                    Value = shapedChildrenToReturnWithLinks,
+                    Links = childrenPaginationLinks,
+                    PaginationMetaData = paginationMetaDataChildren
+                };
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(string.Format("Error in BLL - ShapeFieldCropPestDssAsChildren. {0}", ex.Message), ex);
+                return null;
+            }
+        }
         #endregion
     }
 }

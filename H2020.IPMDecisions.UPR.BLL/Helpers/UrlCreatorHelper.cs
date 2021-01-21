@@ -198,6 +198,37 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
                     });
             }
         }
+
+        internal static IEnumerable<LinkDto> CreateLinksForFieldCropDecision(
+           this IUrlHelper url,
+           Guid id,
+           Guid fieldId,
+           string fields = "")
+        {
+            var links = new List<LinkDto>();
+
+            if (string.IsNullOrWhiteSpace(fields))
+            {
+                links.Add(new LinkDto(
+                url.Link("api.fieldcropdecisions.get.cropdecisionbyid", new { fieldId, id }),
+                "self",
+                "GET"));
+            }
+            else
+            {
+                links.Add(new LinkDto(
+                 url.Link("api.fieldcropdecisions.get.cropdecisionbyid", new { fieldId, id, fields }),
+                 "self",
+                 "GET"));
+            }
+
+            links.Add(new LinkDto(
+                url.Link("api.fieldcropdecisions.delete.cropdecisionbyid", new { fieldId, id }),
+                "delete_field_crop_decision",
+                "DELETE"));
+
+            return links;
+        }
         #endregion
 
         #region Fields

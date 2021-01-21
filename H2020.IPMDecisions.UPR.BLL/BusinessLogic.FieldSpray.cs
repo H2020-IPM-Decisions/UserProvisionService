@@ -197,7 +197,7 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
             catch (Exception ex)
             {
-                logger.LogError(string.Format("Error in BLL - ShapeFieldObservationsAsChildren. {0}", ex.Message), ex);
+                logger.LogError(string.Format("Error in BLL - ShapeFieldSprayAsChildren. {0}", ex.Message), ex);
                 return null;
             }
         }

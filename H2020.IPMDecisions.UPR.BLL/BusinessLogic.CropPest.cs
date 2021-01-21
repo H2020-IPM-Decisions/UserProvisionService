@@ -65,7 +65,10 @@ namespace H2020.IPMDecisions.UPR.BLL
                     var fieldSprayResourceParameter = this.mapper.Map<FieldSprayResourceParameter>(resourceParameter);
                     shapedChildren.Add("FieldSprayApplicationDto", ShapeFieldSpraysAsChildren(
                                                         fieldCrop, fieldCropPestId, fieldSprayResourceParameter, includeLinks));
-                    //FieldSprayApplicationDto
+
+                    var fieldCropPestDssResourceParameter = this.mapper.Map<FieldCropPestDssResourceParameter>(resourceParameter);
+                    shapedChildren.Add("FieldCropPestDssDto", ShapeFieldCropPestDssAsChildren(
+                                                    fieldCrop, fieldCropPestId, fieldCropPestDssResourceParameter, includeLinks));
                 }
 
                 return new ShapedDataWithLinks()
