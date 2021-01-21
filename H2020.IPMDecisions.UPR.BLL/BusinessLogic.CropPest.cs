@@ -52,7 +52,21 @@ namespace H2020.IPMDecisions.UPR.BLL
 
                 var shapedChildrenToReturn = this.mapper
                     .Map<IEnumerable<FieldCropPestWithChildrenDto>>(childrenAsPaged)
-                    .ShapeData(resourceParameter.Fields);
+                    .ShapeData(resourceParameter.Fields) as IEnumerable<IDictionary<string, object>>;
+
+                foreach (var shapedChildren in shapedChildrenToReturn)
+                {
+                    var fieldCropPestId = Guid.Parse(shapedChildren["Id"].ToString());
+
+                    var fieldObservationResourceParameter = this.mapper.Map<FieldObservationResourceParameter>(resourceParameter);
+                    shapedChildren.Add("FieldObservationDto", ShapeFieldObservationsAsChildren(
+                                                        fieldCrop, fieldCropPestId, fieldObservationResourceParameter, includeLinks));
+
+                    var fieldSprayResourceParameter = this.mapper.Map<FieldSprayResourceParameter>(resourceParameter);
+                    shapedChildren.Add("FieldSprayApplicationDto", ShapeFieldSpraysAsChildren(
+                                                        fieldCrop, fieldCropPestId, fieldSprayResourceParameter, includeLinks));
+                    //FieldSprayApplicationDto
+                }
 
                 return new ShapedDataWithLinks()
                 {
@@ -60,19 +74,6 @@ namespace H2020.IPMDecisions.UPR.BLL
                     Links = links,
                     PaginationMetaData = paginationMetaDataChildren
                 };
-
-                
-
-
-                // ShapedDataWithLinks fieldSpraysToReturn = null;
-                // if (fieldAsEntity.FieldCrop.FieldCropPests != null && fieldAsEntity.FieldCrop.FieldCropPests.Count > 0)
-                // {
-                //     var fieldSprayResourceParameter = this.mapper.Map<FieldSprayResourceParameter>(resourceParameter);
-                //     fieldSpraysToReturn = ShapeFieldSpraysAsChildren(
-                //                     fieldAsEntity,
-                //                     fieldSprayResourceParameter,
-                //                     includeLinks);
-                // }
             }
             catch (Exception ex)
             {

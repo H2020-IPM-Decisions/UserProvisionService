@@ -157,18 +157,18 @@ namespace H2020.IPMDecisions.UPR.BLL
         }
 
         #region Helpers
-        private ShapedDataWithLinks ShapeFieldObservationsAsChildren(Field field, FieldObservationResourceParameter resourceParameter, bool includeLinks)
+        private ShapedDataWithLinks ShapeFieldObservationsAsChildren(FieldCrop fieldCrop, Guid fieldCropPestId, FieldObservationResourceParameter resourceParameter, bool includeLinks)
         {
             try
             {
                 var childrenAsPaged = PagedList<FieldObservation>.Create(
-                    field.FieldCrop.FieldCropPests.SelectMany(f => f.FieldObservations).AsQueryable(),
+                    fieldCrop.FieldCropPests.Where(f => f.Id == fieldCropPestId).SelectMany(f => f.FieldObservations).AsQueryable(),
                     resourceParameter.PageNumber,
                     resourceParameter.PageSize);
 
                 var childrenPaginationLinks = UrlCreatorHelper.CreateLinksForFieldObservations(
                     this.url,
-                    field.Id,
+                    fieldCrop.FieldId,
                     resourceParameter,
                     childrenAsPaged.HasNext,
                     childrenAsPaged.HasPrevious);
@@ -187,7 +187,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                         var userLinks = UrlCreatorHelper.CreateLinksForFieldObservation(
                             this.url,
                             (Guid)fieldObservationAsDictionary["Id"],
-                            field.Id,
+                            fieldCrop.FieldId,
                             resourceParameter.Fields);
                         fieldObservationAsDictionary.Add("links", userLinks);
                     }

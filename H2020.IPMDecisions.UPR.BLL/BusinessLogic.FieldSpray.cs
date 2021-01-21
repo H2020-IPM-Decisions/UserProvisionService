@@ -150,18 +150,19 @@ namespace H2020.IPMDecisions.UPR.BLL
         }
 
         #region Helpers
-        private ShapedDataWithLinks ShapeFieldSpraysAsChildren(Field field, FieldSprayResourceParameter resourceParameter, bool includeLinks)
+        private ShapedDataWithLinks ShapeFieldSpraysAsChildren(FieldCrop fieldCrop, Guid fieldCropPestId, FieldSprayResourceParameter resourceParameter, bool includeLinks)
         {
             try
             {
                 var childrenAsPaged = PagedList<FieldSprayApplication>.Create(
-                    field.FieldCrop.FieldCropPests.SelectMany(f => f.FieldSprayApplications).AsQueryable(),
+                    fieldCrop.FieldCropPests.Where(f => f.Id == fieldCropPestId).SelectMany(f => f.FieldSprayApplications).AsQueryable(),
                     resourceParameter.PageNumber,
                     resourceParameter.PageSize);
 
+                resourceParameter.FieldCropPestId = fieldCropPestId;
                 var childrenPaginationLinks = UrlCreatorHelper.CreateLinksForFieldSprays(
                     this.url,
-                    field.Id,
+                    fieldCrop.FieldId,
                     resourceParameter,
                     childrenAsPaged.HasNext,
                     childrenAsPaged.HasPrevious);
@@ -180,7 +181,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                         var userLinks = UrlCreatorHelper.CreateLinksForFieldSpray(
                             this.url,
                             (Guid)fieldSprayAsDictionary["Id"],
-                            field.Id,
+                            fieldCrop.FieldId,
                             resourceParameter.Fields);
                         fieldSprayAsDictionary.Add("links", userLinks);
                     }

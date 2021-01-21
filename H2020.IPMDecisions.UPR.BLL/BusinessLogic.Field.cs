@@ -392,16 +392,6 @@ namespace H2020.IPMDecisions.UPR.BLL
         {
             try
             {
-                // ShapedDataWithLinks fieldObservationsToReturn = null;
-                // if (fieldAsEntity.FieldCrop.FieldCropPests != null && fieldAsEntity.FieldCrop.FieldCropPests.Count > 0)
-                // {
-                //     var fieldObservationResourceParameter = this.mapper.Map<FieldObservationResourceParameter>(resourceParameter);
-                //     fieldObservationsToReturn = ShapeFieldObservationsAsChildren(
-                //                     fieldAsEntity,
-                //                     fieldObservationResourceParameter,
-                //                     includeLinks);
-                // }
-
                 FieldCropDto fieldCropToReturn = null;
                 if (fieldAsEntity.FieldCrop != null)
                 {
@@ -410,16 +400,6 @@ namespace H2020.IPMDecisions.UPR.BLL
                                     resourceParameter,
                                     includeLinks);
                 }
-
-                // ShapedDataWithLinks fieldSpraysToReturn = null;
-                // if (fieldAsEntity.FieldCrop.FieldCropPests != null && fieldAsEntity.FieldCrop.FieldCropPests.Count > 0)
-                // {
-                //     var fieldSprayResourceParameter = this.mapper.Map<FieldSprayResourceParameter>(resourceParameter);
-                //     fieldSpraysToReturn = ShapeFieldSpraysAsChildren(
-                //                     fieldAsEntity,
-                //                     fieldSprayResourceParameter,
-                //                     includeLinks);
-                // }
 
                 var fieldToReturnWithChildren = this.mapper.Map<FieldWithChildrenDto>(fieldAsEntity);
                 fieldToReturnWithChildren.FieldCropDto = fieldCropToReturn;
