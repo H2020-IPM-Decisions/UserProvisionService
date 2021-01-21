@@ -166,6 +166,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                     resourceParameter.PageNumber,
                     resourceParameter.PageSize);
 
+                resourceParameter.FieldCropPestId = fieldCropPestId;
                 var childrenPaginationLinks = UrlCreatorHelper.CreateLinksForFieldObservations(
                     this.url,
                     fieldCrop.FieldId,

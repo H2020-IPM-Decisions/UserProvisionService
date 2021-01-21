@@ -1,3 +1,6 @@
+using System;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+
 namespace H2020.IPMDecisions.UPR.Core.ResourceParameters
 {
     public class FieldObservationResourceParameter : BaseResourceParameter
@@ -20,6 +23,9 @@ namespace H2020.IPMDecisions.UPR.Core.ResourceParameters
                 }
                 base.OrderBy = value;
             }
-        }        
+        }
+
+        [BindRequired]
+        public Guid FieldCropPestId { get; set; }
     }
 }

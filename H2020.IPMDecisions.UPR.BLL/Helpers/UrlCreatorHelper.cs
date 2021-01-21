@@ -432,6 +432,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
                     new
                     {
                         fieldId,
+                        fieldCropPestId = resourceParameter.FieldCropPestId,
                         fields = resourceParameter.Fields,
                         orderBy = resourceParameter.OrderBy,
                         pageNumber = resourceParameter.PageNumber - 1,
@@ -443,6 +444,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
                     new
                     {
                         fieldId,
+                        fieldCropPestId = resourceParameter.FieldCropPestId,
                         fields = resourceParameter.Fields,
                         orderBy = resourceParameter.OrderBy,
                         pageNumber = resourceParameter.PageNumber + 1,
@@ -455,6 +457,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
                     new
                     {
                         fieldId,
+                        fieldCropPestId = resourceParameter.FieldCropPestId,
                         fields = resourceParameter.Fields,
                         orderBy = resourceParameter.OrderBy,
                         pageNumber = resourceParameter.PageNumber,
