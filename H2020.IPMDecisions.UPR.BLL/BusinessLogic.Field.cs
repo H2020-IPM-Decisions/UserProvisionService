@@ -393,14 +393,14 @@ namespace H2020.IPMDecisions.UPR.BLL
             try
             {
                 ShapedDataWithLinks fieldObservationsToReturn = null;
-                // if (fieldAsEntity.FieldObservations != null && fieldAsEntity.FieldObservations.Count > 0)
-                // {
-                //     var fieldObservationResourceParameter = this.mapper.Map<FieldObservationResourceParameter>(resourceParameter);
-                //     fieldObservationsToReturn = ShapeFieldObservationsAsChildren(
-                //                     fieldAsEntity,
-                //                     fieldObservationResourceParameter,
-                //                     includeLinks);
-                // }
+                if (fieldAsEntity.FieldCrop.FieldCropPests != null && fieldAsEntity.FieldCrop.FieldCropPests.Count > 0)
+                {
+                    var fieldObservationResourceParameter = this.mapper.Map<FieldObservationResourceParameter>(resourceParameter);
+                    fieldObservationsToReturn = ShapeFieldObservationsAsChildren(
+                                    fieldAsEntity,
+                                    fieldObservationResourceParameter,
+                                    includeLinks);
+                }
 
                 FieldCropDto fieldCropToReturn = null;
                 if (fieldAsEntity.FieldCrop != null)
@@ -413,14 +413,14 @@ namespace H2020.IPMDecisions.UPR.BLL
                 }
 
                 ShapedDataWithLinks fieldSpraysToReturn = null;
-                // if (fieldAsEntity.FieldSprays != null && fieldAsEntity.FieldSprays.Count > 0)
-                // {
-                //     var fieldObservationResourceParameter = this.mapper.Map<FieldObservationResourceParameter>(resourceParameter);
-                //     fieldObservationsToReturn = ShapeFieldObservationsAsChildren(
-                //                     fieldAsEntity,
-                //                     fieldObservationResourceParameter,
-                //                     includeLinks);
-                // }
+                if (fieldAsEntity.FieldCrop.FieldCropPests != null && fieldAsEntity.FieldCrop.FieldCropPests.Count > 0)
+                {
+                    // var fieldSprayResourceParameter = this.mapper.Map<FieldSprayResourceParameter>(resourceParameter);
+                    // fieldSpraysToReturn = ShapeFieldSprayssAsChildren(
+                    //                 fieldAsEntity,
+                    //                 fieldSprayResourceParameter,
+                    //                 includeLinks);
+                }
 
                 var fieldToReturnWithChildren = this.mapper.Map<FieldWithChildrenDto>(fieldAsEntity);
                 fieldToReturnWithChildren.FieldObservationsDto = fieldObservationsToReturn;
