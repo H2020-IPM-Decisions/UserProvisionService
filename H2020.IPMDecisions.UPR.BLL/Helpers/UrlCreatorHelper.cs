@@ -677,6 +677,37 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
                     });
             }
         }
+
+        internal static IEnumerable<LinkDto> CreateLinksForFieldSpray(
+           this IUrlHelper url,
+           Guid id,
+           Guid fieldId,
+           string fields = "")
+        {
+            var links = new List<LinkDto>();
+
+            if (string.IsNullOrWhiteSpace(fields))
+            {
+                links.Add(new LinkDto(
+                url.Link("api.spray.get.spraybyid", new { fieldId, id }),
+                "self",
+                "GET"));
+            }
+            else
+            {
+                links.Add(new LinkDto(
+                 url.Link("api.spray.get.spraybyid", new { fieldId, id, fields }),
+                 "self",
+                 "GET"));
+            }
+
+            links.Add(new LinkDto(
+                url.Link("api.spray.delete.spraybyid", new { fieldId, id }),
+                "delete_field_spray",
+                "DELETE"));
+
+            return links;
+        }
         #endregion
     }
 }

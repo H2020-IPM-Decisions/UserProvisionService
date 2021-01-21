@@ -29,7 +29,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
 
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [HttpDelete("{id:guid}", Name = "api.spray.deletespraybyid")]
+        [HttpDelete("{id:guid}", Name = "api.spray.delete.spraybyid")]
         //DELETE: api/fields/1/sprayapplications/1
         public async Task<IActionResult> Delete(
             [FromRoute] Guid fieldId, Guid id)

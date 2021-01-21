@@ -8,7 +8,6 @@ namespace H2020.IPMDecisions.UPR.Core.Dtos
         public Guid Id { get; set; }
         public CustomPointLocation Location { get; set; }
         public DateTime Time { get; set; }
-        public FieldCropPestDto FieldCropPest { get; set; }
         public string Severity { get; set; }
     }
 }

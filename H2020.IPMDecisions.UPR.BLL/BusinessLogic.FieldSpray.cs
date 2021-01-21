@@ -148,5 +148,58 @@ namespace H2020.IPMDecisions.UPR.BLL
                 return GenericResponseBuilder.NoSuccess<ShapedDataWithLinks>(null, $"{ex.Message} InnerException: {innerMessage}");
             }
         }
+
+        #region Helpers
+        private ShapedDataWithLinks ShapeFieldSpraysAsChildren(Field field, FieldSprayResourceParameter resourceParameter, bool includeLinks)
+        {
+            try
+            {
+                var childrenAsPaged = PagedList<FieldSprayApplication>.Create(
+                    field.FieldCrop.FieldCropPests.SelectMany(f => f.FieldSprayApplications).AsQueryable(),
+                    resourceParameter.PageNumber,
+                    resourceParameter.PageSize);
+
+                var childrenPaginationLinks = UrlCreatorHelper.CreateLinksForFieldSprays(
+                    this.url,
+                    field.Id,
+                    resourceParameter,
+                    childrenAsPaged.HasNext,
+                    childrenAsPaged.HasPrevious);
+
+                var paginationMetaDataChildren = MiscellaneousHelper.CreatePaginationMetadata(childrenAsPaged);
+
+                var shapedChildrenToReturn = this.mapper
+                    .Map<IEnumerable<FieldSprayApplicationDto>>(childrenAsPaged)
+                    .ShapeData(resourceParameter.Fields);
+
+                var shapedChildrenToReturnWithLinks = shapedChildrenToReturn.Select(fieldSpray =>
+                {
+                    var fieldSprayAsDictionary = fieldSpray as IDictionary<string, object>;
+                    if (includeLinks)
+                    {
+                        var userLinks = UrlCreatorHelper.CreateLinksForFieldSpray(
+                            this.url,
+                            (Guid)fieldSprayAsDictionary["Id"],
+                            field.Id,
+                            resourceParameter.Fields);
+                        fieldSprayAsDictionary.Add("links", userLinks);
+                    }
+                    return fieldSprayAsDictionary;
+                });
+
+                return new ShapedDataWithLinks()
+                {
+                    Value = shapedChildrenToReturnWithLinks,
+                    Links = childrenPaginationLinks,
+                    PaginationMetaData = paginationMetaDataChildren
+                };
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(string.Format("Error in BLL - ShapeFieldObservationsAsChildren. {0}", ex.Message), ex);
+                return null;
+            }
+        }
+        #endregion
     }
 }

@@ -14,14 +14,15 @@ namespace H2020.IPMDecisions.UPR.BLL
     public partial class BusinessLogic : IBusinessLogic
     {
         #region Helpers
-        private FieldCropDto ShapeFieldCropWithChildren(Field field, FieldCropPestResourceParameter resourceParameter, bool includeLinks)
+        private FieldCropDto ShapeFieldCropWithChildren(Field field, FieldResourceParameter resourceParameter, bool includeLinks)
         {
             try
             {
                 var fieldCropToReturn = this.mapper
                     .Map<FieldCropDto>(field.FieldCrop);
 
-                fieldCropToReturn.FieldCropPestWithChildrenDto = ShapeFieldCropPestAsChildren(field.FieldCrop, resourceParameter, includeLinks);
+                var fieldCropPestResourceParameter = this.mapper.Map<FieldCropPestResourceParameter>(resourceParameter);
+                fieldCropToReturn.FieldCropPestWithChildrenDto = ShapeFieldCropPestAsChildren(field.FieldCrop, fieldCropPestResourceParameter, includeLinks);
 
                 return fieldCropToReturn;
             }
@@ -42,6 +43,12 @@ namespace H2020.IPMDecisions.UPR.BLL
                     resourceParameter.PageSize);
 
                 var paginationMetaDataChildren = MiscellaneousHelper.CreatePaginationMetadata(childrenAsPaged);
+                var links = UrlCreatorHelper.CreateLinksForFieldCropPests(
+                    this.url,
+                    fieldCrop.FieldId,
+                    resourceParameter,
+                    childrenAsPaged.HasNext,
+                    childrenAsPaged.HasPrevious);
 
                 var shapedChildrenToReturn = this.mapper
                     .Map<IEnumerable<FieldCropPestWithChildrenDto>>(childrenAsPaged)
@@ -50,9 +57,22 @@ namespace H2020.IPMDecisions.UPR.BLL
                 return new ShapedDataWithLinks()
                 {
                     Value = shapedChildrenToReturn,
-                    Links = null,
+                    Links = links,
                     PaginationMetaData = paginationMetaDataChildren
                 };
+
+                
+
+
+                // ShapedDataWithLinks fieldSpraysToReturn = null;
+                // if (fieldAsEntity.FieldCrop.FieldCropPests != null && fieldAsEntity.FieldCrop.FieldCropPests.Count > 0)
+                // {
+                //     var fieldSprayResourceParameter = this.mapper.Map<FieldSprayResourceParameter>(resourceParameter);
+                //     fieldSpraysToReturn = ShapeFieldSpraysAsChildren(
+                //                     fieldAsEntity,
+                //                     fieldSprayResourceParameter,
+                //                     includeLinks);
+                // }
             }
             catch (Exception ex)
             {
