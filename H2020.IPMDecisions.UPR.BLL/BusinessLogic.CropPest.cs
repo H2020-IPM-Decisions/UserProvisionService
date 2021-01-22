@@ -22,7 +22,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                     .Map<FieldCropDto>(field.FieldCrop);
 
                 var fieldCropPestResourceParameter = this.mapper.Map<FieldCropPestResourceParameter>(resourceParameter);
-                fieldCropToReturn.FieldCropPestWithChildrenDto = ShapeFieldCropPestAsChildren(field.FieldCrop, fieldCropPestResourceParameter, includeLinks);
+                fieldCropToReturn.FieldCropPestDto = ShapeFieldCropPestAsChildren(field.FieldCrop, fieldCropPestResourceParameter, includeLinks);
 
                 return fieldCropToReturn;
             }

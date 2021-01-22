@@ -7,6 +7,6 @@ namespace H2020.IPMDecisions.UPR.Core.Dtos
     {
         public Guid Id { get; set; }
         public string CropEppoCode { get; set; }
-        public ShapedDataWithLinks FieldCropPestWithChildrenDto { get; set; }
+        public ShapedDataWithLinks FieldCropPestDto { get; set; }
     }
 }
