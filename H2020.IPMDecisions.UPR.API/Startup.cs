@@ -104,10 +104,15 @@ namespace H2020.IPMDecisions.UPR.API
             app.UseAuthentication();
             app.UseAuthorization();
 
-            app.UseSwagger();
+            var swaggerBasePath = Configuration["MicroserviceInternalCommunication:UserProvisionMicroservice"];
+            app.UseSwagger(c =>
+            {
+                c.RouteTemplate = swaggerBasePath + "swagger/{documentName}/swagger.json";
+            });
             app.UseSwaggerUI(c =>
             {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "H2020 IPM Decisions - User Provision API");
+                c.SwaggerEndpoint($"/{swaggerBasePath}swagger/v1/swagger.json", "H2020 IPM Decisions - Email Service API");
+                c.RoutePrefix = $"{swaggerBasePath}swagger";
             });
 
             app.UseEndpoints(endpoints =>
