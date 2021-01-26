@@ -17,8 +17,8 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
     [ApiController]
     [Route("api/farms/{farmId:guid}/fields")]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    [ServiceFilter(typeof(AddUserIdToContextFilter), Order=1)]
-    [ServiceFilter(typeof(FarmBelongsToUserActionFilter), Order=2)]
+    [ServiceFilter(typeof(AddUserIdToContextFilter), Order = 1)]
+    [ServiceFilter(typeof(FarmBelongsToUserActionFilter), Order = 2)]
     public class FarmFieldsController : ControllerBase
     {
         private readonly IBusinessLogic businessLogic;
@@ -114,12 +114,14 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
 
             if (!response.IsSuccessful)
                 return response.RequestResult;
-                
+
             return CreatedAtRoute(
                 "api.field.get.fieldbyid",
-                new {
+                new
+                {
                     farmId,
-                    id = response.Result["Id"] },
+                    id = response.Result["Id"]
+                },
                 response.Result);
         }
 
@@ -133,43 +135,18 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
             [FromRoute] Guid farmId, Guid id,
             JsonPatchDocument<FieldForUpdateDto> patchDocument)
         {
-            var fieldResponse = await this.businessLogic.GetField(id);
+            var fieldResponse = await this.businessLogic.GetField(id, HttpContext);
 
             if (!fieldResponse.IsSuccessful)
                 return fieldResponse.RequestResult;
 
-            if (fieldResponse.Result == null)
-            {
-                var fieldForUpdateDto = new FieldForUpdateDto();
-                patchDocument.ApplyTo(fieldForUpdateDto, ModelState);
-                if (!TryValidateModel(fieldForUpdateDto))
-                    return ValidationProblem(ModelState);
-
-                var fieldForCreationDto = this.businessLogic.MapToFieldForCreation(fieldForUpdateDto);
-                if (!TryValidateModel(fieldForCreationDto))
-                    return ValidationProblem(ModelState);
-
-                var createFieldResponse = await this.businessLogic.AddNewField(fieldForCreationDto, HttpContext, id);
-                if (!createFieldResponse.IsSuccessful)
-                    return BadRequest(new { message = createFieldResponse.ErrorMessage });
-
-                return CreatedAtRoute("api.field.get.fieldbyid",
-                    new {
-                        farmId,
-                        id },
-                    createFieldResponse.Result);
-            }
-
             FieldForUpdateDto fieldToPatch =
                 this.businessLogic.MapToFieldForUpdateDto(fieldResponse.Result);
             patchDocument.ApplyTo(fieldToPatch, ModelState);
-            if (!TryValidateModel(fieldToPatch))
-                return ValidationProblem(ModelState);
 
-            var response = await this.businessLogic.UpdateField(fieldResponse.Result, fieldToPatch);
+            var response = await this.businessLogic.UpdateField(fieldResponse.Result, fieldToPatch, patchDocument);
             if (!response.IsSuccessful)
-                return BadRequest(new { message = response.ErrorMessage });
-
+                return response.RequestResult;
             return NoContent();
         }
 
