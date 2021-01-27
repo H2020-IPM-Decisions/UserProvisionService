@@ -11,6 +11,8 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Net.Http.Headers;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.JsonPatch;
+using Newtonsoft.Json;
 
 namespace H2020.IPMDecisions.UPR.BLL
 {
@@ -33,9 +35,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                 fieldAsEntity.Farm = farm;
                 this.dataService.Fields.Create(fieldAsEntity);
 
-                List<FieldCropPest> listOfCropPest = await CreateCropListForInsertion(fieldForCreationDto.CropPests, fieldAsEntity);
-                fieldAsEntity.FieldCropPests = listOfCropPest;
-
+                await AddCropPestToField(fieldForCreationDto.CropPest, fieldAsEntity);
                 await this.dataService.CompleteAsync();
 
                 var includeLinks = parsedMediaType.SubTypeWithoutSuffix
@@ -76,8 +76,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                 fieldAsEntity.Id = id;
 
                 this.dataService.Fields.Create(fieldAsEntity);
-                List<FieldCropPest> listOfCropPest = await CreateCropListForInsertion(fieldForCreationDto.CropPests, fieldAsEntity);
-                fieldAsEntity.FieldCropPests = listOfCropPest;
+                await AddCropPestToField(fieldForCreationDto.CropPest, fieldAsEntity);
 
                 await this.dataService.CompleteAsync();
 
@@ -194,16 +193,18 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
         }
 
-        public async Task<GenericResponse<Field>> GetField(Guid id)
+        public async Task<GenericResponse<Field>> GetField(Guid id, HttpContext httpContext)
         {
             try
             {
-                var fieldAsEntity = await this
-                    .dataService
-                    .Fields
-                    .FindByIdAsync(id);
+                var farm = httpContext.Items["farm"] as Farm;
 
-                if (fieldAsEntity == null) return GenericResponseBuilder.Success<Field>(null);
+                var fieldAsEntity = await this
+                      .dataService
+                      .Fields
+                      .FindByConditionAsync(f => f.Id == id & f.FarmId == farm.Id, true);
+
+                if (fieldAsEntity == null) return GenericResponseBuilder.NotFound<Field>();
 
                 return GenericResponseBuilder.Success<Field>(fieldAsEntity);
             }
@@ -270,11 +271,12 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
         }
 
-        public async Task<GenericResponse> UpdateField(Field field, FieldForUpdateDto fieldToPatch)
+        public async Task<GenericResponse> UpdateField(Field field, FieldForUpdateDto fieldToPatch, JsonPatchDocument<FieldForUpdateDto> patchDocument)
         {
             try
             {
                 this.mapper.Map(fieldToPatch, field);
+                await UpdateFieldCropPest(field, patchDocument);
 
                 this.dataService.Fields.Update(field);
                 await this.dataService.CompleteAsync();
@@ -351,45 +353,66 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
         }
 
-        private async Task<List<FieldCropPest>> CreateCropListForInsertion(ICollection<CropPestForCreationDto> cropPestsFromRequest, Field field)
+        private async Task AddCropPestToField(CropPestForCreationDto cropPestRequest, Field field)
         {
-            if (cropPestsFromRequest is null) return null;
+            if (cropPestRequest is null) return;
 
-            var listOfFieldCropPest = new List<FieldCropPest>();
-            var cropWithoutDuplicates = cropPestsFromRequest
-                                    .Select(c => new
-                                    {
-                                        CropEppoCode = c.CropEppoCode,
-                                        PestEppoCode = c.PestEppoCode
-                                    })
-                                    .Distinct();
-
-            foreach (var cropPest in cropWithoutDuplicates)
+            var fieldCrop = new FieldCrop()
             {
-                var cropPestAsEntity = await this.dataService.CropPests
-                    .FindByConditionAsync
-                    (c => c.CropEppoCode == cropPest.CropEppoCode
-                    && c.PestEppoCode == cropPest.PestEppoCode);
+                CropEppoCode = cropPestRequest.CropEppoCode,
+                Field = field
+            };
+            var cropPestAsEntity = await this.dataService.CropPests
+                .FindByConditionAsync
+                (c => c.CropEppoCode == cropPestRequest.CropEppoCode
+                 && c.PestEppoCode == cropPestRequest.PestEppoCode);
 
-                if (cropPestAsEntity == null)
+            if (cropPestAsEntity == null)
+            {
+                cropPestAsEntity = new CropPest()
                 {
-                    cropPestAsEntity = new CropPest()
-                    {
-                        CropEppoCode = cropPest.CropEppoCode,
-                        PestEppoCode = cropPest.PestEppoCode,
-                    };
-                    this.dataService.CropPests.Create(cropPestAsEntity);
-                }
-
-                var newFieldCropPest = new FieldCropPest()
-                {
-                    CropPest = cropPestAsEntity,
-                    Field = field
+                    CropEppoCode = cropPestRequest.CropEppoCode,
+                    PestEppoCode = cropPestRequest.PestEppoCode,
                 };
-                listOfFieldCropPest.Add(newFieldCropPest);
+                this.dataService.CropPests.Create(cropPestAsEntity);
+            }
+            var newFieldCropPest = new FieldCropPest()
+            {
+                CropPest = cropPestAsEntity,
+                FieldCrop = fieldCrop
+            };
+
+            var fieldCropPests = new List<FieldCropPest>();
+            fieldCropPests.Add(newFieldCropPest);
+
+            field.FieldCrop = fieldCrop;
+            field.FieldCrop.FieldCropPests = fieldCropPests;
+        }
+
+        private async Task AddPestsToField(string pestEppoCode, Field field)
+        {
+            if (string.IsNullOrEmpty(pestEppoCode)) return;
+            var cropPestAsEntity = await this.dataService.CropPests
+                .FindByConditionAsync
+                (c => c.CropEppoCode == field.FieldCrop.CropEppoCode
+                && c.PestEppoCode == pestEppoCode);
+
+            if (cropPestAsEntity == null)
+            {
+                cropPestAsEntity = new CropPest()
+                {
+                    CropEppoCode = field.FieldCrop.CropEppoCode,
+                    PestEppoCode = pestEppoCode,
+                };
+                this.dataService.CropPests.Create(cropPestAsEntity);
             }
 
-            return listOfFieldCropPest;
+            var newFieldCropPest = new FieldCropPest()
+            {
+                CropPest = cropPestAsEntity,
+                FieldCrop = field.FieldCrop
+            };
+            field.FieldCrop.FieldCropPests.Add(newFieldCropPest);
         }
 
         private IDictionary<string, object> CreateFieldWithChildrenAsDictionary(
@@ -400,41 +423,17 @@ namespace H2020.IPMDecisions.UPR.BLL
         {
             try
             {
-                ShapedDataWithLinks fieldObservationsToReturn = null;
-                // if (fieldAsEntity.FieldObservations != null && fieldAsEntity.FieldObservations.Count > 0)
-                // {
-                //     var fieldObservationResourceParameter = this.mapper.Map<FieldObservationResourceParameter>(resourceParameter);
-                //     fieldObservationsToReturn = ShapeFieldObservationsAsChildren(
-                //                     fieldAsEntity,
-                //                     fieldObservationResourceParameter,
-                //                     includeLinks);
-                // }
-
-                ShapedDataWithLinks fieldCropPestToReturn = null;
-                if (fieldAsEntity.FieldCropPests != null && fieldAsEntity.FieldCropPests.Count > 0)
+                FieldCropDto fieldCropToReturn = null;
+                if (fieldAsEntity.FieldCrop != null)
                 {
-                    var fieldCropPestResourceParameter = this.mapper.Map<FieldCropPestResourceParameter>(resourceParameter);
-                    fieldCropPestToReturn = ShapeFieldCropPestAsChildren(
+                    fieldCropToReturn = ShapeFieldCropWithChildren(
                                     fieldAsEntity,
-                                    fieldCropPestResourceParameter,
+                                    resourceParameter,
                                     includeLinks);
                 }
 
-                ShapedDataWithLinks fieldSpraysToReturn = null;
-                // if (fieldAsEntity.FieldSprays != null && fieldAsEntity.FieldSprays.Count > 0)
-                // {
-                //     var fieldObservationResourceParameter = this.mapper.Map<FieldObservationResourceParameter>(resourceParameter);
-                //     fieldObservationsToReturn = ShapeFieldObservationsAsChildren(
-                //                     fieldAsEntity,
-                //                     fieldObservationResourceParameter,
-                //                     includeLinks);
-                // }
-
                 var fieldToReturnWithChildren = this.mapper.Map<FieldWithChildrenDto>(fieldAsEntity);
-                fieldToReturnWithChildren.FieldObservationsDto = fieldObservationsToReturn;
-                fieldToReturnWithChildren.FieldCropPestsDto = fieldCropPestToReturn;
-                fieldToReturnWithChildren.FieldSpraysDto = fieldSpraysToReturn;
-
+                fieldToReturnWithChildren.FieldCropDto = fieldCropToReturn;
                 var fieldToReturnWithChildrenShaped = fieldToReturnWithChildren
                     .ShapeData(resourceParameter.Fields)
                     as IDictionary<string, object>;
@@ -449,6 +448,43 @@ namespace H2020.IPMDecisions.UPR.BLL
             {
                 logger.LogError(string.Format("Error in BLL - CreateFarmWithChildrenAsDictionary. {0}", ex.Message), ex);
                 return null;
+            }
+        }
+
+        private async Task UpdateFieldCropPest(Field field, JsonPatchDocument<FieldForUpdateDto> patchDocument)
+        {
+            var fieldCropPestProperty = "fieldCropPest";
+            if (patchDocument.Operations.Any(o => o.path == fieldCropPestProperty))
+            {
+                var fieldCropPestOperations = patchDocument.Operations.Where(o => o.path == fieldCropPestProperty).FirstOrDefault().value;
+                var fieldCropPestToPatch = JsonConvert.DeserializeObject<IEnumerable<FieldCropPestForUpdateDto>>(fieldCropPestOperations.ToString());
+
+                var newPests = new List<string>();
+                foreach (var cropPest in field.FieldCrop.FieldCropPests)
+                {
+                    var cropPestInPatchList = fieldCropPestToPatch.Where(r => r.Id == cropPest.Id).FirstOrDefault();
+
+                    if (cropPestInPatchList == null)
+                    {
+                        this.dataService.FieldCropPests.Delete(cropPest);
+                    }
+                    else
+                    {
+                        if (cropPest.CropPest.PestEppoCode != cropPestInPatchList.PestEppoCode)
+                        {
+                            this.dataService.FieldCropPests.Delete(cropPest);
+                            newPests.Add(cropPestInPatchList.PestEppoCode);
+                        }
+                    }
+                }
+                foreach (var newCropPest in fieldCropPestToPatch.Where(f => f.Id == Guid.Empty))
+                {
+                    newPests.Add(newCropPest.PestEppoCode);
+                }
+                foreach (var pestEppoCode in newPests)
+                {
+                    await AddPestsToField(pestEppoCode, field);
+                }
             }
         }
         #endregion

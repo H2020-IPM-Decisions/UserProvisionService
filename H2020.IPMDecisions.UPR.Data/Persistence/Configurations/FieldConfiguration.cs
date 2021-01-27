@@ -14,7 +14,13 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Configurations
                 .ValueGeneratedOnAdd();
 
             builder.Property(f => f.Name)
-                .IsRequired();            
+                .IsRequired();
+
+            builder.HasOne<FieldCrop>(f => f.FieldCrop)
+                .WithOne(fc => fc.Field)
+                .HasForeignKey<FieldCrop>(f => f.FieldId)
+                .HasConstraintName("FK_Field_FieldCrop")
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

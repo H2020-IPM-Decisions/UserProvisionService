@@ -22,6 +22,7 @@ namespace H2020.IPMDecisions.UPR.BLL
             {
                 var field = httpContext.Items["field"] as Field;
                 var fieldCropPestExist = field
+                    .FieldCrop
                     .FieldCropPests
                     .Where(fcp => fcp.Id == sprayForCreationDto.FieldCropPestId)
                     .FirstOrDefault();
@@ -51,6 +52,7 @@ namespace H2020.IPMDecisions.UPR.BLL
             {
                 var field = httpContext.Items["field"] as Field;
                 var existingEntity = field
+                    .FieldCrop
                     .FieldCropPests
                     .SelectMany(f => f.FieldSprayApplications)
                     .Where(fs => fs.Id == id)
@@ -61,6 +63,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                 this.dataService.FieldSprayApplication.Delete(existingEntity);
                 await this.dataService.CompleteAsync();
                 return GenericResponseBuilder.Success();
+
             }
             catch (Exception ex)
             {
@@ -80,6 +83,7 @@ namespace H2020.IPMDecisions.UPR.BLL
 
                 var field = httpContext.Items["field"] as Field;
                 var sprayAsEntity = field
+                    .FieldCrop
                     .FieldCropPests
                     .SelectMany(f => f.FieldSprayApplications)
                     .Where(fs => fs.Id == id)
@@ -90,6 +94,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                 // ToDo: Shape Data
                 var dataToReturn = this.mapper.Map<FieldSprayApplicationDto>(sprayAsEntity);
                 return GenericResponseBuilder.Success<FieldSprayApplicationDto>(dataToReturn);
+
             }
             catch (Exception ex)
             {
@@ -114,8 +119,6 @@ namespace H2020.IPMDecisions.UPR.BLL
                     .dataService
                     .FieldSprayApplication
                     .FindAllAsync(resourceParameter, fieldId);
-
-                if (dataAsEntities.Count == 0) return GenericResponseBuilder.NoSuccess<ShapedDataWithLinks>(null);
 
                 var paginationMetaData = MiscellaneousHelper.CreatePaginationMetadata(dataAsEntities);
                 var links = UrlCreatorHelper.CreateLinksForFieldSprays(
@@ -145,5 +148,59 @@ namespace H2020.IPMDecisions.UPR.BLL
                 return GenericResponseBuilder.NoSuccess<ShapedDataWithLinks>(null, $"{ex.Message} InnerException: {innerMessage}");
             }
         }
+
+        #region Helpers
+        private ShapedDataWithLinks ShapeFieldSpraysAsChildren(FieldCrop fieldCrop, Guid fieldCropPestId, FieldSprayResourceParameter resourceParameter, bool includeLinks)
+        {
+            try
+            {
+                var childrenAsPaged = PagedList<FieldSprayApplication>.Create(
+                    fieldCrop.FieldCropPests.Where(f => f.Id == fieldCropPestId).SelectMany(f => f.FieldSprayApplications).AsQueryable(),
+                    resourceParameter.PageNumber,
+                    resourceParameter.PageSize);
+
+                resourceParameter.FieldCropPestId = fieldCropPestId;
+                var childrenPaginationLinks = UrlCreatorHelper.CreateLinksForFieldSprays(
+                    this.url,
+                    fieldCrop.FieldId,
+                    resourceParameter,
+                    childrenAsPaged.HasNext,
+                    childrenAsPaged.HasPrevious);
+
+                var paginationMetaDataChildren = MiscellaneousHelper.CreatePaginationMetadata(childrenAsPaged);
+
+                var shapedChildrenToReturn = this.mapper
+                    .Map<IEnumerable<FieldSprayApplicationDto>>(childrenAsPaged)
+                    .ShapeData(resourceParameter.Fields);
+
+                var shapedChildrenToReturnWithLinks = shapedChildrenToReturn.Select(fieldSpray =>
+                {
+                    var fieldSprayAsDictionary = fieldSpray as IDictionary<string, object>;
+                    if (includeLinks)
+                    {
+                        var userLinks = UrlCreatorHelper.CreateLinksForFieldSpray(
+                            this.url,
+                            (Guid)fieldSprayAsDictionary["Id"],
+                            fieldCrop.FieldId,
+                            resourceParameter.Fields);
+                        fieldSprayAsDictionary.Add("links", userLinks);
+                    }
+                    return fieldSprayAsDictionary;
+                });
+
+                return new ShapedDataWithLinks()
+                {
+                    Value = shapedChildrenToReturnWithLinks,
+                    Links = childrenPaginationLinks,
+                    PaginationMetaData = paginationMetaDataChildren
+                };
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(string.Format("Error in BLL - ShapeFieldSprayAsChildren. {0}", ex.Message), ex);
+                return null;
+            }
+        }
+        #endregion
     }
 }

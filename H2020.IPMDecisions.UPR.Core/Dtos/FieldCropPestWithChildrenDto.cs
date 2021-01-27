@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 
 namespace H2020.IPMDecisions.UPR.Core.Dtos
 {
@@ -7,6 +6,6 @@ namespace H2020.IPMDecisions.UPR.Core.Dtos
     {
         public Guid Id { get; set; }
         public CropPestDto CropPestDto { get; set; }
-        public ICollection<FieldCropPestDssDto> FieldCropPestDssDto { get; set; }
+        public Guid FieldCropId { get; set; }
     }
 }

@@ -13,3 +13,10 @@ INSERT INTO public."DataSharingRequestStatus" ("Id", "Description") VALUES
     (0,	'Pending'),
     (1,	'Accepted'),
     (3,	'Declined');
+
+
+INSERT INTO public."Widget" ("Id", "Description") VALUES
+    (0,	'Maps'),
+    (1,	'Actions'),
+    (2,	'RiskForecast'),
+    (3,	'Weather');

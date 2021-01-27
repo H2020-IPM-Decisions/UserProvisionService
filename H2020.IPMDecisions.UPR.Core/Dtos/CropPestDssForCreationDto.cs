@@ -3,12 +3,15 @@ using System.ComponentModel.DataAnnotations;
 
 namespace H2020.IPMDecisions.UPR.Core.Dtos
 {
-    public class CropPestDssForCreationDto
+    public class CropPestDssForCreationDto : DssForCreationDto
     {
         [Required]
         public Guid FieldCropPestId { get; set; }
         [Required]
-        public string DssId { get; set; }
-        public string DssParameters { get; set; }
+        public override string DssId { get; set; }
+        [Required]
+        public override string DssModelId { get; set; }
+        [Required]
+        public override string DssParameters { get; set; }
     }
 }

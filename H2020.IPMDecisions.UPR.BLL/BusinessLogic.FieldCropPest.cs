@@ -22,52 +22,42 @@ namespace H2020.IPMDecisions.UPR.BLL
                 var field = httpContext.Items["field"] as Field;
 
                 var cropPestExist = await this.dataService.CropPests
-                        .FindByConditionAsync
-                        (c => c.CropEppoCode == cropPestForCreationDto.CropEppoCode
-                        && c.PestEppoCode == cropPestForCreationDto.PestEppoCode);
-
-                var newFieldCropPest = new FieldCropPest();
+                    .FindByConditionAsync
+                    (c => c.CropEppoCode == cropPestForCreationDto.CropEppoCode
+                    && c.PestEppoCode == cropPestForCreationDto.PestEppoCode);
                 if (cropPestExist == null)
                 {
                     cropPestExist = this.mapper.Map<CropPest>(cropPestForCreationDto);
                     this.dataService.CropPests.Create(cropPestExist);
+                }
 
-                    newFieldCropPest = new FieldCropPest()
+                var fieldCrop = new FieldCrop();
+                if (field.FieldCrop == null)
+                {
+                    fieldCrop = new FieldCrop()
                     {
-                        CropPest = cropPestExist,
+                        CropEppoCode = cropPestForCreationDto.CropEppoCode,
                         Field = field
                     };
-
-                    this.dataService.FieldCropPests.Create(newFieldCropPest);
-                    await this.dataService.CompleteAsync();
+                }
+                else if (field.FieldCrop.CropEppoCode != cropPestForCreationDto.CropEppoCode)
+                {
+                    return GenericResponseBuilder.Duplicated<IDictionary<string, object>>();
                 }
                 else
                 {
-                    var fieldCropPestExist = await this.dataService
-                        .FieldCropPests
-                        .FindByConditionAsync(f =>
-                            f.FieldId == field.Id
-                            & f.CropPestId == cropPestExist.Id);
-
-                    if (fieldCropPestExist != null)
-                    {
-                        var returnExistingFieldCropPest = this.mapper
-                            .Map<FieldCropPestDto>(fieldCropPestExist)
-                            .ShapeData() as IDictionary<string, object>;
-                        return GenericResponseBuilder.Success<IDictionary<string, object>>(returnExistingFieldCropPest);
-                    }
-
-                    newFieldCropPest = new FieldCropPest()
-                    {
-                        CropPest = cropPestExist,
-                        Field = field
-                    };
-                    this.dataService.FieldCropPests.Create(newFieldCropPest);
-                    await this.dataService.CompleteAsync();
+                    fieldCrop = field.FieldCrop;
                 }
 
+                var newFieldCropPest = new FieldCropPest()
+                {
+                    CropPest = cropPestExist,
+                    FieldCrop = fieldCrop
+                };
+                this.dataService.FieldCropPests.Create(newFieldCropPest);
+                await this.dataService.CompleteAsync();
                 var cropPestToReturn = this.mapper
-                    .Map<FieldCropPestDto>(newFieldCropPest)
+                    .Map<FieldCropWithChildrenDto>(fieldCrop)
                     .ShapeData() as IDictionary<string, object>;
 
                 return GenericResponseBuilder.Success<IDictionary<string, object>>(cropPestToReturn);
@@ -80,14 +70,19 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
         }
 
-        public async Task<GenericResponse> DeleteFieldCropPest(Guid id, Guid fieldId)
+        public async Task<GenericResponse> DeleteFieldCropPest(Guid id, Guid fieldId, HttpContext httpContext)
         {
             try
             {
+                var field = httpContext.Items["field"] as Field;
+                if (field.FieldCrop == null)
+                {
+                    return GenericResponseBuilder.Success();
+                }
                 var fieldCropPestExist = await this.dataService
                         .FieldCropPests
                         .FindByConditionAsync(f =>
-                            f.FieldId == fieldId
+                            f.FieldCropId == field.FieldCrop.Id
                             & f.Id == id);
 
                 if (fieldCropPestExist == null) return GenericResponseBuilder.Success();
@@ -96,6 +91,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                 await this.dataService.CompleteAsync();
 
                 return GenericResponseBuilder.Success();
+
             }
             catch (Exception ex)
             {
@@ -105,7 +101,7 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
         }
 
-        public async Task<GenericResponse<IDictionary<string, object>>> GetFieldCropPest(Guid id, Guid fieldId, string mediaType)
+        public async Task<GenericResponse<IDictionary<string, object>>> GetFieldCropPest(Guid id, Guid fieldId, string mediaType, HttpContext httpContext)
         {
             try
             {
@@ -113,12 +109,18 @@ namespace H2020.IPMDecisions.UPR.BLL
                         out MediaTypeHeaderValue parsedMediaType))
                     return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, "Wrong media type.");
 
+                var field = httpContext.Items["field"] as Field;
+
+                if (field.FieldCrop == null)
+                {
+                    return GenericResponseBuilder.NotFound<IDictionary<string, object>>();
+                }
 
                 var fieldCropPestExist = await this.dataService
-                        .FieldCropPests
-                        .FindByConditionAsync(f =>
-                            f.FieldId == fieldId
-                            & f.Id == id, true);
+                    .FieldCropPests
+                    .FindByConditionAsync(f =>
+                        f.FieldCrop.FieldId == fieldId
+                        & f.Id == id, true);
 
                 if (fieldCropPestExist == null) return GenericResponseBuilder.NotFound<IDictionary<string, object>>();
 
@@ -127,6 +129,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                     .ShapeData() as IDictionary<string, object>;
 
                 return GenericResponseBuilder.Success<IDictionary<string, object>>(cropPestToReturn);
+
             }
             catch (Exception ex)
             {

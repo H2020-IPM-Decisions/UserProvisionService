@@ -3,6 +3,7 @@ using H2020.IPMDecisions.UPR.Core.Entities;
 using H2020.IPMDecisions.UPR.Core.Models;
 using H2020.IPMDecisions.UPR.Core.ResourceParameters;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.JsonPatch;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -25,8 +26,8 @@ namespace H2020.IPMDecisions.UPR.BLL
 
         #region Crop Pest
         Task<GenericResponse<IDictionary<string, object>>> AddNewFieldCropPest(CropPestForCreationDto cropPestForCreationDto, HttpContext httpContext, string mediaType);
-        Task<GenericResponse> DeleteFieldCropPest(Guid id, Guid fieldId);
-        Task<GenericResponse<IDictionary<string, object>>> GetFieldCropPest(Guid id, Guid fieldId, string mediaType);
+        Task<GenericResponse> DeleteFieldCropPest(Guid id, Guid fieldId, HttpContext httpContext);
+        Task<GenericResponse<IDictionary<string, object>>> GetFieldCropPest(Guid id, Guid fieldId, string mediaType, HttpContext httpContext);
         Task<GenericResponse<ShapedDataWithLinks>> GetFieldCropPests(Guid fieldId, FieldCropPestResourceParameter resourceParameter, string mediaType);
         #endregion
 
@@ -50,10 +51,10 @@ namespace H2020.IPMDecisions.UPR.BLL
         Task<GenericResponse> DeleteField(Guid id);
         Task<GenericResponse<ShapedDataWithLinks>> GetFields(Guid farmId, FieldResourceParameter resourceParameter, string mediaType);
         Task<GenericResponse<IDictionary<string, object>>> GetFieldDto(Guid id, FieldResourceParameter resourceParameter, string mediaType);
-        Task<GenericResponse<Field>> GetField(Guid id);
+        Task<GenericResponse<Field>> GetField(Guid id, HttpContext httpContext);
         FieldForCreationDto MapToFieldForCreation(FieldForUpdateDto fieldForUpdateDto);
         FieldForUpdateDto MapToFieldForUpdateDto(Field field);
-        Task<GenericResponse> UpdateField(Field field, FieldForUpdateDto fieldToPatch);
+        Task<GenericResponse> UpdateField(Field field, FieldForUpdateDto fieldToPatch, JsonPatchDocument<FieldForUpdateDto> patchDocument);
         #endregion
 
         #region  FieldObservation

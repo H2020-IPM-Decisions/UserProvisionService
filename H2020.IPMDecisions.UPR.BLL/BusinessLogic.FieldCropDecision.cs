@@ -25,6 +25,7 @@ namespace H2020.IPMDecisions.UPR.BLL
             {
                 var field = httpContext.Items["field"] as Field;
                 var duplicatedRecord = field
+                    .FieldCrop
                     .FieldCropPests
                     .Any(f => f.FieldCropPestDsses
                         .Any(fcpd =>
@@ -34,22 +35,25 @@ namespace H2020.IPMDecisions.UPR.BLL
                     return GenericResponseBuilder.Duplicated<IDictionary<string, object>>();
 
                 var getFieldCropPest = field
+                    .FieldCrop
                     .FieldCropPests
                     .Where(f => f.Id == cropPestDssForCreationDto.FieldCropPestId)
                     .FirstOrDefault();
                 if (getFieldCropPest == null)
                     return GenericResponseBuilder.NotFound<IDictionary<string, object>>();
 
+                var cropPestDss = this.mapper.Map<CropPestDss>(cropPestDssForCreationDto);
+
                 var newFieldCropPestDss = await CreateFieldCropPestDss(
                     getFieldCropPest,
-                    cropPestDssForCreationDto.DssId,
+                    cropPestDss,
                     cropPestDssForCreationDto.DssParameters);
 
                 await this.dataService.CompleteAsync();
-
                 var fieldCropPestToReturn = this.mapper
                     .Map<FieldCropPestDssDto>(newFieldCropPestDss)
                     .ShapeData() as IDictionary<string, object>;
+
                 return GenericResponseBuilder.Success<IDictionary<string, object>>(fieldCropPestToReturn);
             }
             catch (Exception ex)
@@ -67,6 +71,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                 var field = httpContext.Items["field"] as Field;
 
                 var fieldCropPestExist = field
+                    .FieldCrop
                     .FieldCropPests
                     .SelectMany(f => f.FieldCropPestDsses)
                     .Where(fcp => fcp.Id == id)
@@ -91,6 +96,7 @@ namespace H2020.IPMDecisions.UPR.BLL
             {
                 var field = httpContext.Items["field"] as Field;
                 var fieldCropDssExist = field
+                    .FieldCrop
                     .FieldCropPests
                     .SelectMany(f => f.FieldCropPestDsses)
                     .Where(x => x.Id == id)
@@ -125,7 +131,9 @@ namespace H2020.IPMDecisions.UPR.BLL
                     return GenericResponseBuilder.NoSuccess<ShapedDataWithLinks>(null, "Wrong OrderBy entered");
 
                 var field = httpContext.Items["field"] as Field;
+
                 var fieldCropDssExist = field
+                    .FieldCrop
                     .FieldCropPests
                     .Where(f => f.Id == resourceParameter.FieldCropPestId)
                     .Select(f => f.FieldCropPestDsses)
@@ -167,22 +175,19 @@ namespace H2020.IPMDecisions.UPR.BLL
         }
 
         #region Helpers
-        private async Task<FieldCropPestDss> CreateFieldCropPestDss(FieldCropPest fieldCropPest, string dssId, string dssParameters = "")
+        private async Task<FieldCropPestDss> CreateFieldCropPestDss(FieldCropPest fieldCropPest, CropPestDss cropPestDss, string dssParameters = "")
         {
             var cropPestDssExist = await this.dataService
                 .CropPestDsses
                 .FindByConditionAsync(c =>
                  c.CropPestId == fieldCropPest.CropPest.Id
-                 & c.DssId == dssId);
+                 & c.DssId == cropPestDss.DssId
+                 & c.DssModelId == cropPestDss.DssModelId);
 
             if (cropPestDssExist == null)
             {
-                cropPestDssExist = new CropPestDss()
-                {
-                    CropPest = fieldCropPest.CropPest,
-                    DssId = dssId,
-                    DssName = dssId
-                };
+                cropPestDssExist = cropPestDss;
+                cropPestDssExist.CropPest = fieldCropPest.CropPest;
                 this.dataService.CropPestDsses.Create(cropPestDssExist);
             }
 
@@ -194,6 +199,58 @@ namespace H2020.IPMDecisions.UPR.BLL
             };
             this.dataService.FieldCropPestDsses.Create(newFieldCropPestDss);
             return newFieldCropPestDss;
+        }
+
+        private ShapedDataWithLinks ShapeFieldCropPestDssAsChildren(FieldCrop fieldCrop, Guid fieldCropPestId, FieldCropPestDssResourceParameter resourceParameter, bool includeLinks)
+        {
+            try
+            {
+                var childrenAsPaged = PagedList<FieldCropPestDss>.Create(
+                    fieldCrop.FieldCropPests.Where(f => f.Id == fieldCropPestId).SelectMany(f => f.FieldCropPestDsses).AsQueryable(),
+                    resourceParameter.PageNumber,
+                    resourceParameter.PageSize);
+
+                resourceParameter.FieldCropPestId = fieldCropPestId;
+                var childrenPaginationLinks = UrlCreatorHelper.CreateLinksForFieldCropDecisions(
+                    this.url,
+                    fieldCrop.FieldId,
+                    resourceParameter,
+                    childrenAsPaged.HasNext,
+                    childrenAsPaged.HasPrevious);
+
+                var paginationMetaDataChildren = MiscellaneousHelper.CreatePaginationMetadata(childrenAsPaged);
+
+                var shapedChildrenToReturn = this.mapper
+                    .Map<IEnumerable<FieldCropPestDssDto>>(childrenAsPaged)
+                    .ShapeData(resourceParameter.Fields);
+
+                var shapedChildrenToReturnWithLinks = shapedChildrenToReturn.Select(fieldCropPestDss =>
+                {
+                    var fieldcropPestDssAsDictionary = fieldCropPestDss as IDictionary<string, object>;
+                    if (includeLinks)
+                    {
+                        var userLinks = UrlCreatorHelper.CreateLinksForFieldCropDecision(
+                            this.url,
+                            (Guid)fieldcropPestDssAsDictionary["Id"],
+                            fieldCrop.FieldId,
+                            resourceParameter.Fields);
+                        fieldcropPestDssAsDictionary.Add("links", userLinks);
+                    }
+                    return fieldcropPestDssAsDictionary;
+                });
+
+                return new ShapedDataWithLinks()
+                {
+                    Value = shapedChildrenToReturnWithLinks,
+                    Links = childrenPaginationLinks,
+                    PaginationMetaData = paginationMetaDataChildren
+                };
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(string.Format("Error in BLL - ShapeFieldCropPestDssAsChildren. {0}", ex.Message), ex);
+                return null;
+            }
         }
         #endregion
     }

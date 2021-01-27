@@ -10,8 +10,7 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
         {
             // Entities to Dtos
             CreateMap<Field, FieldDto>();
-            CreateMap<Field, FieldWithChildrenDto>()
-               .ForMember(dest => dest.FieldObservationsDto, opt => opt.Ignore());
+            CreateMap<Field, FieldWithChildrenDto>();
             CreateMap<Field, FieldForUpdateDto>();
 
             // Dtos to Entities
@@ -24,7 +23,7 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
             {
                 if (string.IsNullOrEmpty(src.FieldName))
                 {
-                    dest.Name = string.Format("{0}_{1}_{2}_{3}", 
+                    dest.Name = string.Format("{0}_{1}_{2}_{3}",
                         "Generated_Field", src.CropPest.CropEppoCode, src.CropPest.PestEppoCode, src.DssId);
                 }
                 else

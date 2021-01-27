@@ -89,15 +89,19 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
             collection = collection
                .Where(f =>
                    f.FarmId == farmId)
-                .Include(f => f.FieldCropPests)
-                    .ThenInclude(f => f.FieldObservations)
-               .Include(f => f.FieldCropPests)
-                   .ThenInclude(fcp => fcp.CropPest)
-                .Include(f => f.FieldCropPests)
+               .Include(f => f.FieldCrop)
+                    .ThenInclude(fc => fc.FieldCropPests)
+                    .ThenInclude(fcp => fcp.FieldObservations)
+                .Include(f => f.FieldCrop)
+                    .ThenInclude(fc => fc.FieldCropPests)
+                    .ThenInclude(fcp => fcp.CropPest)
+                .Include(f => f.FieldCrop)
+                    .ThenInclude(fc => fc.FieldCropPests)
+                    .ThenInclude(fcp => fcp.FieldSprayApplications)
+                .Include(f => f.FieldCrop)
+                    .ThenInclude(fc => fc.FieldCropPests)
                     .ThenInclude(fcp => fcp.FieldCropPestDsses)
-                        .ThenInclude(fcpd => fcpd.CropPestDss)
-                .Include(f => f.FieldCropPests)
-                    .ThenInclude(f => f.FieldSprayApplications);
+                    .ThenInclude(fcpd => fcpd.CropPestDss);
 
             collection = ApplyResourceParameter(resourceParameter, collection);
 
@@ -145,15 +149,19 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
             return await this.context
                 .Field
                 .Where(expression)
-                .Include(f => f.FieldCropPests)
-                    .ThenInclude(f => f.FieldObservations)
-                .Include(f => f.FieldCropPests)
-                    .ThenInclude(f => f.CropPest)
-                .Include(f => f.FieldCropPests)
+                .Include(f => f.FieldCrop)
+                    .ThenInclude(fc => fc.FieldCropPests)
+                    .ThenInclude(fcp => fcp.FieldObservations)
+                .Include(f => f.FieldCrop)
+                    .ThenInclude(fc => fc.FieldCropPests)
+                    .ThenInclude(fcp => fcp.CropPest)
+                .Include(f => f.FieldCrop)
+                    .ThenInclude(fc => fc.FieldCropPests)
+                    .ThenInclude(fcp => fcp.FieldSprayApplications)
+                .Include(f => f.FieldCrop)
+                    .ThenInclude(fc => fc.FieldCropPests)
                     .ThenInclude(fcp => fcp.FieldCropPestDsses)
-                        .ThenInclude(fcpd => fcpd.CropPestDss)
-                .Include(f => f.FieldCropPests)
-                    .ThenInclude(f => f.FieldSprayApplications)
+                    .ThenInclude(fcpd => fcpd.CropPestDss)
                 .FirstOrDefaultAsync();
         }
 
@@ -179,12 +187,19 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
                 .Field
                 .Where(f =>
                     f.Id == id)
-                .Include(f => f.FieldCropPests)
-                    .ThenInclude(f => f.FieldObservations)
-                .Include(f => f.FieldCropPests)
-                   .ThenInclude(fcp => fcp.CropPest)
-                .Include(f => f.FieldCropPests)
-                    .ThenInclude(f => f.FieldSprayApplications)
+                .Include(f => f.FieldCrop)
+                    .ThenInclude(fc => fc.FieldCropPests)
+                    .ThenInclude(fcp => fcp.FieldObservations)
+                .Include(f => f.FieldCrop)
+                    .ThenInclude(fc => fc.FieldCropPests)
+                    .ThenInclude(fcp => fcp.CropPest)
+                .Include(f => f.FieldCrop)
+                    .ThenInclude(fc => fc.FieldCropPests)
+                    .ThenInclude(fcp => fcp.FieldSprayApplications)
+                .Include(f => f.FieldCrop)
+                    .ThenInclude(fc => fc.FieldCropPests)
+                    .ThenInclude(fcp => fcp.FieldCropPestDsses)
+                    .ThenInclude(fcpd => fcpd.CropPestDss)
                 .FirstOrDefaultAsync();
         }
 

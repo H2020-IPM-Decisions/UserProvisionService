@@ -37,6 +37,13 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence
 
             var collection = this.context.FieldSprayApplication as IQueryable<FieldSprayApplication>;
 
+            if (!string.IsNullOrEmpty(fieldId.ToString()))
+            {
+                collection = collection
+                    .Where(f =>
+                        f.FieldCropPest.FieldCrop.FieldId == fieldId);
+            }
+
             collection = collection
                 .Where(f =>
                     f.FieldCropPestId == resourceParameter.FieldCropPestId);

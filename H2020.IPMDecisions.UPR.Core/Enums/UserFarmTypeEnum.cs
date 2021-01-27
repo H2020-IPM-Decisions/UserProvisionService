@@ -4,6 +4,6 @@ namespace H2020.IPMDecisions.UPR.Core.Enums
     {
         Unknown = 0,
         Owner = 1,
-        Advisor = 2        
+        Advisor = 2
     }
 }

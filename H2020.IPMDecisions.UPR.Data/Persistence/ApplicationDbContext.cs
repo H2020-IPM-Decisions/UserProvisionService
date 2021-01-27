@@ -28,8 +28,10 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence
         public DbSet<UserFarm> UserFarm { get; set; }
         public DbSet<UserProfile> UserProfile { get; set; }
         public DbSet<UserFarmType> UserFarmType { get; set; }
+        public DbSet<UserWidget> UserWidget { get; set; }
         public DbSet<WeatherDataSource> WeatherDataSource { get; set; }
         public DbSet<WeatherStation> WeatherStation { get; set; }
+        public DbSet<Widget> Widget { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
@@ -59,8 +61,10 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence
             modelBuilder.ApplyConfiguration(new ObservationResultConfiguration());
             modelBuilder.ApplyConfiguration(new UserFarmConfiguration());
             modelBuilder.ApplyConfiguration(new UserFarmTypeConfiguration());
+            modelBuilder.ApplyConfiguration(new UserWidgetConfiguration());
             modelBuilder.ApplyConfiguration(new UserProfileConfiguration());
             modelBuilder.ApplyConfiguration(new UserAddressConfiguration());
+            modelBuilder.ApplyConfiguration(new WidgetConfiguration());
 
             modelBuilder.Seed();
         }

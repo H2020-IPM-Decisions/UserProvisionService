@@ -3,6 +3,7 @@ using System;
 using H2020.IPMDecisions.UPR.Data.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetTopologySuite.Geometries;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -10,9 +11,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace H2020.IPMDecisions.UPR.Data.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210118164355_NewFieldCrop")]
+    partial class NewFieldCrop
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -58,21 +60,13 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("DssModelId")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("DssModelName")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.Property<string>("DssName")
                         .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CropPestId", "DssId", "DssModelId")
+                    b.HasIndex("CropPestId", "DssName")
                         .IsUnique();
 
                     b.ToTable("CropPestDss");
@@ -239,8 +233,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("FieldId")
-                        .IsUnique();
+                    b.HasIndex("FieldId");
 
                     b.ToTable("FieldCrop");
                 });
@@ -712,8 +705,8 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Migrations
             modelBuilder.Entity("H2020.IPMDecisions.UPR.Core.Entities.FieldCrop", b =>
                 {
                     b.HasOne("H2020.IPMDecisions.UPR.Core.Entities.Field", "Field")
-                        .WithOne("FieldCrop")
-                        .HasForeignKey("H2020.IPMDecisions.UPR.Core.Entities.FieldCrop", "FieldId")
+                        .WithMany("FieldCrops")
+                        .HasForeignKey("FieldId")
                         .HasConstraintName("FK_Field_FieldCrop")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
