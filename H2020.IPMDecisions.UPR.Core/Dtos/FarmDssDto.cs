@@ -8,5 +8,6 @@ namespace H2020.IPMDecisions.UPR.Core.Dtos
         public string FieldName { get; set; }
         public FieldCropPestDssDto FieldCropPestDssDto { get; set; }
         public string DssId { get; set; }
+        public string DssModelId { get; set; }
     }
 }

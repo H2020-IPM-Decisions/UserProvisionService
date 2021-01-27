@@ -27,12 +27,13 @@ namespace H2020.IPMDecisions.UPR.BLL
                 var fieldAsEntity = this.mapper.Map<Field>(farmDssDto);
                 fieldAsEntity.Farm = farm;
                 this.dataService.Fields.Create(fieldAsEntity);
-                
+
                 await AddCropPestToField(farmDssDto.CropPest, fieldAsEntity);
 
-                await CreateFieldCropPestDss(
+                var cropPestDss = this.mapper.Map<CropPestDss>(farmDssDto);
+                var newFieldCropPestDss = await CreateFieldCropPestDss(
                     fieldAsEntity.FieldCrop.FieldCropPests.FirstOrDefault(),
-                    farmDssDto.DssId,
+                    cropPestDss,
                     farmDssDto.DssParameters);
                 await this.dataService.CompleteAsync();
 
