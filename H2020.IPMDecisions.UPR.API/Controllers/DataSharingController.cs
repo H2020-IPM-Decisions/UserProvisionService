@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Net.Mime;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -13,6 +14,10 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace H2020.IPMDecisions.UPR.API.Controllers
 {
+    /// <summary>
+    /// These end points allows users to manage the data shared with other users.
+    /// <para>The user will be identified using the UserId on the authentification JWT.</para>
+    /// </summary>
     [ApiController]
     [Route("api/datashare")]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
@@ -20,14 +25,20 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
     public class DataSharingController : ControllerBase
     {
         private readonly IBusinessLogic businessLogic;
+
         public DataSharingController(IBusinessLogic businessLogic)
         {
             this.businessLogic = businessLogic
                ?? throw new System.ArgumentNullException(nameof(businessLogic));
         }
 
+        /// <summary>Deletes a data share request by <paramref name="id"/></summary>
+        /// <remarks>The "Advisor" will loose access to any of the farms associated with this request.
+        /// <para>Accessible by users with policy claim "Farmer" and "Advisor".</para>
+        /// </remarks>
+        /// <param name="id">GUID with data share request Id.</param>
         [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         [HttpDelete("{id:guid}", Name = "api.datashare.delete.id")]
         //DELETE: api/datashare/1
         public async Task<IActionResult> Delete([FromRoute] Guid id)
@@ -41,8 +52,10 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
             return NoContent();
         }
 
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        /// <summary>Get all the data share requests from a user.</summary>
+        /// <remarks>Accessible by users with policy claim "Farmer" and "Advisor".</remarks>
+        [ProducesResponseType(typeof(IEnumerable<DataShareRequestDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [Produces(MediaTypeNames.Application.Json)]
         [HttpGet("", Name = "api.datashare.get.all")]
@@ -67,6 +80,10 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
             });
         }
 
+        /// <summary>This end point sends a request to another user to share data.</summary>
+        /// <remarks>
+        /// <para>Accessible by users with policy claim "Advisor".</para>
+        /// </remarks>
         [Consumes(MediaTypeNames.Application.Json)]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -80,19 +97,28 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         {
             var userId = Guid.Parse(HttpContext.Items["userId"].ToString());
             var response = await this.businessLogic.AddDataShareRequest(userId, dataShareRequestDto);
-            
+
             if (!response.IsSuccessful)
                 return BadRequest(new { message = response.ErrorMessage });
             return Ok();
         }
 
+        /// <summary>
+        /// Use this end point to accept or decline the data share request make by an Advisor.       
+        /// </summary> 
+        /// <remarks>
+        /// A user with claim "Farmer" can accept or decline a request done by
+        /// a user with claim "Advisor".
+        /// <para>Valid Reply options are: Accepted or Declined</para>
+        /// <para>Accessible by users with policy claim "Farmer".</para>
+        /// </remarks>
         [Consumes(MediaTypeNames.Application.Json)]
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [Produces(MediaTypeNames.Application.Json)]
         [Authorize(Policy = "farmer")]
-        [HttpPost("Reply", Name = "api.datashare.post.datasharereply")]
+        [HttpPost("reply", Name = "api.datashare.post.datasharereply")]
         // POST: api/datashare/reply
         public async Task<IActionResult> PostReplyAsync(
             [FromBody] DataShareRequestReplyDto dataShareRequestDto)
@@ -102,16 +128,24 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
 
             if (!response.IsSuccessful)
                 return BadRequest(new { message = response.ErrorMessage });
-            return Ok();
+            return NoContent();
         }
 
+        /// <summary>
+        /// This end point, will update the status (accepted or declined) from a data share request.
+        ///</summary>
+        /// <remarks>
+        /// <para>If "Reply" status changes to 'Declined', the advisor will loose access to all the farms.</para>
+        /// <para>If "Reply" status changes or keeps the 'Accepted' status, the user have the option to select which farms are accessible by the Advisor.</para>
+        /// <para>Accessible by users with policy claim "Farmer".</para>
+        /// </remarks>
         [Consumes(MediaTypeNames.Application.Json)]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [Produces(MediaTypeNames.Application.Json)]
         [Authorize(Policy = "farmer")]
-        [HttpPost("Update", Name = "api.datashare.post.datashareupdate")]
+        [HttpPost("update", Name = "api.datashare.post.datashareupdate")]
         // POST: api/datashare/update
         public async Task<IActionResult> PostUpdateAsync(
             [FromBody] DataShareRequestUpdateDto dataShareRequestDto)
@@ -121,15 +155,16 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
 
             if (!response.IsSuccessful)
                 return BadRequest(new { message = response.ErrorMessage });
-            return Ok();
+            return NoContent();
         }
 
+        /// <summary>Requests permitted on this URL</summary>
         [ProducesResponseType(StatusCodes.Status200OK)]
         [HttpOptions]
         //OPTIONS: api/datashare
         public IActionResult Options()
         {
-            Response.Headers.Add("Allow", "OPTIONS, GET, POST");
+            Response.Headers.Add("Allow", "OPTIONS, GET, POST, DELETE");
             return Ok();
         }
     }
