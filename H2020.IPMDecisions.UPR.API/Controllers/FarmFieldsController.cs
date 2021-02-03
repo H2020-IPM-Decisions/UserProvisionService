@@ -12,6 +12,9 @@ using H2020.IPMDecisions.UPR.Core.ResourceParameters;
 using H2020.IPMDecisions.UPR.API.Filters;
 using System.Text.Json;
 using System.Collections.Generic;
+using H2020.IPMDecisions.UPR.Core.Models;
+using H2020.IPMDecisions.UPR.Core.PatchOperationExamples;
+using Swashbuckle.AspNetCore.Filters;
 
 namespace H2020.IPMDecisions.UPR.API.Controllers
 {
@@ -152,6 +155,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [HttpPatch("{id:guid}", Name = "api.field.patch.fieldbyid")]
+        [SwaggerRequestExample(typeof(Operation), typeof(JsonPatchFieldRequestExample))]
         //PATCH: api/farms/1/fields/1
         public async Task<IActionResult> PartialUpdate(
             [FromRoute] Guid farmId, Guid id,

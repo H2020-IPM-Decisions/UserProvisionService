@@ -4,8 +4,8 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using H2020.IPMDecisions.UPR.API.Filters;
 using H2020.IPMDecisions.UPR.BLL.Providers;
+using H2020.IPMDecisions.UPR.Core.PatchOperationExamples;
 using H2020.IPMDecisions.UPR.Data.Persistence;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -22,6 +22,7 @@ using Microsoft.OpenApi.Models;
 using Newtonsoft.Json.Serialization;
 using NLog;
 using NLog.Extensions.Logging;
+using Swashbuckle.AspNetCore.Filters;
 
 namespace H2020.IPMDecisions.APG.API.Extensions
 {
@@ -145,6 +146,7 @@ namespace H2020.IPMDecisions.APG.API.Extensions
                       Example: 'Bearer 12345abcdef'",
                 });
 
+                c.ExampleFilters();
                 c.OperationFilter<SecurityRequirementsOperationFilter>();
 
                 var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
@@ -153,6 +155,7 @@ namespace H2020.IPMDecisions.APG.API.Extensions
             });
 
             services.AddSwaggerGenNewtonsoftSupport();
+            services.AddSwaggerExamplesFromAssemblyOf<JsonPatchFieldRequestExample>();
         }
 
         internal static void ConfigureKestrelWebServer(this IServiceCollection services, IConfiguration config)
