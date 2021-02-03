@@ -11,9 +11,14 @@ using Microsoft.AspNetCore.JsonPatch;
 using H2020.IPMDecisions.UPR.Core.ResourceParameters;
 using H2020.IPMDecisions.UPR.API.Filters;
 using System.Text.Json;
+using System.Collections.Generic;
 
 namespace H2020.IPMDecisions.UPR.API.Controllers
 {
+    /// <summary>
+    /// These endpoints allows to manage Fields associated to a farm.
+    /// <para>The FarmId on the URL must be associated to the UserId of the Authorization JWT.</para>
+    /// </summary>
     [ApiController]
     [Route("api/farms/{farmId:guid}/fields")]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
@@ -28,6 +33,9 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
                 ?? throw new System.ArgumentNullException(nameof(businessLogic));
         }
 
+        /// <summary>Deletes a field by <paramref name="id"/></summary>
+        /// <param name="farmId">GUID with the farm Id.</param>
+        /// <param name="id">GUID with field Id.</param>
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [HttpDelete("{id:guid}", Name = "api.field.delete.fieldbyid")]
@@ -43,7 +51,9 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
             return NoContent();
         }
 
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        /// <summary>Use this endpoint to get the fields that are associated with a farm.</summary>
+        /// <remark>To receive associated data or HATEOAS links change the 'Accept' header.</remark>
+        [ProducesResponseType(typeof(IEnumerable<FieldWithChildrenDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [Produces(MediaTypeNames.Application.Json,
@@ -73,7 +83,9 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
             });
         }
 
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        /// <summary>Use this endpoint to get an unique field that is associated with a farm.</summary>
+        /// <remark>To receive associated data or HATEOAS links change the 'Accept' header</remark>
+        [ProducesResponseType(typeof(FieldWithChildrenDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [Produces(MediaTypeNames.Application.Json,
@@ -95,8 +107,10 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
             return Ok(response.Result);
         }
 
+        /// <summary>Use this end point to add a new field to a farm.</summary>
+        /// <remark>To receive associated data or HATEOAS links change the 'Accept' header</remark>
         [Consumes(MediaTypeNames.Application.Json)]
-        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(FieldDto), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [Produces(MediaTypeNames.Application.Json,
@@ -125,8 +139,16 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
                 response.Result);
         }
 
+        /// <summary>Use this endpoint to make a partial update of a field.</summary>
+        /// <remarks>Any property for a field will be updated as usual. Only the FieldCropPests are manage different. The FieldCropPests expects a full array of data,
+        /// including current FieldCropPest that are not going to be updated. Please see the logic to update this paramater:
+        /// <para>To keep a record and don't do any changes: send the current FieldCropPestId and the same Pest EPPO code.</para>
+        /// <para>To remove a record: do not include it on the array.</para>
+        /// <para>To create a new record: do not send and ID, only a Pest EPPO code.</para>
+        /// <para>If you send an existing FieldCropPestId and a different Pest EPPO code, the record will be removed and a new one will be created.</para>
+        /// <para>Crop EPPO codes are not accepted as this information can not be updated.</para>
+        /// </remarks>
         [Consumes("application/json-patch+json")]
-        [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [HttpPatch("{id:guid}", Name = "api.field.patch.fieldbyid")]
@@ -150,6 +172,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
             return NoContent();
         }
 
+        /// <summary>Requests permitted on this URL</summary>
         [ProducesResponseType(StatusCodes.Status200OK)]
         [HttpOptions]
         //OPTIONS: api/farms/1/fields
