@@ -453,10 +453,10 @@ namespace H2020.IPMDecisions.UPR.BLL
 
         private async Task UpdateFieldCropPest(Field field, JsonPatchDocument<FieldForUpdateDto> patchDocument)
         {
-            var fieldCropPestProperty = "fieldCropPest";
-            if (patchDocument.Operations.Any(o => o.path == fieldCropPestProperty))
+            var fieldCropPestProperty = nameof(FieldForUpdateDto.FieldCropPest);
+            if (patchDocument.Operations.Any(o => o.path.ToLower() == fieldCropPestProperty.ToLower()))
             {
-                var fieldCropPestOperations = patchDocument.Operations.Where(o => o.path == fieldCropPestProperty).FirstOrDefault().value;
+                var fieldCropPestOperations = patchDocument.Operations.Where(o => o.path.ToLower() == fieldCropPestProperty.ToLower()).FirstOrDefault().value;
                 var fieldCropPestToPatch = JsonConvert.DeserializeObject<IEnumerable<FieldCropPestForUpdateDto>>(fieldCropPestOperations.ToString());
 
                 var newPests = new List<string>();

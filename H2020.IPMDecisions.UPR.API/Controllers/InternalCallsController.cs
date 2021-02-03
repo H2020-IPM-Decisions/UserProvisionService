@@ -13,7 +13,8 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
     [Route("api/internalcall")]
     [Consumes("application/vnd.h2020ipmdecisions.internal+json")]
     [TypeFilter(typeof(RequestHasInternalTokenResourceFilter))]
-    public class InternalCallsController: ControllerBase
+    [ApiExplorerSettings(IgnoreApi = true)]
+    public class InternalCallsController : ControllerBase
     {
         private readonly IBusinessLogic businessLogic;
 

@@ -27,6 +27,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
                 ?? throw new System.ArgumentNullException(nameof(businessLogic));
         }
 
+        /// <summary></summary>
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [HttpDelete("{id:guid}", Name = "api.spray.delete.spraybyid")]
@@ -42,6 +43,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
             return NoContent();
         }
 
+        /// <summary></summary>
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -69,6 +71,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
             });
         }
 
+        /// <summary></summary>
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -87,6 +90,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
             return Ok(response.Result);
         }
 
+        /// <summary></summary>
         [Consumes(MediaTypeNames.Application.Json)]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -114,6 +118,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
                 response.Result);
         }
 
+        /// <summary></summary>
         [ProducesResponseType(StatusCodes.Status200OK)]
         [HttpOptions]
         //OPTIONS: api/fields/1/sprayapplications

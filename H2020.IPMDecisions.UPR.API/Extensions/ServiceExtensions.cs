@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using H2020.IPMDecisions.UPR.API.Filters;
 using H2020.IPMDecisions.UPR.BLL.Providers;
@@ -23,9 +25,9 @@ using NLog.Extensions.Logging;
 
 namespace H2020.IPMDecisions.APG.API.Extensions
 {
-    public static class ServiceExtensions
+    internal static class ServiceExtensions
     {
-        public static void ConfigureJwtAuthentication(this IServiceCollection services, IConfiguration config)
+        internal static void ConfigureJwtAuthentication(this IServiceCollection services, IConfiguration config)
         {
             var jwtSecretKey = config["JwtSettings:SecretKey"];
             var authorizationServerUrl = config["JwtSettings:IssuerServerUrl"];
@@ -54,7 +56,7 @@ namespace H2020.IPMDecisions.APG.API.Extensions
             });
         }
 
-        public static void ConfigureCors(this IServiceCollection services, IConfiguration config)
+        internal static void ConfigureCors(this IServiceCollection services, IConfiguration config)
         {
             var allowedHosts = config["AllowedHosts"];
             if (allowedHosts == null) return;
@@ -68,7 +70,7 @@ namespace H2020.IPMDecisions.APG.API.Extensions
             });
         }
 
-        public static void ConfigureContentNegotiation(this IServiceCollection services)
+        internal static void ConfigureContentNegotiation(this IServiceCollection services)
         {
             services.AddControllers(setupAction =>
                 {
@@ -92,7 +94,7 @@ namespace H2020.IPMDecisions.APG.API.Extensions
             });
         }
 
-        public static void ConfigurePostgresContext(this IServiceCollection services, IConfiguration config)
+        internal static void ConfigurePostgresContext(this IServiceCollection services, IConfiguration config)
         {
             var connectionString = config["ConnectionStrings:MyPostgreSQLConnection"];
 
@@ -107,7 +109,7 @@ namespace H2020.IPMDecisions.APG.API.Extensions
                 });
         }
 
-        public static void ConfigureSwagger(this IServiceCollection services)
+        internal static void ConfigureSwagger(this IServiceCollection services)
         {
             services.AddSwaggerGen(c =>
             {
@@ -145,19 +147,22 @@ namespace H2020.IPMDecisions.APG.API.Extensions
 
                 c.OperationFilter<SecurityRequirementsOperationFilter>();
 
+                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+                c.IncludeXmlComments(xmlPath, includeControllerXmlComments: true);
             });
 
             services.AddSwaggerGenNewtonsoftSupport();
         }
 
-        public static void ConfigureKestrelWebServer(this IServiceCollection services, IConfiguration config)
+        internal static void ConfigureKestrelWebServer(this IServiceCollection services, IConfiguration config)
         {
             services.Configure<KestrelServerOptions>(
                 config.GetSection("Kestrel")
             );
         }
 
-        public static void ConfigureHttps(this IServiceCollection services, IConfiguration config)
+        internal static void ConfigureHttps(this IServiceCollection services, IConfiguration config)
         {
             services.Configure<ForwardedHeadersOptions>(options =>
             {
@@ -179,12 +184,12 @@ namespace H2020.IPMDecisions.APG.API.Extensions
             });
         }
 
-        public static void ConfigureLogger(this IServiceCollection services, IConfiguration config)
+        internal static void ConfigureLogger(this IServiceCollection services, IConfiguration config)
         {
             LogManager.Configuration = new NLogLoggingConfiguration(config.GetSection("NLog"));
         }
 
-        public static void ConfigureInternalCommunicationHttpService(this IServiceCollection services, IConfiguration config)
+        internal static void ConfigureInternalCommunicationHttpService(this IServiceCollection services, IConfiguration config)
         {
             services.AddHttpClient<IMicroservicesInternalCommunicationHttpProvider, MicroservicesInternalCommunicationHttpProvider>(client =>
             {
@@ -193,7 +198,7 @@ namespace H2020.IPMDecisions.APG.API.Extensions
             });
         }
 
-        public static void ConfigureAuthorization(this IServiceCollection services, IConfiguration config)
+        internal static void ConfigureAuthorization(this IServiceCollection services, IConfiguration config)
         {
             var claimType = config["AccessClaims:ClaimTypeName"].ToLower();
             var accessLevels = AccessLevels(config["AccessClaims:UserAccessLevels"]);
@@ -211,7 +216,7 @@ namespace H2020.IPMDecisions.APG.API.Extensions
             });
         }
 
-        private static IEnumerable<string> Audiences(string audiences)
+        internal static IEnumerable<string> Audiences(string audiences)
         {
             var listOfAudiences = new List<string>();
             if (string.IsNullOrEmpty(audiences)) return listOfAudiences;
@@ -219,7 +224,7 @@ namespace H2020.IPMDecisions.APG.API.Extensions
             return listOfAudiences;
         }
 
-        public static IEnumerable<string> AccessLevels(string levels)
+        internal static IEnumerable<string> AccessLevels(string levels)
         {
             var listOfLevels = levels.Split(';').ToList();
             return listOfLevels;

@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Collections.Generic;
 using System.Net.Mime;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -29,6 +30,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
                 ?? throw new System.ArgumentNullException(nameof(businessLogic));
         }
 
+        /// <summary></summary>
         [ServiceFilter(typeof(FarmBelongsToUserActionFilter), Order = 2)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -44,7 +46,8 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
             return NoContent();
         }
 
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        /// <summary></summary>
+        [ProducesResponseType(typeof(IEnumerable<FarmWithChildrenDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [Produces(MediaTypeNames.Application.Json,
@@ -74,8 +77,9 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
             });
         }
 
+        /// <summary></summary>
         [ServiceFilter(typeof(FarmBelongsToUserActionFilter), Order = 2)]
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(FarmWithChildrenDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [Produces(MediaTypeNames.Application.Json,
@@ -96,8 +100,9 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
             return Ok(response.Result);
         }
 
+        /// <summary></summary>
         [Consumes(MediaTypeNames.Application.Json)]
-        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(FarmDto), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [Produces(MediaTypeNames.Application.Json,
             "application/vnd.h2020ipmdecisions.hateoas+json")]
@@ -118,6 +123,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
                 response.Result);
         }
 
+        /// <summary></summary>
         [ServiceFilter(typeof(FarmBelongsToUserActionFilter), Order = 2)]
         [Consumes("application/json-patch+json")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -143,6 +149,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
             return NoContent();
         }
 
+        /// <summary></summary>
         [ProducesResponseType(StatusCodes.Status200OK)]
         [HttpOptions]
         //OPTIONS: api/farms
