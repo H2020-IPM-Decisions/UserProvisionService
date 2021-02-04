@@ -10,9 +10,9 @@ namespace H2020.IPMDecisions.UPR.Core.PatchOperationExamples
             return new[]
             {
                 new Operation("replace","/Name","", "New Name"),
-                new Operation("add","/fieldCropPest","","NEW"),
-                new Operation("replace","/fieldCropPest/{fieldCropPestId}","","OTHER"),
-                new Operation("remove","/fieldCropPest/{fieldCropPestId}",""),
+                new Operation("add","/fieldCropDto/fieldCropPestDto","","NEW"),
+                new Operation("replace","/fieldCropDto/fieldCropPestDto/{fieldCropPestId}","","OTHER"),
+                new Operation("remove","/fieldCropDto/fieldCropPestDto/{fieldCropPestId}",""),
             };
         }
     }

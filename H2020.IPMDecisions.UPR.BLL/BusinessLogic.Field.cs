@@ -484,10 +484,10 @@ namespace H2020.IPMDecisions.UPR.BLL
 
         private async Task UpdateFieldCropPest(Field field, JsonPatchDocument<FieldForUpdateDto> patchDocument)
         {
-            var fieldCropPestProperty = nameof(FieldForUpdateDto.FieldCropPest);
-            if (patchDocument.Operations.Any(o => o.path.ToLower() == fieldCropPestProperty.ToLower()))
+            var fieldCropPestProperty = nameof(FieldForUpdateDto.FieldCropPestDto);
+            if (patchDocument.Operations.Any(o => o.path.ToLower().Contains(fieldCropPestProperty.ToLower())))
             {
-                var fieldCropPestOperations = patchDocument.Operations.Where(o => o.path.ToLower() == fieldCropPestProperty.ToLower()).FirstOrDefault().value;
+                var fieldCropPestOperations = patchDocument.Operations.Where(o => o.path.ToLower().Contains(fieldCropPestProperty.ToLower())).FirstOrDefault().value;
                 var fieldCropPestToPatch = JsonConvert.DeserializeObject<IEnumerable<FieldCropPestForUpdateDto>>(fieldCropPestOperations.ToString());
 
                 var newPests = new List<string>();
@@ -521,10 +521,10 @@ namespace H2020.IPMDecisions.UPR.BLL
 
         private async Task UpdateFieldCropPestByOperations(Field field, JsonPatchDocument<FieldForUpdateDto> patchDocument)
         {
-            var fieldCropPestProperty = nameof(FieldForUpdateDto.FieldCropPest);
-            if (patchDocument.Operations.Any(o => o.path.ToLower().StartsWith(fieldCropPestProperty.ToLower())))
+            var fieldCropPestProperty = nameof(FieldForUpdateDto.FieldCropPestDto);
+            if (patchDocument.Operations.Any(o => o.path.ToLower().Contains(fieldCropPestProperty.ToLower())))
             {
-                var fieldCropPestOperations = patchDocument.Operations.Where(o => o.path.ToLower().StartsWith(fieldCropPestProperty.ToLower()));
+                var fieldCropPestOperations = patchDocument.Operations.Where(o => o.path.ToLower().Contains(fieldCropPestProperty.ToLower()));
 
                 foreach (var operation in fieldCropPestOperations)
                 {
@@ -550,7 +550,7 @@ namespace H2020.IPMDecisions.UPR.BLL
 
         private static FieldCropPest GetFieldCropPestFromOperationPath(Field field, Microsoft.AspNetCore.JsonPatch.Operations.Operation<FieldForUpdateDto> operation)
         {
-            var fieldCropPestIdToReplace = Guid.Parse(operation.path.Split("/")[1]);
+            var fieldCropPestIdToReplace = Guid.Parse(operation.path.Split("/").LastOrDefault());
             var cropPestToReplace = field
                     .FieldCrop
                     .FieldCropPests

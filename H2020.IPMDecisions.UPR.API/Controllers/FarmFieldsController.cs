@@ -143,12 +143,13 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         }
 
         /// <summary>Use this endpoint to make a partial update of a field.</summary>
-        /// <remarks>Any property for a field will be updated as usual. Only the FieldCropPest are manage different. The FieldCropPest expects the ID on the path.
+        /// <remarks>Any property for a field will be updated as usual PATCH conventions. Only the FieldCropPestDto parameter are manage different as the update needs to identify exactly the record.
+        /// For this reason the FieldCropPest expects the ID on the path instead the array location as explained on PATCH conventions.
         /// Please see examples below:
-        /// <para>To remove a record: use the "remove" operation and include the fieldCropPestId on the path parameter.</para>
-        /// <para>To create a new record: use the "add" operation and a pest EPPO code on the value parameter.</para>
-        /// <para>To replace a record: use the "replace" operation. Include the fieldCropPestId on the path parameter and a pest EPPO code on the value parameter.</para>
-        /// For an example payload, please see the 'Request body' section.
+        /// <para>To remove a record: use the "remove" operation and include the fieldCropPestId on the path parameter "/fieldCropDto/fieldCropPestDto/{fieldCropPestId}</para>
+        /// <para>To create a new record: use the "add" operation and a pest EPPO code on the value parameter. Use the path parameter without and id "/fieldCropDto/fieldCropPestDto"</para>
+        /// <para>To replace a record: use the "replace" operation. Include the fieldCropPestId on the path parameter,"/fieldCropDto/fieldCropPestDto/{fieldCropPestId}, and a pest EPPO code on the value parameter.</para>
+        /// <para>For an example payload, please see the 'Request body' section.</para>
         /// </remarks>
         [Consumes("application/json-patch+json")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
