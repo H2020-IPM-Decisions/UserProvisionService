@@ -12,9 +12,9 @@ using H2020.IPMDecisions.UPR.Core.ResourceParameters;
 using H2020.IPMDecisions.UPR.API.Filters;
 using System.Text.Json;
 using System.Collections.Generic;
-using H2020.IPMDecisions.UPR.Core.Models;
 using H2020.IPMDecisions.UPR.Core.PatchOperationExamples;
 using Swashbuckle.AspNetCore.Filters;
+using Microsoft.AspNetCore.JsonPatch.Operations;
 
 namespace H2020.IPMDecisions.UPR.API.Controllers
 {
@@ -143,13 +143,12 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         }
 
         /// <summary>Use this endpoint to make a partial update of a field.</summary>
-        /// <remarks>Any property for a field will be updated as usual. Only the FieldCropPests are manage different. The FieldCropPests expects a full array of data,
-        /// including current FieldCropPest that are not going to be updated. Please see the logic to update this paramater:
-        /// <para>To keep a record and don't do any changes: send the current FieldCropPestId and the same Pest EPPO code.</para>
-        /// <para>To remove a record: do not include it on the array.</para>
-        /// <para>To create a new record: do not send and ID, only a Pest EPPO code.</para>
-        /// <para>If you send an existing FieldCropPestId and a different Pest EPPO code, the record will be removed and a new one will be created.</para>
-        /// <para>Crop EPPO codes are not accepted as this information can not be updated.</para>
+        /// <remarks>Any property for a field will be updated as usual. Only the FieldCropPest are manage different. The FieldCropPest expects the ID on the path.
+        /// Please see examples below:
+        /// <para>To remove a record: use the "remove" operation and include the fieldCropPestId on the path parameter.</para>
+        /// <para>To create a new record: use the "add" operation and a pest EPPO code on the value parameter.</para>
+        /// <para>To replace a record: use the "replace" operation. Include the fieldCropPestId on the path parameter and a pest EPPO code on the value parameter.</para>
+        /// For an example payload, please see the 'Request body' section.
         /// </remarks>
         [Consumes("application/json-patch+json")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -162,7 +161,6 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
             JsonPatchDocument<FieldForUpdateDto> patchDocument)
         {
             var fieldResponse = await this.businessLogic.GetField(id, HttpContext);
-
             if (!fieldResponse.IsSuccessful)
                 return fieldResponse.RequestResult;
 
