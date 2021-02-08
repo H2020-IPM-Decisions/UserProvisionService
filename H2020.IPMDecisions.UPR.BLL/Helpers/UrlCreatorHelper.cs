@@ -48,7 +48,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
             switch (type)
             {
                 case ResourceUriType.PreviousPage:
-                    return url.Link("api.farm.get.all",
+                    return GenerateResourceLink(url, "api.farm.get.all",
                     new
                     {
                         fields = resourceParameter.Fields,
@@ -60,7 +60,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
                         childPageSize = resourceParameter.ChildPageSize
                     });
                 case ResourceUriType.NextPage:
-                    return url.Link("api.farm.get.all",
+                    return GenerateResourceLink(url, "api.farm.get.all",
                     new
                     {
                         fields = resourceParameter.Fields,
@@ -73,7 +73,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
                     });
                 case ResourceUriType.Current:
                 default:
-                    return url.Link("api.farm.get.all",
+                    return GenerateResourceLink(url, "api.farm.get.all",
                     new
                     {
                         fields = resourceParameter.Fields,
@@ -97,30 +97,30 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
             if (string.IsNullOrWhiteSpace(fields))
             {
                 links.Add(new LinkDto(
-                url.Link("api.farm.get.farmbyid", new { farmId }),
+                GenerateResourceLink(url, "api.farm.get.farmbyid", new { farmId }),
                 "self",
                 "GET"));
             }
             else
             {
                 links.Add(new LinkDto(
-                 url.Link("api.farm.get.farmbyid", new { farmId, fields }),
+                GenerateResourceLink(url, "api.farm.get.farmbyid", new { farmId, fields }),
                  "self",
                  "GET"));
             }
 
             links.Add(new LinkDto(
-                url.Link("api.farm.delete.farmbyid", new { farmId }),
+                GenerateResourceLink(url, "api.farm.delete.farmbyid", new { farmId }),
                 "delete_farm",
                 "DELETE"));
 
             links.Add(new LinkDto(
-                url.Link("api.farm.patch.farmbyid", new { farmId }),
+                GenerateResourceLink(url, "api.farm.patch.farmbyid", new { farmId }),
                 "update_farm",
                 "PATCH"));
 
             links.Add(new LinkDto(
-                url.Link("api.field.get.all", new { farmId = farmId }),
+                GenerateResourceLink(url, "api.field.get.all", new { farmId }),
                 "farm_fields",
                 "GET"));
 
@@ -272,7 +272,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
             switch (type)
             {
                 case ResourceUriType.PreviousPage:
-                    return url.Link("api.field.get.all",
+                    return GenerateResourceLink(url, "api.field.get.all",
                     new
                     {
                         farmId,
@@ -285,7 +285,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
                         childPageSize = resourceParameter.ChildPageSize
                     });
                 case ResourceUriType.NextPage:
-                    return url.Link("api.field.get.all",
+                    return GenerateResourceLink(url, "api.field.get.all",
                     new
                     {
                         farmId,
@@ -299,7 +299,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
                     });
                 case ResourceUriType.Current:
                 default:
-                    return url.Link("api.field.get.all",
+                    return GenerateResourceLink(url, "api.field.get.all",
                     new
                     {
                         farmId,
@@ -325,25 +325,25 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
             if (string.IsNullOrWhiteSpace(fields))
             {
                 links.Add(new LinkDto(
-                url.Link("api.field.get.fieldbyid", new { farmId, id }),
+                GenerateResourceLink(url, "api.field.get.fieldbyid", new { farmId, id }),
                 "self",
                 "GET"));
             }
             else
             {
                 links.Add(new LinkDto(
-                 url.Link("api.field.get.fieldbyid", new { farmId, id, fields }),
+                 GenerateResourceLink(url, "api.field.get.fieldbyid", new { farmId, id, fields }),
                  "self",
                  "GET"));
             }
 
             links.Add(new LinkDto(
-                url.Link("api.field.delete.fieldbyid", new { farmId, id }),
+                GenerateResourceLink(url, "api.field.delete.fieldbyid", new { farmId, id }),
                 "delete_field",
                 "DELETE"));
 
             links.Add(new LinkDto(
-                url.Link("api.field.patch.fieldbyid", new { farmId, id }),
+                GenerateResourceLink(url, "api.field.patch.fieldbyid", new { farmId, id }),
                 "update_field",
                 "PATCH"));
 
@@ -741,6 +741,28 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
                 "DELETE"));
 
             return links;
+        }
+        #endregion
+
+        #region Common
+        private static string ChangeUrlToApiGatewayHost(IUrlHelper url, string urlReturn)
+        {
+            var hasForwadedHeaders = url.ActionContext.HttpContext.Request.Headers.ContainsKey("X-Forwarded-For");
+            if (!hasForwadedHeaders) return urlReturn;
+            if (string.IsNullOrEmpty(urlReturn)) return urlReturn;
+
+            return urlReturn
+                .Replace(url.ActionContext.HttpContext.Request.Scheme + "://", "")
+                .Replace(
+                    url.ActionContext.HttpContext.Request.Host.Value,
+                    url.ActionContext.HttpContext.Request.Headers["X-Forwarded-For"].ToString())
+                .Replace("/api/", "/api/upr/");
+        }
+
+        private static string GenerateResourceLink(IUrlHelper url, string routeName, object parameters)
+        {
+            var newUrl = url.Link(routeName, parameters);
+            return ChangeUrlToApiGatewayHost(url, newUrl);
         }
         #endregion
     }
