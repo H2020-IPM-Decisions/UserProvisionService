@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Net.Mime;
+using H2020.IPMDecisions.UPR.BLL.Helpers;
 using H2020.IPMDecisions.UPR.Core.Dtos;
 using Microsoft.AspNetCore.Mvc;
 
@@ -22,7 +23,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
             var links = new List<LinkDto>();
 
             links.Add(
-                new LinkDto(Url.Link("api.root", new { }),
+                new LinkDto(UrlCreatorHelper.GenerateResourceLink(Url, "api.root", new { }),
                 "self",
                 "GET"));
 

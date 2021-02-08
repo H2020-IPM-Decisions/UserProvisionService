@@ -747,9 +747,9 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
         #region Common
         private static string ChangeUrlToApiGatewayHost(IUrlHelper url, string urlReturn)
         {
+            if (string.IsNullOrEmpty(urlReturn)) return urlReturn;
             var hasForwadedHeaders = url.ActionContext.HttpContext.Request.Headers.ContainsKey("X-Forwarded-For");
             if (!hasForwadedHeaders) return urlReturn;
-            if (string.IsNullOrEmpty(urlReturn)) return urlReturn;
 
             return urlReturn
                 .Replace(url.ActionContext.HttpContext.Request.Scheme + "://", "")
