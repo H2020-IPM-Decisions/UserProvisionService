@@ -92,5 +92,9 @@ namespace H2020.IPMDecisions.UPR.BLL
         #region Internal Call
         Task<GenericResponse> InitialUserProfileCreation(UserProfileInternalCallDto userProfileDto);
         #endregion
+
+        #region  UserWidget
+        Task<GenericResponse<IEnumerable<UserWidgetDto>>> GetUserWidgets(Guid userId);
+        #endregion
     }
 }

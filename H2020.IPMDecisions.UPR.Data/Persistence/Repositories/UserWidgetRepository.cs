@@ -22,6 +22,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
                 .context
                 .UserWidget
                 .Where(uw => uw.UserId == userId)
+                .Include(uw => uw.Widget)
                 .ToListAsync();
         }
 
