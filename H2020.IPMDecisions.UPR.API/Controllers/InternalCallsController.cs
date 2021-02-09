@@ -33,7 +33,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         public async Task<IActionResult> Post(
             [FromBody] UserProfileInternalCallDto userProfileDto)
         {
-            var response = await businessLogic.AddNewUserProfile(userProfileDto);
+            var response = await businessLogic.InitialUserProfileCreation(userProfileDto);
             if (response.IsSuccessful)
                 return Ok();
 
