@@ -11,6 +11,10 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace H2020.IPMDecisions.UPR.API.Controllers
 {
+    /// <summary>
+    /// These end point allows to create a Field Crop Pest Dss in one call.
+    /// <para>The user will be identified using the UserId on the authentification JWT.</para>
+    /// </summary>
     [ApiController]
     [Route("api/farms/{farmId:guid}/dss")]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
@@ -25,6 +29,9 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
                 ?? throw new System.ArgumentNullException(nameof(businessLogic));
         }
 
+        /// <summary>
+        /// This endpoint allows to create a FieldCropPestDss associated to a farm
+        /// </summary>
         [Consumes(MediaTypeNames.Application.Json)]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]

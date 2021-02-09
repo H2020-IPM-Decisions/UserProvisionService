@@ -16,6 +16,10 @@ using System.Threading.Tasks;
 
 namespace H2020.IPMDecisions.UPR.API.Controllers
 {
+    /// <summary>
+    /// Use these endpoints to manage the farms associated to a user.
+    /// <para>The user will be identified using the UserId on the authentification JWT.</para>
+    /// </summary>
     [ApiController]
     [Route("api/farms")]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
@@ -30,7 +34,8 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
                 ?? throw new System.ArgumentNullException(nameof(businessLogic));
         }
 
-        /// <summary></summary>
+        /// <summary>Use this endpoint to remove a farm by <paramref name="farmId"/></summary>
+        /// <param name="farmId">GUID with the farm Id.</param>
         [ServiceFilter(typeof(FarmBelongsToUserActionFilter), Order = 2)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -46,7 +51,8 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
             return NoContent();
         }
 
-        /// <summary></summary>
+        /// <summary>Use this end point to add a new farm to a user.</summary>\\
+        /// <remark>To receive associated data or HATEOAS links change the 'Accept' header</remark>
         [ProducesResponseType(typeof(IEnumerable<FarmWithChildrenDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -77,7 +83,10 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
             });
         }
 
-        /// <summary></summary>
+        /// <summary>Use this endpoint to get a farm by <paramref name="farmId"/></summary>
+        /// <param name="farmId">GUID with the farm Id.</param>
+        /// <param name="resourceParameter">Parameter to manage resources returned</param>
+        /// <param name="mediaType">To receive associated data or HATEOAS links change the 'Accept' header</param>
         [ServiceFilter(typeof(FarmBelongsToUserActionFilter), Order = 2)]
         [ProducesResponseType(typeof(FarmWithChildrenDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -100,7 +109,8 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
             return Ok(response.Result);
         }
 
-        /// <summary></summary>
+        /// <summary>Use this end point to add a new farm to a user.</summary>
+        /// <remark>To receive associated data or HATEOAS links change the 'Accept' header</remark>
         [Consumes(MediaTypeNames.Application.Json)]
         [ProducesResponseType(typeof(FarmDto), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -123,7 +133,8 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
                 response.Result);
         }
 
-        /// <summary></summary>
+        /// <summary>Use this endpoint to make a partial update of a farm.</summary>
+        /// <remarks>Use the documentation for the FarmFields to manage associated fields to a farm</remarks>
         [ServiceFilter(typeof(FarmBelongsToUserActionFilter), Order = 2)]
         [Consumes("application/json-patch+json")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -149,7 +160,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
             return NoContent();
         }
 
-        /// <summary></summary>
+        /// <summary>Requests permitted on this URL</summary>
         [ProducesResponseType(StatusCodes.Status200OK)]
         [HttpOptions]
         //OPTIONS: api/farms
