@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Net.Mime;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -13,6 +14,11 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace H2020.IPMDecisions.UPR.API.Controllers
 {
+    /// <summary>
+    /// Field Crop Pest combinations are key for the application as most of the data is associated to this information.
+    /// <para>The FieldId must be associated to the UserId of the Authorization JWT.</para>
+    /// <para>The user will be identified using the UserId on the authentification JWT.</para>
+    /// </summary>
     [ApiController]
     [Route("api/fields/{fieldId:guid}/croppests")]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
@@ -27,7 +33,8 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
                 ?? throw new System.ArgumentNullException(nameof(businessLogic));
         }
 
-        /// <summary></summary>
+        /// <summary>Use this endpoint to remove a FieldCropPest that is associated with the field.</summary>
+        /// <remarks>Deleting a a FieldCropPest will remove the Observations, Sprays and Crop Decisions</remarks>
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [HttpDelete("{id:guid}", Name = "api.fieldcroppests.delete.croppestbyid")]
@@ -42,8 +49,8 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
             return NoContent();
         }
 
-        /// <summary></summary>
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        /// <summary>Use this endpoint to get the List of CropPest combinations that are associated for the field.</summary>
+        [ProducesResponseType(typeof(IEnumerable<FieldCropPestWithChildrenDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [Produces(MediaTypeNames.Application.Json)]
@@ -69,8 +76,8 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
             });
         }
 
-        /// <summary></summary>
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        /// <summary>Use this endpoint to get the a CropPest combination that are associated to a field.</summary>
+        [ProducesResponseType(typeof(FieldCropPestWithChildrenDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [Produces(MediaTypeNames.Application.Json)]
@@ -87,7 +94,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
             return Ok(response.Result);
         }
 
-        /// <summary></summary>
+        /// <summary>Use this endpoint to add a CropPest to a field.</summary>
         [Consumes(MediaTypeNames.Application.Json)]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -114,7 +121,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
                 response.Result);
         }
 
-        /// <summary></summary>
+        /// <summary>Requests permitted on this URL</summary>
         [ProducesResponseType(StatusCodes.Status200OK)]
         [HttpOptions]
         //OPTIONS: api/fields/1/croppests

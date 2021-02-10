@@ -61,6 +61,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         //     return NoContent();
         // }
 
+        /// <summary>Requests permitted on this URL</summary>
         [ProducesResponseType(StatusCodes.Status200OK)]
         [HttpOptions]
         public IActionResult Options()

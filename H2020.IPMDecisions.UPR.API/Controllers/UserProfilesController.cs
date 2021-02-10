@@ -12,6 +12,10 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace H2020.IPMDecisions.UPR.API.Controllers
 {
+    /// <summary>
+    /// Use these endpoints to the user profile.
+    /// <para>The user will be identified using the UserId on the authentification JWT.</para>
+    /// </summary>
     [ApiController]
     [Route("api/users/profiles")]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
@@ -27,6 +31,12 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
                 ?? throw new ArgumentNullException(nameof(businessLogic));
         }
 
+        /// <summary>
+        /// Use this request to create a User Profile.
+        /// </summary>
+        /// <remarks>User profile is created during registration. This endpoint is useful in case a user profile is deleted.
+        /// <para>UserId from query is only for administration purposes</para>
+        /// </remarks>
         [Consumes(MediaTypeNames.Application.Json)]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -55,7 +65,12 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
                  response.Result);
         }
 
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        /// <summary>
+        /// Use this request to get the a user profile
+        /// </summary>
+        /// <remarks> UserId from query is only for administration purposes
+        /// </remarks>
+        [ProducesResponseType(typeof(UserProfileDto),StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [Produces(MediaTypeNames.Application.Json,
@@ -84,6 +99,11 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
             return Ok(response.Result);
         }
 
+        /// <summary>
+        /// Use this request to get the a user profile
+        /// </summary>
+        /// <remarks> UserId from query is only for administration purposes
+        /// </remarks>
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [HttpDelete(Name = "api.userprofile.delete.profilebyid")]
@@ -101,6 +121,11 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
             return NoContent();
         }
 
+        /// <summary>
+        /// Use this request to partial update a userId
+        /// </summary>
+        /// <remarks> UserId from query is only for administration purposes/ 
+        /// </remarks>
         [Consumes("application/json-patch+json")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -153,6 +178,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
             return NoContent();
         }
 
+        /// <summary>Requests permitted on this URL</summary>
         [ProducesResponseType(StatusCodes.Status200OK)]
         [HttpOptions]
         public IActionResult Options()
