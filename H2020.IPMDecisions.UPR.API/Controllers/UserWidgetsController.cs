@@ -10,6 +10,9 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using System.Collections.Generic;
 using H2020.IPMDecisions.UPR.Core.Dtos;
 using Microsoft.AspNetCore.JsonPatch;
+using Swashbuckle.AspNetCore.Filters;
+using Microsoft.AspNetCore.JsonPatch.Operations;
+using H2020.IPMDecisions.UPR.Core.PatchOperationExamples;
 
 namespace H2020.IPMDecisions.UPR.API.Controllers
 {
@@ -51,11 +54,16 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
             return Ok(response.Result);
         }
 
+
+        /// <summary>Use this endpoint to make a partial update of the user widgets.</summary>
+        /// <remarks>Instead of using the PATCH conventions, and locate the value using the array location, use the "widgetDescription" to identify the widget to update. As it not possible to add or remove widgets, only the "Replace" operation would be valid.
+        /// <para>For an example payload, please see the 'Request body' section.</para>
+        /// </remarks>
         [Consumes("application/json-patch+json")]
-        [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [HttpPatch(Name = "api.userwidget.patch.profilebyid")]
+        [SwaggerRequestExample(typeof(Operation), typeof(JsonPatchUserWidgetRequestExample))]
         //PATCH :  api/users/widgets
         public async Task<IActionResult> PartialUpdate(
             JsonPatchDocument<UserWidgetForUpdateDto> patchDocument)
