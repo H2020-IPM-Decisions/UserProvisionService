@@ -89,12 +89,14 @@ namespace H2020.IPMDecisions.UPR.BLL
         Task<GenericResponse> ReplyToDataShareRequest(Guid userId, DataShareRequestReplyDto dataShareRequestDto);
         Task<GenericResponse> UpdateDataShareRequest(Guid userId, DataShareRequestUpdateDto dataShareRequestDto);
         #endregion
+
         #region Internal Call
         Task<GenericResponse> InitialUserProfileCreation(UserProfileInternalCallDto userProfileDto);
         #endregion
 
         #region  UserWidget
         Task<GenericResponse<IEnumerable<UserWidgetDto>>> GetUserWidgets(Guid userId);
+        Task<GenericResponse> UpdateUserWidgets(Guid userId, JsonPatchDocument<UserWidgetForUpdateDto> patchDocument);
         #endregion
     }
 }

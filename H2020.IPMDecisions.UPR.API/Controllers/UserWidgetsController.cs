@@ -9,6 +9,7 @@ using H2020.IPMDecisions.UPR.API.Filters;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using System.Collections.Generic;
 using H2020.IPMDecisions.UPR.Core.Dtos;
+using Microsoft.AspNetCore.JsonPatch;
 
 namespace H2020.IPMDecisions.UPR.API.Controllers
 {
@@ -50,16 +51,21 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
             return Ok(response.Result);
         }
 
-        // [Consumes("application/json-patch+json")]
-        // [ProducesResponseType(StatusCodes.Status201Created)]
-        // [ProducesResponseType(StatusCodes.Status204NoContent)]
-        // [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        // [HttpPatch(Name = "api.userwidget.patch.profilebyid")]
-        // //PATCH :  api/users/widgets
-        // public async Task<IActionResult> PartialUpdate()
-        // {
-        //     return NoContent();
-        // }
+        [Consumes("application/json-patch+json")]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [HttpPatch(Name = "api.userwidget.patch.profilebyid")]
+        //PATCH :  api/users/widgets
+        public async Task<IActionResult> PartialUpdate(
+            JsonPatchDocument<UserWidgetForUpdateDto> patchDocument)
+        {
+            var userId = Guid.Parse(HttpContext.Items["userId"].ToString());
+            var response = await this.businessLogic.UpdateUserWidgets(userId, patchDocument);
+            if (!response.IsSuccessful)
+                return response.RequestResult;
+            return NoContent();
+        }
 
         /// <summary>Requests permitted on this URL</summary>
         [ProducesResponseType(StatusCodes.Status200OK)]
