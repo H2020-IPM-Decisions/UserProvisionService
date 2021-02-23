@@ -17,6 +17,8 @@ namespace H2020.IPMDecisions.UPR.Core
         DbSet<FieldCropPest> FieldCropPest { get; set; }
         DbSet<FieldCropPestDss> FieldCropPestDss { get; set; }
         DbSet<FieldSprayApplication> FieldSprayApplication { get; set; }
+        DbSet<FieldWeatherDataSource> FieldWeatherDataSource { get; set; }
+        DbSet<FieldWeatherStation> FieldWeatherStation { get; set; }
         DbSet<ForecastAlert> ForecastAlert { get; set; }
         DbSet<ForecastResult> ForecastResult { get; set; }
         DbSet<ObservationAlert> ObservationAlert { get; set; }
