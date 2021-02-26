@@ -40,6 +40,13 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Configurations
                 .HasConstraintName("FK_CropPest_CropPestDss")
                 .OnDelete(DeleteBehavior.NoAction)
                 .IsRequired();
+
+            builder.HasMany<CropPestDssResult>(c => c.CropPestDssResults)
+                .WithOne(cp => cp.CropPestDss)
+                .HasForeignKey(c => c.CropPestDssId)
+                .HasConstraintName("FK_CropPestDss_CropPestDssResult")
+                .OnDelete(DeleteBehavior.Cascade)
+                .IsRequired();
         }
     }
 }
