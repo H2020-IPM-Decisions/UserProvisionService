@@ -7,8 +7,13 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
     {
         public WeatherDataSourceProfile()
         {
-            CreateMap<WeatherDataSource, WeatherDataSourceDto>()
-                .ReverseMap();
+            CreateMap<WeatherDataSource, WeatherDataSourceDto>();
+
+            CreateMap<WeatherDataSourceDto, WeatherDataSource>()
+            .ForMember(dst => dst.FileData, opt => opt.Ignore())
+            .ForMember(dst => dst.FileExtension, opt => opt.Ignore())
+            .ForMember(dst => dst.FileExtension, opt => opt.Ignore())
+            .ForMember(dst => dst.FileUploadedOn, opt => opt.Ignore());
         }
     }
 }
