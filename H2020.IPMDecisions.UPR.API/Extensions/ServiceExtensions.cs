@@ -7,6 +7,8 @@ using System.Text;
 using H2020.IPMDecisions.UPR.BLL.Providers;
 using H2020.IPMDecisions.UPR.Core.PatchOperationExamples;
 using H2020.IPMDecisions.UPR.Data.Persistence;
+using Hangfire;
+using Hangfire.PostgreSql;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -219,6 +221,23 @@ namespace H2020.IPMDecisions.APG.API.Extensions
                         });
                 });
             });
+        }
+
+        internal static void ConfigureHangFire(this IServiceCollection services, IConfiguration config)
+        {
+            services.AddHangfire(configuration =>
+                configuration
+                .UseSimpleAssemblyNameTypeSerializer()
+                .UseRecommendedSerializerSettings()
+                .UsePostgreSqlStorage(
+                    config.GetConnectionString("MyPostgreSQLConnection"),
+                    new PostgreSqlStorageOptions
+                    {
+                        PrepareSchemaIfNecessary = true
+                    }
+                ));
+
+            services.AddHangfireServer();
         }
 
         internal static IEnumerable<string> Audiences(string audiences)

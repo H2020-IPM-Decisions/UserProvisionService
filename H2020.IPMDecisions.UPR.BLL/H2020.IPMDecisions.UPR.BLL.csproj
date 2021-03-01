@@ -15,12 +15,14 @@
     <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="automapper" Version="9.0.0"/>
-    <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.2.0"/>
-    <PackageReference Include="System.Json" Version="4.7.1"/>
+    <PackageReference Include="automapper" Version="9.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.2.0" />
+    <PackageReference Include="Hangfire" Version="1.7.19" />
+    <PackageReference Include="Hangfire.AspNetCore" Version="1.7.19" />
+    <PackageReference Include="System.Json" Version="4.7.1" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\H2020.IPMDecisions.UPR.Core\H2020.IPMDecisions.UPR.Core.csproj"/>
-    <ProjectReference Include="..\H2020.IPMDecisions.UPR.Data\H2020.IPMDecisions.UPR.Data.csproj"/>
+    <ProjectReference Include="..\H2020.IPMDecisions.UPR.Core\H2020.IPMDecisions.UPR.Core.csproj" />
+    <ProjectReference Include="..\H2020.IPMDecisions.UPR.Data\H2020.IPMDecisions.UPR.Data.csproj" />
   </ItemGroup>
 </Project>
