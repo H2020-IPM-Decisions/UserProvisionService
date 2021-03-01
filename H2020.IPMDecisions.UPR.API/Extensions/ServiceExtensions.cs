@@ -223,7 +223,7 @@ namespace H2020.IPMDecisions.APG.API.Extensions
             });
         }
 
-        internal static void ConfigureHangFire(this IServiceCollection services, IConfiguration config)
+        internal static void ConfigureHangfire(this IServiceCollection services, IConfiguration config)
         {
             services.AddHangfire(configuration =>
                 configuration

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
@@ -20,6 +21,13 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
         public void Create(CropPestDss entity)
         {
             this.context.Add(entity);
+        }
+
+        public async Task<List<CropPestDss>> FindAllAsync()
+        {
+            return await this.context
+                .CropPestDss
+                .ToListAsync<CropPestDss>();
         }
 
         public async Task<CropPestDss> FindByConditionAsync(Expression<Func<CropPestDss, bool>> expression)

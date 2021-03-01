@@ -1,7 +1,9 @@
+using System;
 using AutoMapper;
 using H2020.IPMDecisions.APG.API.Extensions;
 using H2020.IPMDecisions.UPR.API.Filters;
 using H2020.IPMDecisions.UPR.BLL;
+using H2020.IPMDecisions.UPR.BLL.ScheduleTasks;
 using H2020.IPMDecisions.UPR.Core.Profiles;
 using H2020.IPMDecisions.UPR.Core.Services;
 using H2020.IPMDecisions.UPR.Data.Core;
@@ -69,7 +71,7 @@ namespace H2020.IPMDecisions.UPR.API
             });
 
             services.ConfigurePostgresContext(Configuration);
-            services.ConfigureHangFire(Configuration);
+            services.ConfigureHangfire(Configuration);
             services.ConfigureSwagger();
         }
 
@@ -117,18 +119,18 @@ namespace H2020.IPMDecisions.UPR.API
                 c.RoutePrefix = $"{apiBasePath}swagger";
             });
 
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapControllers();
-                endpoints.MapHangfireDashboard();
-            });
-
             app.UseHangfireDashboard($"/{apiBasePath}dashboard", new DashboardOptions
             {
                 Authorization = new[] { new IsAdminFilter() },
                 IsReadOnlyFunc = (DashboardContext context) => true
             });
-            app.UseHangfireServer();
+            HangfireJobScheduler.ScheduleRecurringJobs();
+
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
+                endpoints.MapHangfireDashboard();
+            });
 
             applicationLifetime.ApplicationStopping.Register(OnShutdown);
         }
