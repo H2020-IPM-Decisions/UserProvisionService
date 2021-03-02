@@ -98,5 +98,9 @@ namespace H2020.IPMDecisions.UPR.BLL
         Task<GenericResponse<IEnumerable<UserWidgetDto>>> GetUserWidgets(Guid userId);
         Task<GenericResponse> UpdateUserWidgets(Guid userId, JsonPatchDocument<UserWidgetForUpdateDto> patchDocument);
         #endregion
+
+        #region User DSS
+        Task<GenericResponse<bool>> GetAllUserFieldCropPestDss(Guid userId);
+        #endregion
     }
 }
