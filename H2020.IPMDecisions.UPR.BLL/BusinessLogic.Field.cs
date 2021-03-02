@@ -364,15 +364,15 @@ namespace H2020.IPMDecisions.UPR.BLL
             };
             var cropPestAsEntity = await this.dataService.CropPests
                 .FindByConditionAsync
-                (c => c.CropEppoCode == cropPestRequest.CropEppoCode
-                 && c.PestEppoCode == cropPestRequest.PestEppoCode);
+                (c => c.CropEppoCode.ToUpper().Equals(cropPestRequest.CropEppoCode.ToUpper())
+                 && c.PestEppoCode.ToUpper().Equals(cropPestRequest.PestEppoCode.ToUpper()));
 
             if (cropPestAsEntity == null)
             {
                 cropPestAsEntity = new CropPest()
                 {
-                    CropEppoCode = cropPestRequest.CropEppoCode,
-                    PestEppoCode = cropPestRequest.PestEppoCode,
+                    CropEppoCode = cropPestRequest.CropEppoCode.ToUpper(),
+                    PestEppoCode = cropPestRequest.PestEppoCode.ToUpper(),
                 };
                 this.dataService.CropPests.Create(cropPestAsEntity);
             }
