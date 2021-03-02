@@ -30,9 +30,13 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
             this.context.Remove(entity);
         }
 
-        public Task<IEnumerable<FieldCropPestDss>> FindAllAsync()
+        public async Task<IEnumerable<FieldCropPestDss>> FindAllAsync()
         {
-            throw new NotImplementedException();
+            return await this
+            .context
+            .FieldCropPestDss
+                .Include(fcpd => fcpd.CropPestDss)
+            .ToListAsync();
         }
 
         public async Task<List<FieldCropPestDss>> FindAllAsync(Expression<Func<FieldCropPestDss, bool>> expression)

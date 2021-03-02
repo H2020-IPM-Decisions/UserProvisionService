@@ -4,6 +4,8 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace H2020.IPMDecisions.UPR.BLL.Providers
 {
@@ -26,6 +28,29 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
         public void Dispose()
         {
             httpClient?.Dispose();
+        }
+
+        public async Task<string> GetDssInformationFromDssMicroservice(string dssId, string modelId)
+        {
+            try
+            {
+                var dssEndPoint = config["MicroserviceInternalCommunication:DssMicroservice"];
+                var response = await httpClient.GetAsync(string.Format("{0}rest/model/{1}/{2}", dssEndPoint, dssId, modelId));
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var responseAsText = await response.Content.ReadAsStringAsync();
+                    dynamic config = JsonConvert.DeserializeObject(responseAsText);
+                    JObject jObject = JObject.Parse(responseAsText);
+                    return jObject["execution"]["endpoint"].ToString();
+                }
+                return null;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(string.Format("Error in Internal Communication - GetDssInformationFromDssMicroservice. {0}", ex.Message));
+                return null;
+            }
         }
 
         public async Task<string> GetUserIdFromIdpMicroservice(string userEmail)
