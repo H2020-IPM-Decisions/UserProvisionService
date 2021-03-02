@@ -35,6 +35,20 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
             throw new NotImplementedException();
         }
 
+        public async Task<List<FieldCropPestDss>> FindAllAsync(Expression<Func<FieldCropPestDss, bool>> expression)
+        {
+            if (expression is null) return null;
+
+            return await this.context.FieldCropPestDss
+                .Include(fcpd => fcpd.CropPestDss)
+                .Include(fcpd => fcpd.FieldCropPest)
+                    .ThenInclude(fcp => fcp.FieldCrop)
+                .Include(fcpd => fcpd.FieldCropPest)
+                    .ThenInclude(fcp => fcp.CropPest)
+                .Where(expression)
+            .ToListAsync();
+        }
+
         public async Task<PagedList<FieldCropPestDss>> FindAllAsync(FieldCropPestDssResourceParameter resourceParameter)
         {
             if (resourceParameter is null)
