@@ -29,9 +29,15 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Configurations
                 .OnDelete(DeleteBehavior.Cascade)
                 .IsRequired();
 
-            builder.Property(cpd => cpd.DssParameters).HasConversion(
-                p => JsonConvert.SerializeObject(p, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore }),
-                p => JsonConvert.DeserializeObject<string>(p, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore }));
+            builder.HasMany<FieldDssResult>(cpd => cpd.FieldDssResults)
+                .WithOne(f => f.FieldCropPestDss)
+                .HasForeignKey(f => f.FieldCropPestDssId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .IsRequired();
+
+            builder
+                .Property(cpd => cpd.DssParameters)
+                .HasColumnType("jsonb");
         }
     }
 }

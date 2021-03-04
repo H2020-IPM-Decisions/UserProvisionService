@@ -16,6 +16,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence
         public DbSet<FarmWeatherDataSource> FarmWeatherDataSource { get; set; }
         public DbSet<FarmWeatherStation> FarmWeatherStation { get; set; }
         public DbSet<Field> Field { get; set; }
+        public DbSet<FieldDssResult> FieldDssResult { get; set; }
         public DbSet<FieldObservation> FieldObservation { get; set; }
         public DbSet<FieldCropPest> FieldCropPest { get; set; }
         public DbSet<FieldCropPestDss> FieldCropPestDss { get; set; }
@@ -53,6 +54,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence
             modelBuilder.ApplyConfiguration(new FarmWeatherDataSourceConfiguration());
             modelBuilder.ApplyConfiguration(new FarmWeatherStationConfiguration());
             modelBuilder.ApplyConfiguration(new FieldConfiguration());
+            modelBuilder.ApplyConfiguration(new FieldDssResultConfiguration());
             modelBuilder.ApplyConfiguration(new FieldCropPestConfiguration());
             modelBuilder.ApplyConfiguration(new FieldCropPestDssConfiguration());
             modelBuilder.ApplyConfiguration(new FieldObservationConfiguration());
