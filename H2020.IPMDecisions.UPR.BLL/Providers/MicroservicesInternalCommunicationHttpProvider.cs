@@ -2,9 +2,9 @@ using System;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using H2020.IPMDecisions.UPR.Core.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace H2020.IPMDecisions.UPR.BLL.Providers
@@ -30,7 +30,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
             httpClient?.Dispose();
         }
 
-        public async Task<string> GetDssInformationFromDssMicroservice(string dssId, string modelId)
+        public async Task<DssExecutionInformation> GetDssInformationFromDssMicroservice(string dssId, string modelId)
         {
             try
             {
@@ -40,9 +40,24 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
                 if (response.IsSuccessStatusCode)
                 {
                     var responseAsText = await response.Content.ReadAsStringAsync();
-                    dynamic config = JsonConvert.DeserializeObject(responseAsText);
                     JObject jObject = JObject.Parse(responseAsText);
-                    return jObject["execution"]["endpoint"].ToString();
+
+                    var dssInformation = new DssExecutionInformation()
+                    {
+                        EndPoint = jObject["execution"]["endpoint"].ToString(),
+                        Type = jObject["execution"]["type"].ToString()
+                    };
+
+                    var inputSchema = jObject["execution"]["input_schema"].ToString();
+                    if (!string.IsNullOrEmpty(inputSchema))
+                    {
+                        JObject inputSchemaObject = JObject.Parse(inputSchema);
+                        if (inputSchemaObject["properties"]["weatherData"] != null)
+                        {
+                            dssInformation.UsesWeatherData = true;
+                        }
+                    }
+                    return dssInformation;
                 }
                 return null;
             }

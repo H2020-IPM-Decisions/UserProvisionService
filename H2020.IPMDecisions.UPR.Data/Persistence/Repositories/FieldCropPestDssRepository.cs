@@ -32,10 +32,20 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
 
         public async Task<IEnumerable<FieldCropPestDss>> FindAllAsync()
         {
+            var pageNumber = 1;
+            var pageSize = 50;
             return await this
             .context
             .FieldCropPestDss
                 .Include(fcpd => fcpd.CropPestDss)
+                .Include(fcpd => fcpd.FieldCropPest)
+                    .ThenInclude(fcp => fcp.FieldCrop)
+                    .ThenInclude(fc => fc.Field)
+                    .ThenInclude(fi => fi.Farm)
+                    .ThenInclude(f => f.FarmWeatherDataSources)
+                    .ThenInclude(fwd => fwd.WeatherDataSource)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
             .ToListAsync();
         }
 
@@ -47,6 +57,10 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
                 .Include(fcpd => fcpd.CropPestDss)
                 .Include(fcpd => fcpd.FieldCropPest)
                     .ThenInclude(fcp => fcp.FieldCrop)
+                    .ThenInclude(fc => fc.Field)
+                    .ThenInclude(fi => fi.Farm)
+                    .ThenInclude(f => f.FarmWeatherDataSources)
+                    .ThenInclude(fwd => fwd.WeatherDataSource)
                 .Include(fcpd => fcpd.FieldCropPest)
                     .ThenInclude(fcp => fcp.CropPest)
                 .Where(expression)

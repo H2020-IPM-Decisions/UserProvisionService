@@ -7,10 +7,10 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
     {
         public static void ScheduleRecurringJobs()
         {
-            RecurringJob.RemoveIfExists(nameof(RunDssOnDatabase));
-            RecurringJob.AddOrUpdate<RunDssOnDatabase>(nameof(RunDssOnDatabase),
-                job => job.Execute(JobCancellationToken.Null),
-                Cron.Minutely, TimeZoneInfo.Local);
+            RecurringJob.RemoveIfExists(nameof(RunDssOnDatabase.ExecuteOnTheFlyDss));
+            RecurringJob.AddOrUpdate<RunDssOnDatabase>(nameof(RunDssOnDatabase.ExecuteOnTheFlyDss),
+                job => job.ExecuteOnTheFlyDss(JobCancellationToken.Null),
+                Cron.Daily(), TimeZoneInfo.Utc);
         }
     }
 }
