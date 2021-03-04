@@ -13,6 +13,7 @@ using Xunit;
 namespace H2020.IPMDecisions.UPR.Tests.IntegrationTests.Controllers
 {
     [Collection("FakeWebHost")]
+    [Trait("Category", "Docker")]
     public class UserProfilesControllerNoDBTests
     {
         private readonly FakeWebHost fakeWebHost;
