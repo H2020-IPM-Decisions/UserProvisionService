@@ -121,8 +121,8 @@ namespace H2020.IPMDecisions.UPR.API
 
             app.UseHangfireDashboard($"/{apiBasePath}dashboard", new DashboardOptions
             {
-                Authorization = new[] { new IsAdminFilter() },
-                IsReadOnlyFunc = (DashboardContext context) => true
+                // Authorization = new[] { new IsAdminFilter() },
+                // IsReadOnlyFunc = (DashboardContext context) => true
             });
             HangfireJobScheduler.ScheduleRecurringJobs();
 
