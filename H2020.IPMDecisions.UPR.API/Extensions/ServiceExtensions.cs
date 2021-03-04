@@ -227,6 +227,7 @@ namespace H2020.IPMDecisions.APG.API.Extensions
         {
             services.AddHangfire(configuration =>
                 configuration
+                .SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
                 .UseSimpleAssemblyNameTypeSerializer()
                 .UseRecommendedSerializerSettings()
                 .UsePostgreSqlStorage(

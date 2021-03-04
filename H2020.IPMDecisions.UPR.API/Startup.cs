@@ -71,7 +71,7 @@ namespace H2020.IPMDecisions.UPR.API
             });
 
             services.ConfigurePostgresContext(Configuration);
-            services.ConfigureHangfire(Configuration);
+            // services.ConfigureHangfire(Configuration);
             services.ConfigureSwagger();
         }
 
@@ -126,13 +126,13 @@ namespace H2020.IPMDecisions.UPR.API
                 dashboardOptions.IsReadOnlyFunc = (DashboardContext context) => true;
             }
 
-            app.UseHangfireDashboard($"/{apiBasePath}dashboard", dashboardOptions);
-            HangfireJobScheduler.ScheduleRecurringJobs();
+            // app.UseHangfireDashboard($"/{apiBasePath}dashboard", dashboardOptions);
+            // HangfireJobScheduler.ScheduleRecurringJobs();
 
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
-                endpoints.MapHangfireDashboard();
+                // endpoints.MapHangfireDashboard();
             });
 
             applicationLifetime.ApplicationStopping.Register(OnShutdown);

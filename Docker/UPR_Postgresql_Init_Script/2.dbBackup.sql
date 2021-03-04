@@ -5,7 +5,7 @@
 -- Dumped from database version 12.5 (Debian 12.5-1.pgdg100+1)
 -- Dumped by pg_dump version 12.5 (Debian 12.5-1.pgdg100+1)
 
--- Started on 2021-01-27 10:35:52 UTC
+-- Started on 2021-03-04 15:36:38 UTC
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -19,7 +19,7 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
--- TOC entry 2 (class 3079 OID 19633)
+-- TOC entry 2 (class 3079 OID 261729)
 -- Name: postgis; Type: EXTENSION; Schema: -; Owner: -
 --
 
@@ -27,7 +27,7 @@ CREATE EXTENSION IF NOT EXISTS postgis WITH SCHEMA public;
 
 
 --
--- TOC entry 4045 (class 0 OID 0)
+-- TOC entry 4087 (class 0 OID 0)
 -- Dependencies: 2
 -- Name: EXTENSION postgis; Type: COMMENT; Schema: -; Owner: -
 --
@@ -38,7 +38,7 @@ COMMENT ON EXTENSION postgis IS 'PostGIS geometry and geography spatial types an
 SET default_table_access_method = heap;
 
 --
--- TOC entry 218 (class 1259 OID 20902)
+-- TOC entry 218 (class 1259 OID 262998)
 -- Name: CropPest; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -50,7 +50,7 @@ CREATE TABLE public."CropPest" (
 
 
 --
--- TOC entry 224 (class 1259 OID 21016)
+-- TOC entry 224 (class 1259 OID 263112)
 -- Name: CropPestDss; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -65,7 +65,21 @@ CREATE TABLE public."CropPestDss" (
 
 
 --
--- TOC entry 217 (class 1259 OID 20811)
+-- TOC entry 236 (class 1259 OID 263341)
+-- Name: CropPestDssResult; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public."CropPestDssResult" (
+    "Id" uuid NOT NULL,
+    "CropPestDssId" uuid NOT NULL,
+    "CreationDate" timestamp without time zone NOT NULL,
+    "Inf1" text,
+    "Inf2" text
+);
+
+
+--
+-- TOC entry 217 (class 1259 OID 262907)
 -- Name: DataSharingRequest; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -78,7 +92,7 @@ CREATE TABLE public."DataSharingRequest" (
 
 
 --
--- TOC entry 216 (class 1259 OID 20801)
+-- TOC entry 216 (class 1259 OID 262897)
 -- Name: DataSharingRequestStatus; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -89,7 +103,7 @@ CREATE TABLE public."DataSharingRequestStatus" (
 
 
 --
--- TOC entry 211 (class 1259 OID 20653)
+-- TOC entry 211 (class 1259 OID 262749)
 -- Name: Farm; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -103,7 +117,7 @@ CREATE TABLE public."Farm" (
 
 
 --
--- TOC entry 228 (class 1259 OID 21081)
+-- TOC entry 228 (class 1259 OID 263177)
 -- Name: FarmWeatherDataSource; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -114,7 +128,7 @@ CREATE TABLE public."FarmWeatherDataSource" (
 
 
 --
--- TOC entry 229 (class 1259 OID 21099)
+-- TOC entry 229 (class 1259 OID 263195)
 -- Name: FarmWeatherStation; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -125,7 +139,7 @@ CREATE TABLE public."FarmWeatherStation" (
 
 
 --
--- TOC entry 213 (class 1259 OID 20678)
+-- TOC entry 213 (class 1259 OID 262774)
 -- Name: Field; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -139,7 +153,7 @@ CREATE TABLE public."Field" (
 
 
 --
--- TOC entry 233 (class 1259 OID 21186)
+-- TOC entry 233 (class 1259 OID 263282)
 -- Name: FieldCrop; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -151,7 +165,7 @@ CREATE TABLE public."FieldCrop" (
 
 
 --
--- TOC entry 219 (class 1259 OID 20907)
+-- TOC entry 219 (class 1259 OID 263003)
 -- Name: FieldCropPest; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -163,7 +177,7 @@ CREATE TABLE public."FieldCropPest" (
 
 
 --
--- TOC entry 225 (class 1259 OID 21041)
+-- TOC entry 225 (class 1259 OID 263137)
 -- Name: FieldCropPestDss; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -171,18 +185,31 @@ CREATE TABLE public."FieldCropPestDss" (
     "Id" uuid NOT NULL,
     "FieldCropPestId" uuid NOT NULL,
     "CropPestDssId" uuid NOT NULL,
-    "DssParameters" text
+    "DssParameters" jsonb
 );
 
 
 --
--- TOC entry 214 (class 1259 OID 20692)
+-- TOC entry 237 (class 1259 OID 263355)
+-- Name: FieldDssResult; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public."FieldDssResult" (
+    "Id" uuid NOT NULL,
+    "CreationDate" timestamp without time zone NOT NULL,
+    "Result" jsonb,
+    "FieldCropPestDssId" uuid NOT NULL
+);
+
+
+--
+-- TOC entry 214 (class 1259 OID 262788)
 -- Name: FieldObservation; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public."FieldObservation" (
     "Id" uuid NOT NULL,
-    "Location" public.geometry(Point) NOT NULL,
+    "Location" public.geometry,
     "Time" timestamp without time zone DEFAULT now() NOT NULL,
     "FieldCropPestdId" uuid DEFAULT '00000000-0000-0000-0000-000000000000'::uuid NOT NULL,
     "Severity" text
@@ -190,7 +217,7 @@ CREATE TABLE public."FieldObservation" (
 
 
 --
--- TOC entry 230 (class 1259 OID 21132)
+-- TOC entry 230 (class 1259 OID 263228)
 -- Name: FieldSprayApplication; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -204,7 +231,29 @@ CREATE TABLE public."FieldSprayApplication" (
 
 
 --
--- TOC entry 220 (class 1259 OID 20954)
+-- TOC entry 234 (class 1259 OID 263303)
+-- Name: FieldWeatherDataSource; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public."FieldWeatherDataSource" (
+    "FieldId" uuid NOT NULL,
+    "WeatherDataSourceId" text NOT NULL
+);
+
+
+--
+-- TOC entry 235 (class 1259 OID 263321)
+-- Name: FieldWeatherStation; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public."FieldWeatherStation" (
+    "FieldId" uuid NOT NULL,
+    "WeatherStationId" text NOT NULL
+);
+
+
+--
+-- TOC entry 220 (class 1259 OID 263050)
 -- Name: ForecastAlert; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -215,7 +264,7 @@ CREATE TABLE public."ForecastAlert" (
 
 
 --
--- TOC entry 222 (class 1259 OID 20979)
+-- TOC entry 222 (class 1259 OID 263075)
 -- Name: ForecastResult; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -229,7 +278,7 @@ CREATE TABLE public."ForecastResult" (
 
 
 --
--- TOC entry 221 (class 1259 OID 20964)
+-- TOC entry 221 (class 1259 OID 263060)
 -- Name: ObservationAlert; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -241,7 +290,7 @@ CREATE TABLE public."ObservationAlert" (
 
 
 --
--- TOC entry 223 (class 1259 OID 20992)
+-- TOC entry 223 (class 1259 OID 263088)
 -- Name: ObservationResult; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -255,7 +304,7 @@ CREATE TABLE public."ObservationResult" (
 
 
 --
--- TOC entry 205 (class 1259 OID 19619)
+-- TOC entry 205 (class 1259 OID 261715)
 -- Name: UserAddress; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -269,7 +318,7 @@ CREATE TABLE public."UserAddress" (
 
 
 --
--- TOC entry 212 (class 1259 OID 20661)
+-- TOC entry 212 (class 1259 OID 262757)
 -- Name: UserFarm; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -282,7 +331,7 @@ CREATE TABLE public."UserFarm" (
 
 
 --
--- TOC entry 215 (class 1259 OID 20784)
+-- TOC entry 215 (class 1259 OID 262880)
 -- Name: UserFarmType; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -293,7 +342,7 @@ CREATE TABLE public."UserFarmType" (
 
 
 --
--- TOC entry 204 (class 1259 OID 19609)
+-- TOC entry 204 (class 1259 OID 261705)
 -- Name: UserProfile; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -308,7 +357,7 @@ CREATE TABLE public."UserProfile" (
 
 
 --
--- TOC entry 232 (class 1259 OID 21165)
+-- TOC entry 232 (class 1259 OID 263261)
 -- Name: UserWidget; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -321,18 +370,23 @@ CREATE TABLE public."UserWidget" (
 
 
 --
--- TOC entry 226 (class 1259 OID 21065)
+-- TOC entry 226 (class 1259 OID 263161)
 -- Name: WeatherDataSource; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public."WeatherDataSource" (
     "Id" text NOT NULL,
-    "Name" text
+    "Name" text,
+    "FileData" bytea,
+    "FileExtension" text,
+    "FileName" text,
+    "FileUploadedOn" timestamp without time zone,
+    "Url" text
 );
 
 
 --
--- TOC entry 227 (class 1259 OID 21073)
+-- TOC entry 227 (class 1259 OID 263169)
 -- Name: WeatherStation; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -343,7 +397,7 @@ CREATE TABLE public."WeatherStation" (
 
 
 --
--- TOC entry 231 (class 1259 OID 21155)
+-- TOC entry 231 (class 1259 OID 263251)
 -- Name: Widget; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -354,7 +408,7 @@ CREATE TABLE public."Widget" (
 
 
 --
--- TOC entry 203 (class 1259 OID 19604)
+-- TOC entry 203 (class 1259 OID 261700)
 -- Name: __EFMigrationsHistory; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -365,7 +419,7 @@ CREATE TABLE public."__EFMigrationsHistory" (
 
 
 --
--- TOC entry 3799 (class 2606 OID 20810)
+-- TOC entry 3819 (class 2606 OID 262906)
 -- Name: DataSharingRequestStatus AK_DataSharingRequestStatus_Description; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -374,7 +428,7 @@ ALTER TABLE ONLY public."DataSharingRequestStatus"
 
 
 --
--- TOC entry 3794 (class 2606 OID 20793)
+-- TOC entry 3814 (class 2606 OID 262889)
 -- Name: UserFarmType AK_UserFarmType_Description; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -383,7 +437,7 @@ ALTER TABLE ONLY public."UserFarmType"
 
 
 --
--- TOC entry 3848 (class 2606 OID 21164)
+-- TOC entry 3868 (class 2606 OID 263260)
 -- Name: Widget AK_Widget_Description; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -392,7 +446,7 @@ ALTER TABLE ONLY public."Widget"
 
 
 --
--- TOC entry 3810 (class 2606 OID 20906)
+-- TOC entry 3830 (class 2606 OID 263002)
 -- Name: CropPest PK_CropPest; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -401,7 +455,7 @@ ALTER TABLE ONLY public."CropPest"
 
 
 --
--- TOC entry 3829 (class 2606 OID 21023)
+-- TOC entry 3849 (class 2606 OID 263119)
 -- Name: CropPestDss PK_CropPestDss; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -410,7 +464,16 @@ ALTER TABLE ONLY public."CropPestDss"
 
 
 --
--- TOC entry 3807 (class 2606 OID 20894)
+-- TOC entry 3886 (class 2606 OID 263348)
+-- Name: CropPestDssResult PK_CropPestDssResult; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public."CropPestDssResult"
+    ADD CONSTRAINT "PK_CropPestDssResult" PRIMARY KEY ("Id");
+
+
+--
+-- TOC entry 3827 (class 2606 OID 262990)
 -- Name: DataSharingRequest PK_DataSharingRequest; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -419,7 +482,7 @@ ALTER TABLE ONLY public."DataSharingRequest"
 
 
 --
--- TOC entry 3802 (class 2606 OID 20808)
+-- TOC entry 3822 (class 2606 OID 262904)
 -- Name: DataSharingRequestStatus PK_DataSharingRequestStatus; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -428,7 +491,7 @@ ALTER TABLE ONLY public."DataSharingRequestStatus"
 
 
 --
--- TOC entry 3782 (class 2606 OID 20660)
+-- TOC entry 3802 (class 2606 OID 262756)
 -- Name: Farm PK_Farm; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -437,7 +500,7 @@ ALTER TABLE ONLY public."Farm"
 
 
 --
--- TOC entry 3840 (class 2606 OID 21121)
+-- TOC entry 3860 (class 2606 OID 263217)
 -- Name: FarmWeatherDataSource PK_FarmWeatherDataSource; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -446,7 +509,7 @@ ALTER TABLE ONLY public."FarmWeatherDataSource"
 
 
 --
--- TOC entry 3843 (class 2606 OID 21106)
+-- TOC entry 3863 (class 2606 OID 263202)
 -- Name: FarmWeatherStation PK_FarmWeatherStation; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -455,7 +518,7 @@ ALTER TABLE ONLY public."FarmWeatherStation"
 
 
 --
--- TOC entry 3789 (class 2606 OID 20685)
+-- TOC entry 3809 (class 2606 OID 262781)
 -- Name: Field PK_Field; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -464,7 +527,7 @@ ALTER TABLE ONLY public."Field"
 
 
 --
--- TOC entry 3857 (class 2606 OID 21190)
+-- TOC entry 3877 (class 2606 OID 263286)
 -- Name: FieldCrop PK_FieldCrop; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -473,7 +536,7 @@ ALTER TABLE ONLY public."FieldCrop"
 
 
 --
--- TOC entry 3814 (class 2606 OID 21014)
+-- TOC entry 3834 (class 2606 OID 263110)
 -- Name: FieldCropPest PK_FieldCropPest; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -482,7 +545,7 @@ ALTER TABLE ONLY public."FieldCropPest"
 
 
 --
--- TOC entry 3833 (class 2606 OID 21045)
+-- TOC entry 3853 (class 2606 OID 263141)
 -- Name: FieldCropPestDss PK_FieldCropPestDss; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -491,7 +554,16 @@ ALTER TABLE ONLY public."FieldCropPestDss"
 
 
 --
--- TOC entry 3792 (class 2606 OID 20699)
+-- TOC entry 3889 (class 2606 OID 263362)
+-- Name: FieldDssResult PK_FieldDssResult; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public."FieldDssResult"
+    ADD CONSTRAINT "PK_FieldDssResult" PRIMARY KEY ("Id");
+
+
+--
+-- TOC entry 3812 (class 2606 OID 262795)
 -- Name: FieldObservation PK_FieldObservation; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -500,7 +572,7 @@ ALTER TABLE ONLY public."FieldObservation"
 
 
 --
--- TOC entry 3846 (class 2606 OID 21137)
+-- TOC entry 3866 (class 2606 OID 263233)
 -- Name: FieldSprayApplication PK_FieldSprayApplication; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -509,7 +581,25 @@ ALTER TABLE ONLY public."FieldSprayApplication"
 
 
 --
--- TOC entry 3816 (class 2606 OID 20958)
+-- TOC entry 3880 (class 2606 OID 263310)
+-- Name: FieldWeatherDataSource PK_FieldWeatherDataSource; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public."FieldWeatherDataSource"
+    ADD CONSTRAINT "PK_FieldWeatherDataSource" PRIMARY KEY ("FieldId", "WeatherDataSourceId");
+
+
+--
+-- TOC entry 3883 (class 2606 OID 263328)
+-- Name: FieldWeatherStation PK_FieldWeatherStation; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public."FieldWeatherStation"
+    ADD CONSTRAINT "PK_FieldWeatherStation" PRIMARY KEY ("FieldId", "WeatherStationId");
+
+
+--
+-- TOC entry 3836 (class 2606 OID 263054)
 -- Name: ForecastAlert PK_ForecastAlert; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -518,7 +608,7 @@ ALTER TABLE ONLY public."ForecastAlert"
 
 
 --
--- TOC entry 3823 (class 2606 OID 20986)
+-- TOC entry 3843 (class 2606 OID 263082)
 -- Name: ForecastResult PK_ForecastResult; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -527,7 +617,7 @@ ALTER TABLE ONLY public."ForecastResult"
 
 
 --
--- TOC entry 3820 (class 2606 OID 20968)
+-- TOC entry 3840 (class 2606 OID 263064)
 -- Name: ObservationAlert PK_ObservationAlert; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -536,7 +626,7 @@ ALTER TABLE ONLY public."ObservationAlert"
 
 
 --
--- TOC entry 3826 (class 2606 OID 20999)
+-- TOC entry 3846 (class 2606 OID 263095)
 -- Name: ObservationResult PK_ObservationResult; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -545,7 +635,7 @@ ALTER TABLE ONLY public."ObservationResult"
 
 
 --
--- TOC entry 3777 (class 2606 OID 19626)
+-- TOC entry 3797 (class 2606 OID 261722)
 -- Name: UserAddress PK_UserAddress; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -554,7 +644,7 @@ ALTER TABLE ONLY public."UserAddress"
 
 
 --
--- TOC entry 3786 (class 2606 OID 20867)
+-- TOC entry 3806 (class 2606 OID 262963)
 -- Name: UserFarm PK_UserFarm; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -563,7 +653,7 @@ ALTER TABLE ONLY public."UserFarm"
 
 
 --
--- TOC entry 3797 (class 2606 OID 20791)
+-- TOC entry 3817 (class 2606 OID 262887)
 -- Name: UserFarmType PK_UserFarmType; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -572,7 +662,7 @@ ALTER TABLE ONLY public."UserFarmType"
 
 
 --
--- TOC entry 3775 (class 2606 OID 20865)
+-- TOC entry 3795 (class 2606 OID 262961)
 -- Name: UserProfile PK_UserProfile; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -581,7 +671,7 @@ ALTER TABLE ONLY public."UserProfile"
 
 
 --
--- TOC entry 3854 (class 2606 OID 21172)
+-- TOC entry 3874 (class 2606 OID 263268)
 -- Name: UserWidget PK_UserWidget; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -590,7 +680,7 @@ ALTER TABLE ONLY public."UserWidget"
 
 
 --
--- TOC entry 3835 (class 2606 OID 21072)
+-- TOC entry 3855 (class 2606 OID 263168)
 -- Name: WeatherDataSource PK_WeatherDataSource; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -599,7 +689,7 @@ ALTER TABLE ONLY public."WeatherDataSource"
 
 
 --
--- TOC entry 3837 (class 2606 OID 21080)
+-- TOC entry 3857 (class 2606 OID 263176)
 -- Name: WeatherStation PK_WeatherStation; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -608,7 +698,7 @@ ALTER TABLE ONLY public."WeatherStation"
 
 
 --
--- TOC entry 3851 (class 2606 OID 21162)
+-- TOC entry 3871 (class 2606 OID 263258)
 -- Name: Widget PK_Widget; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -617,7 +707,7 @@ ALTER TABLE ONLY public."Widget"
 
 
 --
--- TOC entry 3772 (class 2606 OID 19608)
+-- TOC entry 3792 (class 2606 OID 261704)
 -- Name: __EFMigrationsHistory PK___EFMigrationsHistory; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -626,7 +716,15 @@ ALTER TABLE ONLY public."__EFMigrationsHistory"
 
 
 --
--- TOC entry 3827 (class 1259 OID 21214)
+-- TOC entry 3884 (class 1259 OID 263354)
+-- Name: IX_CropPestDssResult_CropPestDssId; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX "IX_CropPestDssResult_CropPestDssId" ON public."CropPestDssResult" USING btree ("CropPestDssId");
+
+
+--
+-- TOC entry 3847 (class 1259 OID 263302)
 -- Name: IX_CropPestDss_CropPestId_DssId_DssModelId; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -634,7 +732,7 @@ CREATE UNIQUE INDEX "IX_CropPestDss_CropPestId_DssId_DssModelId" ON public."Crop
 
 
 --
--- TOC entry 3808 (class 1259 OID 20923)
+-- TOC entry 3828 (class 1259 OID 263019)
 -- Name: IX_CropPest_CropEppoCode_PestEppoCode; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -642,7 +740,7 @@ CREATE UNIQUE INDEX "IX_CropPest_CropEppoCode_PestEppoCode" ON public."CropPest"
 
 
 --
--- TOC entry 3800 (class 1259 OID 20837)
+-- TOC entry 3820 (class 1259 OID 262933)
 -- Name: IX_DataSharingRequestStatus_Description; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -650,7 +748,7 @@ CREATE UNIQUE INDEX "IX_DataSharingRequestStatus_Description" ON public."DataSha
 
 
 --
--- TOC entry 3803 (class 1259 OID 20834)
+-- TOC entry 3823 (class 1259 OID 262930)
 -- Name: IX_DataSharingRequest_RequestStatusDescription; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -658,7 +756,7 @@ CREATE INDEX "IX_DataSharingRequest_RequestStatusDescription" ON public."DataSha
 
 
 --
--- TOC entry 3804 (class 1259 OID 20895)
+-- TOC entry 3824 (class 1259 OID 262991)
 -- Name: IX_DataSharingRequest_RequesteeId_RequesterId; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -666,7 +764,7 @@ CREATE UNIQUE INDEX "IX_DataSharingRequest_RequesteeId_RequesterId" ON public."D
 
 
 --
--- TOC entry 3805 (class 1259 OID 20836)
+-- TOC entry 3825 (class 1259 OID 262932)
 -- Name: IX_DataSharingRequest_RequesterId; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -674,7 +772,7 @@ CREATE INDEX "IX_DataSharingRequest_RequesterId" ON public."DataSharingRequest" 
 
 
 --
--- TOC entry 3838 (class 1259 OID 21122)
+-- TOC entry 3858 (class 1259 OID 263218)
 -- Name: IX_FarmWeatherDataSource_WeatherDataSourceId; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -682,7 +780,7 @@ CREATE INDEX "IX_FarmWeatherDataSource_WeatherDataSourceId" ON public."FarmWeath
 
 
 --
--- TOC entry 3841 (class 1259 OID 21118)
+-- TOC entry 3861 (class 1259 OID 263214)
 -- Name: IX_FarmWeatherStation_WeatherStationId; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -690,7 +788,7 @@ CREATE INDEX "IX_FarmWeatherStation_WeatherStationId" ON public."FarmWeatherStat
 
 
 --
--- TOC entry 3780 (class 1259 OID 21128)
+-- TOC entry 3800 (class 1259 OID 263224)
 -- Name: IX_Farm_Location; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -698,7 +796,7 @@ CREATE INDEX "IX_Farm_Location" ON public."Farm" USING btree ("Location");
 
 
 --
--- TOC entry 3830 (class 1259 OID 21056)
+-- TOC entry 3850 (class 1259 OID 263152)
 -- Name: IX_FieldCropPestDss_CropPestDssId; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -706,7 +804,7 @@ CREATE INDEX "IX_FieldCropPestDss_CropPestDssId" ON public."FieldCropPestDss" US
 
 
 --
--- TOC entry 3831 (class 1259 OID 21057)
+-- TOC entry 3851 (class 1259 OID 263153)
 -- Name: IX_FieldCropPestDss_FieldCropPestId_CropPestDssId; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -714,7 +812,7 @@ CREATE UNIQUE INDEX "IX_FieldCropPestDss_FieldCropPestId_CropPestDssId" ON publi
 
 
 --
--- TOC entry 3811 (class 1259 OID 20924)
+-- TOC entry 3831 (class 1259 OID 263020)
 -- Name: IX_FieldCropPest_CropPestId; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -722,7 +820,7 @@ CREATE INDEX "IX_FieldCropPest_CropPestId" ON public."FieldCropPest" USING btree
 
 
 --
--- TOC entry 3812 (class 1259 OID 21196)
+-- TOC entry 3832 (class 1259 OID 263292)
 -- Name: IX_FieldCropPest_FieldCropId_CropPestId; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -730,7 +828,7 @@ CREATE UNIQUE INDEX "IX_FieldCropPest_FieldCropId_CropPestId" ON public."FieldCr
 
 
 --
--- TOC entry 3855 (class 1259 OID 21203)
+-- TOC entry 3875 (class 1259 OID 263299)
 -- Name: IX_FieldCrop_FieldId; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -738,7 +836,15 @@ CREATE UNIQUE INDEX "IX_FieldCrop_FieldId" ON public."FieldCrop" USING btree ("F
 
 
 --
--- TOC entry 3790 (class 1259 OID 21059)
+-- TOC entry 3887 (class 1259 OID 263368)
+-- Name: IX_FieldDssResult_FieldCropPestDssId; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX "IX_FieldDssResult_FieldCropPestDssId" ON public."FieldDssResult" USING btree ("FieldCropPestDssId");
+
+
+--
+-- TOC entry 3810 (class 1259 OID 263155)
 -- Name: IX_FieldObservation_FieldCropPestdId; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -746,7 +852,7 @@ CREATE INDEX "IX_FieldObservation_FieldCropPestdId" ON public."FieldObservation"
 
 
 --
--- TOC entry 3844 (class 1259 OID 21149)
+-- TOC entry 3864 (class 1259 OID 263245)
 -- Name: IX_FieldSprayApplication_FieldCropPestId; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -754,7 +860,23 @@ CREATE INDEX "IX_FieldSprayApplication_FieldCropPestId" ON public."FieldSprayApp
 
 
 --
--- TOC entry 3787 (class 1259 OID 20691)
+-- TOC entry 3878 (class 1259 OID 263339)
+-- Name: IX_FieldWeatherDataSource_WeatherDataSourceId; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX "IX_FieldWeatherDataSource_WeatherDataSourceId" ON public."FieldWeatherDataSource" USING btree ("WeatherDataSourceId");
+
+
+--
+-- TOC entry 3881 (class 1259 OID 263340)
+-- Name: IX_FieldWeatherStation_WeatherStationId; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX "IX_FieldWeatherStation_WeatherStationId" ON public."FieldWeatherStation" USING btree ("WeatherStationId");
+
+
+--
+-- TOC entry 3807 (class 1259 OID 262787)
 -- Name: IX_Field_FarmId; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -762,7 +884,7 @@ CREATE INDEX "IX_Field_FarmId" ON public."Field" USING btree ("FarmId");
 
 
 --
--- TOC entry 3821 (class 1259 OID 21007)
+-- TOC entry 3841 (class 1259 OID 263103)
 -- Name: IX_ForecastResult_ForecastAlertId_Date; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -770,7 +892,7 @@ CREATE UNIQUE INDEX "IX_ForecastResult_ForecastAlertId_Date" ON public."Forecast
 
 
 --
--- TOC entry 3817 (class 1259 OID 21009)
+-- TOC entry 3837 (class 1259 OID 263105)
 -- Name: IX_ObservationAlert_FieldObservationId; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -778,7 +900,7 @@ CREATE INDEX "IX_ObservationAlert_FieldObservationId" ON public."ObservationAler
 
 
 --
--- TOC entry 3818 (class 1259 OID 21029)
+-- TOC entry 3838 (class 1259 OID 263125)
 -- Name: IX_ObservationAlert_WeatherStationId_FieldObservationId; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -786,7 +908,7 @@ CREATE UNIQUE INDEX "IX_ObservationAlert_WeatherStationId_FieldObservationId" ON
 
 
 --
--- TOC entry 3824 (class 1259 OID 21011)
+-- TOC entry 3844 (class 1259 OID 263107)
 -- Name: IX_ObservationResult_ObservationAlertId; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -794,7 +916,7 @@ CREATE INDEX "IX_ObservationResult_ObservationAlertId" ON public."ObservationRes
 
 
 --
--- TOC entry 3795 (class 1259 OID 20795)
+-- TOC entry 3815 (class 1259 OID 262891)
 -- Name: IX_UserFarmType_Description; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -802,7 +924,7 @@ CREATE UNIQUE INDEX "IX_UserFarmType_Description" ON public."UserFarmType" USING
 
 
 --
--- TOC entry 3783 (class 1259 OID 20677)
+-- TOC entry 3803 (class 1259 OID 262773)
 -- Name: IX_UserFarm_FarmId; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -810,7 +932,7 @@ CREATE INDEX "IX_UserFarm_FarmId" ON public."UserFarm" USING btree ("FarmId");
 
 
 --
--- TOC entry 3784 (class 1259 OID 20794)
+-- TOC entry 3804 (class 1259 OID 262890)
 -- Name: IX_UserFarm_UserFarmTypeDescription; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -818,7 +940,7 @@ CREATE INDEX "IX_UserFarm_UserFarmTypeDescription" ON public."UserFarm" USING bt
 
 
 --
--- TOC entry 3773 (class 1259 OID 19627)
+-- TOC entry 3793 (class 1259 OID 261723)
 -- Name: IX_UserProfile_UserAddressId; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -826,7 +948,7 @@ CREATE INDEX "IX_UserProfile_UserAddressId" ON public."UserProfile" USING btree 
 
 
 --
--- TOC entry 3852 (class 1259 OID 21183)
+-- TOC entry 3872 (class 1259 OID 263279)
 -- Name: IX_UserWidget_WidgetDescription; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -834,7 +956,7 @@ CREATE INDEX "IX_UserWidget_WidgetDescription" ON public."UserWidget" USING btre
 
 
 --
--- TOC entry 3849 (class 1259 OID 21184)
+-- TOC entry 3869 (class 1259 OID 263280)
 -- Name: IX_Widget_Description; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -842,7 +964,16 @@ CREATE UNIQUE INDEX "IX_Widget_Description" ON public."Widget" USING btree ("Des
 
 
 --
--- TOC entry 3867 (class 2606 OID 20912)
+-- TOC entry 3919 (class 2606 OID 263349)
+-- Name: CropPestDssResult FK_CropPestDss_CropPestDssResult; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public."CropPestDssResult"
+    ADD CONSTRAINT "FK_CropPestDss_CropPestDssResult" FOREIGN KEY ("CropPestDssId") REFERENCES public."CropPestDss"("Id") ON DELETE CASCADE;
+
+
+--
+-- TOC entry 3899 (class 2606 OID 263008)
 -- Name: FieldCropPest FK_CropPest_Crop; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -851,7 +982,7 @@ ALTER TABLE ONLY public."FieldCropPest"
 
 
 --
--- TOC entry 3872 (class 2606 OID 21024)
+-- TOC entry 3904 (class 2606 OID 263120)
 -- Name: CropPestDss FK_CropPest_CropPestDss; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -860,7 +991,7 @@ ALTER TABLE ONLY public."CropPestDss"
 
 
 --
--- TOC entry 3864 (class 2606 OID 20819)
+-- TOC entry 3896 (class 2606 OID 262915)
 -- Name: DataSharingRequest FK_DataSharingRequest_RequestStatus_RequestDescription; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -869,7 +1000,7 @@ ALTER TABLE ONLY public."DataSharingRequest"
 
 
 --
--- TOC entry 3865 (class 2606 OID 20868)
+-- TOC entry 3897 (class 2606 OID 262964)
 -- Name: DataSharingRequest FK_DataSharingRequest_UserProfile_RequesteeId; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -878,7 +1009,7 @@ ALTER TABLE ONLY public."DataSharingRequest"
 
 
 --
--- TOC entry 3866 (class 2606 OID 20873)
+-- TOC entry 3898 (class 2606 OID 262969)
 -- Name: DataSharingRequest FK_DataSharingRequest_UserProfile_RequesterId; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -887,7 +1018,7 @@ ALTER TABLE ONLY public."DataSharingRequest"
 
 
 --
--- TOC entry 3875 (class 2606 OID 21089)
+-- TOC entry 3907 (class 2606 OID 263185)
 -- Name: FarmWeatherDataSource FK_FarmWeatherDataSource_Farm; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -896,7 +1027,7 @@ ALTER TABLE ONLY public."FarmWeatherDataSource"
 
 
 --
--- TOC entry 3876 (class 2606 OID 21123)
+-- TOC entry 3908 (class 2606 OID 263219)
 -- Name: FarmWeatherDataSource FK_FarmWeatherDataSource_WeatherDataSource; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -905,7 +1036,7 @@ ALTER TABLE ONLY public."FarmWeatherDataSource"
 
 
 --
--- TOC entry 3877 (class 2606 OID 21107)
+-- TOC entry 3909 (class 2606 OID 263203)
 -- Name: FarmWeatherStation FK_FarmWeatherStation_Farm; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -914,7 +1045,7 @@ ALTER TABLE ONLY public."FarmWeatherStation"
 
 
 --
--- TOC entry 3878 (class 2606 OID 21112)
+-- TOC entry 3910 (class 2606 OID 263208)
 -- Name: FarmWeatherStation FK_FarmWeatherStation_WeatherStation; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -923,7 +1054,7 @@ ALTER TABLE ONLY public."FarmWeatherStation"
 
 
 --
--- TOC entry 3873 (class 2606 OID 21046)
+-- TOC entry 3905 (class 2606 OID 263142)
 -- Name: FieldCropPestDss FK_FieldCropPestDss_CropPestDss; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -932,7 +1063,7 @@ ALTER TABLE ONLY public."FieldCropPestDss"
 
 
 --
--- TOC entry 3874 (class 2606 OID 21051)
+-- TOC entry 3906 (class 2606 OID 263147)
 -- Name: FieldCropPestDss FK_FieldCropPestDss_FieldCropPest_FieldCropPestId; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -941,7 +1072,7 @@ ALTER TABLE ONLY public."FieldCropPestDss"
 
 
 --
--- TOC entry 3868 (class 2606 OID 21198)
+-- TOC entry 3900 (class 2606 OID 263294)
 -- Name: FieldCropPest FK_FieldCropPest_FieldCrop_FieldCropId; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -950,7 +1081,52 @@ ALTER TABLE ONLY public."FieldCropPest"
 
 
 --
--- TOC entry 3862 (class 2606 OID 20686)
+-- TOC entry 3920 (class 2606 OID 263363)
+-- Name: FieldDssResult FK_FieldDssResult_FieldCropPestDss_FieldCropPestDssId; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public."FieldDssResult"
+    ADD CONSTRAINT "FK_FieldDssResult_FieldCropPestDss_FieldCropPestDssId" FOREIGN KEY ("FieldCropPestDssId") REFERENCES public."FieldCropPestDss"("Id") ON DELETE CASCADE;
+
+
+--
+-- TOC entry 3915 (class 2606 OID 263311)
+-- Name: FieldWeatherDataSource FK_FieldWeatherDataSource_Field; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public."FieldWeatherDataSource"
+    ADD CONSTRAINT "FK_FieldWeatherDataSource_Field" FOREIGN KEY ("FieldId") REFERENCES public."Field"("Id") ON DELETE CASCADE;
+
+
+--
+-- TOC entry 3916 (class 2606 OID 263316)
+-- Name: FieldWeatherDataSource FK_FieldWeatherDataSource_WeatherDataSource; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public."FieldWeatherDataSource"
+    ADD CONSTRAINT "FK_FieldWeatherDataSource_WeatherDataSource" FOREIGN KEY ("WeatherDataSourceId") REFERENCES public."WeatherDataSource"("Id") ON DELETE CASCADE;
+
+
+--
+-- TOC entry 3917 (class 2606 OID 263329)
+-- Name: FieldWeatherStation FK_FieldWeatherStation_Field; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public."FieldWeatherStation"
+    ADD CONSTRAINT "FK_FieldWeatherStation_Field" FOREIGN KEY ("FieldId") REFERENCES public."Field"("Id") ON DELETE CASCADE;
+
+
+--
+-- TOC entry 3918 (class 2606 OID 263334)
+-- Name: FieldWeatherStation FK_FieldWeatherStation_WeatherStation; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public."FieldWeatherStation"
+    ADD CONSTRAINT "FK_FieldWeatherStation_WeatherStation" FOREIGN KEY ("WeatherStationId") REFERENCES public."WeatherStation"("Id") ON DELETE CASCADE;
+
+
+--
+-- TOC entry 3894 (class 2606 OID 262782)
 -- Name: Field FK_Field_Farm; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -959,7 +1135,7 @@ ALTER TABLE ONLY public."Field"
 
 
 --
--- TOC entry 3882 (class 2606 OID 21191)
+-- TOC entry 3914 (class 2606 OID 263287)
 -- Name: FieldCrop FK_Field_FieldCrop; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -968,7 +1144,7 @@ ALTER TABLE ONLY public."FieldCrop"
 
 
 --
--- TOC entry 3870 (class 2606 OID 21031)
+-- TOC entry 3902 (class 2606 OID 263127)
 -- Name: ForecastResult FK_ForecastResult_ForecastAlert_ForecastAlertId; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -977,7 +1153,7 @@ ALTER TABLE ONLY public."ForecastResult"
 
 
 --
--- TOC entry 3869 (class 2606 OID 20974)
+-- TOC entry 3901 (class 2606 OID 263070)
 -- Name: ObservationAlert FK_ObservationAlert_FieldObservation_FieldObservationId; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -986,7 +1162,7 @@ ALTER TABLE ONLY public."ObservationAlert"
 
 
 --
--- TOC entry 3871 (class 2606 OID 21036)
+-- TOC entry 3903 (class 2606 OID 263132)
 -- Name: ObservationResult FK_ObservationResult_ObservationAlert_ObservationAlertId; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -995,7 +1171,7 @@ ALTER TABLE ONLY public."ObservationResult"
 
 
 --
--- TOC entry 3863 (class 2606 OID 21060)
+-- TOC entry 3895 (class 2606 OID 263156)
 -- Name: FieldObservation FK_Observation_FieldCropPest; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1004,7 +1180,7 @@ ALTER TABLE ONLY public."FieldObservation"
 
 
 --
--- TOC entry 3879 (class 2606 OID 21150)
+-- TOC entry 3911 (class 2606 OID 263246)
 -- Name: FieldSprayApplication FK_Spray_FieldCropPest; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1013,7 +1189,7 @@ ALTER TABLE ONLY public."FieldSprayApplication"
 
 
 --
--- TOC entry 3860 (class 2606 OID 20883)
+-- TOC entry 3892 (class 2606 OID 262979)
 -- Name: UserFarm FK_UserFarm_Farm; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1022,7 +1198,7 @@ ALTER TABLE ONLY public."UserFarm"
 
 
 --
--- TOC entry 3861 (class 2606 OID 20888)
+-- TOC entry 3893 (class 2606 OID 262984)
 -- Name: UserFarm FK_UserFarm_User; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1031,7 +1207,7 @@ ALTER TABLE ONLY public."UserFarm"
 
 
 --
--- TOC entry 3859 (class 2606 OID 20796)
+-- TOC entry 3891 (class 2606 OID 262892)
 -- Name: UserFarm FK_UserFarm_UserFarmType_UserFarmTypeDescription; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1040,7 +1216,7 @@ ALTER TABLE ONLY public."UserFarm"
 
 
 --
--- TOC entry 3880 (class 2606 OID 21173)
+-- TOC entry 3912 (class 2606 OID 263269)
 -- Name: UserWidget FK_UserWidget_User; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1049,7 +1225,7 @@ ALTER TABLE ONLY public."UserWidget"
 
 
 --
--- TOC entry 3881 (class 2606 OID 21178)
+-- TOC entry 3913 (class 2606 OID 263274)
 -- Name: UserWidget FK_UserWidget_Widget; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1058,7 +1234,7 @@ ALTER TABLE ONLY public."UserWidget"
 
 
 --
--- TOC entry 3858 (class 2606 OID 20646)
+-- TOC entry 3890 (class 2606 OID 262742)
 -- Name: UserProfile FK_User_UserAddress; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1066,7 +1242,7 @@ ALTER TABLE ONLY public."UserProfile"
     ADD CONSTRAINT "FK_User_UserAddress" FOREIGN KEY ("UserAddressId") REFERENCES public."UserAddress"("Id") ON DELETE CASCADE;
 
 
--- Completed on 2021-01-27 10:35:53 UTC
+-- Completed on 2021-03-04 15:36:39 UTC
 
 --
 -- PostgreSQL database dump complete
