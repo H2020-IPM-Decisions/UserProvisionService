@@ -21,10 +21,10 @@ jobs:
         uses: actions/setup-dotnet@v1
         with:
           dotnet-version: 3.1.101
-      - name: Clean with dotnet
-        run: dotnet clean H2020.IPMDecisions.UPR.API
-      - name: Test with dotnet
-        run: dotnet test H2020.IPMDecisions.UPR.Tests --filter Category!=Docker
+      # - name: Clean with dotnet
+      #   run: dotnet clean H2020.IPMDecisions.UPR.API
+      # - name: Test with dotnet
+      #   run: dotnet test H2020.IPMDecisions.UPR.Tests --filter Category!=Docker
       - name: Build image with latest
         run: docker build . -f "./Docker/Dockerfile" -t "${{ env.DOCKER_IMAGE_NAME }}:latest" --build-arg BUILDER_VERSION=latest --build-arg RELEASE_DATE=${{ steps.current-time.outputs.time }}
       - name: Build image with tag ${{ steps.vars.outputs.tag }}
