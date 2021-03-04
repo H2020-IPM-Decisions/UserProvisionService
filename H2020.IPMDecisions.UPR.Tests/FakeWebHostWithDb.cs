@@ -91,8 +91,11 @@ namespace H2020.IPMDecisions.UPR.Tests
                 _context = services.GetService<ApplicationDbContext>();
                 _context.Database.EnsureDeleted();
             }
-            await Host.StopAsync();
-            Host.Dispose();
+            if (Host != null)
+            {
+                //await Host.StopAsync();
+                Host.Dispose();
+            }
         }
 
         private void Seed()
