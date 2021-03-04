@@ -83,7 +83,7 @@ namespace H2020.IPMDecisions.UPR.Tests
             }
         }
 
-        public async Task DisposeAsync()
+        public Task DisposeAsync()
         {
             using (var scope = Host.Services.CreateScope())
             {
@@ -96,6 +96,7 @@ namespace H2020.IPMDecisions.UPR.Tests
                 //await Host.StopAsync();
                 Host.Dispose();
             }
+            return Task.FromResult(true);
         }
 
         private void Seed()
