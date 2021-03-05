@@ -25,5 +25,27 @@ namespace H2020.IPMDecisions.UPR.BLL
                 return GenericResponseBuilder.NoSuccess<List<FieldCropPestDssDto>>(null, $"{ex.Message} InnerException: {innerMessage}");
             }
         }
+
+        public async Task<GenericResponse<FieldCropPestDssDto>> GetFieldCropPestDssById(Guid id, Guid userId)
+        {
+            try
+            {
+                var dss = await this.dataService.FieldCropPestDsses.FindByIdAsync(id);
+                if (dss == null) return GenericResponseBuilder.NotFound<FieldCropPestDssDto>();
+
+                var dssUserId = dss.FieldCropPest.FieldCrop.Field.Farm.UserFarms.FirstOrDefault().UserId;
+                if (userId != dssUserId) return GenericResponseBuilder.NotFound<FieldCropPestDssDto>();
+
+                var dataToReturn = this.mapper.Map<FieldCropPestDssDto>(dss);
+                return GenericResponseBuilder.Success<FieldCropPestDssDto>(dataToReturn);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(string.Format("Error in BLL - GetFieldCropPestDssById. {0}", ex.Message), ex);
+                String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
+                return GenericResponseBuilder.NoSuccess<FieldCropPestDssDto>(null, $"{ex.Message} InnerException: {innerMessage}");
+            }
+            throw new NotImplementedException();
+        }
     }
 }

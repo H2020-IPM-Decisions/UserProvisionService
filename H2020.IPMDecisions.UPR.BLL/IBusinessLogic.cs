@@ -101,6 +101,7 @@ namespace H2020.IPMDecisions.UPR.BLL
 
         #region User DSS
         Task<GenericResponse<List<FieldCropPestDssDto>>> GetAllUserFieldCropPestDss(Guid userId);
+        Task<GenericResponse<FieldCropPestDssDto>> GetFieldCropPestDssById(Guid id, Guid userId);
         #endregion
     }
 }

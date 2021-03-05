@@ -33,7 +33,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         /// This endpoint allows to create a FieldCropPestDss associated to a farm
         /// </summary>
         [Consumes(MediaTypeNames.Application.Json)]
-        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(FarmWithChildrenDto), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status409Conflict)]

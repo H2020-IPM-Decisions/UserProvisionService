@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Net.Mime;
 using System.Threading.Tasks;
 using H2020.IPMDecisions.UPR.API.Filters;
@@ -29,22 +30,46 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         }
 
         /// <summary>
-        /// Use this request to get the a user profile
+        /// Use this request to get the DSS related to a user
         /// </summary>
-        /// <remarks> UserId from query is only for administration purposes
+        /// <remarks>The user will be identified using the UserId on the authentification JWT.
         /// </remarks>
-        [ProducesResponseType(typeof(UserProfileDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(List<FieldCropPestDssDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [Produces(MediaTypeNames.Application.Json)]
         [HttpGet("", Name = "api.dss.get.all")]
         [HttpHead]
-        // GET:  api/users/profiles
+        // GET:  api/dss
         public async Task<IActionResult> Get()
         {
             var userId = Guid.Parse(HttpContext.Items["userId"].ToString());
 
             var response = await businessLogic.GetAllUserFieldCropPestDss(userId);
+            if (!response.IsSuccessful)
+                return BadRequest(new { message = response.ErrorMessage });
+
+            return Ok(response.Result);
+        }
+
+        /// <summary>
+        /// Use this request to get a DSS related to a user
+        /// </summary>
+        /// <remarks>The user will be identified using the UserId on the authentification JWT.
+        /// <para>The DSS must belong to the user</para>
+        /// </remarks>
+        [ProducesResponseType(typeof(FieldCropPestDssDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [Produces(MediaTypeNames.Application.Json)]
+        [HttpGet("{id:guid}", Name = "api.dss.get.byid")]
+        [HttpHead]
+        // GET:  api/dss/1
+        public async Task<IActionResult> GetById([FromRoute] Guid id)
+        {
+            var userId = Guid.Parse(HttpContext.Items["userId"].ToString());
+
+            var response = await businessLogic.GetFieldCropPestDssById(id, userId);
             if (!response.IsSuccessful)
                 return BadRequest(new { message = response.ErrorMessage });
 

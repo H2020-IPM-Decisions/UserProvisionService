@@ -121,6 +121,20 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
             return await this
                 .context
                 .FieldCropPestDss
+                .Include(fcpd => fcpd.CropPestDss)
+                .Include(fcpd => fcpd.FieldCropPest)
+                    .ThenInclude(fcp => fcp.FieldCrop)
+                    .ThenInclude(fc => fc.Field)
+                    .ThenInclude(fi => fi.Farm)
+                    .ThenInclude(f => f.FarmWeatherDataSources)
+                    .ThenInclude(fwd => fwd.WeatherDataSource)
+                .Include(fcpd => fcpd.FieldCropPest)
+                    .ThenInclude(fcp => fcp.CropPest)
+                .Include(fcpd => fcpd.FieldCropPest)
+                    .ThenInclude(fcp => fcp.FieldCrop)
+                    .ThenInclude(fc => fc.Field)
+                    .ThenInclude(fi => fi.Farm)
+                    .ThenInclude(f => f.UserFarms)
                 .Where(f =>
                     f.Id == id)
                 .FirstOrDefaultAsync();

@@ -4,9 +4,9 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using H2020.IPMDecisions.UPR.BLL.Providers;
-using H2020.IPMDecisions.UPR.Core.Models;
 using H2020.IPMDecisions.UPR.Data.Core;
 using Hangfire;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -21,20 +21,31 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
     {
         private readonly IDataService dataService;
         private readonly IMicroservicesInternalCommunicationHttpProvider internalCommunicationProvider;
+        private readonly ILogger<RunDssOnDatabase> logger;
         public RunDssOnDatabase(
             IDataService dataService,
-            IMicroservicesInternalCommunicationHttpProvider internalCommunicationProvider)
+            IMicroservicesInternalCommunicationHttpProvider internalCommunicationProvider,
+            ILogger<RunDssOnDatabase> logger)
         {
             this.dataService = dataService
                 ?? throw new ArgumentNullException(nameof(dataService));
             this.internalCommunicationProvider = internalCommunicationProvider
                 ?? throw new ArgumentNullException(nameof(internalCommunicationProvider));
+            this.logger = logger
+                ?? throw new ArgumentNullException(nameof(logger));
         }
 
         public void ExecuteOnTheFlyDss(IJobCancellationToken token)
         {
-            token.ThrowIfCancellationRequested();
-            Task.Run(() => RunAllDssOnDatabase(DateTime.Now)).Wait();
+            try
+            {
+                token.ThrowIfCancellationRequested();
+                Task.Run(() => RunAllDssOnDatabase(DateTime.Now)).Wait();
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(string.Format("Error in BLL - DeleteDataShareRequest. {0}", ex.Message));
+            }
         }
 
         private async Task RunAllDssOnDatabase(DateTime now)
@@ -73,12 +84,9 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
 
                 JObject jObject = JObject.Parse(dss.DssParameters.ToString());
                 jObject["weatherData"] = JObject.Parse(responseWeatherAsText.ToString());
-                var jObjects = jObject.ToString();
-                var x = JsonConvert.SerializeObject(jObjects);
-                var y = JsonConvert.SerializeObject(jObject);
 
                 var content = new StringContent(
-                     y,
+                     jObject.ToString(),
                      Encoding.UTF8, "application/json");
                 var response = await httpClient.PostAsync(dssInformation.EndPoint, content);
                 if (response.IsSuccessStatusCode)
