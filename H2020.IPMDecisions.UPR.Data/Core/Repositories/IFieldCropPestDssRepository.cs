@@ -12,5 +12,6 @@ namespace H2020.IPMDecisions.UPR.Data.Core.Repositories
     {
         Task<List<FieldCropPestDss>> FindAllAsync(Expression<Func<FieldCropPestDss, bool>> expression);
         Task<PagedList<FieldCropPestDss>> FindAllAsync(FieldCropPestDssResourceParameter resourceParameter, bool includeAssociatedData);
+        void AddDssResult(FieldCropPestDss entity, FieldDssResult dssResult);
     }
 }

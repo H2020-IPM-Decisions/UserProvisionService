@@ -1,3 +1,4 @@
+using System.Linq;
 using H2020.IPMDecisions.UPR.Core.Dtos;
 using H2020.IPMDecisions.UPR.Core.Entities;
 
@@ -10,7 +11,9 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
             // Entities to Dtos
             CreateMap<FieldCropPestDss, FieldCropPestDssDto>()
                 .ForMember(dest => dest.CropPestDssDto, opt => opt.MapFrom(src => src.CropPestDss))
-                .ForMember(dest => dest.FieldCropPest, opt => opt.MapFrom(src => src.FieldCropPest));
+                .ForMember(dest => dest.FieldCropPest, opt => opt.MapFrom(src => src.FieldCropPest))
+                .ForMember(dest => dest.DssResult, 
+                    opt => opt.MapFrom(src => src.FieldDssResults.OrderByDescending(r => r.CreationDate).FirstOrDefault()));
         }
     }
 }

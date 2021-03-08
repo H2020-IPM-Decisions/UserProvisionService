@@ -20,6 +20,11 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
             this.context = context;
         }
 
+        public void AddDssResult(FieldCropPestDss entity, FieldDssResult dssResult)
+        {
+            entity.FieldDssResults.Add(dssResult);
+        }
+
         public void Create(FieldCropPestDss entity)
         {
             this.context.Add(entity);
@@ -63,6 +68,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
                     .ThenInclude(fwd => fwd.WeatherDataSource)
                 .Include(fcpd => fcpd.FieldCropPest)
                     .ThenInclude(fcp => fcp.CropPest)
+                .Include(fcpd => fcpd.FieldDssResults)
                 .Where(expression)
             .ToListAsync();
         }
@@ -135,6 +141,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
                     .ThenInclude(fc => fc.Field)
                     .ThenInclude(fi => fi.Farm)
                     .ThenInclude(f => f.UserFarms)
+                .Include(fcpd => fcpd.FieldDssResults)
                 .Where(f =>
                     f.Id == id)
                 .FirstOrDefaultAsync();
