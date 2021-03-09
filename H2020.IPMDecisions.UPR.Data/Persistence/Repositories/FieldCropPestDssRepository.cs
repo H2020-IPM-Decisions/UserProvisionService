@@ -49,6 +49,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
                     .ThenInclude(fi => fi.Farm)
                     .ThenInclude(f => f.FarmWeatherDataSources)
                     .ThenInclude(fwd => fwd.WeatherDataSource)
+                .Include(fcpd => fcpd.FieldDssResults)
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
             .ToListAsync();

@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using H2020.IPMDecisions.UPR.BLL.Providers;
+using H2020.IPMDecisions.UPR.Core.Entities;
 using H2020.IPMDecisions.UPR.Data.Core;
 using Hangfire;
 using Microsoft.Extensions.Logging;
@@ -80,8 +81,6 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                     responseWeatherAsText = await responseWeather.Content.ReadAsStringAsync();
                 }
 
-                responseWeatherAsText = "{\r\n    \"timeStart\": \"2020-04-30T22:00:00Z\",\r\n    \"timeEnd\": \"2020-05-02T22:00:00Z\",\r\n    \"interval\": 86400,\r\n    \"weatherParameters\": [\r\n        1002\r\n    ],\r\n    \"locationWeatherData\": [\r\n        {\r\n            \"longitude\": 10.781989,\r\n            \"latitude\": 59.660468,\r\n            \"altitude\": 94.0,\r\n            \"data\": [\r\n                [\r\n                    5.7\r\n                ],\r\n                [\r\n                    8.2\r\n                ],\r\n                [\r\n                    8.5\r\n                ]\r\n            ],\r\n            \"length\": 3,\r\n            \"width\": 1\r\n        }\r\n    ]\r\n  }";
-
                 JObject jObject = JObject.Parse(dss.DssParameters.ToString());
                 jObject["weatherData"] = JObject.Parse(responseWeatherAsText.ToString());
 
@@ -92,8 +91,16 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 if (response.IsSuccessStatusCode)
                 {
                     var responseAsText = await response.Content.ReadAsStringAsync();
+
+                    var dssResult = new FieldDssResult()
+                    {
+                        CreationDate = DateTime.Now,
+                        Result = responseAsText
+                    };
+                    this.dataService.FieldCropPestDsses.AddDssResult(dss, dssResult);
                 }
             }
+            await this.dataService.CompleteAsync();
         }
     }
 }
