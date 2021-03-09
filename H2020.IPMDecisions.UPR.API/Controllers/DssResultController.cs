@@ -40,7 +40,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         [Produces(MediaTypeNames.Application.Json)]
         [HttpGet(Name = "api.dssresult.get.latest")]
         [HttpHead]
-        // GET:  api/dss/1/result
+        // GET: api/dss/1/result
         public async Task<IActionResult> GetLatest([FromRoute] Guid dssId)
         {
             var userId = Guid.Parse(HttpContext.Items["userId"].ToString());
@@ -66,8 +66,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         [ProducesResponseType(StatusCodes.Status409Conflict)]
         [Produces(MediaTypeNames.Application.Json)]
         [HttpPost(Name = "api.dssresult.post.result")]
-        [HttpHead]
-        // POST:  api/dss/1/result
+        // POST: api/dss/1/result
         public async Task<IActionResult> Post(
             [FromRoute] Guid dssId,
             [FromBody] FieldDssResultForCreationDto dssResultDto)

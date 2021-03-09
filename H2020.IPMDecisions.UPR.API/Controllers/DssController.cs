@@ -38,9 +38,9 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [Produces(MediaTypeNames.Application.Json)]
-        [HttpGet("", Name = "api.dss.get.all")]
+        [HttpGet(Name = "api.dss.get.all")]
         [HttpHead]
-        // GET:  api/dss
+        // GET: api/dss
         public async Task<IActionResult> Get()
         {
             var userId = Guid.Parse(HttpContext.Items["userId"].ToString());
@@ -63,8 +63,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [Produces(MediaTypeNames.Application.Json)]
         [HttpGet("{id:guid}", Name = "api.dss.get.byid")]
-        [HttpHead]
-        // GET:  api/dss/1
+        // GET: api/dss/1
         public async Task<IActionResult> GetById([FromRoute] Guid id)
         {
             var userId = Guid.Parse(HttpContext.Items["userId"].ToString());
