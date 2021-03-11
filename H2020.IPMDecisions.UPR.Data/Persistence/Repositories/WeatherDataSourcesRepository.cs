@@ -53,7 +53,6 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
             return await this.context
                 .WeatherDataSource
                 .Where(expression)
-                .Include(w => w.FarmWeatherDataSources)
                 .FirstOrDefaultAsync();
         }
 
@@ -62,15 +61,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
             return await this.context
                .WeatherDataSource.
                SingleOrDefaultAsync(w =>
-               w.Id == id.ToString());
-        }
-
-        public async Task<WeatherDataSource> FindByIdAsync(string id)
-        {
-            return await this.context
-               .WeatherDataSource.
-               SingleOrDefaultAsync(w =>
-               w.Id == id);
+               w.Id.ToString() == id.ToString());
         }
 
         public void Update(WeatherDataSource entity)

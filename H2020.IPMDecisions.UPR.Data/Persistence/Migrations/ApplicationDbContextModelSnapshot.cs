@@ -192,21 +192,6 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Migrations
                     b.ToTable("Farm");
                 });
 
-            modelBuilder.Entity("H2020.IPMDecisions.UPR.Core.Entities.FarmWeatherDataSource", b =>
-                {
-                    b.Property<Guid>("FarmId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("WeatherDataSourceId")
-                        .HasColumnType("text");
-
-                    b.HasKey("FarmId", "WeatherDataSourceId");
-
-                    b.HasIndex("WeatherDataSourceId");
-
-                    b.ToTable("FarmWeatherDataSource");
-                });
-
             modelBuilder.Entity("H2020.IPMDecisions.UPR.Core.Entities.FarmWeatherStation", b =>
                 {
                     b.Property<Guid>("FarmId")
@@ -399,10 +384,10 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Migrations
                     b.Property<Guid>("FieldId")
                         .HasColumnType("uuid");
 
-                    b.Property<string>("WeatherDataSourceId")
-                        .HasColumnType("text");
+                    b.Property<Guid>("WeatherDataSourceId")
+                        .HasColumnType("uuid");
 
-                    b.HasKey("FieldId", "WeatherDataSourceId");
+                    b.HasKey("FieldId");
 
                     b.HasIndex("WeatherDataSourceId");
 
@@ -645,28 +630,48 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Migrations
 
             modelBuilder.Entity("H2020.IPMDecisions.UPR.Core.Entities.WeatherDataSource", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("text");
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
 
-                    b.Property<byte[]>("FileData")
-                        .HasColumnType("bytea");
+                    b.Property<bool>("AuthenticationRequired")
+                        .HasColumnType("boolean");
 
-                    b.Property<string>("FileExtension")
-                        .HasColumnType("text");
+                    b.Property<string>("Credentials")
+                        .HasColumnType("jsonb");
 
-                    b.Property<string>("FileName")
-                        .HasColumnType("text");
+                    b.Property<Guid>("FarmId")
+                        .HasColumnType("uuid");
 
-                    b.Property<DateTime?>("FileUploadedOn")
-                        .HasColumnType("timestamp without time zone");
+                    b.Property<int>("Interval")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("IsForecast")
+                        .HasColumnType("boolean");
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("Parameters")
+                        .HasColumnType("text");
+
+                    b.Property<string>("StationId")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("TimeEnd")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<DateTime>("TimeStart")
+                        .HasColumnType("timestamp without time zone");
+
                     b.Property<string>("Url")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("FarmId");
 
                     b.ToTable("WeatherDataSource");
                 });
@@ -762,23 +767,6 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Migrations
                     b.HasOne("H2020.IPMDecisions.UPR.Core.Entities.UserProfile", "Requester")
                         .WithMany()
                         .HasForeignKey("RequesterId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("H2020.IPMDecisions.UPR.Core.Entities.FarmWeatherDataSource", b =>
-                {
-                    b.HasOne("H2020.IPMDecisions.UPR.Core.Entities.Farm", "Farm")
-                        .WithMany("FarmWeatherDataSources")
-                        .HasForeignKey("FarmId")
-                        .HasConstraintName("FK_FarmWeatherDataSource_Farm")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("H2020.IPMDecisions.UPR.Core.Entities.WeatherDataSource", "WeatherDataSource")
-                        .WithMany("FarmWeatherDataSources")
-                        .HasForeignKey("WeatherDataSourceId")
-                        .HasConstraintName("FK_FarmWeatherDataSource_WeatherDataSource")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -989,6 +977,16 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Migrations
                         .HasForeignKey("WidgetDescription")
                         .HasConstraintName("FK_UserWidget_Widget")
                         .HasPrincipalKey("Description")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("H2020.IPMDecisions.UPR.Core.Entities.WeatherDataSource", b =>
+                {
+                    b.HasOne("H2020.IPMDecisions.UPR.Core.Entities.Farm", "Farm")
+                        .WithMany("FarmWeatherDataSources")
+                        .HasForeignKey("FarmId")
+                        .HasConstraintName("FK_FarmWeatherDataSource_Farm")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

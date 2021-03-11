@@ -12,7 +12,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Configurations
                 new
                 {
                     fw.FieldId,
-                    fw.WeatherDataSourceId
+                    // fw.WeatherDataSourceId
                 });
 
             builder.HasOne<Field>(fw => fw.Field)

@@ -7,18 +7,12 @@ namespace H2020.IPMDecisions.UPR.BLL
     public partial class BusinessLogic : IBusinessLogic
     {
         #region Helpers
-        private async Task EnsureWeatherDataSourcesExists(WeatherDataSourceDto weatherDataSourceDto)
+        private WeatherDataSource EncodeWeatherDataSourcePassword(WeatherDataSourceForCreationDto weatherDataSourceDto)
         {
-            var weatherDataSourceExist = await this
-                                .dataService
-                                .WeatherDataSources
-                                .FindByIdAsync(weatherDataSourceDto.Id);
+            if (weatherDataSourceDto.AuthenticationRequired == false) return this.mapper.Map<WeatherDataSource>(weatherDataSourceDto);
 
-            if (weatherDataSourceExist == null)
-            {
-                var weatherDataSourceAsEntity = this.mapper.Map<WeatherDataSource>(weatherDataSourceDto);
-                this.dataService.WeatherDataSources.Create(weatherDataSourceAsEntity);
-            }
+            weatherDataSourceDto.Credentials.Password = _encryption.Encrypt(weatherDataSourceDto.Credentials.Password);
+            return this.mapper.Map<WeatherDataSource>(weatherDataSourceDto);
         }
 
         private async Task EnsureWeatherStationExists(WeatherStationDto weatherStationDto)

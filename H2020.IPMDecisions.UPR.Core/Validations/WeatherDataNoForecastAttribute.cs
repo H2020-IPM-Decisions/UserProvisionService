@@ -11,9 +11,9 @@ namespace H2020.IPMDecisions.UPR.Core.Validations
 
         protected override ValidationResult IsValid(object value, ValidationContext validationContext)
         {
-            WeatherDataSourceForCreationDto entity = (WeatherDataSourceForCreationDto)validationContext.ObjectInstance;
+            WeatherDataSourceForManipulationDto entity = (WeatherDataSourceForManipulationDto)validationContext.ObjectInstance;
 
-            if (entity.IsForecast == true) return ValidationResult.Success;
+            if (entity.IsForecast == true || entity.IsForecast == null) return ValidationResult.Success;
 
             if (value == null)
                 return new ValidationResult(string.Format("The {0} field is required when a no forecast weather data source is selected.", validationContext.DisplayName));

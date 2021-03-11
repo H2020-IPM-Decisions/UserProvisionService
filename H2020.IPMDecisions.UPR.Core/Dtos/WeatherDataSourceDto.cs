@@ -1,13 +1,19 @@
-using System.ComponentModel.DataAnnotations;
+using System;
 
 namespace H2020.IPMDecisions.UPR.Core.Dtos
 {
     public class WeatherDataSourceDto
     {
-        [Required]
-        public string Id { get; set; }
+        public Guid Id { get; set; }
         public string Name { get; set; }
-        [Required]
         public string Url { get; set; }
+        public bool IsForecast { get; set; }
+        public bool AuthenticationRequired { get; set; }
+        public string StationId { get; set; }
+        public int Interval { get; set; }
+        public DateTime TimeStart { get; set; }
+        public DateTime TimeEnd { get; set; }
+        public string Parameters { get; set; }
+        public string Credentials { get; set; }
     }
 }

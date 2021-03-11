@@ -13,7 +13,6 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence
         public DbSet<DataSharingRequest> DataSharingRequest { get; set; }
         public DbSet<DataSharingRequestStatus> DataSharingRequestStatus { get; set; }
         public DbSet<Farm> Farm { get; set; }
-        public DbSet<FarmWeatherDataSource> FarmWeatherDataSource { get; set; }
         public DbSet<FarmWeatherStation> FarmWeatherStation { get; set; }
         public DbSet<Field> Field { get; set; }
         public DbSet<FieldDssResult> FieldDssResult { get; set; }
@@ -51,7 +50,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence
             modelBuilder.ApplyConfiguration(new DataSharingRequestConfiguration());
             modelBuilder.ApplyConfiguration(new DataSharingRequestStatusConfiguration());
             modelBuilder.ApplyConfiguration(new FarmConfiguration());
-            modelBuilder.ApplyConfiguration(new FarmWeatherDataSourceConfiguration());
+            // modelBuilder.ApplyConfiguration(new FarmWeatherDataSourceConfiguration());
             modelBuilder.ApplyConfiguration(new FarmWeatherStationConfiguration());
             modelBuilder.ApplyConfiguration(new FieldConfiguration());
             modelBuilder.ApplyConfiguration(new FieldDssResultConfiguration());
@@ -70,6 +69,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence
             modelBuilder.ApplyConfiguration(new UserWidgetConfiguration());
             modelBuilder.ApplyConfiguration(new UserProfileConfiguration());
             modelBuilder.ApplyConfiguration(new UserAddressConfiguration());
+            modelBuilder.ApplyConfiguration(new WeatherDataSourceConfiguration());
             modelBuilder.ApplyConfiguration(new WidgetConfiguration());
 
             modelBuilder.Seed();

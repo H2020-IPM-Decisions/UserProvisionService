@@ -6,7 +6,7 @@ namespace H2020.IPMDecisions.UPR.Core.Entities
     {
         public Guid FieldId { get; set; }
         public Field Field { get; set; }
-        public string WeatherDataSourceId { get; set; }
+        public Guid WeatherDataSourceId { get; set; }
         public WeatherDataSource WeatherDataSource { get; set; }
     }
 }

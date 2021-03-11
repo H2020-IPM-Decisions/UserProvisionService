@@ -11,9 +11,9 @@ namespace H2020.IPMDecisions.UPR.Core.Validations
 
         protected override ValidationResult IsValid(object value, ValidationContext validationContext)
         {
-            WeatherDataSourceForCreationDto entity = (WeatherDataSourceForCreationDto)validationContext.ObjectInstance;
+            WeatherDataSourceForManipulationDto entity = (WeatherDataSourceForManipulationDto)validationContext.ObjectInstance;
 
-            if (entity.AuthenticationRequired == false) return ValidationResult.Success;
+            if (entity.AuthenticationRequired == false || entity.AuthenticationRequired == null) return ValidationResult.Success;
 
             if (value == null)
                 return new ValidationResult(string.Format("The {0} field is required when a weather data source with authentication access is required.", validationContext.DisplayName));

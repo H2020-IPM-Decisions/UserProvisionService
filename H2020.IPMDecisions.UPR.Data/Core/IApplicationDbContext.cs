@@ -10,7 +10,6 @@ namespace H2020.IPMDecisions.UPR.Core
         DbSet<DataSharingRequest> DataSharingRequest { get; set; }
         DbSet<DataSharingRequestStatus> DataSharingRequestStatus { get; set; }
         DbSet<Farm> Farm { get; set; }
-        DbSet<FarmWeatherDataSource> FarmWeatherDataSource { get; set; }
         DbSet<FarmWeatherStation> FarmWeatherStation { get; set; }
         DbSet<Field> Field { get; set; }
         DbSet<FieldDssResult> FieldDssResult { get; set; }

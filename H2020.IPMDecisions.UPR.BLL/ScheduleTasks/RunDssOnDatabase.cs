@@ -70,7 +70,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 HttpClient httpClient = new HttpClient();
 
                 var farm = dss.FieldCropPest.FieldCrop.Field.Farm;
-                var dataSource = farm.FarmWeatherDataSources.FirstOrDefault().WeatherDataSource.Url;
+                var dataSource = farm.FarmWeatherDataSources.FirstOrDefault().Url;
                 var weatherUrl = string.Format("{0}?longitude={1}&latitude={2}",
                     dataSource, farm.Location.Coordinate.X.ToString(), farm.Location.Coordinate.Y.ToString());
                 var responseWeather = await httpClient.GetAsync(weatherUrl);

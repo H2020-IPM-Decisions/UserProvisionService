@@ -71,8 +71,9 @@ namespace H2020.IPMDecisions.UPR.API
             });
 
             services.ConfigurePostgresContext(Configuration);
-            // services.ConfigureHangfire(Configuration);
+            services.ConfigureHangfire(Configuration);
             services.ConfigureSwagger();
+            services.AddDataProtection();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -122,17 +123,17 @@ namespace H2020.IPMDecisions.UPR.API
             var dashboardOptions = new DashboardOptions();
             if (!CurrentEnvironment.IsDevelopment())
             {
-                dashboardOptions.Authorization = new[] { new IsAdminFilter() };
+                // dashboardOptions.Authorization = new[] { new IsAdminFilter() };
                 dashboardOptions.IsReadOnlyFunc = (DashboardContext context) => true;
             }
 
-            // app.UseHangfireDashboard($"/{apiBasePath}dashboard", dashboardOptions);
-            // HangfireJobScheduler.ScheduleRecurringJobs();
+            app.UseHangfireDashboard($"/{apiBasePath}dashboard", dashboardOptions);
+            HangfireJobScheduler.ScheduleRecurringJobs();
 
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
-                // endpoints.MapHangfireDashboard();
+                endpoints.MapHangfireDashboard();
             });
 
             applicationLifetime.ApplicationStopping.Register(OnShutdown);
