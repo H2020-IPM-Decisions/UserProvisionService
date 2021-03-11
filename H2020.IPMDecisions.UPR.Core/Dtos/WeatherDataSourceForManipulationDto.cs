@@ -14,7 +14,7 @@ namespace H2020.IPMDecisions.UPR.Core.Dtos
         public string StationId { get; set; }
 
         [NotWeatherForecastAttribute]
-        public int Interval { get; set; }
+        public int? Interval { get; set; }
 
         [NotWeatherForecastAttribute]
         public DateTime? TimeStart { get; set; }

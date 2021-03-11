@@ -55,7 +55,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         }
 
         /// <summary>Use this endpoint to get the fields that are associated with a farm.</summary>
-        /// <remark>To receive associated data or HATEOAS links change the 'Accept' header.</remark>
+        /// <remarks>To receive associated data or HATEOAS links change the 'Accept' header.</remarks>
         [ProducesResponseType(typeof(IEnumerable<FieldWithChildrenDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -87,7 +87,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         }
 
         /// <summary>Use this endpoint to get an unique field that is associated with a farm.</summary>
-        /// <remark>To receive associated data or HATEOAS links change the 'Accept' header</remark>
+        /// <remarks>To receive associated data or HATEOAS links change the 'Accept' header</remarks>
         [ProducesResponseType(typeof(FieldWithChildrenDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -111,7 +111,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         }
 
         /// <summary>Use this end point to add a new field to a farm.</summary>
-        /// <remark>To receive associated data or HATEOAS links change the 'Accept' header</remark>
+        /// <remarks>To receive associated data or HATEOAS links change the 'Accept' header</remarks>
         [Consumes(MediaTypeNames.Application.Json)]
         [ProducesResponseType(typeof(FieldDto), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
