@@ -86,8 +86,10 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
                 });
 
             CreateMap<FarmForUpdateDto, Farm>()
-                .BeforeMap((src, dest) =>
+                .BeforeMap((src, dest, context) =>
                 {
+                    // Only select first Weather Station or Weather Data Source, because current requirements only accepts  
+                    // one per farm.This might change in the future
                     dest.FarmWeatherStations = new List<FarmWeatherStation>()
                     {
                         new FarmWeatherStation()
@@ -96,7 +98,6 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
                             WeatherStationId = src.WeatherStationDto.Id
                         }
                     };
-                    dest.FarmWeatherDataSources = new List<WeatherDataSource>();
                 })
                 .AfterMap((src, dest) =>
                 {

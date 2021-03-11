@@ -292,11 +292,11 @@ namespace H2020.IPMDecisions.UPR.BLL
         {
             try
             {
-                // if (!farm.FarmWeatherDataSources.Any() ||
-                //     (farmToPatch.WeatherDataSourceDto.Id != farm.FarmWeatherDataSources.FirstOrDefault().Id))
-                // {
-                //     // await EnsureWeatherDataSourcesExists(farmToPatch.WeatherDataSourceDto);
-                // }
+                if (farm.FarmWeatherDataSources.Count != 0)
+                {
+                    var weatherDataSource = EncodeWeatherDataSourcePassword(farmToPatch.WeatherDataSourceDto);
+                    this.mapper.Map(farmToPatch.WeatherDataSourceDto, farm.FarmWeatherDataSources.FirstOrDefault());
+                }
                 if (!farm.FarmWeatherStations.Any() ||
                     (farmToPatch.WeatherStationDto.Id != farm.FarmWeatherStations.FirstOrDefault().WeatherStationId))
                 {
