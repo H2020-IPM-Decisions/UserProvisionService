@@ -152,7 +152,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [HttpPatch("{farmId:guid}", Name = "api.farm.patch.farmbyid")]
-        [SwaggerRequestExample(typeof(Operation), typeof(JsonPatchFarmRequestExample))]
+        [SwaggerRequestExample(typeof(Operation[]), typeof(JsonPatchFarmRequestExample))]
         //PATCH: api/farms/1
         public async Task<IActionResult> PartialUpdate(
             [FromRoute] Guid farmId,

@@ -9,6 +9,9 @@ using H2020.IPMDecisions.UPR.Core.Dtos;
 using H2020.IPMDecisions.UPR.API.Filters;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Swashbuckle.AspNetCore.Filters;
+using H2020.IPMDecisions.UPR.Core.PatchOperationExamples;
+using Microsoft.AspNetCore.JsonPatch.Operations;
 
 namespace H2020.IPMDecisions.UPR.API.Controllers
 {
@@ -70,7 +73,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         /// </summary>
         /// <remarks> UserId from query is only for administration purposes
         /// </remarks>
-        [ProducesResponseType(typeof(UserProfileDto),StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(UserProfileDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [Produces(MediaTypeNames.Application.Json,
@@ -131,6 +134,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [HttpPatch(Name = "api.userprofile.patch.profilebyid")]
+        [SwaggerRequestExample(typeof(Operation[]), typeof(JsonPatchUserProfileRequestExample))]
         //PATCH :  api/users/1/profiles
         public async Task<IActionResult> PartialUpdate(
             [FromQuery] Guid userId,

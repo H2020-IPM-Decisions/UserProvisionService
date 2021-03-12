@@ -160,6 +160,9 @@ namespace H2020.IPMDecisions.APG.API.Extensions
 
             services.AddSwaggerGenNewtonsoftSupport();
             services.AddSwaggerExamplesFromAssemblyOf<JsonPatchFieldRequestExample>();
+            services.AddSwaggerExamplesFromAssemblyOf<JsonPatchFarmRequestExample>();
+            services.AddSwaggerExamplesFromAssemblyOf<JsonPatchUserWidgetRequestExample>();
+            services.AddSwaggerExamplesFromAssemblyOf<JsonPatchUserProfileRequestExample>();
         }
 
         internal static void ConfigureKestrelWebServer(this IServiceCollection services, IConfiguration config)

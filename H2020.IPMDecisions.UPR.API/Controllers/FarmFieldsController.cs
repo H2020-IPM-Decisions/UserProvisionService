@@ -155,7 +155,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [HttpPatch("{id:guid}", Name = "api.field.patch.fieldbyid")]
-        [SwaggerRequestExample(typeof(Operation), typeof(JsonPatchFieldRequestExample))]
+        [SwaggerRequestExample(typeof(Operation[]), typeof(JsonPatchFieldRequestExample))]
         //PATCH: api/farms/1/fields/1
         public async Task<IActionResult> PartialUpdate(
             [FromRoute] Guid farmId, Guid id,

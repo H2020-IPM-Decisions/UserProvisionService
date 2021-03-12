@@ -63,7 +63,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [HttpPatch(Name = "api.userwidget.patch.profilebyid")]
-        [SwaggerRequestExample(typeof(Operation), typeof(JsonPatchUserWidgetRequestExample))]
+        [SwaggerRequestExample(typeof(Operation[]), typeof(JsonPatchUserWidgetRequestExample))]
         //PATCH :  api/users/widgets
         public async Task<IActionResult> PartialUpdate(
             JsonPatchDocument<UserWidgetForUpdateDto> patchDocument)
