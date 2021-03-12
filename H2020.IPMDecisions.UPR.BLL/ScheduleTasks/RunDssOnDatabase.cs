@@ -45,7 +45,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             }
             catch (Exception ex)
             {
-                logger.LogError(string.Format("Error in BLL - DeleteDataShareRequest. {0}", ex.Message));
+                logger.LogError(string.Format("Error in BLL - Error executing On the Fly DSS. {0}", ex.Message));
             }
         }
 

@@ -20,7 +20,7 @@ namespace H2020.IPMDecisions.UPR.BLL
         private readonly ILogger<BusinessLogic> logger;
         private readonly IMicroservicesInternalCommunicationHttpProvider internalCommunicationProvider;
         private readonly IDataProtectionProvider dataProtectionProvider;
-        private Encryption _encryption;
+        private EncryptionHelper _encryption;
 
         public BusinessLogic(
             IMapper mapper,
@@ -49,7 +49,7 @@ namespace H2020.IPMDecisions.UPR.BLL
             this.dataProtectionProvider = dataProtectionProvider
                 ?? throw new ArgumentNullException(nameof(dataProtectionProvider));
 
-            _encryption = new Encryption(dataProtectionProvider);
+            _encryption = new EncryptionHelper(dataProtectionProvider);
         }
     }
 }

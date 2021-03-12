@@ -2,13 +2,13 @@ using Microsoft.AspNetCore.DataProtection;
 
 namespace H2020.IPMDecisions.UPR.BLL.Helpers
 {
-    public class Encryption
+    public class EncryptionHelper
     {
         private readonly IDataProtector _protector;
 
-        public Encryption(IDataProtectionProvider provider)
+        public EncryptionHelper(IDataProtectionProvider provider)
         {
-            _protector = provider.CreateProtector(nameof(Encryption));
+            _protector = provider.CreateProtector(nameof(EncryptionHelper));
         }
 
         public string Encrypt(string input)
