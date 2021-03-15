@@ -237,7 +237,7 @@ namespace H2020.IPMDecisions.APG.API.Extensions
                     config.GetConnectionString("MyPostgreSQLConnection"),
                     new PostgreSqlStorageOptions
                     {
-                        PrepareSchemaIfNecessary = true,
+                        PrepareSchemaIfNecessary = false,
                         QueuePollInterval = new TimeSpan(0, 1, 0),
                     }
                 ));

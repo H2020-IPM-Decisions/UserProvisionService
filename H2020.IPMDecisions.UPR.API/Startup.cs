@@ -123,7 +123,7 @@ namespace H2020.IPMDecisions.UPR.API
             var dashboardOptions = new DashboardOptions();
             if (!CurrentEnvironment.IsDevelopment())
             {
-                // dashboardOptions.Authorization = new[] { new IsAdminFilter() };
+                dashboardOptions.Authorization = new[] { new IsAdminFilter() };
                 dashboardOptions.IsReadOnlyFunc = (DashboardContext context) => true;
             }
 
