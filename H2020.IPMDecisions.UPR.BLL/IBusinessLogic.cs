@@ -38,7 +38,7 @@ namespace H2020.IPMDecisions.UPR.BLL
         Task<GenericResponse<ShapedDataWithLinks>> GetFarms(Guid userId, FarmResourceParameter resourceParameter, string mediaType);
         FarmForCreationDto MapToFarmForCreation(FarmForUpdateDto farmDto);
         FarmForUpdateDto MapToFarmForUpdateDto(Farm farm);
-        Task<GenericResponse> UpdateFarm(Farm farm, FarmForUpdateDto farmToPatch);
+        Task<GenericResponse> UpdateFarm(Farm farm, FarmForUpdateDto farmToPatch, JsonPatchDocument<FarmForUpdateDto> patchDocument);
         #endregion
 
         #region FarmDss

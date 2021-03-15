@@ -36,7 +36,6 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
                     if (string.IsNullOrEmpty(src.Credentials) || src.Credentials == "null") return credentialsNoPassword;
 
                     var credentialsAsObject = JsonSerializer.Deserialize<WeatherCredentials>(src.Credentials);
-                    credentialsAsObject.Password = "*******";
                     return credentialsAsObject;
                 }));
 

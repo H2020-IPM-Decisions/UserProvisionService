@@ -165,7 +165,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
             if (!TryValidateModel(farmToPatch))
                 return ValidationProblem(ModelState);
 
-            var response = await this.businessLogic.UpdateFarm(farm, farmToPatch);
+            var response = await this.businessLogic.UpdateFarm(farm, farmToPatch, patchDocument);
             if (!response.IsSuccessful)
                 return BadRequest(new { message = response.ErrorMessage });
 

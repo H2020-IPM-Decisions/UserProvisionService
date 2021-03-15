@@ -6,6 +6,7 @@ using H2020.IPMDecisions.UPR.Core.Helpers;
 using H2020.IPMDecisions.UPR.Core.Models;
 using H2020.IPMDecisions.UPR.Core.ResourceParameters;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
 using System;
@@ -84,7 +85,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                 await EnsureWeatherStationExists(farmForCreationDto.WeatherStationDto);
                 var farmAsEntity = this.mapper.Map<Farm>(farmForCreationDto);
 
-                var weatherDataSource = EncodeWeatherDataSourcePassword(farmForCreationDto.WeatherDataSourceDto);
+                var weatherDataSource = EncodeNewWeatherDataSourcePassword(farmForCreationDto.WeatherDataSourceDto);
                 farmAsEntity.FarmWeatherDataSources.Add(weatherDataSource);
 
                 await this.dataService.UserProfiles.AddFarm(userProfile.Result, farmAsEntity, UserFarmTypeEnum.Owner, false);
@@ -288,13 +289,16 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
         }
 
-        public async Task<GenericResponse> UpdateFarm(Farm farm, FarmForUpdateDto farmToPatch)
+        public async Task<GenericResponse> UpdateFarm(Farm farm, FarmForUpdateDto farmToPatch, JsonPatchDocument<FarmForUpdateDto> patchDocument)
         {
             try
             {
                 if (farm.FarmWeatherDataSources.Count != 0)
                 {
-                    var weatherDataSource = EncodeWeatherDataSourcePassword(farmToPatch.WeatherDataSourceDto);
+                    if (patchDocument.Operations.Any(o => o.path.ToLower().Contains("weatherdatasourcedto/credentials")))
+                    {
+                        var weatherDataSource = EncodeNewWeatherDataSourcePassword(farmToPatch.WeatherDataSourceDto);
+                    }
                     this.mapper.Map(farmToPatch.WeatherDataSourceDto, farm.FarmWeatherDataSources.FirstOrDefault());
                 }
                 if (!farm.FarmWeatherStations.Any() ||
