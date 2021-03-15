@@ -11,9 +11,17 @@ using Microsoft.AspNetCore.JsonPatch;
 using H2020.IPMDecisions.UPR.Core.ResourceParameters;
 using H2020.IPMDecisions.UPR.API.Filters;
 using System.Text.Json;
+using System.Collections.Generic;
+using H2020.IPMDecisions.UPR.Core.PatchOperationExamples;
+using Swashbuckle.AspNetCore.Filters;
+using Microsoft.AspNetCore.JsonPatch.Operations;
 
 namespace H2020.IPMDecisions.UPR.API.Controllers
 {
+    /// <summary>
+    /// These endpoints allows to manage Fields associated to a farm.
+    /// <para>The FarmId on the URL must be associated to the UserId of the Authorization JWT.</para>
+    /// </summary>
     [ApiController]
     [Route("api/farms/{farmId:guid}/fields")]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
@@ -28,6 +36,9 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
                 ?? throw new System.ArgumentNullException(nameof(businessLogic));
         }
 
+        /// <summary>Deletes a field by <paramref name="id"/></summary>
+        /// <param name="farmId">GUID with the farm Id.</param>
+        /// <param name="id">GUID with field Id.</param>
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [HttpDelete("{id:guid}", Name = "api.field.delete.fieldbyid")]
@@ -43,7 +54,9 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
             return NoContent();
         }
 
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        /// <summary>Use this endpoint to get the fields that are associated with a farm.</summary>
+        /// <remarks>To receive associated data or HATEOAS links change the 'Accept' header.</remarks>
+        [ProducesResponseType(typeof(IEnumerable<FieldWithChildrenDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [Produces(MediaTypeNames.Application.Json,
@@ -73,7 +86,9 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
             });
         }
 
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        /// <summary>Use this endpoint to get an unique field that is associated with a farm.</summary>
+        /// <remarks>To receive associated data or HATEOAS links change the 'Accept' header</remarks>
+        [ProducesResponseType(typeof(FieldWithChildrenDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [Produces(MediaTypeNames.Application.Json,
@@ -95,8 +110,10 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
             return Ok(response.Result);
         }
 
+        /// <summary>Use this end point to add a new field to a farm.</summary>
+        /// <remarks>To receive associated data or HATEOAS links change the 'Accept' header</remarks>
         [Consumes(MediaTypeNames.Application.Json)]
-        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(FieldDto), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [Produces(MediaTypeNames.Application.Json,
@@ -125,18 +142,26 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
                 response.Result);
         }
 
+        /// <summary>Use this endpoint to make a partial update of a field.</summary>
+        /// <remarks>Any property for a field will be updated as usual PATCH conventions. Only the FieldCropPestDto parameter are manage different as the update needs to identify exactly the record.
+        /// For this reason the FieldCropPest expects the ID on the path instead the array location as explained on PATCH conventions.
+        /// Please see examples below:
+        /// <para>To remove a record: use the "remove" operation and include the fieldCropPestId on the path parameter "/fieldCropDto/fieldCropPestDto/{fieldCropPestId}</para>
+        /// <para>To create a new record: use the "add" operation and a pest EPPO code on the value parameter. Use the path parameter without and id "/fieldCropDto/fieldCropPestDto"</para>
+        /// <para>To replace a record: use the "replace" operation. Include the fieldCropPestId on the path parameter,"/fieldCropDto/fieldCropPestDto/{fieldCropPestId}, and a pest EPPO code on the value parameter.</para>
+        /// <para>For an example payload, please see the 'Request body' section.</para>
+        /// </remarks>
         [Consumes("application/json-patch+json")]
-        [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [HttpPatch("{id:guid}", Name = "api.field.patch.fieldbyid")]
+        [SwaggerRequestExample(typeof(Operation[]), typeof(JsonPatchFieldRequestExample))]
         //PATCH: api/farms/1/fields/1
         public async Task<IActionResult> PartialUpdate(
             [FromRoute] Guid farmId, Guid id,
             JsonPatchDocument<FieldForUpdateDto> patchDocument)
         {
             var fieldResponse = await this.businessLogic.GetField(id, HttpContext);
-
             if (!fieldResponse.IsSuccessful)
                 return fieldResponse.RequestResult;
 
@@ -150,6 +175,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
             return NoContent();
         }
 
+        /// <summary>Requests permitted on this URL</summary>
         [ProducesResponseType(StatusCodes.Status200OK)]
         [HttpOptions]
         //OPTIONS: api/farms/1/fields

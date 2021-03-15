@@ -83,7 +83,7 @@ namespace H2020.IPMDecisions.UPR.Tests
             }
         }
 
-        public async Task DisposeAsync()
+        public Task DisposeAsync()
         {
             using (var scope = Host.Services.CreateScope())
             {
@@ -91,8 +91,12 @@ namespace H2020.IPMDecisions.UPR.Tests
                 _context = services.GetService<ApplicationDbContext>();
                 _context.Database.EnsureDeleted();
             }
-            await Host.StopAsync();
-            Host.Dispose();
+            if (Host != null)
+            {
+                //await Host.StopAsync();
+                Host.Dispose();
+            }
+            return Task.FromResult(true);
         }
 
         private void Seed()

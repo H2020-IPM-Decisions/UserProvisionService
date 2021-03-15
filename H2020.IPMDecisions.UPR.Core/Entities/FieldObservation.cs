@@ -9,7 +9,6 @@ namespace H2020.IPMDecisions.UPR.Core.Entities
     {
         [Key]
         public Guid Id { get; set; }
-        [Required]
         public Point Location { get; set; }
         [Required]
         public DateTime Time { get; set; }

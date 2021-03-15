@@ -19,6 +19,8 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
 
         public void Create(CropPest entity)
         {
+            entity.CropEppoCode = entity.CropEppoCode.ToUpper();
+            entity.PestEppoCode = entity.PestEppoCode.ToUpper();
             this.context.Add(entity);
         }
 

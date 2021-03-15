@@ -10,13 +10,15 @@ namespace H2020.IPMDecisions.UPR.Core
         DbSet<DataSharingRequest> DataSharingRequest { get; set; }
         DbSet<DataSharingRequestStatus> DataSharingRequestStatus { get; set; }
         DbSet<Farm> Farm { get; set; }
-        DbSet<FarmWeatherDataSource> FarmWeatherDataSource { get; set; }
         DbSet<FarmWeatherStation> FarmWeatherStation { get; set; }
         DbSet<Field> Field { get; set; }
+        DbSet<FieldDssResult> FieldDssResult { get; set; }
         DbSet<FieldObservation> FieldObservation { get; set; }
         DbSet<FieldCropPest> FieldCropPest { get; set; }
         DbSet<FieldCropPestDss> FieldCropPestDss { get; set; }
         DbSet<FieldSprayApplication> FieldSprayApplication { get; set; }
+        DbSet<FieldWeatherDataSource> FieldWeatherDataSource { get; set; }
+        DbSet<FieldWeatherStation> FieldWeatherStation { get; set; }
         DbSet<ForecastAlert> ForecastAlert { get; set; }
         DbSet<ForecastResult> ForecastResult { get; set; }
         DbSet<ObservationAlert> ObservationAlert { get; set; }

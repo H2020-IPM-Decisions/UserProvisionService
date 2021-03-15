@@ -5,6 +5,7 @@ using H2020.IPMDecisions.UPR.BLL.Providers;
 using H2020.IPMDecisions.UPR.Core.Dtos;
 using H2020.IPMDecisions.UPR.Core.Services;
 using H2020.IPMDecisions.UPR.Data.Core;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -19,21 +20,23 @@ namespace H2020.IPMDecisions.UPR.Tests.UnitTests
         {
             // Arrange
             Mock<IMapper> mockMapper = new Mock<IMapper>();
-            Mock<IDataService> mockDataService = new Mock<IDataService>();        
+            Mock<IDataService> mockDataService = new Mock<IDataService>();
             Mock<IUrlHelper> mockUrl = new Mock<IUrlHelper>();
             Mock<IPropertyCheckerService> mockPropertyCheckerService = new Mock<IPropertyCheckerService>();
             Mock<IPropertyMappingService> mockPropertyMappingService = new Mock<IPropertyMappingService>();
             Mock<ILogger<BusinessLogic>> mockLoggerService = new Mock<ILogger<BusinessLogic>>();
-            Mock<IMicroservicesInternalCommunicationHttpProvider> mockHttpProvider = new Mock<IMicroservicesInternalCommunicationHttpProvider>();          
+            Mock<IMicroservicesInternalCommunicationHttpProvider> mockHttpProvider = new Mock<IMicroservicesInternalCommunicationHttpProvider>();
+            Mock<IDataProtectionProvider> mockDataProtectionProvider = new Mock<IDataProtectionProvider>();
 
             var bll = new BusinessLogic(
-                mockMapper.Object, 
-                mockDataService.Object, 
-                mockUrl.Object, 
+                mockMapper.Object,
+                mockDataService.Object,
+                mockUrl.Object,
                 mockPropertyCheckerService.Object,
                 mockPropertyMappingService.Object,
                 mockLoggerService.Object,
-                mockHttpProvider.Object);
+                mockHttpProvider.Object,
+                mockDataProtectionProvider.Object);
 
             UserProfileForCreationDto user = new UserProfileForCreationDto();
             // Act

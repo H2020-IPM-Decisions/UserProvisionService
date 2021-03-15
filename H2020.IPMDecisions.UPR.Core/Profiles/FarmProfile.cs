@@ -20,7 +20,7 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
                         dest.WeatherDataSourceDto = context
                             .Mapper
                             .Map<WeatherDataSourceDto>(
-                                src.FarmWeatherDataSources.FirstOrDefault().WeatherDataSource);
+                                src.FarmWeatherDataSources.FirstOrDefault());
 
                     if (src.FarmWeatherStations.Any())
                         dest.WeatherStationDto = context
@@ -39,7 +39,7 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
                         dest.WeatherDataSourceDto = context
                         .Mapper
                         .Map<WeatherDataSourceDto>(
-                            src.FarmWeatherDataSources.FirstOrDefault().WeatherDataSource);
+                            src.FarmWeatherDataSources.FirstOrDefault());
 
                     if (src.FarmWeatherStations.Any())
                         dest.WeatherStationDto = context
@@ -51,19 +51,19 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
             CreateMap<Farm, FarmForUpdateDto>()
                 .AfterMap((src, dest, context) =>
                {
-                    // Only select first Weather Station or Weather Data Source, because current requirements only accepts  
-                    // one per farm. This might change in the future
-                    if (src.FarmWeatherDataSources.Any())
-                        dest.WeatherDataSourceDto = context
-                        .Mapper
-                        .Map<WeatherDataSourceDto>(
-                            src.FarmWeatherDataSources.FirstOrDefault().WeatherDataSource);
-                   
-                    if (src.FarmWeatherStations.Any())
-                        dest.WeatherStationDto = context
+                   // Only select first Weather Station or Weather Data Source, because current requirements only accepts  
+                   // one per farm.This might change in the future
+                   if (src.FarmWeatherDataSources.Any())
+                       dest.WeatherDataSourceDto = context
                        .Mapper
-                       .Map<WeatherStationDto>(
-                           src.FarmWeatherStations.FirstOrDefault().WeatherStation);
+                       .Map<WeatherDataSourceForUpdateDto>(
+                           src.FarmWeatherDataSources.FirstOrDefault());
+
+                   if (src.FarmWeatherStations.Any())
+                       dest.WeatherStationDto = context
+                      .Mapper
+                      .Map<WeatherStationDto>(
+                          src.FarmWeatherStations.FirstOrDefault().WeatherStation);
                }); ;
 
             // Dtos to Entities
@@ -78,14 +78,7 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
                             WeatherStationId = src.WeatherStationDto.Id
                         }
                     };
-                    dest.FarmWeatherDataSources = new List<FarmWeatherDataSource>()
-                    {
-                        new FarmWeatherDataSource()
-                        {
-                            Farm = dest,
-                            WeatherDataSourceId = src.WeatherDataSourceDto.Id
-                        }
-                    };
+                    dest.FarmWeatherDataSources = new List<WeatherDataSource>();
                 })
                 .AfterMap((src, dest) =>
                 {
@@ -93,22 +86,16 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
                 });
 
             CreateMap<FarmForUpdateDto, Farm>()
-                .BeforeMap((src, dest) =>
+                .BeforeMap((src, dest, context) =>
                 {
+                    // Only select first Weather Station or Weather Data Source, because current requirements only accepts  
+                    // one per farm.This might change in the future
                     dest.FarmWeatherStations = new List<FarmWeatherStation>()
                     {
                         new FarmWeatherStation()
                         {
                             Farm = dest,
                             WeatherStationId = src.WeatherStationDto.Id
-                        }
-                    };
-                    dest.FarmWeatherDataSources = new List<FarmWeatherDataSource>()
-                    {
-                        new FarmWeatherDataSource()
-                        {
-                            Farm = dest,
-                            WeatherDataSourceId = src.WeatherDataSourceDto.Id
                         }
                     };
                 })

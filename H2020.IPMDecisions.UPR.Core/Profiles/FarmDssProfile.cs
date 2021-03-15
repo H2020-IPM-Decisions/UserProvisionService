@@ -18,7 +18,7 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
                         dest.WeatherDataSourceDto = context
                             .Mapper
                             .Map<WeatherDataSourceDto>(
-                                src.FarmWeatherDataSources.FirstOrDefault().WeatherDataSource);
+                                src.FarmWeatherDataSources.FirstOrDefault());
 
                     if (src.FarmWeatherStations.Any())
                         dest.WeatherStationDto = context

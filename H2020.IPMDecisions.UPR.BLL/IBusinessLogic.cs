@@ -38,7 +38,7 @@ namespace H2020.IPMDecisions.UPR.BLL
         Task<GenericResponse<ShapedDataWithLinks>> GetFarms(Guid userId, FarmResourceParameter resourceParameter, string mediaType);
         FarmForCreationDto MapToFarmForCreation(FarmForUpdateDto farmDto);
         FarmForUpdateDto MapToFarmForUpdateDto(Farm farm);
-        Task<GenericResponse> UpdateFarm(Farm farm, FarmForUpdateDto farmToPatch);
+        Task<GenericResponse> UpdateFarm(Farm farm, FarmForUpdateDto farmToPatch, JsonPatchDocument<FarmForUpdateDto> patchDocument);
         #endregion
 
         #region FarmDss
@@ -74,7 +74,6 @@ namespace H2020.IPMDecisions.UPR.BLL
         #region  UserProfile
         Task<GenericResponse<IDictionary<string, object>>> AddNewUserProfile(Guid userId, UserProfileForCreationDto userProfileForCreation, string mediaType);
         Task<GenericResponse<UserProfileDto>> AddNewUserProfile(Guid userId, UserProfileForCreationDto userProfileForCreation);
-        Task<GenericResponse> AddNewUserProfile(UserProfileInternalCallDto userProfileDto);
         Task<GenericResponse> DeleteUserProfileClient(Guid userId);
         Task<GenericResponse<UserProfile>> GetUserProfileByUserId(Guid userId, bool includeAssociatedData = false);
         Task<GenericResponse<IDictionary<string, object>>> GetUserProfileDto(Guid userId, string fields, string mediaType);
@@ -89,6 +88,25 @@ namespace H2020.IPMDecisions.UPR.BLL
         Task<GenericResponse<ShapedDataWithLinks>> GetDataShareRequests(Guid userId, DataShareResourceParameter resourceParameter);
         Task<GenericResponse> ReplyToDataShareRequest(Guid userId, DataShareRequestReplyDto dataShareRequestDto);
         Task<GenericResponse> UpdateDataShareRequest(Guid userId, DataShareRequestUpdateDto dataShareRequestDto);
+        #endregion
+
+        #region Internal Call
+        Task<GenericResponse> InitialUserProfileCreation(UserProfileInternalCallDto userProfileDto);
+        #endregion
+
+        #region  UserWidget
+        Task<GenericResponse<IEnumerable<UserWidgetDto>>> GetUserWidgets(Guid userId);
+        Task<GenericResponse> UpdateUserWidgets(Guid userId, JsonPatchDocument<UserWidgetForUpdateDto> patchDocument);
+        #endregion
+
+        #region User DSS
+        Task<GenericResponse<List<FieldCropPestDssDto>>> GetAllUserFieldCropPestDss(Guid userId);
+        Task<GenericResponse<FieldCropPestDssDto>> GetFieldCropPestDssById(Guid id, Guid userId);
+        #endregion
+
+        #region DssResults
+        Task<GenericResponse<FieldDssResultDto>> GetLatestFieldCropPestDssResult(Guid dssId, Guid userId);
+        Task<GenericResponse<FieldDssResultDto>> CreateFieldCropPestDssResult(Guid dssId, Guid userId, FieldDssResultForCreationDto dssResultDto);
         #endregion
     }
 }

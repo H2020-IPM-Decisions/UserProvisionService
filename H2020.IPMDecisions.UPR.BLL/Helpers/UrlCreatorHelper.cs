@@ -48,7 +48,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
             switch (type)
             {
                 case ResourceUriType.PreviousPage:
-                    return url.Link("api.farm.get.all",
+                    return GenerateResourceLink(url, "api.farm.get.all",
                     new
                     {
                         fields = resourceParameter.Fields,
@@ -60,7 +60,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
                         childPageSize = resourceParameter.ChildPageSize
                     });
                 case ResourceUriType.NextPage:
-                    return url.Link("api.farm.get.all",
+                    return GenerateResourceLink(url, "api.farm.get.all",
                     new
                     {
                         fields = resourceParameter.Fields,
@@ -73,7 +73,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
                     });
                 case ResourceUriType.Current:
                 default:
-                    return url.Link("api.farm.get.all",
+                    return GenerateResourceLink(url, "api.farm.get.all",
                     new
                     {
                         fields = resourceParameter.Fields,
@@ -97,30 +97,30 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
             if (string.IsNullOrWhiteSpace(fields))
             {
                 links.Add(new LinkDto(
-                url.Link("api.farm.get.farmbyid", new { farmId }),
+                GenerateResourceLink(url, "api.farm.get.farmbyid", new { farmId }),
                 "self",
                 "GET"));
             }
             else
             {
                 links.Add(new LinkDto(
-                 url.Link("api.farm.get.farmbyid", new { farmId, fields }),
+                GenerateResourceLink(url, "api.farm.get.farmbyid", new { farmId, fields }),
                  "self",
                  "GET"));
             }
 
             links.Add(new LinkDto(
-                url.Link("api.farm.delete.farmbyid", new { farmId }),
+                GenerateResourceLink(url, "api.farm.delete.farmbyid", new { farmId }),
                 "delete_farm",
                 "DELETE"));
 
             links.Add(new LinkDto(
-                url.Link("api.farm.patch.farmbyid", new { farmId }),
+                GenerateResourceLink(url, "api.farm.patch.farmbyid", new { farmId }),
                 "update_farm",
                 "PATCH"));
 
             links.Add(new LinkDto(
-                url.Link("api.field.get.all", new { farmId = farmId }),
+                GenerateResourceLink(url, "api.field.get.all", new { farmId }),
                 "farm_fields",
                 "GET"));
 
@@ -169,7 +169,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
             switch (type)
             {
                 case ResourceUriType.PreviousPage:
-                    return url.Link("api.fieldcropdecisions.get.all",
+                    return GenerateResourceLink(url, "api.fieldcropdecisions.get.all",
                     new
                     {
                         fieldId,
@@ -178,7 +178,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
                         pageSize = resourceParameter.PageSize,
                     });
                 case ResourceUriType.NextPage:
-                    return url.Link("api.fieldcropdecisions.get.all",
+                    return GenerateResourceLink(url, "api.fieldcropdecisions.get.all",
                     new
                     {
                         fieldId,
@@ -188,7 +188,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
                     });
                 case ResourceUriType.Current:
                 default:
-                    return url.Link("api.fieldcropdecisions.get.all",
+                    return GenerateResourceLink(url, "api.fieldcropdecisions.get.all",
                     new
                     {
                         fieldId,
@@ -210,20 +210,20 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
             if (string.IsNullOrWhiteSpace(fields))
             {
                 links.Add(new LinkDto(
-                url.Link("api.fieldcropdecisions.get.cropdecisionbyid", new { fieldId, id }),
+                GenerateResourceLink(url, "api.fieldcropdecisions.get.cropdecisionbyid", new { fieldId, id }),
                 "self",
                 "GET"));
             }
             else
             {
                 links.Add(new LinkDto(
-                 url.Link("api.fieldcropdecisions.get.cropdecisionbyid", new { fieldId, id, fields }),
+                GenerateResourceLink(url, "api.fieldcropdecisions.get.cropdecisionbyid", new { fieldId, id, fields }),
                  "self",
                  "GET"));
             }
 
             links.Add(new LinkDto(
-                url.Link("api.fieldcropdecisions.delete.cropdecisionbyid", new { fieldId, id }),
+                GenerateResourceLink(url, "api.fieldcropdecisions.delete.cropdecisionbyid", new { fieldId, id }),
                 "delete_field_crop_decision",
                 "DELETE"));
 
@@ -272,7 +272,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
             switch (type)
             {
                 case ResourceUriType.PreviousPage:
-                    return url.Link("api.field.get.all",
+                    return GenerateResourceLink(url, "api.field.get.all",
                     new
                     {
                         farmId,
@@ -285,7 +285,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
                         childPageSize = resourceParameter.ChildPageSize
                     });
                 case ResourceUriType.NextPage:
-                    return url.Link("api.field.get.all",
+                    return GenerateResourceLink(url, "api.field.get.all",
                     new
                     {
                         farmId,
@@ -299,7 +299,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
                     });
                 case ResourceUriType.Current:
                 default:
-                    return url.Link("api.field.get.all",
+                    return GenerateResourceLink(url, "api.field.get.all",
                     new
                     {
                         farmId,
@@ -325,25 +325,25 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
             if (string.IsNullOrWhiteSpace(fields))
             {
                 links.Add(new LinkDto(
-                url.Link("api.field.get.fieldbyid", new { farmId, id }),
+                GenerateResourceLink(url, "api.field.get.fieldbyid", new { farmId, id }),
                 "self",
                 "GET"));
             }
             else
             {
                 links.Add(new LinkDto(
-                 url.Link("api.field.get.fieldbyid", new { farmId, id, fields }),
+                 GenerateResourceLink(url, "api.field.get.fieldbyid", new { farmId, id, fields }),
                  "self",
                  "GET"));
             }
 
             links.Add(new LinkDto(
-                url.Link("api.field.delete.fieldbyid", new { farmId, id }),
+                GenerateResourceLink(url, "api.field.delete.fieldbyid", new { farmId, id }),
                 "delete_field",
                 "DELETE"));
 
             links.Add(new LinkDto(
-                url.Link("api.field.patch.fieldbyid", new { farmId, id }),
+                GenerateResourceLink(url, "api.field.patch.fieldbyid", new { farmId, id }),
                 "update_field",
                 "PATCH"));
 
@@ -361,25 +361,25 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
             if (string.IsNullOrWhiteSpace(fields))
             {
                 links.Add(new LinkDto(
-                url.Link("api.userprofile.get.profilebyid", new { }),
+                GenerateResourceLink(url, "api.userprofile.get.profilebyid", new { }),
                 "self",
                 "GET"));
             }
             else
             {
                 links.Add(new LinkDto(
-                 url.Link("api.userprofile.get.profilebyid", new { fields }),
+                 GenerateResourceLink(url, "api.userprofile.get.profilebyid", new { fields }),
                  "self",
                  "GET"));
             }
 
             links.Add(new LinkDto(
-                url.Link("api.userprofile.delete.profilebyid", new { }),
+                GenerateResourceLink(url, "api.userprofile.delete.profilebyid", new { }),
                 "delete_user_profile",
                 "DELETE"));
 
             links.Add(new LinkDto(
-                url.Link("api.userprofile.patch.profilebyid", new { }),
+                GenerateResourceLink(url, "api.userprofile.patch.profilebyid", new { }),
                 "update_user_profile",
                 "PATCH"));
 
@@ -428,7 +428,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
             switch (type)
             {
                 case ResourceUriType.PreviousPage:
-                    return url.Link("api.observation.get.all",
+                    return GenerateResourceLink(url, "api.observation.get.all",
                     new
                     {
                         fieldId,
@@ -440,7 +440,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
                         searchQuery = resourceParameter.SearchQuery
                     });
                 case ResourceUriType.NextPage:
-                    return url.Link("api.observation.get.all",
+                    return GenerateResourceLink(url, "api.observation.get.all",
                     new
                     {
                         fieldId,
@@ -453,7 +453,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
                     });
                 case ResourceUriType.Current:
                 default:
-                    return url.Link("api.observation.get.all",
+                    return GenerateResourceLink(url, "api.observation.get.all",
                     new
                     {
                         fieldId,
@@ -478,20 +478,20 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
             if (string.IsNullOrWhiteSpace(fields))
             {
                 links.Add(new LinkDto(
-                url.Link("api.observation.get.observationbyid", new { fieldId, id }),
+                GenerateResourceLink(url, "api.observation.get.observationbyid", new { fieldId, id }),
                 "self",
                 "GET"));
             }
             else
             {
                 links.Add(new LinkDto(
-                 url.Link("api.observation.get.observationbyid", new { fieldId, id, fields }),
+                 GenerateResourceLink(url, "api.observation.get.observationbyid", new { fieldId, id, fields }),
                  "self",
                  "GET"));
             }
 
             links.Add(new LinkDto(
-                url.Link("api.observation.delete.observationbyid", new { fieldId, id }),
+                GenerateResourceLink(url, "api.observation.delete.observationbyid", new { fieldId, id }),
                 "delete_field_observation",
                 "DELETE"));
 
@@ -538,7 +538,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
             switch (type)
             {
                 case ResourceUriType.PreviousPage:
-                    return url.Link("api.datashare.get.all",
+                    return GenerateResourceLink(url, "api.datashare.get.all",
                     new
                     {
                         orderBy = resourceParameter.OrderBy,
@@ -547,7 +547,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
                         requeststatus = resourceParameter.RequestStatus
                     });
                 case ResourceUriType.NextPage:
-                    return url.Link("api.datashare.get.all",
+                    return GenerateResourceLink(url, "api.datashare.get.all",
                     new
                     {
                         orderBy = resourceParameter.OrderBy,
@@ -557,7 +557,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
                     });
                 case ResourceUriType.Current:
                 default:
-                    return url.Link("api.datashare.get.all",
+                    return GenerateResourceLink(url, "api.datashare.get.all",
                     new
                     {
                         orderBy = resourceParameter.OrderBy,
@@ -610,7 +610,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
             switch (type)
             {
                 case ResourceUriType.PreviousPage:
-                    return url.Link("api.fieldcroppests.get.all",
+                    return GenerateResourceLink(url, "api.fieldcroppests.get.all",
                     new
                     {
                         fieldId,
@@ -618,7 +618,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
                         pageSize = resourceParameter.PageSize,
                     });
                 case ResourceUriType.NextPage:
-                    return url.Link("api.fieldcroppests.get.all",
+                    return GenerateResourceLink(url, "api.fieldcroppests.get.all",
                     new
                     {
                         fieldId,
@@ -627,7 +627,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
                     });
                 case ResourceUriType.Current:
                 default:
-                    return url.Link("api.fieldcroppests.get.all",
+                    return GenerateResourceLink(url, "api.fieldcroppests.get.all",
                     new
                     {
                         fieldId,
@@ -673,7 +673,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
             switch (type)
             {
                 case ResourceUriType.PreviousPage:
-                    return url.Link("api.spray.get.all",
+                    return GenerateResourceLink(url, "api.spray.get.all",
                     new
                     {
                         fieldId,
@@ -685,7 +685,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
                         searchQuery = resourceParameter.SearchQuery
                     });
                 case ResourceUriType.NextPage:
-                    return url.Link("api.spray.get.all",
+                    return GenerateResourceLink(url, "api.spray.get.all",
                     new
                     {
                         fieldId,
@@ -698,7 +698,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
                     });
                 case ResourceUriType.Current:
                 default:
-                    return url.Link("api.spray.get.all",
+                    return GenerateResourceLink(url, "api.spray.get.all",
                     new
                     {
                         fieldId,
@@ -723,24 +723,46 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
             if (string.IsNullOrWhiteSpace(fields))
             {
                 links.Add(new LinkDto(
-                url.Link("api.spray.get.spraybyid", new { fieldId, id }),
+                GenerateResourceLink(url, "api.spray.get.spraybyid", new { fieldId, id }),
                 "self",
                 "GET"));
             }
             else
             {
                 links.Add(new LinkDto(
-                 url.Link("api.spray.get.spraybyid", new { fieldId, id, fields }),
+                 GenerateResourceLink(url, "api.spray.get.spraybyid", new { fieldId, id, fields }),
                  "self",
                  "GET"));
             }
 
             links.Add(new LinkDto(
-                url.Link("api.spray.delete.spraybyid", new { fieldId, id }),
+                GenerateResourceLink(url, "api.spray.delete.spraybyid", new { fieldId, id }),
                 "delete_field_spray",
                 "DELETE"));
 
             return links;
+        }
+        #endregion
+
+        #region Common
+        private static string ChangeUrlToApiGatewayHost(IUrlHelper url, string urlReturn)
+        {
+            if (string.IsNullOrEmpty(urlReturn)) return urlReturn;
+            var hasForwadedHeaders = url.ActionContext.HttpContext.Request.Headers.ContainsKey("X-Forwarded-For");
+            if (!hasForwadedHeaders) return urlReturn;
+
+            return urlReturn
+                .Replace(url.ActionContext.HttpContext.Request.Scheme + "://", "")
+                .Replace(
+                    url.ActionContext.HttpContext.Request.Host.Value,
+                    url.ActionContext.HttpContext.Request.Headers["X-Forwarded-For"].ToString())
+                .Replace("/api/", "/api/upr/");
+        }
+
+        public static string GenerateResourceLink(IUrlHelper url, string routeName, object parameters)
+        {
+            var newUrl = url.Link(routeName, parameters);
+            return ChangeUrlToApiGatewayHost(url, newUrl);
         }
         #endregion
     }

@@ -276,7 +276,7 @@ namespace H2020.IPMDecisions.UPR.BLL
             try
             {
                 this.mapper.Map(fieldToPatch, field);
-                await UpdateFieldCropPest(field, patchDocument);
+                await UpdateFieldCropPestByOperations(field, patchDocument);
 
                 this.dataService.Fields.Update(field);
                 await this.dataService.CompleteAsync();
@@ -364,15 +364,15 @@ namespace H2020.IPMDecisions.UPR.BLL
             };
             var cropPestAsEntity = await this.dataService.CropPests
                 .FindByConditionAsync
-                (c => c.CropEppoCode == cropPestRequest.CropEppoCode
-                 && c.PestEppoCode == cropPestRequest.PestEppoCode);
+                (c => c.CropEppoCode.ToUpper().Equals(cropPestRequest.CropEppoCode.ToUpper())
+                 && c.PestEppoCode.ToUpper().Equals(cropPestRequest.PestEppoCode.ToUpper()));
 
             if (cropPestAsEntity == null)
             {
                 cropPestAsEntity = new CropPest()
                 {
-                    CropEppoCode = cropPestRequest.CropEppoCode,
-                    PestEppoCode = cropPestRequest.PestEppoCode,
+                    CropEppoCode = cropPestRequest.CropEppoCode.ToUpper(),
+                    PestEppoCode = cropPestRequest.PestEppoCode.ToUpper(),
                 };
                 this.dataService.CropPests.Create(cropPestAsEntity);
             }
@@ -415,6 +415,37 @@ namespace H2020.IPMDecisions.UPR.BLL
             field.FieldCrop.FieldCropPests.Add(newFieldCropPest);
         }
 
+        private async Task ReplaceCropPestFromField(string pestEppoCode, FieldCropPest fieldCropPestToReplace)
+        {
+            if (string.IsNullOrEmpty(pestEppoCode)) return;
+            var newCropPestAsEntity = await this.dataService
+                .CropPests
+                .FindByConditionAsync
+                (c => c.CropEppoCode == fieldCropPestToReplace.FieldCrop.CropEppoCode
+                && c.PestEppoCode == pestEppoCode);
+
+            if (newCropPestAsEntity == null)
+            {
+                newCropPestAsEntity = new CropPest()
+                {
+                    CropEppoCode = fieldCropPestToReplace.FieldCrop.CropEppoCode,
+                    PestEppoCode = pestEppoCode,
+                };
+                this.dataService.CropPests.Create(newCropPestAsEntity);
+            }
+
+            // We need to remove all associated data... and recreate object because
+            // UI wants to keep same UI.
+            this.dataService.FieldCropPests.Delete(fieldCropPestToReplace);
+            var newFieldCropPest = new FieldCropPest()
+            {
+                Id = fieldCropPestToReplace.Id,
+                FieldCrop = fieldCropPestToReplace.FieldCrop,
+                CropPest = newCropPestAsEntity
+            };
+            this.dataService.FieldCropPests.Create(newFieldCropPest);
+        }
+
         private IDictionary<string, object> CreateFieldWithChildrenAsDictionary(
             FieldResourceParameter resourceParameter,
             bool includeLinks,
@@ -453,10 +484,10 @@ namespace H2020.IPMDecisions.UPR.BLL
 
         private async Task UpdateFieldCropPest(Field field, JsonPatchDocument<FieldForUpdateDto> patchDocument)
         {
-            var fieldCropPestProperty = "fieldCropPest";
-            if (patchDocument.Operations.Any(o => o.path == fieldCropPestProperty))
+            var fieldCropPestProperty = nameof(FieldForUpdateDto.FieldCropPestDto);
+            if (patchDocument.Operations.Any(o => o.path.ToLower().Contains(fieldCropPestProperty.ToLower())))
             {
-                var fieldCropPestOperations = patchDocument.Operations.Where(o => o.path == fieldCropPestProperty).FirstOrDefault().value;
+                var fieldCropPestOperations = patchDocument.Operations.Where(o => o.path.ToLower().Contains(fieldCropPestProperty.ToLower())).FirstOrDefault().value;
                 var fieldCropPestToPatch = JsonConvert.DeserializeObject<IEnumerable<FieldCropPestForUpdateDto>>(fieldCropPestOperations.ToString());
 
                 var newPests = new List<string>();
@@ -486,6 +517,46 @@ namespace H2020.IPMDecisions.UPR.BLL
                     await AddPestsToField(pestEppoCode, field);
                 }
             }
+        }
+
+        private async Task UpdateFieldCropPestByOperations(Field field, JsonPatchDocument<FieldForUpdateDto> patchDocument)
+        {
+            var fieldCropPestProperty = nameof(FieldForUpdateDto.FieldCropPestDto);
+            if (patchDocument.Operations.Any(o => o.path.ToLower().Contains(fieldCropPestProperty.ToLower())))
+            {
+                var fieldCropPestOperations = patchDocument.Operations.Where(o => o.path.ToLower().Contains(fieldCropPestProperty.ToLower()));
+
+                foreach (var operation in fieldCropPestOperations)
+                {
+                    switch (operation.op.ToLower())
+                    {
+                        case "add":
+                            await AddPestsToField(operation.value.ToString(), field);
+                            break;
+                        case "remove":
+                            FieldCropPest cropPestToDelete = GetFieldCropPestFromOperationPath(field, operation);
+                            if (cropPestToDelete != null) this.dataService.FieldCropPests.Delete(cropPestToDelete);
+                            break;
+                        case "replace":
+                            FieldCropPest cropPestToReplace = GetFieldCropPestFromOperationPath(field, operation);
+                            if (cropPestToReplace != null) await ReplaceCropPestFromField(operation.value.ToString(), cropPestToReplace);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+        }
+
+        private static FieldCropPest GetFieldCropPestFromOperationPath(Field field, Microsoft.AspNetCore.JsonPatch.Operations.Operation<FieldForUpdateDto> operation)
+        {
+            var fieldCropPestIdToReplace = Guid.Parse(operation.path.Split("/").LastOrDefault());
+            var cropPestToReplace = field
+                    .FieldCrop
+                    .FieldCropPests
+                    .Where(f => f.Id == fieldCropPestIdToReplace)
+                    .FirstOrDefault();
+            return cropPestToReplace;
         }
         #endregion
     }

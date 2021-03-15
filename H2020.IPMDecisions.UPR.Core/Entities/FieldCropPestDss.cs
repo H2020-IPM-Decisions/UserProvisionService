@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace H2020.IPMDecisions.UPR.Core.Entities
@@ -12,5 +13,7 @@ namespace H2020.IPMDecisions.UPR.Core.Entities
         public Guid CropPestDssId { get; set; }
         public CropPestDss CropPestDss { get; set; }
         public string DssParameters { get; set; }
+
+        public ICollection<FieldDssResult> FieldDssResults { get; set; }
     }
 }

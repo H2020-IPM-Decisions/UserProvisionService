@@ -193,6 +193,19 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence
                 return fieldSprayApplication;
             }
         }
+      
+        private IUserWidgetRepository userWidgets;
+        public IUserWidgetRepository UserWidgets
+        {
+            get
+            {
+                if (userWidgets == null)
+                {
+                    userWidgets = new UserWidgetRepository(this.context);
+                }
+                return userWidgets;
+            }
+        }
 
         public DataService(
             ApplicationDbContext context,

@@ -13,7 +13,8 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
     [Route("api/internalcall")]
     [Consumes("application/vnd.h2020ipmdecisions.internal+json")]
     [TypeFilter(typeof(RequestHasInternalTokenResourceFilter))]
-    public class InternalCallsController: ControllerBase
+    [ApiExplorerSettings(IgnoreApi = true)]
+    public class InternalCallsController : ControllerBase
     {
         private readonly IBusinessLogic businessLogic;
 
@@ -32,7 +33,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         public async Task<IActionResult> Post(
             [FromBody] UserProfileInternalCallDto userProfileDto)
         {
-            var response = await businessLogic.AddNewUserProfile(userProfileDto);
+            var response = await businessLogic.InitialUserProfileCreation(userProfileDto);
             if (response.IsSuccessful)
                 return Ok();
 

@@ -1,11 +1,15 @@
+using System;
 using AutoMapper;
 using H2020.IPMDecisions.APG.API.Extensions;
 using H2020.IPMDecisions.UPR.API.Filters;
 using H2020.IPMDecisions.UPR.BLL;
+using H2020.IPMDecisions.UPR.BLL.ScheduleTasks;
 using H2020.IPMDecisions.UPR.Core.Profiles;
 using H2020.IPMDecisions.UPR.Core.Services;
 using H2020.IPMDecisions.UPR.Data.Core;
 using H2020.IPMDecisions.UPR.Data.Persistence;
+using Hangfire;
+using Hangfire.Dashboard;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -67,8 +71,9 @@ namespace H2020.IPMDecisions.UPR.API
             });
 
             services.ConfigurePostgresContext(Configuration);
-
+            // services.ConfigureHangfire(Configuration);
             services.ConfigureSwagger();
+            services.AddDataProtection();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -104,20 +109,31 @@ namespace H2020.IPMDecisions.UPR.API
             app.UseAuthentication();
             app.UseAuthorization();
 
-            var swaggerBasePath = Configuration["MicroserviceInternalCommunication:UserProvisionMicroservice"];
+            var apiBasePath = Configuration["MicroserviceInternalCommunication:UserProvisionMicroservice"];
             app.UseSwagger(c =>
             {
-                c.RouteTemplate = swaggerBasePath + "swagger/{documentName}/swagger.json";
+                c.RouteTemplate = apiBasePath + "swagger/{documentName}/swagger.json";
             });
             app.UseSwaggerUI(c =>
             {
-                c.SwaggerEndpoint($"/{swaggerBasePath}swagger/v1/swagger.json", "H2020 IPM Decisions - Email Service API");
-                c.RoutePrefix = $"{swaggerBasePath}swagger";
+                c.SwaggerEndpoint($"/{apiBasePath}swagger/v1/swagger.json", "H2020 IPM Decisions - Email Service API");
+                c.RoutePrefix = $"{apiBasePath}swagger";
             });
+
+            // var dashboardOptions = new DashboardOptions();
+            // if (!CurrentEnvironment.IsDevelopment())
+            // {
+            //     dashboardOptions.Authorization = new[] { new IsAdminFilter() };
+            //     dashboardOptions.IsReadOnlyFunc = (DashboardContext context) => true;
+            // }
+
+            // app.UseHangfireDashboard($"/{apiBasePath}dashboard", dashboardOptions);
+            // HangfireJobScheduler.ScheduleRecurringJobs();
 
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                // endpoints.MapHangfireDashboard();
             });
 
             applicationLifetime.ApplicationStopping.Register(OnShutdown);

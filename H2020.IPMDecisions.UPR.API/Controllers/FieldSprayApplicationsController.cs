@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Net.Mime;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -13,6 +14,11 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace H2020.IPMDecisions.UPR.API.Controllers
 {
+    /// <summary>
+    /// Field Sprays are spray applications against a pest on a field.
+    /// <para>Spray applications needs to be associate to a FieldCropPest. The FieldId must be associated to the UserId of the Authorization JWT.</para>
+    /// <para>The user will be identified using the UserId on the authentification JWT.</para>
+    /// </summary>
     [ApiController]
     [Route("api/fields/{fieldId:guid}/sprayapplications")]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
@@ -27,6 +33,8 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
                 ?? throw new System.ArgumentNullException(nameof(businessLogic));
         }
 
+        /// <summary>Use this endpoint to remove an spray application that is associated with an field using its id.</summary>
+        /// <remarks>The FieldCropPestId must be associated to the Field</remarks>
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [HttpDelete("{id:guid}", Name = "api.spray.delete.spraybyid")]
@@ -42,7 +50,10 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
             return NoContent();
         }
 
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        /// <summary>Use this endpoint to get the spray applications that are associated with a field crop pest.
+        /// </summary>
+        /// <remarks>The FieldCropPestId must be associated to the Field</remarks>
+        [ProducesResponseType(typeof(IEnumerable<FieldSprayApplicationDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [Produces(MediaTypeNames.Application.Json)]
@@ -69,7 +80,9 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
             });
         }
 
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        /// <summary>Use this endpoint to get a spray application by id.</summary>
+        /// <remarks>The Id must be part of a FieldCropPest associated to the field</remarks>
+        [ProducesResponseType(typeof(FieldSprayApplicationDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [Produces(MediaTypeNames.Application.Json)]
@@ -87,6 +100,8 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
             return Ok(response.Result);
         }
 
+        /// <summary>Use this end point to add a new spray application to an specific fieldCropPest of a field.</summary>
+        /// <remarks>The FieldCropPestId must be associated to the Field</remarks>
         [Consumes(MediaTypeNames.Application.Json)]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -114,6 +129,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
                 response.Result);
         }
 
+        /// <summary>Requests permitted on this URL</summary>
         [ProducesResponseType(StatusCodes.Status200OK)]
         [HttpOptions]
         //OPTIONS: api/fields/1/sprayapplications

@@ -20,5 +20,6 @@ namespace H2020.IPMDecisions.UPR.Core.Entities
         public string DssModelName { get; set; }
 
         public ICollection<FieldCropPestDss> FieldCropPestDsses { get; set; }
+        public ICollection<CropPestDssResult> CropPestDssResults { get; set; }
     }
 }

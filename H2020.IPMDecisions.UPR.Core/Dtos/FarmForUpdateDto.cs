@@ -15,6 +15,6 @@ namespace H2020.IPMDecisions.UPR.Core.Dtos
         public override WeatherStationDto WeatherStationDto { get => base.WeatherStationDto; set => base.WeatherStationDto = value; }
 
         [Required(ErrorMessage = "Weather Data Source can not be deleted")]
-        public override WeatherDataSourceDto WeatherDataSourceDto { get => base.WeatherDataSourceDto; set => base.WeatherDataSourceDto = value; }
+        public WeatherDataSourceForUpdateDto WeatherDataSourceDto { get; set; }
     }
 }

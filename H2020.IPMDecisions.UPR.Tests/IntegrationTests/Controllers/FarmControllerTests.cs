@@ -51,6 +51,7 @@ namespace H2020.IPMDecisions.UPR.Tests.IntegrationTests.Controllers
             var jsonObjectWeatherData = new JsonObject();
             jsonObjectWeatherData.Add("id", "1");
             jsonObjectWeatherData.Add("name", "1");
+            jsonObjectWeatherData.Add("url", "x");
 
             var jsonObject = new JsonObject();
             jsonObject.Add("name", fakeWebHost.DefaultFarmName);
@@ -278,6 +279,7 @@ namespace H2020.IPMDecisions.UPR.Tests.IntegrationTests.Controllers
             var jsonObjectWeatherData = new JsonObject();
             jsonObjectWeatherData.Add("id", weatherDataId);
             jsonObjectWeatherData.Add("name", "1");
+            jsonObjectWeatherData.Add("url", "1");
 
 
             httpClient

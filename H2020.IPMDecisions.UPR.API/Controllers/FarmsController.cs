@@ -2,19 +2,27 @@ using H2020.IPMDecisions.UPR.API.Filters;
 using H2020.IPMDecisions.UPR.BLL;
 using H2020.IPMDecisions.UPR.Core.Dtos;
 using H2020.IPMDecisions.UPR.Core.Entities;
+using H2020.IPMDecisions.UPR.Core.PatchOperationExamples;
 using H2020.IPMDecisions.UPR.Core.ResourceParameters;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.JsonPatch;
+using Microsoft.AspNetCore.JsonPatch.Operations;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Filters;
 using System;
+using System.Collections.Generic;
 using System.Net.Mime;
 using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace H2020.IPMDecisions.UPR.API.Controllers
 {
+    /// <summary>
+    /// Use these endpoints to manage the farms associated to a user.
+    /// <para>The user will be identified using the UserId on the authentification JWT.</para>
+    /// </summary>
     [ApiController]
     [Route("api/farms")]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
@@ -29,6 +37,8 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
                 ?? throw new System.ArgumentNullException(nameof(businessLogic));
         }
 
+        /// <summary>Use this endpoint to remove a farm by <paramref name="farmId"/></summary>
+        /// <param name="farmId">GUID with the farm Id.</param>
         [ServiceFilter(typeof(FarmBelongsToUserActionFilter), Order = 2)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -44,7 +54,9 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
             return NoContent();
         }
 
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        /// <summary>Use this end point to add a new farm to a user.</summary>
+        /// <remarks>To receive associated data or HATEOAS links change the 'Accept' header</remarks>
+        [ProducesResponseType(typeof(IEnumerable<FarmWithChildrenDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [Produces(MediaTypeNames.Application.Json,
@@ -74,8 +86,12 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
             });
         }
 
+        /// <summary>Use this endpoint to get a farm by <paramref name="farmId"/></summary>
+        /// <param name="farmId">GUID with the farm Id.</param>
+        /// <param name="resourceParameter">Parameter to manage resources returned</param>
+        /// <param name="mediaType">To receive associated data or HATEOAS links change the 'Accept' header</param>
         [ServiceFilter(typeof(FarmBelongsToUserActionFilter), Order = 2)]
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(FarmWithChildrenDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [Produces(MediaTypeNames.Application.Json,
@@ -96,8 +112,16 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
             return Ok(response.Result);
         }
 
+        /// <summary>Use this end point to add a new farm to a user.</summary>
+        /// <remarks>To receive associated data or HATEOAS links change the 'Accept' header
+        /// Please notice that the creation of Weather Data Sources is a complex operation as it uses for an overnight schedule operation, so be aware of the following:
+        /// <para>Required to specify if it is a Forecast or not service. Use the parameter 'isForecast'</para>
+        /// <para>Required to specify if it the data source needs authorization. Use the parameter 'authenticationRequired'</para>
+        /// <para>If 'isForecast' is false, you need to add 'Interval', 'TimeEnd', 'TimeStart' and 'Parameters'. Extended documentation on the Weather Microservices</para>
+        /// <para>If 'authenticationRequired' is true, you need to the username and password. Extended documentation on the Weather Microservices</para>
+        /// </remarks>
         [Consumes(MediaTypeNames.Application.Json)]
-        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(FarmDto), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [Produces(MediaTypeNames.Application.Json,
             "application/vnd.h2020ipmdecisions.hateoas+json")]
@@ -118,12 +142,17 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
                 response.Result);
         }
 
+        /// <summary>Use this endpoint to make a partial update of a farm.</summary>
+        /// <remarks>Use the documentation for the FarmFields to manage associated fields to a farm
+        /// <para>Please notice that updating the Weather Data Sources is a complex operation as it uses for an overnight schedule operation, so please follow the instructions of the POST method.</para>
+        /// </remarks>
         [ServiceFilter(typeof(FarmBelongsToUserActionFilter), Order = 2)]
         [Consumes("application/json-patch+json")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [HttpPatch("{farmId:guid}", Name = "api.farm.patch.farmbyid")]
+        [SwaggerRequestExample(typeof(Operation[]), typeof(JsonPatchFarmRequestExample))]
         //PATCH: api/farms/1
         public async Task<IActionResult> PartialUpdate(
             [FromRoute] Guid farmId,
@@ -136,13 +165,14 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
             if (!TryValidateModel(farmToPatch))
                 return ValidationProblem(ModelState);
 
-            var response = await this.businessLogic.UpdateFarm(farm, farmToPatch);
+            var response = await this.businessLogic.UpdateFarm(farm, farmToPatch, patchDocument);
             if (!response.IsSuccessful)
                 return BadRequest(new { message = response.ErrorMessage });
 
             return NoContent();
         }
 
+        /// <summary>Requests permitted on this URL</summary>
         [ProducesResponseType(StatusCodes.Status200OK)]
         [HttpOptions]
         //OPTIONS: api/farms

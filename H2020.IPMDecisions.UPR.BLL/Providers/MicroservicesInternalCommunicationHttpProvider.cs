@@ -2,8 +2,10 @@ using System;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using H2020.IPMDecisions.UPR.Core.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json.Linq;
 
 namespace H2020.IPMDecisions.UPR.BLL.Providers
 {
@@ -26,6 +28,44 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
         public void Dispose()
         {
             httpClient?.Dispose();
+        }
+
+        public async Task<DssExecutionInformation> GetDssInformationFromDssMicroservice(string dssId, string modelId)
+        {
+            try
+            {
+                var dssEndPoint = config["MicroserviceInternalCommunication:DssMicroservice"];
+                var response = await httpClient.GetAsync(string.Format("{0}rest/model/{1}/{2}", dssEndPoint, dssId, modelId));
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var responseAsText = await response.Content.ReadAsStringAsync();
+                    JObject jObject = JObject.Parse(responseAsText);
+
+                    var dssInformation = new DssExecutionInformation()
+                    {
+                        EndPoint = jObject["execution"]["endpoint"].ToString(),
+                        Type = jObject["execution"]["type"].ToString()
+                    };
+
+                    var inputSchema = jObject["execution"]["input_schema"].ToString();
+                    if (!string.IsNullOrEmpty(inputSchema))
+                    {
+                        JObject inputSchemaObject = JObject.Parse(inputSchema);
+                        if (inputSchemaObject["properties"]["weatherData"] != null)
+                        {
+                            dssInformation.UsesWeatherData = true;
+                        }
+                    }
+                    return dssInformation;
+                }
+                return null;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(string.Format("Error in Internal Communication - GetDssInformationFromDssMicroservice. {0}", ex.Message));
+                return null;
+            }
         }
 
         public async Task<string> GetUserIdFromIdpMicroservice(string userEmail)

@@ -6,7 +6,6 @@ namespace H2020.IPMDecisions.UPR.Core.Dtos
 {
     public class FieldObservationForCreationDto
     {
-        [Required(ErrorMessage = "Location is required")]
         public CustomPointLocation Location { get; set; }
 
         [Required(ErrorMessage = "Time is required")]
