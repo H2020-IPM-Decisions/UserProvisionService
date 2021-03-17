@@ -233,12 +233,13 @@ namespace H2020.IPMDecisions.APG.API.Extensions
                 .SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
                 .UseSimpleAssemblyNameTypeSerializer()
                 .UseRecommendedSerializerSettings()
+                .UseNLogLogProvider()
                 .UsePostgreSqlStorage(
                     config.GetConnectionString("MyPostgreSQLConnection"),
                     new PostgreSqlStorageOptions
                     {
-                        PrepareSchemaIfNecessary = false,
-                        QueuePollInterval = new TimeSpan(0, 1, 0),
+                        PrepareSchemaIfNecessary = true,
+                        QueuePollInterval = new TimeSpan(0, 1, 0)
                     }
                 ));
 
