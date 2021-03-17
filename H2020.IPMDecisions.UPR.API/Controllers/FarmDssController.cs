@@ -32,8 +32,11 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         /// <summary>
         /// This endpoint allows to create a FieldCropPestDss associated to a farm
         /// </summary>
+        /// <remarks>If the DSS Execution Type is "ONTHEFLY", a 202 response type will be returned as DSS will start just after saved, although the running time of the DSS is unknown.
+        /// </remarks>
         [Consumes(MediaTypeNames.Application.Json)]
         [ProducesResponseType(typeof(FarmWithChildrenDto), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(FarmWithChildrenDto), StatusCodes.Status202Accepted)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status409Conflict)]
@@ -49,6 +52,12 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
 
             if (!response.IsSuccessful)
                 return response.RequestResult;
+
+            if (response.RequestResult != null)
+                return AcceptedAtRoute(
+                    "api.farm.get.farmbyid",
+                    new { farmId = response.Result.Id },
+                    response.Result);
 
             return CreatedAtRoute(
                 "api.farm.get.farmbyid",

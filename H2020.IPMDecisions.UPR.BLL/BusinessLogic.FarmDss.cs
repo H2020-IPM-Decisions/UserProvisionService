@@ -36,8 +36,13 @@ namespace H2020.IPMDecisions.UPR.BLL
                     cropPestDss,
                     farmDssDto.DssParameters);
                 await this.dataService.CompleteAsync();
-
                 var farmToReturn = this.mapper.Map<FarmDssDto>(farm);
+
+                if (farmDssDto.DssExecutionType.ToLower() == "onthefly")
+                {
+                    //Todo, add to queue and run
+                    return GenericResponseBuilder.Accepted<FarmDssDto>(farmToReturn);
+                }
                 return GenericResponseBuilder.Success<FarmDssDto>(farmToReturn);
             }
             catch (Exception ex)

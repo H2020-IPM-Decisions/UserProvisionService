@@ -11,6 +11,9 @@ namespace H2020.IPMDecisions.UPR.Core.Dtos
         public abstract string Url { get; set; }
         public abstract bool? IsForecast { get; set; }
         public abstract bool? AuthenticationRequired { get; set; }
+        public abstract string Parameters { get; set; }
+        
+        [NotWeatherForecastAttribute]
         public string StationId { get; set; }
 
         [NotWeatherForecastAttribute]
@@ -22,8 +25,6 @@ namespace H2020.IPMDecisions.UPR.Core.Dtos
         [NotWeatherForecastAttribute]
         public DateTime? TimeEnd { get; set; }
 
-        [NotWeatherForecastAttribute]
-        public string Parameters { get; set; }
 
         [WeatherDataAuthRequiredAttribute]
         public WeatherCredentials Credentials { get; set; }

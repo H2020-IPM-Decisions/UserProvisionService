@@ -15,5 +15,7 @@ namespace H2020.IPMDecisions.UPR.Core.Dtos
         public override bool? IsForecast { get; set; }
         [Required]
         public override bool? AuthenticationRequired { get; set; }
+        [Required]
+        public override string Parameters { get; set; }
     }
 }
