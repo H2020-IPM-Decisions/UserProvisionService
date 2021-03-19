@@ -128,7 +128,7 @@ namespace H2020.IPMDecisions.UPR.API
             }
 
             app.UseHangfireDashboard($"/{apiBasePath}dashboard", dashboardOptions);
-            HangfireJobScheduler.ScheduleRecurringJobs();
+            HangfireJobScheduler.HangfireJobs();
 
             app.UseEndpoints(endpoints =>
             {

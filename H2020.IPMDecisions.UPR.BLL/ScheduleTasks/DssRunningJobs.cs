@@ -17,22 +17,22 @@ using Newtonsoft.Json.Linq;
 
 namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
 {
-    public interface IRunDssOnDatabase
+    public interface IDssRunningJobs
     {
         void ExecuteOnTheFlyDss(IJobCancellationToken token);
     }
 
-    public class RunDssOnDatabase : IRunDssOnDatabase
+    public class DssRunningJobs : IDssRunningJobs
     {
         private readonly IDataService dataService;
         private readonly IMicroservicesInternalCommunicationHttpProvider internalCommunicationProvider;
-        private readonly ILogger<RunDssOnDatabase> logger;
+        private readonly ILogger<DssRunningJobs> logger;
         private readonly IDataProtectionProvider dataProtectionProvider;
         private EncryptionHelper _encryption;
-        public RunDssOnDatabase(
+        public DssRunningJobs(
             IDataService dataService,
             IMicroservicesInternalCommunicationHttpProvider internalCommunicationProvider,
-            ILogger<RunDssOnDatabase> logger,
+            ILogger<DssRunningJobs> logger,
             IDataProtectionProvider dataProtectionProvider)
         {
             this.dataService = dataService
