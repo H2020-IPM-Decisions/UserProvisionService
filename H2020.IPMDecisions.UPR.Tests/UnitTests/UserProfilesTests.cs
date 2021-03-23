@@ -2,6 +2,7 @@ using System;
 using AutoMapper;
 using H2020.IPMDecisions.UPR.BLL;
 using H2020.IPMDecisions.UPR.BLL.Providers;
+using H2020.IPMDecisions.UPR.BLL.ScheduleTasks;
 using H2020.IPMDecisions.UPR.Core.Dtos;
 using H2020.IPMDecisions.UPR.Core.Services;
 using H2020.IPMDecisions.UPR.Data.Core;
@@ -27,6 +28,7 @@ namespace H2020.IPMDecisions.UPR.Tests.UnitTests
             Mock<ILogger<BusinessLogic>> mockLoggerService = new Mock<ILogger<BusinessLogic>>();
             Mock<IMicroservicesInternalCommunicationHttpProvider> mockHttpProvider = new Mock<IMicroservicesInternalCommunicationHttpProvider>();
             Mock<IDataProtectionProvider> mockDataProtectionProvider = new Mock<IDataProtectionProvider>();
+            Mock<IHangfireQueueJobs> mockHangfireQueueJobs = new Mock<IHangfireQueueJobs>();
 
             var bll = new BusinessLogic(
                 mockMapper.Object,
@@ -36,7 +38,8 @@ namespace H2020.IPMDecisions.UPR.Tests.UnitTests
                 mockPropertyMappingService.Object,
                 mockLoggerService.Object,
                 mockHttpProvider.Object,
-                mockDataProtectionProvider.Object);
+                mockDataProtectionProvider.Object,
+                mockHangfireQueueJobs.Object);
 
             UserProfileForCreationDto user = new UserProfileForCreationDto();
             // Act

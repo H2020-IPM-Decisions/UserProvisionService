@@ -5,7 +5,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
 {
     public class HangfireJobScheduler
     {
-        public static void HangfireJobs()
+        public static void HangfireScheduleJobs()
         {
             RecurringJob.RemoveIfExists(nameof(DssRunningJobs.ExecuteOnTheFlyDss));
             RecurringJob.AddOrUpdate<DssRunningJobs>(nameof(DssRunningJobs.ExecuteOnTheFlyDss),

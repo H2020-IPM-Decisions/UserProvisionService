@@ -9,6 +9,7 @@ using H2020.IPMDecisions.UPR.BLL.Helpers;
 using H2020.IPMDecisions.UPR.BLL.Providers;
 using H2020.IPMDecisions.UPR.Core.Dtos;
 using H2020.IPMDecisions.UPR.Core.Entities;
+using H2020.IPMDecisions.UPR.Core.Models;
 using H2020.IPMDecisions.UPR.Data.Core;
 using Hangfire;
 using Microsoft.AspNetCore.DataProtection;
@@ -20,6 +21,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
     public interface IDssRunningJobs
     {
         void ExecuteOnTheFlyDss(IJobCancellationToken token);
+        Task QueueOnTheFlyDss(IJobCancellationToken token, Guid dssId);
     }
 
     public class DssRunningJobs : IDssRunningJobs
@@ -47,6 +49,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             _encryption = new EncryptionHelper(dataProtectionProvider);
         }
 
+        [Queue("onthefly_schedule")]
         public void ExecuteOnTheFlyDss(IJobCancellationToken token)
         {
             try
@@ -64,28 +67,84 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
         {
             var listOfDss = await this.dataService.FieldCropPestDsses.FindAllAsync();
 #if DEBUG
-            listOfDss = listOfDss.Take(20);
-
+            // listOfDss = listOfDss.Take(20);
             // listOfDss = listOfDss.Where(s => s.FieldCropPestId == Guid.Parse("baaf6737-751b-4cad-8bde-216a2df330fd"));
 #endif
             HttpClient httpClient = new HttpClient();
             foreach (var dss in listOfDss)
             {
-                var dssInformation = await
-                    internalCommunicationProvider
-                    .GetDssInformationFromDssMicroservice(dss.CropPestDss.DssId, dss.CropPestDss.DssModelId);
-                if (dssInformation == null) continue;
-                if (string.IsNullOrEmpty(dssInformation.EndPoint)) continue;
-                if (dssInformation.Type.ToLower() != "onthefly") continue;
+                var dssResult = await RunOnTheFlyDss(httpClient, dss);
+                if (dssResult == null) continue;
+                this.dataService.FieldCropPestDsses.AddDssResult(dss, dssResult);
+            }
+            await this.dataService.CompleteAsync();
+        }
 
-                var dssResult = new FieldDssResult() { CreationDate = DateTime.Now };
+        [Queue("onthefly_queue")]
+        public async Task QueueOnTheFlyDss(IJobCancellationToken token, Guid id)
+        {
+            try
+            {
+                token.ThrowIfCancellationRequested();
+                await ExecuteDssOnQueue(id);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(string.Format("Error in BLL - Error executing On the Fly DSS. {0}", ex.Message));
+            }
+        }
+
+        public async Task ExecuteDssOnQueue(Guid dssId)
+        {
+            try
+            {
+                HttpClient httpClient = new HttpClient();
+                var dss = await this.dataService.FieldCropPestDsses.FindByIdAsync(dssId);
+                var dssResult = await RunOnTheFlyDss(httpClient, dss);
+                if (dssResult == null) return;
+                this.dataService.FieldCropPestDsses.AddDssResult(dss, dssResult);
+                await this.dataService.CompleteAsync();
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(string.Format("Error in BLL - ExecuteDssOnQueue. {0}", ex.Message));
+            }
+        }
+
+        #region DSS Common Stuff
+        public async Task<FieldDssResult> RunOnTheFlyDss(HttpClient httpClient, FieldCropPestDss dss)
+        {
+            var dssResult = new FieldDssResult() { CreationDate = DateTime.Now };
+            try
+            {
+                DssExecutionInformation dssInformation = await GetDssInformationFromMicroservice(dss);
+
+                if (dssInformation == null)
+                {
+                    dssResult.Result = JObject.Parse("{\"message\": \"Error getting DSS information from  microservice.\"}").ToString();
+                    return dssResult;
+                };
+
+                if (string.IsNullOrEmpty(dssInformation.EndPoint))
+                {
+                    dssResult.Result = JObject.Parse("{\"message\": \"End point not available to run DSS.\"}").ToString();
+                    return dssResult;
+                }
+                if (dssInformation.Type.ToLower() != "onthefly") return null;
+
                 JObject jObject = JObject.Parse(dss.DssParameters.ToString());
-
                 if (dssInformation.UsesWeatherData)
                 {
-                    var responseWeather = await GetWeatherData(httpClient, dss, dssInformation.WeatherParameters);
-                    if (string.IsNullOrEmpty(responseWeather)) continue;
-                    jObject["weatherData"] = JObject.Parse(responseWeather.ToString());
+                    var farm = dss.FieldCropPest.FieldCrop.Field.Farm;
+                    var dataSource = farm.FarmWeatherDataSources.FirstOrDefault();
+
+                    var responseWeather = await GetWeatherData(httpClient, farm.Location.X.ToString(), farm.Location.Y.ToString(), dataSource, dssInformation.WeatherParameters);
+                    if (!responseWeather.Continue)
+                    {
+                        dssResult.Result = responseWeather.ResponseWeather;
+                        return dssResult;
+                    }
+                    jObject["weatherData"] = JObject.Parse(responseWeather.ResponseWeather.ToString());
                 }
 
                 var content = new StringContent(
@@ -96,55 +155,83 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 if (!responseDss.IsSuccessStatusCode)
                 {
                     dssResult.Result = JObject.Parse("{\"message\": \"Error running the DSS - " + responseDss.ReasonPhrase.ToString() + " \"}").ToString();
-                    this.dataService.FieldCropPestDsses.AddDssResult(dss, dssResult);
-                    continue;
+                    return dssResult;
                 }
                 var responseAsText = await responseDss.Content.ReadAsStringAsync();
                 dssResult.Result = responseAsText;
-                this.dataService.FieldCropPestDsses.AddDssResult(dss, dssResult);
+                return dssResult;
             }
-            await this.dataService.CompleteAsync();
+            catch (Exception ex)
+            {
+                logger.LogError(string.Format("Error running DSS. Id: {0}, Parameters {1}. Error: {2}", dss.Id.ToString(), dss.DssParameters.ToString(), ex.Message));
+                dssResult.Result = JObject.Parse("{\"message\": \"Error running the DSS - " + ex.Message.ToString() + " \"}").ToString();
+                return dssResult;
+            }
         }
 
-        public async Task<string> GetWeatherData(HttpClient httpClient, FieldCropPestDss dss, string dssWeatherParameters)
+        private async Task<DssExecutionInformation> GetDssInformationFromMicroservice(FieldCropPestDss dss)
         {
-            var farm = dss.FieldCropPest.FieldCrop.Field.Farm;
-            var dataSource = farm.FarmWeatherDataSources.FirstOrDefault();
-            var weatherEndPoint = dataSource.Url;
+            return await internalCommunicationProvider
+                .GetDssInformationFromDssMicroservice(dss.CropPestDss.DssId, dss.CropPestDss.DssModelId);
+        }
+        #endregion
 
-            var responseWeather = await MakeWeatherDataCall(httpClient, farm, dssWeatherParameters);
-            var dssResult = new FieldDssResult() { CreationDate = DateTime.Now };
-
+        #region Weather Common Stuff
+        public async Task<GetWeatherDataResult> GetWeatherData(
+            HttpClient httpClient,
+            string farmLocationX,
+            string farmLocationY,
+            WeatherDataSource dataSource,
+            string dssWeatherParameters)
+        {
+            var responseWeather = await MakeWeatherDataCall(httpClient, farmLocationX, farmLocationY, dataSource, dssWeatherParameters);
+            var result = new GetWeatherDataResult();
+            result.Continue = false;
             if (!responseWeather.IsSuccessStatusCode)
             {
-                dssResult.Result = JObject.Parse("{\"message\": \"Error getting the weather data - " + responseWeather.ReasonPhrase.ToString() + " \"}").ToString();
-                this.dataService.FieldCropPestDsses.AddDssResult(dss, dssResult);
-                return null;
+                result.ResponseWeather = JObject.Parse("{\"message\": \"Error getting the weather data - " + responseWeather.ReasonPhrase.ToString() + " \"}").ToString();
+                return result;
             }
 
             var responseWeatherAsText = await responseWeather.Content.ReadAsStringAsync();
             if (!DataParseHelper.IsValidJson(responseWeatherAsText))
             {
-                dssResult.Result = JObject.Parse("{\"message\": \"Weather data received in not in a JSON format.\"}").ToString();
-                this.dataService.FieldCropPestDsses.AddDssResult(dss, dssResult);
-                return null;
+                result.ResponseWeather = JObject.Parse("{\"message\": \"Weather data received in not in a JSON format.\"}").ToString();
+                return result;
             };
 
             if (!await ValidateWeatherDataSchema(responseWeatherAsText))
             {
-                dssResult.Result = JObject.Parse("{\"message\": \"Weather data received failed the Weather validation schema. This might be because the weather data source selected do not accept weather parameters required by the DSS: " + dssWeatherParameters.ToString() + "\"}").ToString();
-                this.dataService.FieldCropPestDsses.AddDssResult(dss, dssResult);
-                return null;
+                result.ResponseWeather = JObject.Parse("{\"message\": \"Weather data received failed the Weather validation schema. This might be because the weather data source selected do not accept weather parameters required by the DSS: " + dssWeatherParameters.ToString() + "\"}").ToString();
+                return result;
             };
-            return responseWeatherAsText;
+            result.Continue = true;
+            result.ResponseWeather = responseWeatherAsText;
+            return result;
+        }
+
+        public async Task<bool> ValidateWeatherDataSchema(string weatherDataSchema)
+        {
+            try
+            {
+                return await
+                    internalCommunicationProvider
+                    .ValidateWeatherdDataSchemaFromDssMicroservice(weatherDataSchema);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(string.Format("Error Validating Weather Data Schema. {0}", ex.Message));
+                return false;
+            }
         }
 
         public async Task<HttpResponseMessage> MakeWeatherDataCall(
             HttpClient httpClient,
-            Farm farm,
+            string farmLocationX,
+            string farmLocationY,
+            WeatherDataSource weatherDataSource,
             string dssWeatherParameters)
         {
-            var weatherDataSource = farm.FarmWeatherDataSources.FirstOrDefault();
             var weatherEndPoint = weatherDataSource.Url;
 
             if (weatherDataSource.AuthenticationRequired)
@@ -178,7 +265,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             if (weatherDataSource.IsForecast)
             {
                 weatherUrl = string.Format("{0}?longitude={1}&latitude={2}",
-                    weatherEndPoint, farm.Location.Coordinate.X.ToString(), farm.Location.Coordinate.Y.ToString());
+                    weatherEndPoint, farmLocationX, farmLocationY);
             }
             else
             {
@@ -196,20 +283,6 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             }
             return await httpClient.GetAsync(weatherUrl);
         }
-
-        public async Task<bool> ValidateWeatherDataSchema(string weatherDataSchema)
-        {
-            try
-            {
-                return await
-                    internalCommunicationProvider
-                    .ValidateWeatherdDataSchemaFromDssMicroservice(weatherDataSchema);
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(string.Format("Error Validating Weather Data Schema. {0}", ex.Message));
-                return false;
-            }
-        }
+        #endregion
     }
 }

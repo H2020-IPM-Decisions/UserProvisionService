@@ -1,6 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using H2020.IPMDecisions.UPR.Core.Dtos;
@@ -40,7 +38,7 @@ namespace H2020.IPMDecisions.UPR.BLL
 
                 if (farmDssDto.DssExecutionType.ToLower() == "onthefly")
                 {
-                    //Todo, add to queue and run
+                    this.queueJobs.AddDssOnOnTheFlyQueue(newFieldCropPestDss.Id);
                     return GenericResponseBuilder.Accepted<FarmDssDto>(farmToReturn);
                 }
                 return GenericResponseBuilder.Success<FarmDssDto>(farmToReturn);

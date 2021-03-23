@@ -2,6 +2,7 @@ using System;
 using AutoMapper;
 using H2020.IPMDecisions.UPR.BLL.Helpers;
 using H2020.IPMDecisions.UPR.BLL.Providers;
+using H2020.IPMDecisions.UPR.BLL.ScheduleTasks;
 using H2020.IPMDecisions.UPR.Core.Services;
 using H2020.IPMDecisions.UPR.Data.Core;
 using Microsoft.AspNetCore.DataProtection;
@@ -20,6 +21,7 @@ namespace H2020.IPMDecisions.UPR.BLL
         private readonly ILogger<BusinessLogic> logger;
         private readonly IMicroservicesInternalCommunicationHttpProvider internalCommunicationProvider;
         private readonly IDataProtectionProvider dataProtectionProvider;
+        private readonly IHangfireQueueJobs queueJobs;
         private EncryptionHelper _encryption;
 
         public BusinessLogic(
@@ -30,7 +32,9 @@ namespace H2020.IPMDecisions.UPR.BLL
             IPropertyMappingService propertyMappingService,
             ILogger<BusinessLogic> logger,
             IMicroservicesInternalCommunicationHttpProvider internalCommunicationProvider,
-            IDataProtectionProvider dataProtectionProvider)
+            IDataProtectionProvider dataProtectionProvider,
+            IHangfireQueueJobs queueJobs
+            )
         {
             this.mapper = mapper
                 ?? throw new ArgumentNullException(nameof(mapper));
@@ -48,7 +52,8 @@ namespace H2020.IPMDecisions.UPR.BLL
                 ?? throw new ArgumentNullException(nameof(internalCommunicationProvider));
             this.dataProtectionProvider = dataProtectionProvider
                 ?? throw new ArgumentNullException(nameof(dataProtectionProvider));
-
+            this.queueJobs = queueJobs
+                ?? throw new ArgumentNullException(nameof(queueJobs));
             _encryption = new EncryptionHelper(dataProtectionProvider);
         }
     }

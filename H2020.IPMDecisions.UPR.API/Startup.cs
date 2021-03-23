@@ -55,6 +55,7 @@ namespace H2020.IPMDecisions.UPR.API
 
             services.ConfigureLogger(Configuration);
             services.AddScoped<IDataService, DataService>();
+            services.AddScoped<IHangfireQueueJobs, HangfireQueueJobs>();
             services.AddScoped<IBusinessLogic, BusinessLogic>();
 
             services.AddScoped<UserAccessingOwnDataActionFilter>();
@@ -72,6 +73,7 @@ namespace H2020.IPMDecisions.UPR.API
 
             services.ConfigurePostgresContext(Configuration);
             services.ConfigureHangfire(Configuration);
+            // services.AddScoped<IDssRunningJobs, DssRunningJobs>();
             services.ConfigureSwagger();
             services.AddDataProtection();
         }
@@ -128,7 +130,7 @@ namespace H2020.IPMDecisions.UPR.API
             }
 
             app.UseHangfireDashboard($"/{apiBasePath}dashboard", dashboardOptions);
-            HangfireJobScheduler.HangfireJobs();
+            HangfireJobScheduler.HangfireScheduleJobs();
 
             app.UseEndpoints(endpoints =>
             {
