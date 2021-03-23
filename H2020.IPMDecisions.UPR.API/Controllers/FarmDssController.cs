@@ -55,13 +55,13 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
 
             if (response.RequestResult != null)
                 return AcceptedAtRoute(
-                    "api.farm.get.farmbyid",
-                    new { farmId = response.Result.Id },
+                    "api.dss.get.byid",
+                    new { id = response.Result.FieldCropPestDssDto.Id },
                     response.Result);
 
             return CreatedAtRoute(
-                "api.farm.get.farmbyid",
-                new { farmId = response.Result.Id },
+                "api.dss.get.byid",
+                new { id = response.Result.FieldCropPestDssDto.Id },
                 response.Result);
         }
 
