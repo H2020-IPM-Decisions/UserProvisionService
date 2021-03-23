@@ -13,6 +13,10 @@ namespace H2020.IPMDecisions.UPR.Core.Dtos
         public override string DssId { get; set; }
         [Required]
         public override string DssModelId { get; set; }
+        [Required]
+        public override string DssVersion { get; set; }
+        [Required]
+        public override string DssExecutionType { get; set; }
         public override string DssParameters { get; set; }
     }
 }

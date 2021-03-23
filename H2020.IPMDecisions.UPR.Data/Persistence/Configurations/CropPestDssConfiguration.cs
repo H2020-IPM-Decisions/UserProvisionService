@@ -18,7 +18,9 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Configurations
                     {
                         c.CropPestId,
                         c.DssId,
-                        c.DssModelId
+                        c.DssModelId,
+                        c.DssVersion,
+                        c.DssExecutionType
                     })
                 .IsUnique();
 
@@ -31,7 +33,10 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Configurations
             builder.Property(c => c.DssModelId)
                 .IsRequired();
 
-            builder.Property(c => c.DssModelId)
+            builder.Property(c => c.DssExecutionType)
+                .IsRequired();
+
+            builder.Property(c => c.DssVersion)
                 .IsRequired();
 
             builder.HasOne<CropPest>(c => c.CropPest)
