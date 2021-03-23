@@ -58,7 +58,9 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
         {
             if (expression is null) return null;
 
-            return await this.context.FieldCropPestDss
+            return await this
+            .context
+            .FieldCropPestDss
                 .Include(fcpd => fcpd.CropPestDss)
                 .Include(fcpd => fcpd.FieldCropPest)
                     .ThenInclude(fcp => fcp.FieldCrop)

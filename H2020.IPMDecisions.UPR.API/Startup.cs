@@ -73,7 +73,6 @@ namespace H2020.IPMDecisions.UPR.API
 
             services.ConfigurePostgresContext(Configuration);
             services.ConfigureHangfire(Configuration);
-            // services.AddScoped<IDssRunningJobs, DssRunningJobs>();
             services.ConfigureSwagger();
             services.AddDataProtection();
         }

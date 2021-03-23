@@ -65,7 +65,10 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
 
         private async Task RunAllDssOnDatabase(DateTime now)
         {
-            var listOfDss = await this.dataService.FieldCropPestDsses.FindAllAsync();
+            var listOfDss = await this
+                .dataService
+                .FieldCropPestDsses
+                .FindAllAsync(f => f.CropPestDss.DssExecutionType.ToLower().Equals("onthefly"));
 #if DEBUG
             // listOfDss = listOfDss.Take(20);
             // listOfDss = listOfDss.Where(s => s.FieldCropPestId == Guid.Parse("baaf6737-751b-4cad-8bde-216a2df330fd"));
