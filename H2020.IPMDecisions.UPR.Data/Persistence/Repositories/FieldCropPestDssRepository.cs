@@ -37,8 +37,6 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
 
         public async Task<IEnumerable<FieldCropPestDss>> FindAllAsync()
         {
-            var pageNumber = 1;
-            var pageSize = 50;
             return await this
             .context
             .FieldCropPestDss
@@ -49,12 +47,10 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
                     .ThenInclude(fi => fi.Farm)
                     .ThenInclude(f => f.FarmWeatherDataSources)
                 .Include(fcpd => fcpd.FieldDssResults)
-                .Skip((pageNumber - 1) * pageSize)
-                .Take(pageSize)
             .ToListAsync();
         }
 
-        public async Task<List<FieldCropPestDss>> FindAllAsync(Expression<Func<FieldCropPestDss, bool>> expression)
+        public async Task<IEnumerable<FieldCropPestDss>> FindAllAsync(Expression<Func<FieldCropPestDss, bool>> expression)
         {
             if (expression is null) return null;
 
@@ -72,6 +68,27 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
                 .Include(fcpd => fcpd.FieldDssResults)
                 .Where(expression)
             .ToListAsync();
+        }
+
+        public async Task<IEnumerable<FieldCropPestDss>> FindAllAsync(
+            Expression<Func<FieldCropPestDss, bool>> expression,
+            int pageNumber,
+            int pageSize)
+        {
+            return await this
+                .context
+                .FieldCropPestDss
+                    .Include(fcpd => fcpd.CropPestDss)
+                    .Include(fcpd => fcpd.FieldCropPest)
+                        .ThenInclude(fcp => fcp.FieldCrop)
+                        .ThenInclude(fc => fc.Field)
+                        .ThenInclude(fi => fi.Farm)
+                        .ThenInclude(f => f.FarmWeatherDataSources)
+                    .Include(fcpd => fcpd.FieldDssResults)
+                    .Where(expression)
+                    .Skip((pageNumber - 1) * pageSize)
+                    .Take(pageSize)
+                .ToListAsync();
         }
 
         public async Task<PagedList<FieldCropPestDss>> FindAllAsync(FieldCropPestDssResourceParameter resourceParameter)
@@ -145,6 +162,15 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
                 .Where(f =>
                     f.Id == id)
                 .FirstOrDefaultAsync();
+        }
+
+        public int GetCount(Expression<Func<FieldCropPestDss, bool>> expression)
+        {
+            if (expression is null) return 0;
+
+            return context
+                .FieldCropPestDss
+                .Count(expression);
         }
 
         public void Update(FieldCropPestDss entity)
