@@ -301,11 +301,11 @@ namespace H2020.IPMDecisions.UPR.BLL
                     }
                     this.mapper.Map(farmToPatch.WeatherDataSourceDto, farm.FarmWeatherDataSources.FirstOrDefault());
                 }
-                if (!farm.FarmWeatherStations.Any() ||
-                    (farmToPatch.WeatherStationDto.Id != farm.FarmWeatherStations.FirstOrDefault().WeatherStationId))
-                {
-                    await EnsureWeatherStationExists(farmToPatch.WeatherStationDto);
-                }
+                // if (!farm.FarmWeatherStations.Any() ||
+                //     (farmToPatch.WeatherStationDto.Id != farm.FarmWeatherStations.FirstOrDefault()))
+                // {
+                //     await EnsureWeatherStationExists(farmToPatch.WeatherStationDto);
+                // }
 
                 this.mapper.Map(farmToPatch, farm);
 

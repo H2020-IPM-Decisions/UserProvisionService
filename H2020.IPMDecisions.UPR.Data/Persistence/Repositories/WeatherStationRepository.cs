@@ -53,7 +53,6 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
             return await this.context
                 .WeatherStation
                 .Where(expression)
-                .Include(w => w.FarmWeatherStations)
                 .FirstOrDefaultAsync();
         }
 

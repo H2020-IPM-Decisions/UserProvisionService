@@ -26,7 +26,7 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
                         dest.WeatherStationDto = context
                             .Mapper
                             .Map<WeatherStationDto>(
-                                src.FarmWeatherStations.FirstOrDefault().WeatherStation);
+                                src.FarmWeatherStations.FirstOrDefault());
                 });
 
             CreateMap<Farm, FarmWithChildrenDto>()
@@ -45,7 +45,7 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
                         dest.WeatherStationDto = context
                         .Mapper
                         .Map<WeatherStationDto>(
-                            src.FarmWeatherStations.FirstOrDefault().WeatherStation);
+                            src.FarmWeatherStations.FirstOrDefault());
                 });
 
             CreateMap<Farm, FarmForUpdateDto>()
@@ -63,21 +63,14 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
                        dest.WeatherStationDto = context
                       .Mapper
                       .Map<WeatherStationDto>(
-                          src.FarmWeatherStations.FirstOrDefault().WeatherStation);
+                          src.FarmWeatherStations.FirstOrDefault());
                }); ;
 
             // Dtos to Entities
             CreateMap<FarmForCreationDto, Farm>()
                 .BeforeMap((src, dest) =>
                 {
-                    dest.FarmWeatherStations = new List<FarmWeatherStation>()
-                    {
-                        new FarmWeatherStation()
-                        {
-                            Farm = dest,
-                            WeatherStationId = src.WeatherStationDto.Id
-                        }
-                    };
+                    dest.FarmWeatherStations = new List<WeatherStation>();
                     dest.FarmWeatherDataSources = new List<WeatherDataSource>();
                 })
                 .AfterMap((src, dest) =>
@@ -86,19 +79,6 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
                 });
 
             CreateMap<FarmForUpdateDto, Farm>()
-                .BeforeMap((src, dest, context) =>
-                {
-                    // Only select first Weather Station or Weather Data Source, because current requirements only accepts  
-                    // one per farm.This might change in the future
-                    dest.FarmWeatherStations = new List<FarmWeatherStation>()
-                    {
-                        new FarmWeatherStation()
-                        {
-                            Farm = dest,
-                            WeatherStationId = src.WeatherStationDto.Id
-                        }
-                    };
-                })
                 .AfterMap((src, dest) =>
                 {
                     dest.Location = new Point(src.Location.X, src.Location.Y) { SRID = src.Location.SRID };

@@ -24,7 +24,7 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
                         dest.WeatherStationDto = context
                             .Mapper
                             .Map<WeatherStationDto>(
-                                src.FarmWeatherStations.FirstOrDefault().WeatherStation);
+                                src.FarmWeatherStations.FirstOrDefault());
 
                     // Get last field        
                     if (src.Fields.Any())

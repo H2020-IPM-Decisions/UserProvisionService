@@ -16,7 +16,7 @@ namespace H2020.IPMDecisions.UPR.Core.Entities
         public Point Location { get; set; }
 
         public IList<UserFarm> UserFarms { get; set; }
-        public IList<FarmWeatherStation> FarmWeatherStations { get; set; }
+        public IList<WeatherStation> FarmWeatherStations { get; set; }
         public IList<WeatherDataSource> FarmWeatherDataSources { get; set; }
 
         public ICollection<Field> Fields { get; set; }
