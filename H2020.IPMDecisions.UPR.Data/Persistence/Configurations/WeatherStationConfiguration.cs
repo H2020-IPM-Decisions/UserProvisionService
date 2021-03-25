@@ -10,6 +10,9 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Configurations
         {
             builder.HasKey(f => f.Id);
 
+            builder.Property(f => f.Id)
+                .ValueGeneratedOnAdd();
+
             builder.Property(f => f.Credentials)
                 .HasColumnType("jsonb");
 

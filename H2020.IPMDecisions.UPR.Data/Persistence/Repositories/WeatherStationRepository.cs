@@ -61,7 +61,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
             return await this.context
                .WeatherStation.
                SingleOrDefaultAsync(w =>
-               w.Id == id.ToString());
+               w.Id == id);
         }
 
         public async Task<WeatherStation> FindByIdAsync(string id)
@@ -69,7 +69,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
             return await this.context
                .WeatherStation.
                SingleOrDefaultAsync(w =>
-               w.Id == id);
+               w.Id.ToString() == id);
         }
 
         public void Update(WeatherStation entity)

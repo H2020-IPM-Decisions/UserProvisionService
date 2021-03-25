@@ -3,6 +3,7 @@ using System;
 using H2020.IPMDecisions.UPR.Data.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetTopologySuite.Geometries;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -10,9 +11,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace H2020.IPMDecisions.UPR.Data.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210325104113_GenerateID")]
+    partial class GenerateID
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -392,8 +394,8 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Migrations
                     b.Property<Guid>("FieldId")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("WeatherStationId")
-                        .HasColumnType("uuid");
+                    b.Property<string>("WeatherStationId")
+                        .HasColumnType("text");
 
                     b.HasKey("FieldId", "WeatherStationId");
 
@@ -665,9 +667,9 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Migrations
 
             modelBuilder.Entity("H2020.IPMDecisions.UPR.Core.Entities.WeatherStation", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<string>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                        .HasColumnType("text");
 
                     b.Property<bool>("AuthenticationRequired")
                         .HasColumnType("boolean");
