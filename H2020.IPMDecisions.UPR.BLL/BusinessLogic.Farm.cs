@@ -81,13 +81,19 @@ namespace H2020.IPMDecisions.UPR.BLL
                 {
                     return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, "Please create a `User Profile` first.");
                 }
-                
-                var farmAsEntity = this.mapper.Map<Farm>(farmForCreationDto);
-                var weatherDataSource = EncodeNewWeatherDataSourcePassword(farmForCreationDto.WeatherDataSourceDto);
-                farmAsEntity.FarmWeatherDataSources.Add(weatherDataSource);
 
-                var weatherStation = EncodeNewWeatherStationPassword(farmForCreationDto.WeatherStationDto);
-                farmAsEntity.FarmWeatherStations.Add(weatherStation);
+                var farmAsEntity = this.mapper.Map<Farm>(farmForCreationDto);
+
+                if (farmForCreationDto.WeatherDataSourceDto != null)
+                {
+                    var weatherDataSource = EncodeNewWeatherDataSourcePassword(farmForCreationDto.WeatherDataSourceDto);
+                    farmAsEntity.FarmWeatherDataSources.Add(weatherDataSource);
+                }
+                if (farmForCreationDto.WeatherStationDto != null)
+                {
+                    var weatherStation = EncodeNewWeatherStationPassword(farmForCreationDto.WeatherStationDto);
+                    farmAsEntity.FarmWeatherStations.Add(weatherStation);
+                }
 
                 await this.dataService.UserProfiles.AddFarm(userProfile.Result, farmAsEntity, UserFarmTypeEnum.Owner, false);
                 await this.dataService.CompleteAsync();
@@ -302,14 +308,17 @@ namespace H2020.IPMDecisions.UPR.BLL
                     }
                     this.mapper.Map(farmToPatch.WeatherDataSourceDto, farm.FarmWeatherDataSources.FirstOrDefault());
                 }
-                // if (!farm.FarmWeatherStations.Any() ||
-                //     (farmToPatch.WeatherStationDto.Id != farm.FarmWeatherStations.FirstOrDefault()))
-                // {
-                //     await EnsureWeatherStationExists(farmToPatch.WeatherStationDto);
-                // }
+
+                if (farm.FarmWeatherStations.Count != 0)
+                {
+                    if (patchDocument.Operations.Any(o => o.path.ToLower().Contains("weatherstationdto/credentials")))
+                    {
+                        var weatherDataSource = EncodeNewWeatherStationPassword(farmToPatch.WeatherStationDto);
+                    }
+                    this.mapper.Map(farmToPatch.WeatherStationDto, farm.FarmWeatherStations.FirstOrDefault());
+                }
 
                 this.mapper.Map(farmToPatch, farm);
-
                 this.dataService.Farms.Update(farm);
                 await this.dataService.CompleteAsync();
 
