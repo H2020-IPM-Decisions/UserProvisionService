@@ -13,6 +13,7 @@ namespace H2020.IPMDecisions.UPR.Core.Entities
         public Guid CropPestDssId { get; set; }
         public CropPestDss CropPestDss { get; set; }
         public string DssParameters { get; set; }
+        public bool ObservationRequired { get; set; }
 
         public ICollection<FieldDssResult> FieldDssResults { get; set; }
     }
