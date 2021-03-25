@@ -244,7 +244,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             if (weatherDataSource.AuthenticationRequired)
             {
                 var contentData = new Dictionary<string, string>();
-                contentData.Add("weatherStationId", weatherDataSource.StationId.ToString());
+                // contentData.Add("weatherStationId", weatherDataSource.StationId.ToString());
                 contentData.Add("interval", weatherDataSource.Interval.ToString());
                 contentData.Add("ignoreErrors", "true");
                 contentData.Add("timeStart", weatherDataSource.TimeStart.ToString("yyyy-MM-dd"));
@@ -276,9 +276,9 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             }
             else
             {
-                weatherUrl = string.Format("{0}?weatherStationId={1}&interval={2}&timeStart={3}&timeEnd={4}&ignoreErrors=true",
+                weatherUrl = string.Format("{0}?interval={1}&timeStart={2}&timeEnd={3}&ignoreErrors=true",
                     weatherEndPoint,
-                    weatherDataSource.StationId.ToString(),
+                    // weatherDataSource.StationId.ToString(),
                     weatherDataSource.Interval.ToString(),
                     weatherDataSource.TimeStart.ToString("yyyy-MM-dd"),
                     weatherDataSource.TimeEnd.ToString("yyyy-MM-dd"));

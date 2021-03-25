@@ -16,11 +16,9 @@ namespace H2020.IPMDecisions.UPR.Core.Entities
         public bool IsForecast { get; set; }
         [Required]
         public bool AuthenticationRequired { get; set; }
-        public string StationId { get; set; }
         public int Interval { get; set; }
         public DateTime TimeStart { get; set; }
         public DateTime TimeEnd { get; set; }
-        public string Parameters { get; set; }
         public string Credentials { get; set; }
 
         public Guid FarmId { get; set; }

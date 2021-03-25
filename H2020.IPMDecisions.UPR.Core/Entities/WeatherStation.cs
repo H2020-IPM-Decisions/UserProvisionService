@@ -20,7 +20,6 @@ namespace H2020.IPMDecisions.UPR.Core.Entities
         public int Interval { get; set; }
         public DateTime TimeStart { get; set; }
         public DateTime TimeEnd { get; set; }
-        public string Parameters { get; set; }
         public string Credentials { get; set; }
 
         public Guid FarmId { get; set; }
