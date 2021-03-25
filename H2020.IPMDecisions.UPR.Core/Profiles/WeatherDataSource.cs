@@ -1,6 +1,7 @@
 using System.Text.Json;
 using H2020.IPMDecisions.UPR.Core.Dtos;
 using H2020.IPMDecisions.UPR.Core.Entities;
+using H2020.IPMDecisions.UPR.Core.Models;
 
 namespace H2020.IPMDecisions.UPR.Core.Profiles
 {
@@ -55,6 +56,8 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
 
             CreateMap<WeatherDataSourceForUpdateDto, WeatherDataSourceForCreationDto>()
                 .ReverseMap();
+
+            CreateMap<WeatherDataSource, WeatherSchemaForHttp>();
         }
     }
 }

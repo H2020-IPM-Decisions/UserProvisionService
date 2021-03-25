@@ -5,6 +5,7 @@ using System.Net.Http;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using AutoMapper;
 using H2020.IPMDecisions.UPR.BLL.Helpers;
 using H2020.IPMDecisions.UPR.BLL.Providers;
 using H2020.IPMDecisions.UPR.Core.Dtos;
@@ -30,12 +31,14 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
         private readonly IMicroservicesInternalCommunicationHttpProvider internalCommunicationProvider;
         private readonly ILogger<DssRunningJobs> logger;
         private readonly IDataProtectionProvider dataProtectionProvider;
+        private readonly IMapper mapper;
         private EncryptionHelper _encryption;
         public DssRunningJobs(
             IDataService dataService,
             IMicroservicesInternalCommunicationHttpProvider internalCommunicationProvider,
             ILogger<DssRunningJobs> logger,
-            IDataProtectionProvider dataProtectionProvider)
+            IDataProtectionProvider dataProtectionProvider,
+            IMapper mapper)
         {
             this.dataService = dataService
                 ?? throw new ArgumentNullException(nameof(dataService));
@@ -45,7 +48,8 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 ?? throw new ArgumentNullException(nameof(logger));
             this.dataProtectionProvider = dataProtectionProvider
              ?? throw new ArgumentNullException(nameof(dataProtectionProvider));
-
+            this.mapper = mapper
+                ?? throw new ArgumentNullException(nameof(mapper));
             _encryption = new EncryptionHelper(dataProtectionProvider);
         }
 
@@ -66,6 +70,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
         private async Task RunAllDssOnDatabase(DateTime now)
         {
             var count = this.dataService.FieldCropPestDsses.GetCount(f => f.CropPestDss.DssExecutionType.ToLower().Equals("onthefly"));
+            if (count == 0) return;
             var totalRecordsOnBatch = 50;
             var totalBatches = System.Math.Ceiling((decimal)count / totalRecordsOnBatch);
 
@@ -142,10 +147,22 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 JObject jObject = JObject.Parse(dss.DssParameters.ToString());
                 if (dssInformation.UsesWeatherData)
                 {
+                    var listOfWeather = new List<WeatherSchemaForHttp>();
                     var farm = dss.FieldCropPest.FieldCrop.Field.Farm;
-                    var dataSource = farm.FarmWeatherDataSources.FirstOrDefault();
+                    var weatherDataSource = farm.FarmWeatherDataSources.FirstOrDefault();
+                    if (weatherDataSource != null)
+                    {
+                        var weatherToCall = this.mapper.Map<WeatherSchemaForHttp>(weatherDataSource);
+                        listOfWeather.Add(weatherToCall);
+                    }
+                    var weatherStation = farm.FarmWeatherStations.FirstOrDefault();
+                    if (weatherStation != null)
+                    {
+                        var weatherToCall = this.mapper.Map<WeatherSchemaForHttp>(weatherStation);
+                        listOfWeather.Add(weatherToCall);
+                    }
 
-                    var responseWeather = await GetWeatherData(httpClient, farm.Location.X.ToString(), farm.Location.Y.ToString(), dataSource, dssInformation.WeatherParameters);
+                    var responseWeather = await GetWeatherData(httpClient, farm.Location.X.ToString(), farm.Location.Y.ToString(), listOfWeather, dssInformation.WeatherParameters);
                     if (!responseWeather.Continue)
                     {
                         dssResult.Result = responseWeather.ResponseWeather;
@@ -188,11 +205,21 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             HttpClient httpClient,
             string farmLocationX,
             string farmLocationY,
-            WeatherDataSource dataSource,
+            List<WeatherSchemaForHttp> listWeatherDataSource,
             string dssWeatherParameters)
         {
-            var responseWeather = await MakeWeatherDataCall(httpClient, farmLocationX, farmLocationY, dataSource, dssWeatherParameters);
+
             var result = new GetWeatherDataResult();
+            if (listWeatherDataSource.Count < 1)
+            {
+                result.ResponseWeather = JObject.Parse("{\"message\": \"No Weather Data Sources or Weather Stations associated to the farm\"}").ToString();
+                return result;
+            }
+
+            //ToDo - Ask what to do when multiple weather data sources associated to a farm. At the moment use only one
+            var weatherDataSource = listWeatherDataSource.FirstOrDefault();
+            var responseWeather = await MakeWeatherDataCall(httpClient, farmLocationX, farmLocationY, weatherDataSource, dssWeatherParameters);
+
             result.Continue = false;
             if (!responseWeather.IsSuccessStatusCode)
             {
@@ -236,7 +263,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             HttpClient httpClient,
             string farmLocationX,
             string farmLocationY,
-            WeatherDataSource weatherDataSource,
+            WeatherSchemaForHttp weatherDataSource,
             string dssWeatherParameters)
         {
             var weatherEndPoint = weatherDataSource.Url;
@@ -262,6 +289,10 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                     contentData.Add("parameters", dssWeatherParameters);
                 }
 
+                if (!string.IsNullOrEmpty(weatherDataSource.StationId))
+                {
+                    contentData.Add("weatherStationId", weatherDataSource.StationId.ToString());
+                }
                 var content = new FormUrlEncodedContent(contentData);
                 content.Headers.Clear();
                 content.Headers.Add("Content-Type", "application/x-www-form-urlencoded");
@@ -278,7 +309,6 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             {
                 weatherUrl = string.Format("{0}?interval={1}&timeStart={2}&timeEnd={3}&ignoreErrors=true",
                     weatherEndPoint,
-                    // weatherDataSource.StationId.ToString(),
                     weatherDataSource.Interval.ToString(),
                     weatherDataSource.TimeStart.ToString("yyyy-MM-dd"),
                     weatherDataSource.TimeEnd.ToString("yyyy-MM-dd"));
@@ -287,6 +317,11 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             {
                 weatherUrl = string.Format("{0}&parameters={1}",
                     weatherUrl, dssWeatherParameters);
+            }
+            if (!string.IsNullOrEmpty(weatherDataSource.StationId))
+            {
+                weatherUrl = string.Format("{0}&weatherStationId={1}",
+                    weatherUrl, weatherDataSource.StationId.ToString());
             }
             return await httpClient.GetAsync(weatherUrl);
         }
