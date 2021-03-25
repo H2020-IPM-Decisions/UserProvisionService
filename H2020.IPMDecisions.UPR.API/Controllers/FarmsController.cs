@@ -114,11 +114,12 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
 
         /// <summary>Use this end point to add a new farm to a user.</summary>
         /// <remarks>To receive associated data or HATEOAS links change the 'Accept' header
-        /// Please notice that the creation of Weather Data Sources is a complex operation as it uses for an overnight schedule operation, so be aware of the following:
+        /// Please notice that the creation of Weather Data Sources and SWeather Stations is a complex operation as it uses for an overnight schedule operation, so be aware of the following:
         /// <para>Required to specify if it is a Forecast or not service. Use the parameter 'isForecast'</para>
         /// <para>Required to specify if it the data source needs authorization. Use the parameter 'authenticationRequired'</para>
-        /// <para>If 'isForecast' is false, you need to add 'Interval', 'TimeEnd', 'TimeStart' and 'Parameters'. Extended documentation on the Weather Microservices</para>
+        /// <para>If 'isForecast' is false, you need to add 'Interval', 'TimeEnd', 'TimeStart'. Extended documentation on the Weather Microservices</para>
         /// <para>If 'authenticationRequired' is true, you need to the username and password. Extended documentation on the Weather Microservices</para>
+        /// <para>The Weather Station Id is required when entering a WeatherStation</para>
         /// </remarks>
         [Consumes(MediaTypeNames.Application.Json)]
         [ProducesResponseType(typeof(FarmDto), StatusCodes.Status201Created)]
