@@ -49,8 +49,6 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence
             modelBuilder.ApplyConfiguration(new DataSharingRequestConfiguration());
             modelBuilder.ApplyConfiguration(new DataSharingRequestStatusConfiguration());
             modelBuilder.ApplyConfiguration(new FarmConfiguration());
-            // modelBuilder.ApplyConfiguration(new FarmWeatherDataSourceConfiguration());
-            // modelBuilder.ApplyConfiguration(new FarmWeatherStationConfiguration());
             modelBuilder.ApplyConfiguration(new FieldConfiguration());
             modelBuilder.ApplyConfiguration(new FieldDssResultConfiguration());
             modelBuilder.ApplyConfiguration(new FieldCropPestConfiguration());
@@ -69,6 +67,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence
             modelBuilder.ApplyConfiguration(new UserProfileConfiguration());
             modelBuilder.ApplyConfiguration(new UserAddressConfiguration());
             modelBuilder.ApplyConfiguration(new WeatherDataSourceConfiguration());
+            modelBuilder.ApplyConfiguration(new WeatherStationConfiguration());
             modelBuilder.ApplyConfiguration(new WidgetConfiguration());
 
             modelBuilder.Seed();
