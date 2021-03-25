@@ -62,7 +62,7 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
                    if (src.FarmWeatherStations.Any())
                        dest.WeatherStationDto = context
                       .Mapper
-                      .Map<WeatherStationDto>(
+                      .Map<WeatherStationForUpdateDto>(
                           src.FarmWeatherStations.FirstOrDefault());
                }); ;
 

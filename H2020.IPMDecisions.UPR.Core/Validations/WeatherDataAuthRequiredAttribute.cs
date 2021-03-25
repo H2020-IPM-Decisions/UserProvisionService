@@ -11,7 +11,7 @@ namespace H2020.IPMDecisions.UPR.Core.Validations
 
         protected override ValidationResult IsValid(object value, ValidationContext validationContext)
         {
-            WeatherDataSourceForManipulationDto entity = (WeatherDataSourceForManipulationDto)validationContext.ObjectInstance;
+            WeatherForManipulationDto entity = (WeatherForManipulationDto)validationContext.ObjectInstance;
 
             if (entity.AuthenticationRequired == false || entity.AuthenticationRequired == null) return ValidationResult.Success;
 

@@ -81,12 +81,13 @@ namespace H2020.IPMDecisions.UPR.BLL
                 {
                     return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, "Please create a `User Profile` first.");
                 }
-
-                await EnsureWeatherStationExists(farmForCreationDto.WeatherStationDto);
+                
                 var farmAsEntity = this.mapper.Map<Farm>(farmForCreationDto);
-
                 var weatherDataSource = EncodeNewWeatherDataSourcePassword(farmForCreationDto.WeatherDataSourceDto);
                 farmAsEntity.FarmWeatherDataSources.Add(weatherDataSource);
+
+                var weatherStation = EncodeNewWeatherStationPassword(farmForCreationDto.WeatherStationDto);
+                farmAsEntity.FarmWeatherStations.Add(weatherStation);
 
                 await this.dataService.UserProfiles.AddFarm(userProfile.Result, farmAsEntity, UserFarmTypeEnum.Owner, false);
                 await this.dataService.CompleteAsync();

@@ -47,7 +47,7 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
                     return JsonSerializer.Serialize(src.Credentials);
                 }));
 
-            CreateMap<WeatherDataSourceForManipulationDto, WeatherDataSource>()
+            CreateMap<WeatherForManipulationDto, WeatherDataSource>()
                 .ForMember(dest => dest.Credentials, opt => opt.MapFrom((src, dest) =>
                 {
                     return JsonSerializer.Serialize(src.Credentials);
