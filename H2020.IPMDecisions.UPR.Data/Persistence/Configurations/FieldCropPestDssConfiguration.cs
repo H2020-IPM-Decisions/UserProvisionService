@@ -38,6 +38,10 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Configurations
             builder
                 .Property(cpd => cpd.DssParameters)
                 .HasColumnType("jsonb");
+
+            builder
+                .Property(cpd => cpd.ObservationProperties)
+                .HasColumnType("jsonb");
         }
     }
 }
