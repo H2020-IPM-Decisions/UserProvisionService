@@ -54,6 +54,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence
             modelBuilder.ApplyConfiguration(new FieldCropPestConfiguration());
             modelBuilder.ApplyConfiguration(new FieldCropPestDssConfiguration());
             modelBuilder.ApplyConfiguration(new FieldObservationConfiguration());
+            modelBuilder.ApplyConfiguration(new FieldDssObservationConfiguration());
             modelBuilder.ApplyConfiguration(new FieldSprayApplicationConfiguration());
             modelBuilder.ApplyConfiguration(new FieldWeatherDataSourceConfiguration());
             modelBuilder.ApplyConfiguration(new FieldWeatherStationConfiguration());

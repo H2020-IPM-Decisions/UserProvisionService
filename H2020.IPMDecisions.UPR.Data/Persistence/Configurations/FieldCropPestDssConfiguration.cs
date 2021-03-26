@@ -39,9 +39,11 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Configurations
                 .Property(cpd => cpd.DssParameters)
                 .HasColumnType("jsonb");
 
-            builder
-                .Property(cpd => cpd.ObservationProperties)
-                .HasColumnType("jsonb");
+            builder.HasMany<FieldDssObservation>(f => f.FieldDssObservations)
+                .WithOne(fo => fo.FieldCropPestDss)
+                .HasForeignKey(f => f.FieldCropPestDssId)
+                .HasConstraintName("FK_Observation_FieldCropPestDss")
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

@@ -30,7 +30,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Configurations
 
             builder.HasMany<FieldObservation>(f => f.FieldObservations)
                 .WithOne(fo => fo.FieldCropPest)
-                .HasForeignKey(f => f.FieldCropPestdId)
+                .HasForeignKey(f => f.FieldCropPestId)
                 .HasConstraintName("FK_Observation_FieldCropPest")
                 .OnDelete(DeleteBehavior.Cascade);
 
