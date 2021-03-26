@@ -15,6 +15,7 @@ namespace H2020.IPMDecisions.UPR.Core.Entities
         public Guid FieldCropPestdId { get; set; }
         public FieldCropPest FieldCropPest { get; set; }
         public string Severity { get; set; }
+        public string DssObservation { get; set; }
 
         public ICollection<ObservationAlert> ObservationAlerts { get; set; }
     }
