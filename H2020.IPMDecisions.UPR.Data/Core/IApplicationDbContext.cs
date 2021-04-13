@@ -16,8 +16,6 @@ namespace H2020.IPMDecisions.UPR.Core
         DbSet<FieldCropPest> FieldCropPest { get; set; }
         DbSet<FieldCropPestDss> FieldCropPestDss { get; set; }
         DbSet<FieldSprayApplication> FieldSprayApplication { get; set; }
-        DbSet<FieldWeatherDataSource> FieldWeatherDataSource { get; set; }
-        DbSet<FieldWeatherStation> FieldWeatherStation { get; set; }
         DbSet<ForecastAlert> ForecastAlert { get; set; }
         DbSet<ForecastResult> ForecastResult { get; set; }
         DbSet<ObservationAlert> ObservationAlert { get; set; }
@@ -27,7 +25,7 @@ namespace H2020.IPMDecisions.UPR.Core
         DbSet<UserFarmType> UserFarmType { get; set; }
         DbSet<UserProfile> UserProfile { get; set; }
         DbSet<UserWidget> UserWidget { get; set; }
-        DbSet<WeatherDataSource> WeatherDataSource { get; set; }
+        DbSet<WeatherForecast> WeatherForecast { get; set; }
         DbSet<WeatherStation> WeatherStation { get; set; }
         DbSet<Widget> Widget { get; set; }
     }

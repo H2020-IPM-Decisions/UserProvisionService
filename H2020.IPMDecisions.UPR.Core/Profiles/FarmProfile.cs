@@ -16,11 +16,11 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
                 {
                     // Only select first Weather Station or Weather Data Source, because current requirements only accepts  
                     // one per farm. This might change in the future
-                    if (src.FarmWeatherDataSources.Any())
-                        dest.WeatherDataSourceDto = context
-                            .Mapper
-                            .Map<WeatherDataSourceDto>(
-                                src.FarmWeatherDataSources.FirstOrDefault());
+                    // if (src.FarmWeatherDataSources.Any())
+                    //     dest.WeatherDataSourceDto = context
+                    //         .Mapper
+                    //         .Map<WeatherDataSourceDto>(
+                    //             src.FarmWeatherDataSources.FirstOrDefault());
 
                     if (src.FarmWeatherStations.Any())
                         dest.WeatherStationDto = context
@@ -35,11 +35,11 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
                 {
                     // Only select first Weather Station or Weather Data Source, because current requirements only accepts  
                     // one per farm. This might change in the future
-                    if (src.FarmWeatherDataSources.Any())
-                        dest.WeatherDataSourceDto = context
-                        .Mapper
-                        .Map<WeatherDataSourceDto>(
-                            src.FarmWeatherDataSources.FirstOrDefault());
+                    // if (src.FarmWeatherDataSources.Any())
+                    //     dest.WeatherDataSourceDto = context
+                    //     .Mapper
+                    //     .Map<WeatherDataSourceDto>(
+                    //         src.FarmWeatherDataSources.FirstOrDefault());
 
                     if (src.FarmWeatherStations.Any())
                         dest.WeatherStationDto = context
@@ -53,11 +53,11 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
                {
                    // Only select first Weather Station or Weather Data Source, because current requirements only accepts  
                    // one per farm.This might change in the future
-                   if (src.FarmWeatherDataSources.Any())
-                       dest.WeatherDataSourceDto = context
-                       .Mapper
-                       .Map<WeatherDataSourceForUpdateDto>(
-                           src.FarmWeatherDataSources.FirstOrDefault());
+                   //    if (src.FarmWeatherDataSources.Any())
+                   //        dest.WeatherDataSourceDto = context
+                   //        .Mapper
+                   //        .Map<WeatherDataSourceForUpdateDto>(
+                   //            src.FarmWeatherDataSources.FirstOrDefault());
 
                    if (src.FarmWeatherStations.Any())
                        dest.WeatherStationDto = context
@@ -71,7 +71,7 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
                 .BeforeMap((src, dest) =>
                 {
                     dest.FarmWeatherStations = new List<WeatherStation>();
-                    dest.FarmWeatherDataSources = new List<WeatherDataSource>();
+                    // dest.FarmWeatherDataSources = new List<WeatherForecast>();
                 })
                 .AfterMap((src, dest) =>
                 {

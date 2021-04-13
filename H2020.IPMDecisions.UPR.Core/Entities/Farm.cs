@@ -17,7 +17,7 @@ namespace H2020.IPMDecisions.UPR.Core.Entities
 
         public IList<UserFarm> UserFarms { get; set; }
         public IList<WeatherStation> FarmWeatherStations { get; set; }
-        public IList<WeatherDataSource> FarmWeatherDataSources { get; set; }
+        public IList<FarmWeatherForecast> FarmWeatherForecast { get; set; }
 
         public ICollection<Field> Fields { get; set; }
     }

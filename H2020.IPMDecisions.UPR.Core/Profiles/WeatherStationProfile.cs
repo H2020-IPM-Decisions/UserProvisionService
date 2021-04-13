@@ -11,7 +11,7 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
         {
             CreateMap<WeatherStation, WeatherStation>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore())
-                .ForMember(dest => dest.FieldWeatherStations, opt => opt.Ignore())
+                // .ForMember(dest => dest.FieldWeatherStations, opt => opt.Ignore())
                 .ForMember(dest => dest.FarmId, opt => opt.Ignore());
 
             CreateMap<WeatherStation, WeatherStationDto>()

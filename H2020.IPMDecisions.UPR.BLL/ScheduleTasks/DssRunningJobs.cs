@@ -149,12 +149,13 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 {
                     var listOfWeather = new List<WeatherSchemaForHttp>();
                     var farm = dss.FieldCropPest.FieldCrop.Field.Farm;
-                    var weatherDataSource = farm.FarmWeatherDataSources.FirstOrDefault();
-                    if (weatherDataSource != null)
-                    {
-                        var weatherToCall = this.mapper.Map<WeatherSchemaForHttp>(weatherDataSource);
-                        listOfWeather.Add(weatherToCall);
-                    }
+                    //ToDo
+                    // var weatherDataSource = farm.FarmWeatherDataSources.FirstOrDefault();
+                    // if (weatherDataSource != null)
+                    // {
+                    //     var weatherToCall = this.mapper.Map<WeatherSchemaForHttp>(weatherDataSource);
+                    //     listOfWeather.Add(weatherToCall);
+                    // }
                     var weatherStation = farm.FarmWeatherStations.FirstOrDefault();
                     if (weatherStation != null)
                     {

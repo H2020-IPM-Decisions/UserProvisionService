@@ -7,11 +7,11 @@ namespace H2020.IPMDecisions.UPR.BLL
     public partial class BusinessLogic : IBusinessLogic
     {
         #region Helpers
-        private WeatherDataSource EncodeNewWeatherDataSourcePassword(WeatherForManipulationDto weatherDataSourceDto)
+        private WeatherForecast EncodeNewWeatherDataSourcePassword(WeatherForManipulationDto weatherDataSourceDto)
         {
-            if (weatherDataSourceDto.Credentials == null) return this.mapper.Map<WeatherDataSource>(weatherDataSourceDto);
+            if (weatherDataSourceDto.Credentials == null) return this.mapper.Map<WeatherForecast>(weatherDataSourceDto);
             weatherDataSourceDto.Credentials.Password = _encryption.Encrypt(weatherDataSourceDto.Credentials.Password);
-            return this.mapper.Map<WeatherDataSource>(weatherDataSourceDto);
+            return this.mapper.Map<WeatherForecast>(weatherDataSourceDto);
         }
 
         private WeatherStation EncodeNewWeatherStationPassword(WeatherForManipulationDto weatherStationDto)

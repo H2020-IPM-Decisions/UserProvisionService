@@ -86,8 +86,9 @@ namespace H2020.IPMDecisions.UPR.BLL
 
                 if (farmForCreationDto.WeatherDataSourceDto != null)
                 {
-                    var weatherDataSource = EncodeNewWeatherDataSourcePassword(farmForCreationDto.WeatherDataSourceDto);
-                    farmAsEntity.FarmWeatherDataSources.Add(weatherDataSource);
+                    //ToDo
+                    // var weatherDataSource = EncodeNewWeatherDataSourcePassword(farmForCreationDto.WeatherDataSourceDto);
+                    // farmAsEntity.FarmWeatherDataSources.Add(weatherDataSource);
                 }
                 if (farmForCreationDto.WeatherStationDto != null)
                 {
@@ -300,14 +301,15 @@ namespace H2020.IPMDecisions.UPR.BLL
         {
             try
             {
-                if (farm.FarmWeatherDataSources.Count != 0)
-                {
-                    if (patchDocument.Operations.Any(o => o.path.ToLower().Contains("weatherdatasourcedto/credentials")))
-                    {
-                        var weatherDataSource = EncodeNewWeatherDataSourcePassword(farmToPatch.WeatherDataSourceDto);
-                    }
-                    this.mapper.Map(farmToPatch.WeatherDataSourceDto, farm.FarmWeatherDataSources.FirstOrDefault());
-                }
+                // ToDo
+                // if (farm.FarmWeatherDataSources.Count != 0)
+                // {
+                //     if (patchDocument.Operations.Any(o => o.path.ToLower().Contains("weatherdatasourcedto/credentials")))
+                //     {
+                //         var weatherDataSource = EncodeNewWeatherDataSourcePassword(farmToPatch.WeatherDataSourceDto);
+                //     }
+                //     this.mapper.Map(farmToPatch.WeatherDataSourceDto, farm.FarmWeatherDataSources.FirstOrDefault());
+                // }
 
                 if (farm.FarmWeatherStations.Count != 0)
                 {

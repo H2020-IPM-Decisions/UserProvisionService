@@ -20,7 +20,6 @@ namespace H2020.IPMDecisions.UPR.Data.Core
         IUserFarmsRepository UserFarms { get; }
         IUserProfileRepository UserProfiles { get; }
         IUserWidgetRepository UserWidgets { get; }
-        IWeatherDataSourcesRepository WeatherDataSources { get; }
         IWeatherStationRepository WeatherStations { get; }
     }
 }

@@ -26,12 +26,6 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Configurations
                 .HasConstraintName("FK_Field_Farm")
                 .OnDelete(DeleteBehavior.Cascade);
 
-            builder.HasMany<WeatherDataSource>(f => f.FarmWeatherDataSources)
-                .WithOne(fi => fi.Farm)
-                .HasForeignKey(fi => fi.FarmId)
-                .HasConstraintName("FK_Farm_FarmWeatherDataSource")
-                .OnDelete(DeleteBehavior.Cascade);
-
             builder.HasMany<WeatherStation>(f => f.FarmWeatherStations)
                 .WithOne(fi => fi.Farm)
                 .HasForeignKey(fi => fi.FarmId)
