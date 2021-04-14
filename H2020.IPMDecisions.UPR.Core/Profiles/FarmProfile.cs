@@ -50,6 +50,7 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
                 });
 
             CreateMap<Farm, FarmForUpdateDto>()
+                .ForMember(dest => dest.WeatherForecastDto, opt => opt.MapFrom(src => src.WeatherForecast))
                 .AfterMap((src, dest, context) =>
                {
                    // Only select first Weather Station or Weather Data Source, because current requirements only accepts  

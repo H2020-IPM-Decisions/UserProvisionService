@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace H2020.IPMDecisions.UPR.Core.Dtos
 {
-    public class WeatherDataSourceForUpdateDto
+    public class WeatherForecastForUpdateDto
     {
         [Required]
         public string WeatherId { get; set; }

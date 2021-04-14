@@ -301,15 +301,14 @@ namespace H2020.IPMDecisions.UPR.BLL
         {
             try
             {
-                // ToDo
-                // if (farm.FarmWeatherDataSources.Count != 0)
-                // {
-                //     if (patchDocument.Operations.Any(o => o.path.ToLower().Contains("weatherdatasourcedto/credentials")))
-                //     {
-                //         var weatherDataSource = EncodeNewWeatherDataSourcePassword(farmToPatch.WeatherDataSourceDto);
-                //     }
-                //     this.mapper.Map(farmToPatch.WeatherDataSourceDto, farm.FarmWeatherDataSources.FirstOrDefault());
-                // }
+                if (farm.WeatherForecast != null)
+                {
+                    if (patchDocument.Operations.Any(o => o.path.ToLower().Contains("weatherforecastdto/")))
+                    {
+                        var weatherForecastAsCreation = this.mapper.Map<WeatherForecastForCreationDto>(farmToPatch.WeatherForecastDto);
+                        farm.WeatherForecast = await EnsureWeatherForecastExists(weatherForecastAsCreation);
+                    }
+                }
 
                 if (farm.FarmWeatherStations.Count != 0)
                 {

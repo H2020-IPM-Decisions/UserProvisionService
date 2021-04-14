@@ -11,6 +11,6 @@ namespace H2020.IPMDecisions.UPR.Core.Dtos
         [Required(ErrorMessage = "Farm location can not be deleted")]
         public override CustomPointLocation Location { get => base.Location; set => base.Location = value; }
         public WeatherStationForUpdateDto WeatherStationDto { get; set; }
-        public WeatherDataSourceForUpdateDto WeatherDataSourceDto { get; set; }
+        public WeatherForecastForUpdateDto WeatherForecastDto { get; set; }
     }
 }
