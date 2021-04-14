@@ -12,6 +12,7 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
         {
             // Entities to Dtos
             CreateMap<Farm, FarmDto>()
+                .ForMember(dest => dest.WeatherForecastDto, opt => opt.MapFrom(src => src.WeatherForecast))
             .AfterMap((src, dest, context) =>
                 {
                     // Only select first Weather Station or Weather Data Source, because current requirements only accepts  
@@ -68,10 +69,10 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
 
             // Dtos to Entities
             CreateMap<FarmForCreationDto, Farm>()
+                .ForMember(dest => dest.WeatherForecast, opt => opt.Ignore())
                 .BeforeMap((src, dest) =>
                 {
                     dest.FarmWeatherStations = new List<WeatherStation>();
-                    // dest.FarmWeatherDataSources = new List<WeatherForecast>();
                 })
                 .AfterMap((src, dest) =>
                 {

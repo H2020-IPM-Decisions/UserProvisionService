@@ -48,6 +48,8 @@ namespace H2020.IPMDecisions.UPR.BLL
                     return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, "Please create a `User Profile` first.");
                 }
 
+                await EnsureWeatherForecastExists(farmForCreationDto.WeatherForecastDto);
+
                 var farmAsEntity = this.mapper.Map<Farm>(farmForCreationDto);
                 farmAsEntity.Id = id;
 
@@ -83,12 +85,10 @@ namespace H2020.IPMDecisions.UPR.BLL
                 }
 
                 var farmAsEntity = this.mapper.Map<Farm>(farmForCreationDto);
-
-                if (farmForCreationDto.WeatherDataSourceDto != null)
+                if (farmForCreationDto.WeatherForecastDto != null)
                 {
-                    //ToDo
-                    // var weatherDataSource = EncodeNewWeatherDataSourcePassword(farmForCreationDto.WeatherDataSourceDto);
-                    // farmAsEntity.FarmWeatherDataSources.Add(weatherDataSource);
+                    var weatherForecast = await EnsureWeatherForecastExists(farmForCreationDto.WeatherForecastDto);
+                    farmAsEntity.WeatherForecast = weatherForecast;
                 }
                 if (farmForCreationDto.WeatherStationDto != null)
                 {

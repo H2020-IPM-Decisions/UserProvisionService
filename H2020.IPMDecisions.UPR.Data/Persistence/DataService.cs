@@ -193,7 +193,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence
                 return fieldSprayApplication;
             }
         }
-      
+
         private IUserWidgetRepository userWidgets;
         public IUserWidgetRepository UserWidgets
         {
@@ -207,6 +207,19 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence
             }
         }
 
+        public IWeatherForecastRepository weatherForecasts;
+
+        public IWeatherForecastRepository WeatherForecasts
+        {
+            get
+            {
+                if (weatherForecasts == null)
+                {
+                    weatherForecasts = new WeatherForecastRepository(this.context);
+                }
+                return weatherForecasts;
+            }
+        }
         public DataService(
             ApplicationDbContext context,
             IPropertyMappingService propertyMappingService)
