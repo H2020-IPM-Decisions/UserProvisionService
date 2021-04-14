@@ -74,7 +74,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
                         (uf => uf.UserId == userId));
 
             collection = collection
-                // .Include(f => f.FarmWeatherDataSources)
+                .Include(f => f.WeatherForecast)
                 .Include(f => f.FarmWeatherStations);
 
             collection = ApplyResourceParameter(resourceParameter, collection);
@@ -101,7 +101,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
                         (uf => uf.UserId == userId));
 
             collection = collection
-                // .Include(f => f.FarmWeatherDataSources)
+                .Include(f => f.WeatherForecast)
                 .Include(f => f.FarmWeatherStations)
                 .Include(f => f.Fields);
             // .ThenInclude(fi => fi.FieldObservations);
@@ -133,7 +133,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
                 .Where(expression)
                 .Include(f => f.UserFarms)
                 .Include(f => f.Fields)
-                // .Include(f => f.FarmWeatherDataSources)
+                .Include(f => f.WeatherForecast)
                 .Include(f => f.FarmWeatherStations)
                 .FirstOrDefaultAsync();
         }
@@ -161,7 +161,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
                 .Farm
                 .Include(f => f.UserFarms)
                 .Include(f => f.Fields)
-                // .Include(f => f.FarmWeatherDataSources)
+                .Include(f => f.WeatherForecast)
                 .Include(f => f.FarmWeatherStations)
                 .Where(f =>
                     f.Id == id)
