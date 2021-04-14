@@ -31,6 +31,12 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Configurations
                 .HasForeignKey(fi => fi.FarmId)
                 .HasConstraintName("FK_Farm_FarmWeatherStations")
                 .OnDelete(DeleteBehavior.Cascade);
+
+            builder.HasOne<WeatherForecast>(f => f.WeatherForecast)
+                .WithMany(w => w.Farms)
+                .HasForeignKey(f => f.WeatherForecastId)
+                .HasConstraintName("FK_Farm_WeatherForecast")
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

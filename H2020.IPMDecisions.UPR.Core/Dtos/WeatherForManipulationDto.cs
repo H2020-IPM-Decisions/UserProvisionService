@@ -1,27 +1,7 @@
-using System;
-using System.ComponentModel.DataAnnotations;
-using H2020.IPMDecisions.UPR.Core.Validations;
-
 namespace H2020.IPMDecisions.UPR.Core.Dtos
 {
     public abstract class WeatherForManipulationDto
     {
-        public abstract string Name { get; set; }
-        [DataType(DataType.Url)]
-        public abstract string Url { get; set; }
-        public abstract bool? IsForecast { get; set; }
-        public abstract bool? AuthenticationRequired { get; set; }
-
-        [NotWeatherForecastAttribute]
-        public int? Interval { get; set; }
-
-        [NotWeatherForecastAttribute]
-        public DateTime? TimeStart { get; set; }
-
-        [NotWeatherForecastAttribute]
-        public DateTime? TimeEnd { get; set; }
-
-        [WeatherDataAuthRequiredAttribute]
-        public WeatherCredentials Credentials { get; set; }
+        public abstract string WeatherId { get; set; }
     }
 }

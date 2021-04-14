@@ -11,6 +11,6 @@ namespace H2020.IPMDecisions.UPR.Core.Dtos
         public string Inf2 { get; set; }
         public CustomPointLocation Location { get; set; }
         public WeatherStationDto WeatherStationDto { get; set; }
-        public WeatherDataSourceDto WeatherDataSourceDto { get; set; }
+        public WeatherForecastDto WeatherDataSourceDto { get; set; }
     }
 }

@@ -27,32 +27,32 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
                     return credentialsNoPassword;
                 }));
 
-            CreateMap<WeatherStation, WeatherStationForCreationDto>()
-                .ForMember(dest => dest.Credentials, opt => opt.Ignore());
+            CreateMap<WeatherStation, WeatherStationForCreationDto>();
+            // .ForMember(dest => dest.Credentials, opt => opt.Ignore());
 
-            CreateMap<WeatherStation, WeatherStationForUpdateDto>()
-                .ForMember(dest => dest.Credentials, opt => opt.MapFrom((src, dest) =>
-                {
-                    WeatherCredentials credentialsNoPassword = null;
-                    if (string.IsNullOrEmpty(src.Credentials) || src.Credentials == "null") return credentialsNoPassword;
+            CreateMap<WeatherStation, WeatherStationForUpdateDto>();
+            // .ForMember(dest => dest.Credentials, opt => opt.MapFrom((src, dest) =>
+            // {
+            //     WeatherCredentials credentialsNoPassword = null;
+            //     if (string.IsNullOrEmpty(src.Credentials) || src.Credentials == "null") return credentialsNoPassword;
 
-                    var credentialsAsObject = JsonSerializer.Deserialize<WeatherCredentials>(src.Credentials);
-                    return credentialsAsObject;
-                }));
+            //     var credentialsAsObject = JsonSerializer.Deserialize<WeatherCredentials>(src.Credentials);
+            //     return credentialsAsObject;
+            // }));
 
             CreateMap<WeatherStationDto, WeatherStation>();
 
-            CreateMap<WeatherStationForCreationDto, WeatherStation>()
-                .ForMember(dest => dest.Credentials, opt => opt.MapFrom((src, dest) =>
-                {
-                    return JsonSerializer.Serialize(src.Credentials);
-                }));
+            CreateMap<WeatherStationForCreationDto, WeatherStation>();
+            // .ForMember(dest => dest.Credentials, opt => opt.MapFrom((src, dest) =>
+            // {
+            //     return JsonSerializer.Serialize(src.Credentials);
+            // }));
 
-            CreateMap<WeatherForManipulationDto, WeatherStation>()
-                .ForMember(dest => dest.Credentials, opt => opt.MapFrom((src, dest) =>
-                {
-                    return JsonSerializer.Serialize(src.Credentials);
-                }));
+            CreateMap<WeatherForManipulationDto, WeatherStation>();
+            // .ForMember(dest => dest.Credentials, opt => opt.MapFrom((src, dest) =>
+            // {
+            //     return JsonSerializer.Serialize(src.Credentials);
+            // }));
 
             CreateMap<WeatherStationForUpdateDto, WeatherStationForCreationDto>()
                 .ReverseMap();

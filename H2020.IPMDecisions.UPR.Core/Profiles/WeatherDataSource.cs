@@ -14,7 +14,7 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
             // .ForMember(dest => dest.FieldWeatherDataSources, opt => opt.Ignore())
             // .ForMember(dest => dest.FarmId, opt => opt.Ignore());
 
-            CreateMap<WeatherForecast, WeatherDataSourceDto>();
+            CreateMap<WeatherForecast, WeatherForecastDto>();
             //ToDo
             // .ForMember(dest => dest.Credentials, opt => opt.MapFrom((src, dest) =>
             // {
@@ -28,8 +28,8 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
             //     return credentialsNoPassword;
             // }));
 
-            CreateMap<WeatherForecast, WeatherDataSourceForCreationDto>()
-                .ForMember(dest => dest.Credentials, opt => opt.Ignore());
+            CreateMap<WeatherForecast, WeatherDataSourceForCreationDto>();
+            // .ForMember(dest => dest.Credentials, opt => opt.Ignore());
 
             CreateMap<WeatherForecast, WeatherDataSourceForUpdateDto>();
             //ToDo
@@ -42,7 +42,7 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
             //     return credentialsAsObject;
             // }));
 
-            CreateMap<WeatherDataSourceDto, WeatherForecast>();
+            CreateMap<WeatherForecastDto, WeatherForecast>();
 
             CreateMap<WeatherDataSourceForCreationDto, WeatherForecast>();
             //ToDo

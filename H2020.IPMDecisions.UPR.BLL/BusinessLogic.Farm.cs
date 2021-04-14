@@ -92,8 +92,8 @@ namespace H2020.IPMDecisions.UPR.BLL
                 }
                 if (farmForCreationDto.WeatherStationDto != null)
                 {
-                    var weatherStation = EncodeNewWeatherStationPassword(farmForCreationDto.WeatherStationDto);
-                    farmAsEntity.FarmWeatherStations.Add(weatherStation);
+                    // var weatherStation = EncodeNewWeatherStationPassword(farmForCreationDto.WeatherStationDto);
+                    // farmAsEntity.FarmWeatherStations.Add(weatherStation);
                 }
 
                 await this.dataService.UserProfiles.AddFarm(userProfile.Result, farmAsEntity, UserFarmTypeEnum.Owner, false);
@@ -315,7 +315,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                 {
                     if (patchDocument.Operations.Any(o => o.path.ToLower().Contains("weatherstationdto/credentials")))
                     {
-                        var weatherDataSource = EncodeNewWeatherStationPassword(farmToPatch.WeatherStationDto);
+                        // var weatherDataSource = EncodeNewWeatherStationPassword(farmToPatch.WeatherStationDto);
                     }
                     this.mapper.Map(farmToPatch.WeatherStationDto, farm.FarmWeatherStations.FirstOrDefault());
                 }
