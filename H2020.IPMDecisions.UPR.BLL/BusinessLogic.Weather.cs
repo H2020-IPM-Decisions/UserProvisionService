@@ -22,7 +22,7 @@ namespace H2020.IPMDecisions.UPR.BLL
             return weatherStationAsEntity;
         }
 
-        private async Task<WeatherHistorical> EncodeNewWeatherHistoricalExists(WeatherHistoricalForCreationDto weatherHistoricalDto)
+        private async Task<WeatherHistorical> EncodeWeatherHistoricalExists(WeatherHistoricalForCreationDto weatherHistoricalDto)
         {
             var weatherStationAsEntity = await this
                                 .dataService

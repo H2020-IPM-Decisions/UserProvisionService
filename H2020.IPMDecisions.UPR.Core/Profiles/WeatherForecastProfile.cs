@@ -1,4 +1,3 @@
-using System.Text.Json;
 using H2020.IPMDecisions.UPR.Core.Dtos;
 using H2020.IPMDecisions.UPR.Core.Entities;
 using H2020.IPMDecisions.UPR.Core.Models;
@@ -21,11 +20,10 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
             // Dtos to entities
             CreateMap<WeatherForecastForCreationDto, WeatherForecast>();
             CreateMap<WeatherForecastForUpdateDto, WeatherForecast>();
-
             CreateMap<WeatherForecastForUpdateDto, WeatherForecastForCreationDto>()
                 .ReverseMap();
 
-            // Interanl
+            // Internal
             CreateMap<WeatherForecast, WeatherSchemaForHttp>();
         }
     }

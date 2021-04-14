@@ -92,7 +92,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                 }
                 if (farmForCreationDto.WeatherHistoricalDto != null)
                 {
-                    var weatherHistorical = await EncodeNewWeatherHistoricalExists(farmForCreationDto.WeatherHistoricalDto);
+                    var weatherHistorical = await EncodeWeatherHistoricalExists(farmForCreationDto.WeatherHistoricalDto);
                     farmAsEntity.WeatherHistorical = weatherHistorical;
                 }
 
@@ -314,8 +314,8 @@ namespace H2020.IPMDecisions.UPR.BLL
                 {
                     if (patchDocument.Operations.Any(o => o.path.ToLower().Contains("weatherhistoricaldto/")))
                     {
-                        // var weatherHistoricalAsCreation = this.mapper.Map<WeatherForecastForCreationDto>(farmToPatch.WeatherForecastDto);
-                        // farm.WeatherHistorical = await EnsureWeatherForecastExists(weatherForecastAsCreation);
+                        var weatherHistoricalAsCreation = this.mapper.Map<WeatherHistoricalForCreationDto>(farmToPatch.WeatherHistoricalDto);
+                        farm.WeatherHistorical = await EncodeWeatherHistoricalExists(weatherHistoricalAsCreation);
                     }
                 }
 

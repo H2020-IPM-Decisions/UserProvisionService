@@ -1,4 +1,3 @@
-using System.Text.Json;
 using H2020.IPMDecisions.UPR.Core.Dtos;
 using H2020.IPMDecisions.UPR.Core.Entities;
 using H2020.IPMDecisions.UPR.Core.Models;
@@ -11,24 +10,19 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
         {
             CreateMap<WeatherHistorical, WeatherHistorical>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore());
-            // .ForMember(dest => dest.FieldWeatherStations, opt => opt.Ignore())
-            // .ForMember(dest => dest.FarmId, opt => opt.Ignore());
 
+            // Entities to Dtos
             CreateMap<WeatherHistorical, WeatherHistoricalDto>();
-
             CreateMap<WeatherHistorical, WeatherHistoricalForCreationDto>();
-
             CreateMap<WeatherHistorical, WeatherHistoricalForUpdateDto>();
 
+            // Dtos to entities
             CreateMap<WeatherHistoricalDto, WeatherHistorical>();
-
             CreateMap<WeatherHistoricalForCreationDto, WeatherHistorical>();
-
             CreateMap<WeatherHistoricalForUpdateDto, WeatherHistoricalForCreationDto>()
                 .ReverseMap();
-            CreateMap<WeatherHistorical, WeatherHistoricalDto>()
-                .ReverseMap();
 
+            // Internal
             CreateMap<WeatherHistorical, WeatherSchemaForHttp>();
         }
     }
