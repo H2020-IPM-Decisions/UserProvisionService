@@ -22,18 +22,19 @@ namespace H2020.IPMDecisions.UPR.BLL
             return weatherStationAsEntity;
         }
 
-        private async Task EnsureWeatherStationExists(WeatherStationDto weatherStationDto)
+        private async Task<WeatherHistorical> EncodeNewWeatherHistoricalExists(WeatherHistoricalForCreationDto weatherHistoricalDto)
         {
-            var weatherStationExist = await this
+            var weatherStationAsEntity = await this
                                 .dataService
-                                .WeatherStations
-                                .FindByIdAsync(weatherStationDto.Id);
+                                .WeatherHistoricals
+                                .FindByWeatherIdAsync(weatherHistoricalDto.WeatherId);
 
-            if (weatherStationExist == null)
+            if (weatherStationAsEntity == null)
             {
-                var weatherStationAsEntity = this.mapper.Map<WeatherStation>(weatherStationDto);
-                this.dataService.WeatherStations.Create(weatherStationAsEntity);
+                weatherStationAsEntity = this.mapper.Map<WeatherHistorical>(weatherHistoricalDto);
+                this.dataService.WeatherHistoricals.Create(weatherStationAsEntity);
             }
+            return weatherStationAsEntity;
         }
         #endregion
     }

@@ -156,12 +156,13 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                     //     var weatherToCall = this.mapper.Map<WeatherSchemaForHttp>(weatherDataSource);
                     //     listOfWeather.Add(weatherToCall);
                     // }
-                    var weatherStation = farm.FarmWeatherStations.FirstOrDefault();
-                    if (weatherStation != null)
-                    {
-                        var weatherToCall = this.mapper.Map<WeatherSchemaForHttp>(weatherStation);
-                        listOfWeather.Add(weatherToCall);
-                    }
+                    //ToDo
+                    // var weatherStation = farm.FarmWeatherStations.FirstOrDefault();
+                    // if (weatherStation != null)
+                    // {
+                    //     var weatherToCall = this.mapper.Map<WeatherSchemaForHttp>(weatherStation);
+                    //     listOfWeather.Add(weatherToCall);
+                    // }
 
                     var responseWeather = await GetWeatherData(httpClient, farm.Location.X.ToString(), farm.Location.Y.ToString(), listOfWeather, dssInformation.WeatherParameters);
                     if (!responseWeather.Continue)

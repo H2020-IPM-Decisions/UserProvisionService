@@ -20,11 +20,11 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
                     //         .Map<WeatherDataSourceDto>(
                     //             src.FarmWeatherDataSources.FirstOrDefault());
 
-                    if (src.FarmWeatherStations.Any())
-                        dest.WeatherStationDto = context
-                            .Mapper
-                            .Map<WeatherStationDto>(
-                                src.FarmWeatherStations.FirstOrDefault());
+                    // if (src.FarmWeatherStations.Any())
+                    //     dest.WeatherStationDto = context
+                    //         .Mapper
+                    //         .Map<WeatherStationDto>(
+                    //             src.FarmWeatherStations.FirstOrDefault());
 
                     // Get last field        
                     if (src.Fields.Any())

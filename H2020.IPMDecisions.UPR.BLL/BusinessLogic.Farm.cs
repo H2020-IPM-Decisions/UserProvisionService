@@ -90,10 +90,10 @@ namespace H2020.IPMDecisions.UPR.BLL
                     var weatherForecast = await EnsureWeatherForecastExists(farmForCreationDto.WeatherForecastDto);
                     farmAsEntity.WeatherForecast = weatherForecast;
                 }
-                if (farmForCreationDto.WeatherStationDto != null)
+                if (farmForCreationDto.WeatherHistoricalDto != null)
                 {
-                    // var weatherStation = EncodeNewWeatherStationPassword(farmForCreationDto.WeatherStationDto);
-                    // farmAsEntity.FarmWeatherStations.Add(weatherStation);
+                    var weatherHistorical = await EncodeNewWeatherHistoricalExists(farmForCreationDto.WeatherHistoricalDto);
+                    farmAsEntity.WeatherHistorical = weatherHistorical;
                 }
 
                 await this.dataService.UserProfiles.AddFarm(userProfile.Result, farmAsEntity, UserFarmTypeEnum.Owner, false);
@@ -310,13 +310,13 @@ namespace H2020.IPMDecisions.UPR.BLL
                     }
                 }
 
-                if (farm.FarmWeatherStations.Count != 0)
+                if (farm.WeatherHistorical != null)
                 {
-                    if (patchDocument.Operations.Any(o => o.path.ToLower().Contains("weatherstationdto/credentials")))
+                    if (patchDocument.Operations.Any(o => o.path.ToLower().Contains("weatherhistoricaldto/")))
                     {
-                        // var weatherDataSource = EncodeNewWeatherStationPassword(farmToPatch.WeatherStationDto);
+                        // var weatherHistoricalAsCreation = this.mapper.Map<WeatherForecastForCreationDto>(farmToPatch.WeatherForecastDto);
+                        // farm.WeatherHistorical = await EnsureWeatherForecastExists(weatherForecastAsCreation);
                     }
-                    this.mapper.Map(farmToPatch.WeatherStationDto, farm.FarmWeatherStations.FirstOrDefault());
                 }
 
                 this.mapper.Map(farmToPatch, farm);

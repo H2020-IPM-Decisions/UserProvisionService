@@ -168,16 +168,16 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence
             }
         }
 
-        private IWeatherStationRepository weatherStations;
-        public IWeatherStationRepository WeatherStations
+        private IWeatherHistoricalRepository weatherHistoricals;
+        public IWeatherHistoricalRepository WeatherHistoricals
         {
             get
             {
-                if (weatherStations == null)
+                if (weatherHistoricals == null)
                 {
-                    weatherStations = new WeatherStationRepository(this.context);
+                    weatherHistoricals = new WeatherHistoricalRepository(this.context);
                 }
-                return weatherStations;
+                return weatherHistoricals;
             }
         }
 

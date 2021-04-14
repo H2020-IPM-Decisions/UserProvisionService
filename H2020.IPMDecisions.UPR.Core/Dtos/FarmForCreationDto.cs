@@ -10,7 +10,7 @@ namespace H2020.IPMDecisions.UPR.Core.Dtos
 
         [Required(ErrorMessage = "Farm location is required")]
         public override CustomPointLocation Location { get => base.Location; set => base.Location = value; }
-        public WeatherStationForCreationDto WeatherStationDto { get; set; }
+        public WeatherHistoricalForCreationDto WeatherHistoricalDto { get; set; }
         public WeatherForecastForCreationDto WeatherForecastDto { get; set; }
     }
 }

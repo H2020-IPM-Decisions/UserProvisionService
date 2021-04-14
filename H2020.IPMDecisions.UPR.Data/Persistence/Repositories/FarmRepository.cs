@@ -75,7 +75,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
 
             collection = collection
                 .Include(f => f.WeatherForecast)
-                .Include(f => f.FarmWeatherStations);
+                .Include(f => f.WeatherHistorical);
 
             collection = ApplyResourceParameter(resourceParameter, collection);
 
@@ -102,7 +102,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
 
             collection = collection
                 .Include(f => f.WeatherForecast)
-                .Include(f => f.FarmWeatherStations)
+                .Include(f => f.WeatherHistorical)
                 .Include(f => f.Fields);
             // .ThenInclude(fi => fi.FieldObservations);
 
@@ -134,7 +134,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
                 .Include(f => f.UserFarms)
                 .Include(f => f.Fields)
                 .Include(f => f.WeatherForecast)
-                .Include(f => f.FarmWeatherStations)
+                .Include(f => f.WeatherHistorical)
                 .FirstOrDefaultAsync();
         }
 
@@ -162,7 +162,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
                 .Include(f => f.UserFarms)
                 .Include(f => f.Fields)
                 .Include(f => f.WeatherForecast)
-                .Include(f => f.FarmWeatherStations)
+                .Include(f => f.WeatherHistorical)
                 .Where(f =>
                     f.Id == id)
                 .FirstOrDefaultAsync();

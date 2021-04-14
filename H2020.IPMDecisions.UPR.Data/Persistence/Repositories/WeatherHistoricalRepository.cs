@@ -9,41 +9,41 @@ using Microsoft.EntityFrameworkCore;
 
 namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
 {
-    internal class WeatherStationRepository : IWeatherStationRepository
+    internal class WeatherHistoricalRepository : IWeatherHistoricalRepository
     {
         private ApplicationDbContext context;
 
-        public WeatherStationRepository(ApplicationDbContext context)
+        public WeatherHistoricalRepository(ApplicationDbContext context)
         {
             this.context = context;
         }
 
-        public void Create(WeatherStation entity)
+        public void Create(WeatherHistorical entity)
         {
             this.context.Add(entity);
         }
 
-        public void Delete(WeatherStation entity)
+        public void Delete(WeatherHistorical entity)
         {
-            this.context.WeatherStation.Remove(entity);
+            this.context.WeatherHistorical.Remove(entity);
         }
 
-        public async Task<IEnumerable<WeatherStation>> FindAllAsync()
+        public async Task<IEnumerable<WeatherHistorical>> FindAllAsync()
         {
             return await this.context
-               .WeatherStation
-               .ToListAsync<WeatherStation>();
+               .WeatherHistorical
+               .ToListAsync<WeatherHistorical>();
         }
 
-        public async Task<WeatherStation> FindByConditionAsync(Expression<Func<WeatherStation, bool>> expression)
+        public async Task<WeatherHistorical> FindByConditionAsync(Expression<Func<WeatherHistorical, bool>> expression)
         {
             return await this.context
-                .WeatherStation
+                .WeatherHistorical
                 .Where(expression)
                 .FirstOrDefaultAsync();
         }
 
-        public async Task<WeatherStation> FindByConditionAsync(Expression<Func<WeatherStation, bool>> expression, bool includeAssociatedData)
+        public async Task<WeatherHistorical> FindByConditionAsync(Expression<Func<WeatherHistorical, bool>> expression, bool includeAssociatedData)
         {
             if (!includeAssociatedData)
             {
@@ -51,28 +51,28 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
             }
 
             return await this.context
-                .WeatherStation
+                .WeatherHistorical
                 .Where(expression)
                 .FirstOrDefaultAsync();
         }
 
-        public async Task<WeatherStation> FindByIdAsync(Guid id)
+        public async Task<WeatherHistorical> FindByIdAsync(Guid id)
         {
             return await this.context
-               .WeatherStation.
+               .WeatherHistorical.
                SingleOrDefaultAsync(w =>
                w.Id == id);
         }
 
-        public async Task<WeatherStation> FindByIdAsync(string id)
+        public async Task<WeatherHistorical> FindByWeatherIdAsync(string id)
         {
             return await this.context
-               .WeatherStation.
+               .WeatherHistorical.
                SingleOrDefaultAsync(w =>
-               w.Id.ToString() == id);
+               w.WeatherId == id);
         }
 
-        public void Update(WeatherStation entity)
+        public void Update(WeatherHistorical entity)
         {
             this.context.Update(entity);
         }

@@ -329,7 +329,7 @@ namespace H2020.IPMDecisions.UPR.Tests.IntegrationTests.Controllers
             responseDeserialized.Name.Should().Be(newFarmName);
             responseDeserialized.Name.Should().Be(newFarmName);
             responseDeserialized.WeatherForecastDto.Id.Should().Be(weatherDataId);
-            responseDeserialized.WeatherStationDto.Id.Should().Be(weatherDataId);
+            responseDeserialized.WeatherHistoricalDto.Id.Should().Be(weatherDataId);
         }
 
         [Fact]
