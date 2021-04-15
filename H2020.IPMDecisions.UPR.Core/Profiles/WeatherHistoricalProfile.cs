@@ -23,7 +23,11 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
                 .ReverseMap();
 
             // Internal
-            CreateMap<WeatherHistorical, WeatherSchemaForHttp>();
+            CreateMap<WeatherHistorical, WeatherSchemaForHttp>()
+                .AfterMap((src, dest) =>
+                {
+                    dest.IsForecast = false;
+                });
         }
     }
 }

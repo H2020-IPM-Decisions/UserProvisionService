@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using H2020.IPMDecisions.UPR.Core.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace H2020.IPMDecisions.UPR.BLL.Providers
@@ -31,7 +32,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
             httpClient?.Dispose();
         }
 
-        public async Task<DssExecutionInformation> GetDssInformationFromDssMicroservice(string dssId, string modelId)
+        public async Task<DssInformation> GetDssInformationFromDssMicroservice(string dssId, string modelId)
         {
             try
             {
@@ -41,29 +42,9 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
                 if (response.IsSuccessStatusCode)
                 {
                     var responseAsText = await response.Content.ReadAsStringAsync();
-                    JObject jObject = JObject.Parse(responseAsText);
 
-                    var dssInformation = new DssExecutionInformation()
-                    {
-                        EndPoint = jObject["execution"]["endpoint"].ToString(),
-                        Type = jObject["execution"]["type"].ToString()
-                    };
+                    return JsonConvert.DeserializeObject<DssInformation>(responseAsText);
 
-                    var weatherInput = jObject["input"]["weather"];
-                    if (weatherInput != null)
-                    {
-                        dssInformation.UsesWeatherData = true;
-
-                        foreach (var weatherInputData in weatherInput.Children())
-                        {
-                            var weatherParameters = weatherInputData["parameter_code"];
-                            if (weatherParameters != null)
-                            {
-                                dssInformation.WeatherParameters = weatherParameters.Value<string>() + "," + dssInformation.WeatherParameters;
-                            }
-                        }
-                    }
-                    return dssInformation;
                 }
                 return null;
             }
