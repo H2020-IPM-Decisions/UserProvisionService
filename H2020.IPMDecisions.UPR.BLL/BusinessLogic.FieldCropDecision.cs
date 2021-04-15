@@ -180,9 +180,11 @@ namespace H2020.IPMDecisions.UPR.BLL
             var cropPestDssExist = await this.dataService
                 .CropPestDsses
                 .FindByConditionAsync(c =>
-                 c.CropPestId == fieldCropPest.CropPest.Id
-                 & c.DssId == cropPestDss.DssId
-                 & c.DssModelId == cropPestDss.DssModelId);
+                c.CropPestId == fieldCropPest.CropPest.Id
+                & c.DssId == cropPestDss.DssId
+                & c.DssModelId == cropPestDss.DssModelId
+                & c.DssVersion == cropPestDss.DssVersion
+                & c.DssExecutionType.ToLower() == cropPestDss.DssExecutionType.ToLower());
 
             if (cropPestDssExist == null)
             {

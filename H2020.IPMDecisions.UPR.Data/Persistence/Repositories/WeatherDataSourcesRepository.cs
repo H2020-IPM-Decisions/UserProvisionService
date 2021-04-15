@@ -18,32 +18,32 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
             this.context = context;
         }
 
-        public void Create(WeatherDataSource entity)
+        public void Create(WeatherForecast entity)
         {
             this.context.Add(entity);
         }
 
-        public void Delete(WeatherDataSource entity)
+        public void Delete(WeatherForecast entity)
         {
-            this.context.WeatherDataSource.Remove(entity);
+            this.context.WeatherForecast.Remove(entity);
         }
 
-        public async Task<IEnumerable<WeatherDataSource>> FindAllAsync()
+        public async Task<IEnumerable<WeatherForecast>> FindAllAsync()
         {
             return await this.context
-                .WeatherDataSource
-                .ToListAsync<WeatherDataSource>();
+                .WeatherForecast
+                .ToListAsync<WeatherForecast>();
         }
 
-        public async Task<WeatherDataSource> FindByConditionAsync(Expression<Func<WeatherDataSource, bool>> expression)
+        public async Task<WeatherForecast> FindByConditionAsync(Expression<Func<WeatherForecast, bool>> expression)
         {
             return await this.context
-                .WeatherDataSource
+                .WeatherForecast
                 .Where(expression)
                 .FirstOrDefaultAsync();
         }
 
-        public async Task<WeatherDataSource> FindByConditionAsync(Expression<Func<WeatherDataSource, bool>> expression, bool includeAssociatedData)
+        public async Task<WeatherForecast> FindByConditionAsync(Expression<Func<WeatherForecast, bool>> expression, bool includeAssociatedData)
         {
             if (!includeAssociatedData)
             {
@@ -51,20 +51,20 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
             }
 
             return await this.context
-                .WeatherDataSource
+                .WeatherForecast
                 .Where(expression)
                 .FirstOrDefaultAsync();
         }
 
-        public async Task<WeatherDataSource> FindByIdAsync(Guid id)
+        public async Task<WeatherForecast> FindByIdAsync(Guid id)
         {
             return await this.context
-               .WeatherDataSource.
+               .WeatherForecast.
                SingleOrDefaultAsync(w =>
                w.Id.ToString() == id.ToString());
         }
 
-        public void Update(WeatherDataSource entity)
+        public void Update(WeatherForecast entity)
         {
             this.context.Update(entity);
         }

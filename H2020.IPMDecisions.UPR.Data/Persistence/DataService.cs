@@ -168,16 +168,16 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence
             }
         }
 
-        private IWeatherStationRepository weatherStations;
-        public IWeatherStationRepository WeatherStations
+        private IWeatherHistoricalRepository weatherHistoricals;
+        public IWeatherHistoricalRepository WeatherHistoricals
         {
             get
             {
-                if (weatherStations == null)
+                if (weatherHistoricals == null)
                 {
-                    weatherStations = new WeatherStationRepository(this.context);
+                    weatherHistoricals = new WeatherHistoricalRepository(this.context);
                 }
-                return weatherStations;
+                return weatherHistoricals;
             }
         }
 
@@ -193,7 +193,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence
                 return fieldSprayApplication;
             }
         }
-      
+
         private IUserWidgetRepository userWidgets;
         public IUserWidgetRepository UserWidgets
         {
@@ -207,6 +207,19 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence
             }
         }
 
+        public IWeatherForecastRepository weatherForecasts;
+
+        public IWeatherForecastRepository WeatherForecasts
+        {
+            get
+            {
+                if (weatherForecasts == null)
+                {
+                    weatherForecasts = new WeatherForecastRepository(this.context);
+                }
+                return weatherForecasts;
+            }
+        }
         public DataService(
             ApplicationDbContext context,
             IPropertyMappingService propertyMappingService)

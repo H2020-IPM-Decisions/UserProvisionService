@@ -1,10 +1,12 @@
 using System;
 using System.Net.Http;
+using System.Net.Mime;
 using System.Text;
 using System.Threading.Tasks;
 using H2020.IPMDecisions.UPR.Core.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace H2020.IPMDecisions.UPR.BLL.Providers
@@ -30,7 +32,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
             httpClient?.Dispose();
         }
 
-        public async Task<DssExecutionInformation> GetDssInformationFromDssMicroservice(string dssId, string modelId)
+        public async Task<DssInformation> GetDssInformationFromDssMicroservice(string dssId, string modelId)
         {
             try
             {
@@ -40,24 +42,9 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
                 if (response.IsSuccessStatusCode)
                 {
                     var responseAsText = await response.Content.ReadAsStringAsync();
-                    JObject jObject = JObject.Parse(responseAsText);
 
-                    var dssInformation = new DssExecutionInformation()
-                    {
-                        EndPoint = jObject["execution"]["endpoint"].ToString(),
-                        Type = jObject["execution"]["type"].ToString()
-                    };
+                    return JsonConvert.DeserializeObject<DssInformation>(responseAsText);
 
-                    var inputSchema = jObject["execution"]["input_schema"].ToString();
-                    if (!string.IsNullOrEmpty(inputSchema))
-                    {
-                        JObject inputSchemaObject = JObject.Parse(inputSchema);
-                        if (inputSchemaObject["properties"]["weatherData"] != null)
-                        {
-                            dssInformation.UsesWeatherData = true;
-                        }
-                    }
-                    return dssInformation;
                 }
                 return null;
             }
@@ -126,6 +113,33 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
             catch (Exception ex)
             {
                 logger.LogError(string.Format("Error in Internal Communication - SendDataRequestEmail. {0}", ex.Message));
+                return false;
+            }
+        }
+
+        public async Task<bool> ValidateWeatherdDataSchemaFromDssMicroservice(string weatherDataSchema)
+        {
+            try
+            {
+                var content = new StringContent(
+                                    weatherDataSchema,
+                                    Encoding.UTF8,
+                                    MediaTypeNames.Application.Json);
+
+                var wxEndPoint = config["MicroserviceInternalCommunication:WeatherMicroservice"];
+                var validationResponse = await httpClient.PostAsync(wxEndPoint + "rest/schema/weatherdata/validate", content);
+
+                if (validationResponse.IsSuccessStatusCode)
+                {
+                    var response = await validationResponse.Content.ReadAsStringAsync();
+                    JObject jObject = JObject.Parse(response);
+                    return jObject["isValid"].Value<bool>();
+                }
+                return false;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(string.Format("Error in Internal Communication - ValidateWeatherdDataSchemaFromDssMicroservice. {0}", ex.Message));
                 return false;
             }
         }

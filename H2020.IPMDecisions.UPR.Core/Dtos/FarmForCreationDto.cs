@@ -11,10 +11,10 @@ namespace H2020.IPMDecisions.UPR.Core.Dtos
         [Required(ErrorMessage = "Farm location is required")]
         public override CustomPointLocation Location { get => base.Location; set => base.Location = value; }
 
-        [Required(ErrorMessage = "Weather Station is required")]
-        public override WeatherStationDto WeatherStationDto { get => base.WeatherStationDto; set => base.WeatherStationDto = value; }
+        [Required(ErrorMessage = "Weather Forecast Data Source required")]
+        public WeatherHistoricalForCreationDto WeatherHistoricalDto { get; set; }
 
-        [Required(ErrorMessage = "Weather Data Source is required")]
-        public WeatherDataSourceForCreationDto WeatherDataSourceDto { get; set; }
+        [Required(ErrorMessage = "Weather Historical Data Source required")]
+        public WeatherForecastForCreationDto WeatherForecastDto { get; set; }
     }
 }

@@ -32,7 +32,7 @@ namespace H2020.IPMDecisions.UPR.Core.Models
                 IsSuccessful = true
             };
         }
-        
+
         public static GenericResponse<T> NoSuccess<T>(T result, string errorMessage = "")
         {
             return new GenericResponse<T>()
@@ -78,6 +78,16 @@ namespace H2020.IPMDecisions.UPR.Core.Models
             {
                 IsSuccessful = false,
                 RequestResult = new ConflictResult()
+            };
+        }
+
+        public static GenericResponse<T> Accepted<T>(T result)
+        {
+            return new GenericResponse<T>()
+            {
+                IsSuccessful = true,
+                Result = result,
+                RequestResult = new AcceptedResult()
             };
         }
     }

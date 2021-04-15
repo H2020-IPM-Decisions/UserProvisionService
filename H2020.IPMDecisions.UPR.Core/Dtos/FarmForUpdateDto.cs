@@ -10,11 +10,7 @@ namespace H2020.IPMDecisions.UPR.Core.Dtos
 
         [Required(ErrorMessage = "Farm location can not be deleted")]
         public override CustomPointLocation Location { get => base.Location; set => base.Location = value; }
-
-        [Required(ErrorMessage = "Weather Station can not be deleted")]
-        public override WeatherStationDto WeatherStationDto { get => base.WeatherStationDto; set => base.WeatherStationDto = value; }
-
-        [Required(ErrorMessage = "Weather Data Source can not be deleted")]
-        public WeatherDataSourceForUpdateDto WeatherDataSourceDto { get; set; }
+        public WeatherHistoricalForUpdateDto WeatherHistoricalDto { get; set; }
+        public WeatherForecastForUpdateDto WeatherForecastDto { get; set; }
     }
 }

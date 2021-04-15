@@ -1,6 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using H2020.IPMDecisions.UPR.Core.Dtos;
@@ -36,8 +34,13 @@ namespace H2020.IPMDecisions.UPR.BLL
                     cropPestDss,
                     farmDssDto.DssParameters);
                 await this.dataService.CompleteAsync();
-
                 var farmToReturn = this.mapper.Map<FarmDssDto>(farm);
+
+                if (farmDssDto.DssExecutionType.ToLower() == "onthefly")
+                {
+                    var jobId = this.queueJobs.AddDssOnOnTheFlyQueue(newFieldCropPestDss.Id);
+                    return GenericResponseBuilder.Accepted<FarmDssDto>(farmToReturn);
+                }
                 return GenericResponseBuilder.Success<FarmDssDto>(farmToReturn);
             }
             catch (Exception ex)

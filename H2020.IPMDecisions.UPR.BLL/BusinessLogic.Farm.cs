@@ -48,6 +48,8 @@ namespace H2020.IPMDecisions.UPR.BLL
                     return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, "Please create a `User Profile` first.");
                 }
 
+                await EnsureWeatherForecastExists(farmForCreationDto.WeatherForecastDto);
+
                 var farmAsEntity = this.mapper.Map<Farm>(farmForCreationDto);
                 farmAsEntity.Id = id;
 
@@ -82,11 +84,17 @@ namespace H2020.IPMDecisions.UPR.BLL
                     return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, "Please create a `User Profile` first.");
                 }
 
-                await EnsureWeatherStationExists(farmForCreationDto.WeatherStationDto);
                 var farmAsEntity = this.mapper.Map<Farm>(farmForCreationDto);
-
-                var weatherDataSource = EncodeNewWeatherDataSourcePassword(farmForCreationDto.WeatherDataSourceDto);
-                farmAsEntity.FarmWeatherDataSources.Add(weatherDataSource);
+                if (farmForCreationDto.WeatherForecastDto != null)
+                {
+                    var weatherForecast = await EnsureWeatherForecastExists(farmForCreationDto.WeatherForecastDto);
+                    farmAsEntity.WeatherForecast = weatherForecast;
+                }
+                if (farmForCreationDto.WeatherHistoricalDto != null)
+                {
+                    var weatherHistorical = await EncodeWeatherHistoricalExists(farmForCreationDto.WeatherHistoricalDto);
+                    farmAsEntity.WeatherHistorical = weatherHistorical;
+                }
 
                 await this.dataService.UserProfiles.AddFarm(userProfile.Result, farmAsEntity, UserFarmTypeEnum.Owner, false);
                 await this.dataService.CompleteAsync();
@@ -293,22 +301,25 @@ namespace H2020.IPMDecisions.UPR.BLL
         {
             try
             {
-                if (farm.FarmWeatherDataSources.Count != 0)
+                if (farm.WeatherForecast != null)
                 {
-                    if (patchDocument.Operations.Any(o => o.path.ToLower().Contains("weatherdatasourcedto/credentials")))
+                    if (patchDocument.Operations.Any(o => o.path.ToLower().Contains("weatherforecastdto/")))
                     {
-                        var weatherDataSource = EncodeNewWeatherDataSourcePassword(farmToPatch.WeatherDataSourceDto);
+                        var weatherForecastAsCreation = this.mapper.Map<WeatherForecastForCreationDto>(farmToPatch.WeatherForecastDto);
+                        farm.WeatherForecast = await EnsureWeatherForecastExists(weatherForecastAsCreation);
                     }
-                    this.mapper.Map(farmToPatch.WeatherDataSourceDto, farm.FarmWeatherDataSources.FirstOrDefault());
                 }
-                if (!farm.FarmWeatherStations.Any() ||
-                    (farmToPatch.WeatherStationDto.Id != farm.FarmWeatherStations.FirstOrDefault().WeatherStationId))
+
+                if (farm.WeatherHistorical != null)
                 {
-                    await EnsureWeatherStationExists(farmToPatch.WeatherStationDto);
+                    if (patchDocument.Operations.Any(o => o.path.ToLower().Contains("weatherhistoricaldto/")))
+                    {
+                        var weatherHistoricalAsCreation = this.mapper.Map<WeatherHistoricalForCreationDto>(farmToPatch.WeatherHistoricalDto);
+                        farm.WeatherHistorical = await EncodeWeatherHistoricalExists(weatherHistoricalAsCreation);
+                    }
                 }
 
                 this.mapper.Map(farmToPatch, farm);
-
                 this.dataService.Farms.Update(farm);
                 await this.dataService.CompleteAsync();
 

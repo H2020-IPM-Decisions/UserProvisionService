@@ -17,7 +17,5 @@ namespace H2020.IPMDecisions.UPR.Core.Entities
         public Farm Farm { get; set; }
 
         public virtual FieldCrop FieldCrop { get; set; }
-        public IList<FieldWeatherStation> FieldWeatherStations { get; set; }
-        public IList<FieldWeatherDataSource> FieldWeatherDataSources { get; set; }
     }
 }

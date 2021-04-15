@@ -4,7 +4,6 @@ namespace H2020.IPMDecisions.UPR.Core.Dtos
 {
     public class WeatherCredentials
     {
-        [Required]
         public string UserName { get; set; }
 
         [Required]

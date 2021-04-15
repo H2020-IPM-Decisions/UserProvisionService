@@ -21,6 +21,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using NLog;
 using NLog.Extensions.Logging;
@@ -233,16 +234,20 @@ namespace H2020.IPMDecisions.APG.API.Extensions
                 .SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
                 .UseSimpleAssemblyNameTypeSerializer()
                 .UseRecommendedSerializerSettings()
+                .UseNLogLogProvider()
                 .UsePostgreSqlStorage(
                     config.GetConnectionString("MyPostgreSQLConnection"),
                     new PostgreSqlStorageOptions
                     {
-                        PrepareSchemaIfNecessary = false,
-                        QueuePollInterval = new TimeSpan(0, 1, 0),
+                        PrepareSchemaIfNecessary = true,
+                        QueuePollInterval = new TimeSpan(0, 1, 0)
                     }
                 ));
 
-            services.AddHangfireServer();
+            services.AddHangfireServer(options =>
+            {
+                options.Queues = new[] { "onthefly_schedule", "onthefly_queue" };
+            });
         }
 
         internal static IEnumerable<string> Audiences(string audiences)

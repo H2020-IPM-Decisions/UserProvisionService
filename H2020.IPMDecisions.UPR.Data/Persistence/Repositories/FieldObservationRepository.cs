@@ -72,7 +72,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence
 
             collection = collection
                 .Where(f =>
-                    f.FieldCropPestdId == resourceParameter.FieldCropPestId);
+                    f.FieldCropPestId == resourceParameter.FieldCropPestId);
 
             collection = ApplyResourceParameter(resourceParameter, collection);
 

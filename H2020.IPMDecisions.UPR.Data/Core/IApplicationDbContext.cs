@@ -10,15 +10,12 @@ namespace H2020.IPMDecisions.UPR.Core
         DbSet<DataSharingRequest> DataSharingRequest { get; set; }
         DbSet<DataSharingRequestStatus> DataSharingRequestStatus { get; set; }
         DbSet<Farm> Farm { get; set; }
-        DbSet<FarmWeatherStation> FarmWeatherStation { get; set; }
         DbSet<Field> Field { get; set; }
         DbSet<FieldDssResult> FieldDssResult { get; set; }
         DbSet<FieldObservation> FieldObservation { get; set; }
         DbSet<FieldCropPest> FieldCropPest { get; set; }
         DbSet<FieldCropPestDss> FieldCropPestDss { get; set; }
         DbSet<FieldSprayApplication> FieldSprayApplication { get; set; }
-        DbSet<FieldWeatherDataSource> FieldWeatherDataSource { get; set; }
-        DbSet<FieldWeatherStation> FieldWeatherStation { get; set; }
         DbSet<ForecastAlert> ForecastAlert { get; set; }
         DbSet<ForecastResult> ForecastResult { get; set; }
         DbSet<ObservationAlert> ObservationAlert { get; set; }
@@ -28,8 +25,8 @@ namespace H2020.IPMDecisions.UPR.Core
         DbSet<UserFarmType> UserFarmType { get; set; }
         DbSet<UserProfile> UserProfile { get; set; }
         DbSet<UserWidget> UserWidget { get; set; }
-        DbSet<WeatherDataSource> WeatherDataSource { get; set; }
-        DbSet<WeatherStation> WeatherStation { get; set; }
+        DbSet<WeatherForecast> WeatherForecast { get; set; }
+        DbSet<WeatherHistorical> WeatherHistorical { get; set; }
         DbSet<Widget> Widget { get; set; }
     }
 }

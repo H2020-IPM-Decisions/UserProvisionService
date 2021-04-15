@@ -10,8 +10,10 @@ namespace H2020.IPMDecisions.UPR.Data.Core.Repositories
 {
     public interface IFieldCropPestDssRepository : IRepositoryBaseWithResourceParameter<FieldCropPestDss, FieldCropPestDssResourceParameter>
     {
-        Task<List<FieldCropPestDss>> FindAllAsync(Expression<Func<FieldCropPestDss, bool>> expression);
+        Task<IEnumerable<FieldCropPestDss>> FindAllAsync(Expression<Func<FieldCropPestDss, bool>> expression);
+        Task<IEnumerable<FieldCropPestDss>> FindAllAsync(Expression<Func<FieldCropPestDss, bool>> expression, int pageNumber, int pageSize);
         Task<PagedList<FieldCropPestDss>> FindAllAsync(FieldCropPestDssResourceParameter resourceParameter, bool includeAssociatedData);
         void AddDssResult(FieldCropPestDss entity, FieldDssResult dssResult);
+        int GetCount(Expression<Func<FieldCropPestDss, bool>> expression);
     }
 }

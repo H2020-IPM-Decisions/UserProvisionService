@@ -328,8 +328,8 @@ namespace H2020.IPMDecisions.UPR.Tests.IntegrationTests.Controllers
             responseGet.StatusCode.Should().Be(HttpStatusCode.OK);
             responseDeserialized.Name.Should().Be(newFarmName);
             responseDeserialized.Name.Should().Be(newFarmName);
-            responseDeserialized.WeatherDataSourceDto.Id.Should().Be(weatherDataId);
-            responseDeserialized.WeatherStationDto.Id.Should().Be(weatherDataId);
+            responseDeserialized.WeatherForecastDto.Id.Should().Be(weatherDataId);
+            responseDeserialized.WeatherHistoricalDto.Id.Should().Be(weatherDataId);
         }
 
         [Fact]
