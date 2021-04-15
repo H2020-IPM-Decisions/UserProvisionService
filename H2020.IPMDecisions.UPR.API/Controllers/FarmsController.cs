@@ -113,13 +113,10 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         }
 
         /// <summary>Use this end point to add a new farm to a user.</summary>
-        /// <remarks>To receive associated data or HATEOAS links change the 'Accept' header
-        /// Please notice that the creation of Weather Data Sources and SWeather Stations is a complex operation as it uses for an overnight schedule operation, so be aware of the following:
-        /// <para>Required to specify if it is a Forecast or not service. Use the parameter 'isForecast'</para>
-        /// <para>Required to specify if it the data source needs authorization. Use the parameter 'authenticationRequired'</para>
-        /// <para>If 'isForecast' is false, you need to add 'Interval', 'TimeEnd', 'TimeStart'. Extended documentation on the Weather Microservices</para>
-        /// <para>If 'authenticationRequired' is true, you need to the username and password. Extended documentation on the Weather Microservices</para>
-        /// <para>The Weather Station Id is required when entering a WeatherStation</para>
+        /// <remarks>To receive associated data or HATEOAS links change the 'Accept' header.
+        /// <para>Please notice that the creation of Forecast and Historical Weather Data Sources is an important operation as it uses for an overnight schedule operation. </para>
+        /// <para>The creation of the weather data sources will change once the weather microservice implements the weatherId.</para>
+        /// <para>In a future release only the weatherId will be needed, as the rest of information will be taken from the weather microservice.</para>
         /// </remarks>
         [Consumes(MediaTypeNames.Application.Json)]
         [ProducesResponseType(typeof(FarmDto), StatusCodes.Status201Created)]
@@ -145,7 +142,8 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
 
         /// <summary>Use this endpoint to make a partial update of a farm.</summary>
         /// <remarks>Use the documentation for the FarmFields to manage associated fields to a farm
-        /// <para>Please notice that updating the Weather Data Sources is a complex operation as it uses for an overnight schedule operation, so please follow the instructions of the POST method.</para>
+        /// <para>The forecat and historical data update will change one the weather forecast microservice implements the weatherId.</para>
+        /// <para>In a future release only the weatherId will be needed for updating, as the rest of information will be taken from the weather microservice.</para>
         /// </remarks>
         [ServiceFilter(typeof(FarmBelongsToUserActionFilter), Order = 2)]
         [Consumes("application/json-patch+json")]
