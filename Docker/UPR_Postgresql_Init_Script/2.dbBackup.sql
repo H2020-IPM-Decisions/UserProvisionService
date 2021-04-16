@@ -5,7 +5,7 @@
 -- Dumped from database version 12.5 (Debian 12.5-1.pgdg100+1)
 -- Dumped by pg_dump version 12.5 (Debian 12.5-1.pgdg100+1)
 
--- Started on 2021-04-15 07:46:27 UTC
+-- Started on 2021-04-16 15:04:24 UTC
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -112,8 +112,6 @@ CREATE TABLE public."DataSharingRequestStatus" (
 CREATE TABLE public."Farm" (
     "Id" uuid NOT NULL,
     "Name" text NOT NULL,
-    "Inf1" text,
-    "Inf2" text,
     "Location" public.geometry(Point) NOT NULL,
     "WeatherForecastId" uuid DEFAULT '00000000-0000-0000-0000-000000000000'::uuid NOT NULL,
     "WeatherHistoricalId" uuid DEFAULT '00000000-0000-0000-0000-000000000000'::uuid NOT NULL
@@ -179,10 +177,10 @@ CREATE TABLE public."FieldCropPestDss" (
 
 CREATE TABLE public."FieldDssObservation" (
     "Id" uuid NOT NULL,
-    "Location" public.geometry NOT NULL,
-    "Time" timestamp without time zone DEFAULT now() NOT NULL,
     "FieldCropPestDssId" uuid NOT NULL,
-    "DssObservation" jsonb
+    "DssObservation" jsonb,
+    "Location" public.geometry NOT NULL,
+    "Time" timestamp without time zone DEFAULT now() NOT NULL
 );
 
 
@@ -209,8 +207,8 @@ CREATE TABLE public."FieldObservation" (
     "Location" public.geometry,
     "Time" timestamp without time zone DEFAULT now() NOT NULL,
     "Severity" text,
-    "DssObservation" text,
-    "FieldCropPestId" uuid DEFAULT '00000000-0000-0000-0000-000000000000'::uuid NOT NULL
+    "FieldCropPestId" uuid DEFAULT '00000000-0000-0000-0000-000000000000'::uuid NOT NULL,
+    "DssObservation" text
 );
 
 
@@ -784,7 +782,7 @@ CREATE UNIQUE INDEX "IX_FieldCrop_FieldId" ON public."FieldCrop" USING btree ("F
 
 
 --
--- TOC entry 3926 (class 1259 OID 285076)
+-- TOC entry 3926 (class 1259 OID 285298)
 -- Name: IX_FieldDssObservation_FieldCropPestDssId; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1082,7 +1080,7 @@ ALTER TABLE ONLY public."FieldObservation"
 
 
 --
--- TOC entry 3960 (class 2606 OID 285070)
+-- TOC entry 3960 (class 2606 OID 285299)
 -- Name: FieldDssObservation FK_Observation_FieldCropPestDss; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1153,7 +1151,7 @@ ALTER TABLE ONLY public."UserProfile"
     ADD CONSTRAINT "FK_User_UserAddress" FOREIGN KEY ("UserAddressId") REFERENCES public."UserAddress"("Id") ON DELETE CASCADE;
 
 
--- Completed on 2021-04-15 07:46:27 UTC
+-- Completed on 2021-04-16 15:04:25 UTC
 
 --
 -- PostgreSQL database dump complete
