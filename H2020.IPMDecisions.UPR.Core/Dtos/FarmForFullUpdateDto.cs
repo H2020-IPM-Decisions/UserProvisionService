@@ -9,7 +9,7 @@ namespace H2020.IPMDecisions.UPR.Core.Dtos
         public override string Name { get => base.Name; set => base.Name = value; }
 
         [Required(ErrorMessage = "Farm location is required")]
-        public override CustomPointLocation Location { get => base.Location; set => base.Location = value; }
+        public override CustomPointLocation Location { get; set; }
 
         [Required(ErrorMessage = "Weather Historical Data Source is required")]
         public WeatherHistoricalForUpdateDto WeatherHistoricalDto { get; set; }

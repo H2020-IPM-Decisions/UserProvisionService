@@ -37,6 +37,12 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
                     dest.Location = new Point(src.Location.X, src.Location.Y) { SRID = src.Location.SRID };
                 });
 
+            CreateMap<FarmForFullUpdateDto, Farm>()
+                .AfterMap((src, dest) =>
+                {
+                    dest.Location = new Point(src.Location.X, src.Location.Y) { SRID = src.Location.SRID };
+                });
+
             // Dtos to Dtos
             CreateMap<FarmForUpdateDto, FarmForCreationDto>();
         }

@@ -39,6 +39,7 @@ namespace H2020.IPMDecisions.UPR.BLL
         FarmForCreationDto MapToFarmForCreation(FarmForUpdateDto farmDto);
         FarmForUpdateDto MapToFarmForUpdateDto(Farm farm);
         Task<GenericResponse> UpdateFarm(Farm farm, FarmForUpdateDto farmToPatch, JsonPatchDocument<FarmForUpdateDto> patchDocument);
+        Task<GenericResponse> FullUpdateFarm(Farm farm, FarmForFullUpdateDto farmForFullUpdate);
         #endregion
 
         #region FarmDss
