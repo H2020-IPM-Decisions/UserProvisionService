@@ -3,12 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
-using System.Text.Json;
 using System.Threading.Tasks;
 using AutoMapper;
 using H2020.IPMDecisions.UPR.BLL.Helpers;
 using H2020.IPMDecisions.UPR.BLL.Providers;
-using H2020.IPMDecisions.UPR.Core.Dtos;
 using H2020.IPMDecisions.UPR.Core.Entities;
 using H2020.IPMDecisions.UPR.Core.Models;
 using H2020.IPMDecisions.UPR.Data.Core;
@@ -130,6 +128,8 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             try
             {
                 DssInformation dssInformation = await GetDssInformationFromMicroservice(dss);
+                var inputSchemaAsJson = JsonSchemaToJson.ToJson(dssInformation.Execution.InputSchema);
+
                 if (dssInformation == null)
                 {
                     dssResult.Result = JObject.Parse("{\"message\": \"Error getting DSS information from  microservice.\"}").ToString();
