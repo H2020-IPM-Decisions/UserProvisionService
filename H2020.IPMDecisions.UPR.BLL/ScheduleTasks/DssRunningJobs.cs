@@ -128,8 +128,6 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             try
             {
                 DssInformation dssInformation = await GetDssInformationFromMicroservice(dss);
-                var inputSchemaAsJson = JsonSchemaToJson.ToJson(dssInformation.Execution.InputSchema);
-
                 if (dssInformation == null)
                 {
                     dssResult.Result = JObject.Parse("{\"message\": \"Error getting DSS information from  microservice.\"}").ToString();
@@ -143,7 +141,20 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 }
                 if (dssInformation.Execution.Type.ToLower() != "onthefly") return null;
 
+                var inputSchemaAsJson = JsonSchemaToJson.ToJsonObject(dssInformation.Execution.InputSchema);
+
                 JObject jObject = JObject.Parse(dss.DssParameters.ToString());
+                foreach (var property in jObject.Properties())
+                {
+                    var token = inputSchemaAsJson.SelectToken(property.Name);
+                    if (token != null)
+                    {
+                        ((JValue)token).Value = property.Value.ToString();
+                        continue;
+                    }
+                    //Todo Create a new object based on DSS?
+                }
+
                 if (dssInformation.Input.WeatherParameters != null)
                 {
                     var listOfPreferredWeatherDataSources = new List<WeatherSchemaForHttp>();
@@ -157,9 +168,9 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                     {
                         var weatherToCall = this.mapper.Map<WeatherSchemaForHttp>(farm.WeatherHistorical);
                         var weatherStartDateJsonLocation = dssInformation.Input.WeatherDataPeriodStart.Value.ToString();
-                        weatherToCall.WeatherTimeStart = DateTime.Parse(jObject.SelectTokens(weatherStartDateJsonLocation).FirstOrDefault().ToString());
+                        weatherToCall.WeatherTimeStart = DateTime.Parse(inputSchemaAsJson.SelectTokens(weatherStartDateJsonLocation).FirstOrDefault().ToString());
                         var weatherEndDateJsonLocation = dssInformation.Input.WeatherDataPeriodEnd.Value.ToString();
-                        weatherToCall.WeatherTimeEnd = DateTime.Parse(jObject.SelectTokens(weatherEndDateJsonLocation).FirstOrDefault().ToString());
+                        weatherToCall.WeatherTimeEnd = DateTime.Parse(inputSchemaAsJson.SelectTokens(weatherEndDateJsonLocation).FirstOrDefault().ToString());
                         listOfPreferredWeatherDataSources.Add(weatherToCall);
                     }
 
@@ -169,11 +180,11 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                         dssResult.Result = responseWeather.ResponseWeather;
                         return dssResult;
                     }
-                    jObject["weatherData"] = JObject.Parse(responseWeather.ResponseWeather.ToString());
+                    inputSchemaAsJson["weatherData"] = JObject.Parse(responseWeather.ResponseWeather.ToString());
                 }
 
                 var content = new StringContent(
-                     jObject.ToString(),
+                     inputSchemaAsJson.ToString(),
                      Encoding.UTF8, "application/json");
                 var responseDss = await httpClient.PostAsync(dssInformation.Execution.EndPoint, content);
 

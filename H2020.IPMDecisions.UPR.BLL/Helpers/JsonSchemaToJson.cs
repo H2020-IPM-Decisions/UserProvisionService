@@ -7,18 +7,31 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
 {
     public static class JsonSchemaToJson
     {
-        public static string ToJson(string jsonSchema)
+        public static string ToJsonString(string jsonSchema)
         {
             try
             {
-                var jsonObject = new JObject();
-                JSchema schema = StringToJsonSchema(jsonSchema);
-                ProcessJsonSchemaProperties(jsonObject, schema);
+                var jsonObject = ToJsonObject(jsonSchema);
                 return jsonObject.ToString();
             }
             catch (Exception ex)
             {
                 return ex.Message.ToString();
+            }
+        }
+
+        public static JObject ToJsonObject(string jsonSchema)
+        {
+            try
+            {
+                var jsonObject = new JObject();
+                JSchema schema = StringToJsonSchema(jsonSchema);
+                return ProcessJsonSchemaProperties(jsonObject, schema);
+            }
+            catch (Exception)
+            {
+                //Todo Log error
+                return null;
             }
         }
 
