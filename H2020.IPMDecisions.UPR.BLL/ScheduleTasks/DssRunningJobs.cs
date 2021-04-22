@@ -167,10 +167,16 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                     if (farm.WeatherHistorical != null)
                     {
                         var weatherToCall = this.mapper.Map<WeatherSchemaForHttp>(farm.WeatherHistorical);
-                        var weatherStartDateJsonLocation = dssInformation.Input.WeatherDataPeriodStart.Value.ToString();
-                        weatherToCall.WeatherTimeStart = DateTime.Parse(inputSchemaAsJson.SelectTokens(weatherStartDateJsonLocation).FirstOrDefault().ToString());
-                        var weatherEndDateJsonLocation = dssInformation.Input.WeatherDataPeriodEnd.Value.ToString();
-                        weatherToCall.WeatherTimeEnd = DateTime.Parse(inputSchemaAsJson.SelectTokens(weatherEndDateJsonLocation).FirstOrDefault().ToString());
+                        if (dssInformation.Input.WeatherDataPeriodStart != null)
+                        {
+                            var weatherStartDateJsonLocation = dssInformation.Input.WeatherDataPeriodStart.Value.ToString();
+                            weatherToCall.WeatherTimeStart = DateTime.Parse(inputSchemaAsJson.SelectTokens(weatherStartDateJsonLocation).FirstOrDefault().ToString());
+                        }
+                        if (dssInformation.Input.WeatherDataPeriodEnd != null)
+                        {
+                            var weatherEndDateJsonLocation = dssInformation.Input.WeatherDataPeriodEnd.Value.ToString();
+                            weatherToCall.WeatherTimeEnd = DateTime.Parse(inputSchemaAsJson.SelectTokens(weatherEndDateJsonLocation).FirstOrDefault().ToString());
+                        }
                         listOfPreferredWeatherDataSources.Add(weatherToCall);
                     }
 
