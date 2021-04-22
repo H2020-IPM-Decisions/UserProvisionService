@@ -30,7 +30,8 @@ namespace H2020.IPMDecisions.UPR.BLL
                     .Any(f => f.FieldCropPestDsses
                         .Any(fcpd =>
                             fcpd.FieldCropPestId == cropPestDssForCreationDto.FieldCropPestId
-                            & fcpd.CropPestDss.DssId == cropPestDssForCreationDto.DssId));
+                            & fcpd.CropPestDss.DssId == cropPestDssForCreationDto.DssId
+                            & fcpd.CropPestDss.DssModelId == cropPestDssForCreationDto.DssModelId));
                 if (duplicatedRecord)
                     return GenericResponseBuilder.Duplicated<IDictionary<string, object>>();
 
@@ -43,16 +44,21 @@ namespace H2020.IPMDecisions.UPR.BLL
                     return GenericResponseBuilder.NotFound<IDictionary<string, object>>();
 
                 var cropPestDss = this.mapper.Map<CropPestDss>(cropPestDssForCreationDto);
-
                 var newFieldCropPestDss = await CreateFieldCropPestDss(
                     getFieldCropPest,
                     cropPestDss,
                     cropPestDssForCreationDto.DssParameters);
-
                 await this.dataService.CompleteAsync();
+
                 var fieldCropPestToReturn = this.mapper
                     .Map<FieldCropPestDssDto>(newFieldCropPestDss)
                     .ShapeData() as IDictionary<string, object>;
+
+                if (cropPestDssForCreationDto.DssExecutionType.ToLower() == "onthefly")
+                {
+                    var jobId = this.queueJobs.AddDssOnOnTheFlyQueue(newFieldCropPestDss.Id);
+                    return GenericResponseBuilder.Accepted<IDictionary<string, object>>(fieldCropPestToReturn);
+                }
 
                 return GenericResponseBuilder.Success<IDictionary<string, object>>(fieldCropPestToReturn);
             }
