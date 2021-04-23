@@ -118,7 +118,6 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
                 var searchQuery = resourceParameter.SearchQuery.Trim().ToLower();
                 collection = collection.Where(f =>
                     f.Name.ToLower().Contains(searchQuery)
-                    || f.Inf1.ToLower().Contains(searchQuery)
                     || f.Inf2.ToLower().Contains(searchQuery));
             }
             if (!string.IsNullOrEmpty(resourceParameter.OrderBy))
