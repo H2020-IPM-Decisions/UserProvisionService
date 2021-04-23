@@ -37,8 +37,8 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         /// <para>If the DSS Execution Type is "ONTHEFLY", a 202 response type will be returned as DSS will start just after saved, although the running time of the DSS is unknown.</para>
         /// </remarks>
         [Consumes(MediaTypeNames.Application.Json)]
-        [ProducesResponseType(typeof(FarmWithChildrenDto), StatusCodes.Status201Created)]
-        [ProducesResponseType(typeof(FarmWithChildrenDto), StatusCodes.Status202Accepted)]
+        [ProducesResponseType(typeof(FieldCropPestDssDto), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(FieldCropPestDssDto), StatusCodes.Status202Accepted)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status409Conflict)]
@@ -56,7 +56,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
                 return response.RequestResult;
 
             var route = "api.dss.get.byid";
-            var routeValues = new { id = response.Result.FieldCropPestDssDto.Id };
+            var routeValues = new { id = response.Result.Id };
             var result = response.Result;
 
             if (response.RequestResult != null)
