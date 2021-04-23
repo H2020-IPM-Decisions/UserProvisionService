@@ -95,7 +95,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         }
 
         /// <summary>Use this endpoint to add a CropPest to a field.</summary>
-        /// <remarks>As fields only accept one type of code, a 409 response will be returned if a different Crop EPPO code is submitted.</remarks>
+        /// <remarks>As fields only accept one type of crop, a 409 response will be returned if a different Crop EPPO code is submitted or if the Crop Pest combination already exists.</remarks>
         [Consumes(MediaTypeNames.Application.Json)]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using H2020.IPMDecisions.UPR.BLL.Helpers;
 using H2020.IPMDecisions.UPR.Core.Dtos;
@@ -31,6 +32,10 @@ namespace H2020.IPMDecisions.UPR.BLL
                     this.dataService.CropPests.Create(cropPestExist);
                 }
 
+                var hasAlreadyCropPest = field.FieldCrop.FieldCropPests.Any(f => f.CropPestId == cropPestExist.Id);
+                if (hasAlreadyCropPest)
+                    return GenericResponseBuilder.Duplicated<IDictionary<string, object>>("CropPest combination already exists on the field.");
+
                 var fieldCrop = new FieldCrop();
                 if (field.FieldCrop == null)
                 {
@@ -42,7 +47,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                 }
                 else if (field.FieldCrop.CropEppoCode != cropPestForCreationDto.CropEppoCode)
                 {
-                    return GenericResponseBuilder.Duplicated<IDictionary<string, object>>();
+                    return GenericResponseBuilder.Duplicated<IDictionary<string, object>>(string.Format("Field only accepts {0} crop EPPO code", field.FieldCrop.CropEppoCode));
                 }
                 else
                 {

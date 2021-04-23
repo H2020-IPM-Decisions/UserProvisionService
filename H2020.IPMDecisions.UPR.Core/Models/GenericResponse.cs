@@ -72,11 +72,12 @@ namespace H2020.IPMDecisions.UPR.Core.Models
             };
         }
 
-        public static GenericResponse<T> Duplicated<T>()
+        public static GenericResponse<T> Duplicated<T>(string errorMessage = "")
         {
             return new GenericResponse<T>()
             {
                 IsSuccessful = false,
+                ErrorMessage = errorMessage,
                 RequestResult = new ConflictResult()
             };
         }
