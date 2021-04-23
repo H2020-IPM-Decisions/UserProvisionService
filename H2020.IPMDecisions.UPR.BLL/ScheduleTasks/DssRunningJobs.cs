@@ -142,17 +142,21 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 if (dssInformation.Execution.Type.ToLower() != "onthefly") return null;
 
                 var inputSchemaAsJson = JsonSchemaToJson.ToJsonObject(dssInformation.Execution.InputSchema);
-
-                JObject jObject = JObject.Parse(dss.DssParameters.ToString());
-                foreach (var property in jObject.Properties())
+                JObject userInputJsonObject = JObject.Parse(dss.DssParameters.ToString());
+                if (userInputJsonObject == null)
+                {
+                    dssResult.Result = JObject.Parse("{\"message\": \"Missing user DSS parameters input.\"}").ToString();
+                    return dssResult;
+                }
+                foreach (var property in userInputJsonObject.Properties())
                 {
                     var token = inputSchemaAsJson.SelectToken(property.Name);
                     if (token != null)
                     {
-                        ((JValue)token).Value = property.Value.ToString();
+                        token.Replace(userInputJsonObject.SelectToken(property.Name));
                         continue;
                     }
-                    //Todo Create a new object based on DSS?
+                    inputSchemaAsJson.Add(property.Name, userInputJsonObject.SelectToken(property.Name));
                 }
 
                 if (dssInformation.Input.WeatherParameters != null)
@@ -196,7 +200,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
 
                 if (!responseDss.IsSuccessStatusCode)
                 {
-                    dssResult.Result = JObject.Parse("{\"message\": \"Error running the DSS - " + responseDss.ReasonPhrase.ToString() + " \"}").ToString();
+                    dssResult.Result = JObject.Parse("{\"message\": \"Error running the DSS on endPoint - " + responseDss.ReasonPhrase.ToString() + " \"}").ToString();
                     return dssResult;
                 }
                 var responseAsText = await responseDss.Content.ReadAsStringAsync();
