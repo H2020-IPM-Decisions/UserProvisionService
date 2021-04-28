@@ -10,7 +10,5 @@ namespace H2020.IPMDecisions.UPR.Core.Entities
         public Guid CropPestDssId { get; set; }
         public CropPestDss CropPestDss { get; set; }
         public DateTime CreationDate { get; set; }
-        public string Inf1 { get; set; }
-        public string Inf2 { get; set; }
     }
 }
