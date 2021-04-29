@@ -16,6 +16,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence
         public DbSet<Field> Field { get; set; }
         public DbSet<FieldDssResult> FieldDssResult { get; set; }
         public DbSet<FieldObservation> FieldObservation { get; set; }
+        public DbSet<FieldCrop> FieldCrop { get; set; }
         public DbSet<FieldCropPest> FieldCropPest { get; set; }
         public DbSet<FieldCropPestDss> FieldCropPestDss { get; set; }
         public DbSet<FieldSprayApplication> FieldSprayApplication { get; set; }

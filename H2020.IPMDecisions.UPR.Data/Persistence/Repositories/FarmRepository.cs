@@ -133,6 +133,14 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
                 .Where(expression)
                 .Include(f => f.UserFarms)
                 .Include(f => f.Fields)
+                    .ThenInclude(fi => fi.FieldCrop)
+                        .ThenInclude(fc => fc.FieldCropPests)
+                            .ThenInclude(fcp => fcp.CropPest)
+                 .Include(f => f.Fields)
+                    .ThenInclude(fi => fi.FieldCrop)
+                        .ThenInclude(fc => fc.FieldCropPests)
+                            .ThenInclude(fcp => fcp.FieldCropPestDsses)
+                                .ThenInclude(fcpd => fcpd.CropPestDss)
                 .Include(f => f.WeatherForecast)
                 .Include(f => f.WeatherHistorical)
                 .FirstOrDefaultAsync();
@@ -161,6 +169,14 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
                 .Farm
                 .Include(f => f.UserFarms)
                 .Include(f => f.Fields)
+                    .ThenInclude(fi => fi.FieldCrop)
+                        .ThenInclude(fc => fc.FieldCropPests)
+                            .ThenInclude(fcp => fcp.CropPest)
+                 .Include(f => f.Fields)
+                    .ThenInclude(fi => fi.FieldCrop)
+                        .ThenInclude(fc => fc.FieldCropPests)
+                            .ThenInclude(fcp => fcp.FieldCropPestDsses)
+                                .ThenInclude(fcpd => fcpd.CropPestDss)
                 .Include(f => f.WeatherForecast)
                 .Include(f => f.WeatherHistorical)
                 .Where(f =>
@@ -180,9 +196,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
             {
                 var searchQuery = resourceParameter.SearchQuery.Trim().ToLower();
                 collection = collection.Where(f =>
-                    f.Name.ToLower().Contains(searchQuery)
-                    || f.Inf1.ToLower().Contains(searchQuery)
-                    || f.Inf2.ToLower().Contains(searchQuery));
+                    f.Name.ToLower().Contains(searchQuery));
             }
             if (!string.IsNullOrEmpty(resourceParameter.OrderBy))
             {

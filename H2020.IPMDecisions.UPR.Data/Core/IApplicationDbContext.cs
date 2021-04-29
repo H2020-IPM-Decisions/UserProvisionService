@@ -13,6 +13,7 @@ namespace H2020.IPMDecisions.UPR.Core
         DbSet<Field> Field { get; set; }
         DbSet<FieldDssResult> FieldDssResult { get; set; }
         DbSet<FieldObservation> FieldObservation { get; set; }
+        DbSet<FieldCrop> FieldCrop { get; set; }
         DbSet<FieldCropPest> FieldCropPest { get; set; }
         DbSet<FieldCropPestDss> FieldCropPestDss { get; set; }
         DbSet<FieldSprayApplication> FieldSprayApplication { get; set; }

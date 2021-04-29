@@ -12,8 +12,11 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
             CreateMap<FieldCropPestDss, FieldCropPestDssDto>()
                 .ForMember(dest => dest.CropPestDssDto, opt => opt.MapFrom(src => src.CropPestDss))
                 .ForMember(dest => dest.FieldCropPest, opt => opt.MapFrom(src => src.FieldCropPest))
-                .ForMember(dest => dest.DssResult, 
+                .ForMember(dest => dest.DssResult,
                     opt => opt.MapFrom(src => src.FieldDssResults.OrderByDescending(r => r.CreationDate).FirstOrDefault()));
+
+            // Dtos to Entities       
+            CreateMap<FieldCropPestDssForUpdateDto, FieldCropPestDss>();
         }
     }
 }

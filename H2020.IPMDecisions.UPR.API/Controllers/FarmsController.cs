@@ -171,6 +171,29 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
             return NoContent();
         }
 
+        /// <summary>Use this endpoint to make a full update of a farm.</summary>
+        /// <remarks>Use the documentation for the FarmFields to manage associated fields to a farm
+        /// </remarks>
+        [ServiceFilter(typeof(FarmBelongsToUserActionFilter), Order = 2)]
+        [Consumes(MediaTypeNames.Application.Json)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [HttpPut("{farmId:guid}", Name = "api.farm.put.farmbyid")]
+        //PUT: api/farms/1
+        public async Task<IActionResult> FullUpdate(
+            [FromRoute] Guid farmId,
+            FarmForFullUpdateDto farmForFullUpdate)
+        {
+            var farm = HttpContext.Items["farm"] as Farm;
+
+            var response = await this.businessLogic.FullUpdateFarm(farm, farmForFullUpdate);
+            if (!response.IsSuccessful)
+                return BadRequest(new { message = response.ErrorMessage });
+
+            return NoContent();
+        }
+
         /// <summary>Requests permitted on this URL</summary>
         [ProducesResponseType(StatusCodes.Status200OK)]
         [HttpOptions]

@@ -11,8 +11,6 @@ namespace H2020.IPMDecisions.UPR.Core.Entities
         public Guid Id { get; set; }
         [Required]
         public string Name { get; set; }
-        public string Inf1 { get; set; }
-        public string Inf2 { get; set; }
         public Point Location { get; set; }
         public Guid WeatherForecastId { get; set; }
         public WeatherForecast WeatherForecast { get; set; }

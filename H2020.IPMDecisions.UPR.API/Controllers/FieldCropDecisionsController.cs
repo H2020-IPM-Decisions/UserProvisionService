@@ -98,7 +98,9 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         }
 
         /// <summary>Use this end point to add a new crop decisions to an specific fieldCropPest of a field.</summary>
-        /// <remarks>The FieldCropPestId must be associated to the Field</remarks>
+        /// <remarks>The FieldCropPestId must be associated to the Field
+        /// <para>A 409 response will be returned if the FieldCropPest already have the DSS submitted.</para>
+        /// </remarks>
         [Consumes(MediaTypeNames.Application.Json)]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -116,14 +118,18 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
             if (!response.IsSuccessful)
                 return response.RequestResult;
 
-            return CreatedAtRoute(
-                "api.fieldcropdecisions.get.cropdecisionbyid",
-                new
-                {
-                    fieldId,
-                    id = response.Result["Id"]
-                },
-                response.Result);
+            var route = "api.fieldcropdecisions.get.cropdecisionbyid";
+            var routeValues = new
+            {
+                fieldId,
+                id = response.Result["Id"]
+            };
+            var result = response.Result;
+
+            if (response.RequestResult != null)
+                return AcceptedAtRoute(route, routeValues, result);
+
+            return CreatedAtRoute(route, routeValues, result);
         }
 
         /// <summary>Requests permitted on this URL</summary>

@@ -42,9 +42,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
                 if (response.IsSuccessStatusCode)
                 {
                     var responseAsText = await response.Content.ReadAsStringAsync();
-
                     return JsonConvert.DeserializeObject<DssInformation>(responseAsText);
-
                 }
                 return null;
             }

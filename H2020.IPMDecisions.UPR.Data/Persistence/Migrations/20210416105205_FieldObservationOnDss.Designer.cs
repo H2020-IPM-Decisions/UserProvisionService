@@ -3,6 +3,7 @@ using System;
 using H2020.IPMDecisions.UPR.Data.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetTopologySuite.Geometries;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -10,9 +11,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace H2020.IPMDecisions.UPR.Data.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210416105205_FieldObservationOnDss")]
+    partial class FieldObservationOnDss
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -98,6 +100,12 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Migrations
                     b.Property<Guid>("CropPestDssId")
                         .HasColumnType("uuid");
 
+                    b.Property<string>("Inf1")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Inf2")
+                        .HasColumnType("text");
+
                     b.HasKey("Id");
 
                     b.HasIndex("CropPestDssId");
@@ -173,6 +181,12 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<string>("Inf1")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Inf2")
+                        .HasColumnType("text");
+
                     b.Property<Point>("Location")
                         .IsRequired()
                         .HasColumnType("geometry (point)");
@@ -207,14 +221,14 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Migrations
                     b.Property<Guid>("FarmId")
                         .HasColumnType("uuid");
 
-                    b.Property<string>("Name")
-                        .IsRequired()
+                    b.Property<string>("Inf1")
                         .HasColumnType("text");
 
-                    b.Property<DateTime?>("SowingDate")
-                        .HasColumnType("timestamp without time zone");
+                    b.Property<string>("Inf2")
+                        .HasColumnType("text");
 
-                    b.Property<string>("Variety")
+                    b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");
@@ -303,23 +317,18 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<string>("DssObservation")
+                        .IsRequired()
                         .HasColumnType("jsonb");
 
                     b.Property<Guid>("FieldCropPestDssId")
                         .HasColumnType("uuid");
 
-                    b.Property<Point>("Location")
-                        .IsRequired()
-                        .HasColumnType("geometry");
-
-                    b.Property<DateTime>("Time")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp without time zone")
-                        .HasDefaultValueSql("NOW()");
+                    b.Property<Guid>("FieldObservationId")
+                        .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("FieldCropPestDssId");
+                    b.HasIndex("FieldObservationId");
 
                     b.ToTable("FieldDssObservation");
                 });
@@ -336,9 +345,6 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Migrations
                     b.Property<Guid>("FieldCropPestDssId")
                         .HasColumnType("uuid");
 
-                    b.Property<bool>("IsValid")
-                        .HasColumnType("boolean");
-
                     b.Property<string>("Result")
                         .HasColumnType("jsonb");
 
@@ -354,9 +360,6 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
-
-                    b.Property<string>("DssObservation")
-                        .HasColumnType("text");
 
                     b.Property<Guid>("FieldCropPestId")
                         .HasColumnType("uuid");
@@ -433,6 +436,12 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Migrations
                     b.Property<Guid>("ForecastAlertId")
                         .HasColumnType("uuid");
 
+                    b.Property<string>("Inf1")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Inf2")
+                        .HasColumnType("text");
+
                     b.HasKey("Id");
 
                     b.HasIndex("ForecastAlertId", "Date")
@@ -471,6 +480,12 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Migrations
 
                     b.Property<DateTime>("Date")
                         .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("Inf1")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Inf2")
+                        .HasColumnType("text");
 
                     b.Property<Guid>("ObservationAlertId")
                         .HasColumnType("uuid");
@@ -817,10 +832,9 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Migrations
 
             modelBuilder.Entity("H2020.IPMDecisions.UPR.Core.Entities.FieldDssObservation", b =>
                 {
-                    b.HasOne("H2020.IPMDecisions.UPR.Core.Entities.FieldCropPestDss", "FieldCropPestDss")
+                    b.HasOne("H2020.IPMDecisions.UPR.Core.Entities.FieldObservation", "FieldObservation")
                         .WithMany("FieldDssObservations")
-                        .HasForeignKey("FieldCropPestDssId")
-                        .HasConstraintName("FK_Observation_FieldCropPestDss")
+                        .HasForeignKey("FieldObservationId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

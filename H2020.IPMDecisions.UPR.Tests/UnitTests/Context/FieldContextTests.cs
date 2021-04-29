@@ -56,7 +56,6 @@ namespace H2020.IPMDecisions.UPR.Tests.UnitTests.Context
                 var field = new Field()
                 {
                     Name = "My Farm",
-                    Inf1 = "Inf1",
                     FarmId = farm.Id
                 };
 
@@ -117,13 +116,11 @@ namespace H2020.IPMDecisions.UPR.Tests.UnitTests.Context
                 var field = new Field()
                 {
                     Name = "My Field",
-                    Inf1 = "Inf1",
                     FarmId = farm.Id
                 };
                 var field2 = new Field()
                 {
                     Name = "My Field2",
-                    Inf1 = "Inf1",
                     FarmId = farm.Id
                 };
 
@@ -158,7 +155,6 @@ namespace H2020.IPMDecisions.UPR.Tests.UnitTests.Context
                 var field = new Field()
                 {
                     Name = "My Field",
-                    Inf1 = "Inf1",
                     FarmId = farmId
                 };
 

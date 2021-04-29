@@ -8,7 +8,15 @@ namespace H2020.IPMDecisions.UPR.Core.Models
     {
         public DssSchemaExecution Execution { get; set; }
         public DssSchemaInput Input { get; set; }
+        public DssSchemaOutput Output { get; set; }
     }
+
+    public class DssSchemaOutput
+    {
+        [JsonProperty("warning_status_interpretation")]
+        public string WarningStatusInterpretation { get; set; }
+    }
+
     public class DssSchemaInput
     {
         [JsonProperty("Weather_Parameters")]
@@ -42,6 +50,8 @@ namespace H2020.IPMDecisions.UPR.Core.Models
 
     public class DssSchemaExecution
     {
+        [JsonProperty("input_schema")]
+        public string InputSchema { get; set; }
         public string Type { get; set; }
         public string EndPoint { get; set; }
         [JsonProperty("Form_Method")]

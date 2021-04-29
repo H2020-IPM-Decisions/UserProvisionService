@@ -3,12 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
-using System.Text.Json;
 using System.Threading.Tasks;
 using AutoMapper;
 using H2020.IPMDecisions.UPR.BLL.Helpers;
 using H2020.IPMDecisions.UPR.BLL.Providers;
-using H2020.IPMDecisions.UPR.Core.Dtos;
 using H2020.IPMDecisions.UPR.Core.Entities;
 using H2020.IPMDecisions.UPR.Core.Models;
 using H2020.IPMDecisions.UPR.Data.Core;
@@ -143,7 +141,24 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 }
                 if (dssInformation.Execution.Type.ToLower() != "onthefly") return null;
 
-                JObject jObject = JObject.Parse(dss.DssParameters.ToString());
+                var inputSchemaAsJson = JsonSchemaToJson.ToJsonObject(dssInformation.Execution.InputSchema);
+                JObject userInputJsonObject = JObject.Parse(dss.DssParameters.ToString());
+                if (userInputJsonObject == null)
+                {
+                    dssResult.Result = JObject.Parse("{\"message\": \"Missing user DSS parameters input.\"}").ToString();
+                    return dssResult;
+                }
+                foreach (var property in userInputJsonObject.Properties())
+                {
+                    var token = inputSchemaAsJson.SelectToken(property.Name);
+                    if (token != null)
+                    {
+                        token.Replace(userInputJsonObject.SelectToken(property.Name));
+                        continue;
+                    }
+                    inputSchemaAsJson.Add(property.Name, userInputJsonObject.SelectToken(property.Name));
+                }
+
                 if (dssInformation.Input.WeatherParameters != null)
                 {
                     var listOfPreferredWeatherDataSources = new List<WeatherSchemaForHttp>();
@@ -156,10 +171,16 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                     if (farm.WeatherHistorical != null)
                     {
                         var weatherToCall = this.mapper.Map<WeatherSchemaForHttp>(farm.WeatherHistorical);
-                        var weatherStartDateJsonLocation = dssInformation.Input.WeatherDataPeriodStart.Value.ToString();
-                        weatherToCall.WeatherTimeStart = DateTime.Parse(jObject.SelectTokens(weatherStartDateJsonLocation).FirstOrDefault().ToString());
-                        var weatherEndDateJsonLocation = dssInformation.Input.WeatherDataPeriodEnd.Value.ToString();
-                        weatherToCall.WeatherTimeEnd = DateTime.Parse(jObject.SelectTokens(weatherEndDateJsonLocation).FirstOrDefault().ToString());
+                        if (dssInformation.Input.WeatherDataPeriodStart != null)
+                        {
+                            var weatherStartDateJsonLocation = dssInformation.Input.WeatherDataPeriodStart.Value.ToString();
+                            weatherToCall.WeatherTimeStart = DateTime.Parse(inputSchemaAsJson.SelectTokens(weatherStartDateJsonLocation).FirstOrDefault().ToString());
+                        }
+                        if (dssInformation.Input.WeatherDataPeriodEnd != null)
+                        {
+                            var weatherEndDateJsonLocation = dssInformation.Input.WeatherDataPeriodEnd.Value.ToString();
+                            weatherToCall.WeatherTimeEnd = DateTime.Parse(inputSchemaAsJson.SelectTokens(weatherEndDateJsonLocation).FirstOrDefault().ToString());
+                        }
                         listOfPreferredWeatherDataSources.Add(weatherToCall);
                     }
 
@@ -169,21 +190,22 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                         dssResult.Result = responseWeather.ResponseWeather;
                         return dssResult;
                     }
-                    jObject["weatherData"] = JObject.Parse(responseWeather.ResponseWeather.ToString());
+                    inputSchemaAsJson["weatherData"] = JObject.Parse(responseWeather.ResponseWeather.ToString());
                 }
 
                 var content = new StringContent(
-                     jObject.ToString(),
+                     inputSchemaAsJson.ToString(),
                      Encoding.UTF8, "application/json");
                 var responseDss = await httpClient.PostAsync(dssInformation.Execution.EndPoint, content);
 
                 if (!responseDss.IsSuccessStatusCode)
                 {
-                    dssResult.Result = JObject.Parse("{\"message\": \"Error running the DSS - " + responseDss.ReasonPhrase.ToString() + " \"}").ToString();
+                    dssResult.Result = JObject.Parse("{\"message\": \"Error running the DSS on endPoint - " + responseDss.ReasonPhrase.ToString() + " \"}").ToString();
                     return dssResult;
                 }
                 var responseAsText = await responseDss.Content.ReadAsStringAsync();
                 dssResult.Result = responseAsText;
+                dssResult.IsValid = true;
                 return dssResult;
             }
             catch (Exception ex)
