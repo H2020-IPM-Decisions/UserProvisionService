@@ -14,7 +14,10 @@ namespace H2020.IPMDecisions.UPR.BLL
         {
             try
             {
-                var fieldCropPestDssesAsEntities = await this.dataService.FieldCropPestDsses.FindAllAsync(f => f.FieldCropPest.FieldCrop.Field.Farm.UserFarms.Any(uf => uf.UserId == userId));
+                var fieldCropPestDssesAsEntities = await this.dataService
+                    .FieldCropPestDsses
+                    .FindAllAsync(f => f.FieldCropPest.FieldCrop.Field.Farm.UserFarms.Any(uf => uf.UserId == userId && uf.Authorised == true));
+
                 var dataToReturn = this.mapper.Map<List<FieldCropPestDssDto>>(fieldCropPestDssesAsEntities);
                 return GenericResponseBuilder.Success<List<FieldCropPestDssDto>>(dataToReturn);
             }
