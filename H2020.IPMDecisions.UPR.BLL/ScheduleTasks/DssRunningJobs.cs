@@ -205,6 +205,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 }
                 var responseAsText = await responseDss.Content.ReadAsStringAsync();
                 dssResult.Result = responseAsText;
+                dssResult.IsValid = true;
                 return dssResult;
             }
             catch (Exception ex)
