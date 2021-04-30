@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace H2020.IPMDecisions.UPR.Core.Models
 {
     [NotMapped]
-    public class DssResultFromDatabase
+    public class DssResultDatabaseView
     {
         public Guid Id { get; set; }
         public string CropEppoCode { get; set; }

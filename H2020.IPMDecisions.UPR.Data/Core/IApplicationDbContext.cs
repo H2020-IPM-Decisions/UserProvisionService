@@ -9,7 +9,7 @@ namespace H2020.IPMDecisions.UPR.Core
         DbSet<CropPest> CropPest { get; set; }
         DbSet<CropPestDss> CropPestDss { get; set; }
         DbSet<DataSharingRequest> DataSharingRequest { get; set; }
-        DbSet<DssResultFromDatabase> DssResult { get; set; }
+        DbSet<DssResultDatabaseView> DssResult { get; set; }
         DbSet<DataSharingRequestStatus> DataSharingRequestStatus { get; set; }
         DbSet<Farm> Farm { get; set; }
         DbSet<Field> Field { get; set; }
