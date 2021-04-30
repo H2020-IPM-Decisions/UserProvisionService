@@ -220,6 +220,20 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence
                 return weatherForecasts;
             }
         }
+
+        public IDssResultRepository dssResult;
+        public IDssResultRepository DssResult
+        {
+            get
+            {
+                if (dssResult == null)
+                {
+                    dssResult = new DssResultRepository(this.context);
+                }
+                return dssResult;
+            }
+        }
+
         public DataService(
             ApplicationDbContext context,
             IPropertyMappingService propertyMappingService)

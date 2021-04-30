@@ -72,5 +72,21 @@ namespace H2020.IPMDecisions.UPR.BLL
                 return GenericResponseBuilder.NoSuccess($"{ex.Message} InnerException: {innerMessage}");
             }
         }
+
+        public async Task<GenericResponse<IEnumerable<IGrouping<string, DssResult>>>> GetAllDssResults(Guid userId)
+        {
+            try
+            {
+                var dssResults = await this.dataService.DssResult.GetAllDssResults(userId);
+                var dssResultGroup = dssResults.GroupBy(d => d.CropEppoCode);
+                return GenericResponseBuilder.Success<IEnumerable<IGrouping<string, DssResult>>>(dssResultGroup);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(string.Format("Error in BLL - GetAllUserFieldCropPestDss. {0}", ex.Message), ex);
+                String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
+                return GenericResponseBuilder.NoSuccess<IEnumerable<IGrouping<string, DssResult>>>(null, $"{ex.Message} InnerException: {innerMessage}");
+            }
+        }
     }
 }

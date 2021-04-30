@@ -9,6 +9,7 @@ namespace H2020.IPMDecisions.UPR.Data.Core
         Task CompleteAsync();
         ICropPestRepository CropPests { get; }
         ICropPestDssRepository CropPestDsses { get; }
+        IDssResultRepository DssResult { get; }
         IDataShareRequestRepository DataShareRequests { get; }
         IDataSharingRequestStatusRepository DataSharingRequestStatuses { get; }
         IFarmRepository Farms { get; }

@@ -45,7 +45,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         {
             var userId = Guid.Parse(HttpContext.Items["userId"].ToString());
 
-            var response = await businessLogic.GetAllUserFieldCropPestDss(userId);
+            var response = await businessLogic.GetAllDssResults(userId);
             if (!response.IsSuccessful)
                 return BadRequest(new { message = response.ErrorMessage });
 

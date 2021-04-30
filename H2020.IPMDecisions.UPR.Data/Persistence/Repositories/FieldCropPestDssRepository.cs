@@ -59,14 +59,6 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
         {
             if (expression is null) return null;
 
-            // var x = await this
-            //     .context
-            //     .FieldCrop
-            //     .Include(fc => fc.Field)
-            //     .Where(fc => fc.Field.Farm.UserFarms.Any(uf => uf.UserId == Guid.Parse("fd65de21-8185-4578-bd39-a8951c97c24d") && uf.Authorised == true))
-            //     .ToListAsync();
-            // f => f.FieldCropPest.FieldCrop.Field.Farm.UserFarms.Any(uf => uf.UserId == userId && uf.Authorised == true);
-
             return await this
             .context
             .FieldCropPestDss
