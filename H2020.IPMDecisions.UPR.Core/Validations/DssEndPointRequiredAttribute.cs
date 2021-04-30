@@ -12,10 +12,12 @@ namespace H2020.IPMDecisions.UPR.Core.Validations
         {
             DssForCreationDto entity = (DssForCreationDto)validationContext.ObjectInstance;
 
-            if (entity.DssExecutionType.ToLower() != "link") return ValidationResult.Success;
+            var dssExecutionType = "link";
 
-            if (!string.IsNullOrEmpty(value.ToString()))
-                return new ValidationResult(string.Format("The {0} field is required when a DSS type 'link' is selected.", validationContext.DisplayName));
+            if (entity.DssExecutionType.ToLower() != dssExecutionType) return ValidationResult.Success;
+
+            if (value == null || string.IsNullOrEmpty(value.ToString()))
+                return new ValidationResult(string.Format("The {0} field is required when a DSS with Execution Type '{1}' is selected.", validationContext.DisplayName, dssExecutionType.ToUpper()));
 
             return ValidationResult.Success;
         }
