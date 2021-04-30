@@ -7,5 +7,6 @@ namespace H2020.IPMDecisions.UPR.Core.Dtos
         public abstract string DssParameters { get; set; }
         public abstract string DssExecutionType { get; set; }
         public abstract string DssVersion { get; set; }
+        public abstract string DssEndPoint { get; set; }
     }
 }

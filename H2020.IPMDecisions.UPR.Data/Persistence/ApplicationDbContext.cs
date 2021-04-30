@@ -70,6 +70,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence
             modelBuilder.ApplyConfiguration(new WeatherHistoricalConfiguration());
             modelBuilder.ApplyConfiguration(new WidgetConfiguration());
 
+            modelBuilder.Ignore<DssResultFromDatabase>();
             modelBuilder.Seed();
         }
     }

@@ -124,19 +124,19 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
         #region DSS Common Stuff
         public async Task<FieldDssResult> RunOnTheFlyDss(HttpClient httpClient, FieldCropPestDss dss)
         {
-            var dssResult = new FieldDssResult() { CreationDate = DateTime.Now };
+            var dssResult = new FieldDssResult() { CreationDate = DateTime.Now, IsValid = false };
             try
             {
                 DssInformation dssInformation = await GetDssInformationFromMicroservice(dss);
                 if (dssInformation == null)
                 {
-                    dssResult.Result = JObject.Parse("{\"message\": \"Error getting DSS information from  microservice.\"}").ToString();
+                    dssResult.DssFullResult = JObject.Parse("{\"message\": \"Error getting DSS information from  microservice.\"}").ToString();
                     return dssResult;
                 };
 
                 if (string.IsNullOrEmpty(dssInformation.Execution.EndPoint))
                 {
-                    dssResult.Result = JObject.Parse("{\"message\": \"End point not available to run DSS.\"}").ToString();
+                    dssResult.DssFullResult = JObject.Parse("{\"message\": \"End point not available to run DSS.\"}").ToString();
                     return dssResult;
                 }
                 if (dssInformation.Execution.Type.ToLower() != "onthefly") return null;
@@ -145,7 +145,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 JObject userInputJsonObject = JObject.Parse(dss.DssParameters.ToString());
                 if (userInputJsonObject == null)
                 {
-                    dssResult.Result = JObject.Parse("{\"message\": \"Missing user DSS parameters input.\"}").ToString();
+                    dssResult.DssFullResult = JObject.Parse("{\"message\": \"Missing user DSS parameters input.\"}").ToString();
                     return dssResult;
                 }
                 foreach (var property in userInputJsonObject.Properties())
@@ -187,7 +187,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                     var responseWeather = await GetWeatherData(httpClient, farm.Location.X.ToString(), farm.Location.Y.ToString(), listOfPreferredWeatherDataSources, dssInformation.Input);
                     if (!responseWeather.Continue)
                     {
-                        dssResult.Result = responseWeather.ResponseWeather;
+                        dssResult.DssFullResult = responseWeather.ResponseWeather;
                         return dssResult;
                     }
                     inputSchemaAsJson["weatherData"] = JObject.Parse(responseWeather.ResponseWeather.ToString());
@@ -200,18 +200,18 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
 
                 if (!responseDss.IsSuccessStatusCode)
                 {
-                    dssResult.Result = JObject.Parse("{\"message\": \"Error running the DSS on endPoint - " + responseDss.ReasonPhrase.ToString() + " \"}").ToString();
+                    dssResult.DssFullResult = JObject.Parse("{\"message\": \"Error running the DSS on endPoint - " + responseDss.ReasonPhrase.ToString() + " \"}").ToString();
                     return dssResult;
                 }
                 var responseAsText = await responseDss.Content.ReadAsStringAsync();
-                dssResult.Result = responseAsText;
+                dssResult.DssFullResult = responseAsText;
                 dssResult.IsValid = true;
                 return dssResult;
             }
             catch (Exception ex)
             {
                 logger.LogError(string.Format("Error running DSS. Id: {0}, Parameters {1}. Error: {2}", dss.Id.ToString(), dss.DssParameters.ToString(), ex.Message));
-                dssResult.Result = JObject.Parse("{\"message\": \"Error running the DSS - " + ex.Message.ToString() + " \"}").ToString();
+                dssResult.DssFullResult = JObject.Parse("{\"message\": \"Error running the DSS - " + ex.Message.ToString() + " \"}").ToString();
                 return dssResult;
             }
         }

@@ -15,6 +15,15 @@ namespace H2020.IPMDecisions.UPR.Core.Models
     {
         [JsonProperty("warning_status_interpretation")]
         public string WarningStatusInterpretation { get; set; }
+        [JsonProperty("result_parameters")]
+        public List<OutputResultParameters> ResultParameters { get; set; }
+    }
+
+    public class OutputResultParameters
+    {
+        public string Id { get; set; }
+        public string Title { get; set; }
+        public string Description { get; set; }
     }
 
     public class DssSchemaInput
