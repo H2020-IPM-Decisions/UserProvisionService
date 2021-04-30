@@ -2,7 +2,7 @@ using System;
 
 namespace H2020.IPMDecisions.UPR.Core.Models
 {
-    public class DssResult
+    public class DssResultFromDatabase
     {
         public Guid Id { get; set; }
         public string CropEppoCode { get; set; }

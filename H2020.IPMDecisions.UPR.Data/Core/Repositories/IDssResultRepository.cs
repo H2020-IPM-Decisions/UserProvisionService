@@ -7,6 +7,6 @@ namespace H2020.IPMDecisions.UPR.Data.Core.Repositories
 {
     public interface IDssResultRepository
     {
-        Task<List<DssResult>> GetAllDssResults(Guid userId);
+        Task<List<DssResultFromDatabase>> GetAllDssResults(Guid userId);
     }
 }

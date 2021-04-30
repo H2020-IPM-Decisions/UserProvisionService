@@ -110,7 +110,7 @@ namespace H2020.IPMDecisions.UPR.BLL
         #region DssResults
         Task<GenericResponse<FieldDssResultDto>> GetLatestFieldCropPestDssResult(Guid dssId, Guid userId);
         Task<GenericResponse<FieldDssResultDto>> CreateFieldCropPestDssResult(Guid dssId, Guid userId, FieldDssResultForCreationDto dssResultDto);
-        Task<GenericResponse<IEnumerable<IGrouping<string, DssResult>>>> GetAllDssResults(Guid userId);
+        Task<GenericResponse<IEnumerable<IGrouping<string, DssResultFromDatabase>>>> GetAllDssResults(Guid userId);
         #endregion
     }
 }

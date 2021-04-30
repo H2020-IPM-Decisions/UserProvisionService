@@ -16,7 +16,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
         {
             this.context = context;
         }
-        public async Task<List<DssResult>> GetAllDssResults(Guid userId)
+        public async Task<List<DssResultFromDatabase>> GetAllDssResults(Guid userId)
         {
             return await this.context
                .DssResult
