@@ -14,6 +14,6 @@ namespace H2020.IPMDecisions.UPR.Core.Models
         public string DssFullResult { get; set; }
         public int WarningStatus { get; set; }
         public string WarningMessage { get; set; }
-        public bool isValid { get; set; }
+        public bool IsValid { get; set; }
     }
 }

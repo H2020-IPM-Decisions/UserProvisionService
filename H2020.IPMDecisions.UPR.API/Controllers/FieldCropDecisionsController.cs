@@ -52,7 +52,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         /// <summary>Use this endpoint to get the crop decisions that are associated with a field crop pest.
         /// </summary>
         /// <remarks>The FieldCropPestId must be associated to the Field</remarks>
-        [ProducesResponseType(typeof(IEnumerable<FieldCropPestDssDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(IEnumerable<FieldDssResultDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [Produces(MediaTypeNames.Application.Json)]
@@ -80,7 +80,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
 
         /// <summary>Use this endpoint to get a crop decisions by id.</summary>
         /// <remarks>The Id must be part of a FieldCropPest associated to the field</remarks>
-        [ProducesResponseType(typeof(FieldCropPestDssDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(FieldDssResultDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [Produces(MediaTypeNames.Application.Json)]

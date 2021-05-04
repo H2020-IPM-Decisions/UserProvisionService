@@ -6,7 +6,15 @@ namespace H2020.IPMDecisions.UPR.Core.Dtos
     {
         public Guid Id { get; set; }
         public DateTime CreationDate { get; set; }
-        public string Result { get; set; }
         public bool IsValid { get; set; }
+        public string CropEppoCode { get; set; }
+        public string PestEppoCode { get; set; }
+        public string DssId { get; set; }
+        public string DssModelId { get; set; }
+        public string DssExecutionType { get; set; }
+        public string DssFullResult { get; set; }
+        public int WarningStatus { get; set; }
+        public string WarningStatusRepresentation { get; set; }
+        public string WarningMessage { get; set; }
     }
 }
