@@ -5,7 +5,7 @@
 -- Dumped from database version 12.5 (Debian 12.5-1.pgdg100+1)
 -- Dumped by pg_dump version 12.5 (Debian 12.5-1.pgdg100+1)
 
--- Started on 2021-04-29 11:22:27 UTC
+-- Started on 2021-05-04 08:34:45 UTC
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -58,11 +58,10 @@ CREATE TABLE public."CropPestDss" (
     "Id" uuid NOT NULL,
     "CropPestId" uuid NOT NULL,
     "DssId" text NOT NULL,
-    "DssName" text NOT NULL,
     "DssModelId" text DEFAULT ''::text NOT NULL,
-    "DssModelName" text DEFAULT ''::text NOT NULL,
     "DssExecutionType" text DEFAULT ''::text NOT NULL,
-    "DssVersion" text DEFAULT ''::text NOT NULL
+    "DssVersion" text DEFAULT ''::text NOT NULL,
+    "DssEndPoint" text
 );
 
 
@@ -190,9 +189,11 @@ CREATE TABLE public."FieldDssObservation" (
 CREATE TABLE public."FieldDssResult" (
     "Id" uuid NOT NULL,
     "CreationDate" timestamp without time zone NOT NULL,
-    "Result" jsonb,
+    "DssFullResult" jsonb,
     "FieldCropPestDssId" uuid NOT NULL,
-    "IsValid" boolean DEFAULT false NOT NULL
+    "IsValid" boolean DEFAULT false NOT NULL,
+    "WarningMessage" text,
+    "WarningStatus" integer DEFAULT 0 NOT NULL
 );
 
 
@@ -1146,7 +1147,7 @@ ALTER TABLE ONLY public."UserProfile"
     ADD CONSTRAINT "FK_User_UserAddress" FOREIGN KEY ("UserAddressId") REFERENCES public."UserAddress"("Id") ON DELETE CASCADE;
 
 
--- Completed on 2021-04-29 11:22:27 UTC
+-- Completed on 2021-05-04 08:34:45 UTC
 
 --
 -- PostgreSQL database dump complete
