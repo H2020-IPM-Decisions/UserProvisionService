@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using Newtonsoft.Json;
 
 namespace H2020.IPMDecisions.UPR.Core.Models
 {
@@ -12,13 +11,14 @@ namespace H2020.IPMDecisions.UPR.Core.Models
         public List<string> ResultParameters { get; set; }
         public string Message { get; set; }
         public int MessageType { get; set; }
-        public LocationResultDssOutput LocationResult { get; set; }
+        public List<LocationResultDssOutput> LocationResult { get; set; }
     }
 
     public class LocationResultDssOutput
     {
-        public double Longitude { get; set; }
-        public double Latitude { get; set; }
+        public double? Longitude { get; set; }
+        public double? Latitude { get; set; }
         public List<int> WarningStatus { get; set; }
+        public List<List<double>> Data { get; set; }
     }
 }

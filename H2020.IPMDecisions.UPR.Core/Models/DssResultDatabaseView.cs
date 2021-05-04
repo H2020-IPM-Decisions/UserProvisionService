@@ -1,9 +1,7 @@
 using System;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace H2020.IPMDecisions.UPR.Core.Models
 {
-    [NotMapped]
     public class DssResultDatabaseView
     {
         public Guid Id { get; set; }
@@ -13,7 +11,9 @@ namespace H2020.IPMDecisions.UPR.Core.Models
         public string DssModelId { get; set; }
         public string DssExecutionType { get; set; }
         public DateTime CreationDate { get; set; }
-        public string Result { get; set; }
+        public string DssFullResult { get; set; }
+        public int WarningStatus { get; set; }
+        public string WarningMessage { get; set; }
         public bool isValid { get; set; }
     }
 }

@@ -13,6 +13,7 @@ using H2020.IPMDecisions.UPR.Data.Core;
 using Hangfire;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
@@ -203,9 +204,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                     dssResult.DssFullResult = JObject.Parse("{\"message\": \"Error running the DSS on endPoint - " + responseDss.ReasonPhrase.ToString() + " \"}").ToString();
                     return dssResult;
                 }
-                var responseAsText = await responseDss.Content.ReadAsStringAsync();
-                dssResult.DssFullResult = responseAsText;
-                dssResult.IsValid = true;
+                await ProcessDssResult(dssResult, responseDss);
                 return dssResult;
             }
             catch (Exception ex)
@@ -214,6 +213,18 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 dssResult.DssFullResult = JObject.Parse("{\"message\": \"Error running the DSS - " + ex.Message.ToString() + " \"}").ToString();
                 return dssResult;
             }
+        }
+
+        private static async Task ProcessDssResult(FieldDssResult dssResult, HttpResponseMessage responseDss)
+        {
+            var responseAsText = await responseDss.Content.ReadAsStringAsync();
+            var dssOutput = JsonConvert.DeserializeObject<DssModelOutputInformation>(responseAsText);
+
+            var warningStatuses = dssOutput.LocationResult.FirstOrDefault().WarningStatus;
+            //Get the max warning status for the week
+            dssResult.WarningStatus = warningStatuses.TakeLast(7).Max();
+            dssResult.DssFullResult = responseAsText;
+            dssResult.IsValid = true;
         }
 
         private async Task<DssInformation> GetDssInformationFromMicroservice(FieldCropPestDss dss)

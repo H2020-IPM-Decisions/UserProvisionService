@@ -2,7 +2,10 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.SqlQueries
 {
     public static class RawSqlQueries
     {
-        public const string GetDssResults = @"SELECT ""FieldCropPestDss"".""Id"",fc.""CropEppoCode"", ""CropPest"".""PestEppoCode"",""CropPestDss"".""DssId"",""CropPestDss"".""DssModelId"",""CropPestDss"".""DssExecutionType"", dssResults.""CreationDate"", dssResults.""Result"", dssResults.""IsValid""
+        public const string GetDssResults = @"SELECT ""FieldCropPestDss"".""Id"",fc.""CropEppoCode"", ""CropPest"".""PestEppoCode"",
+        ""CropPestDss"".""DssId"",""CropPestDss"".""DssModelId"",""CropPestDss"".""DssExecutionType"", 
+        dssResults.""CreationDate"", dssResults.""DssFullResult"", dssResults.""WarningStatus"", dssResults.""WarningMessage"",
+        dssResults.""IsValid""
                 FROM ""FieldCrop"" fc
                 INNER JOIN ""Field"" ON ""Field"".""Id"" = fc.""FieldId""
                 INNER JOIN ""FieldCropPest"" ON ""FieldCropPest"".""FieldCropId"" = fc.""Id""
