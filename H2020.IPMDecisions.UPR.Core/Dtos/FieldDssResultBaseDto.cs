@@ -5,6 +5,8 @@ namespace H2020.IPMDecisions.UPR.Core.Dtos
     public abstract class FieldDssResultBaseDto
     {
         public Guid Id { get; set; }
+        public Guid FarmId { get; set; }
+        public Guid FieldId { get; set; }
         public DateTime CreationDate { get; set; }
         public bool IsValid { get; set; }
         public string CropEppoCode { get; set; }
