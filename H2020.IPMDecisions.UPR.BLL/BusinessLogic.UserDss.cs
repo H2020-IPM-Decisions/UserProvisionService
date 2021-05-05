@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using H2020.IPMDecisions.UPR.BLL.Helpers;
 using H2020.IPMDecisions.UPR.Core.Dtos;
 using H2020.IPMDecisions.UPR.Core.Models;
 using Microsoft.Extensions.Logging;
@@ -10,24 +11,33 @@ namespace H2020.IPMDecisions.UPR.BLL
 {
     public partial class BusinessLogic : IBusinessLogic
     {
-        public async Task<GenericResponse<FieldDssResultDto>> GetFieldCropPestDssById(Guid id, Guid userId)
+        public async Task<GenericResponse<FieldDssResultDetailedDto>> GetFieldCropPestDssById(Guid id, Guid userId)
         {
             try
             {
                 var dss = await this.dataService.FieldCropPestDsses.FindByIdAsync(id);
-                if (dss == null) return GenericResponseBuilder.NotFound<FieldDssResultDto>();
+                if (dss == null) return GenericResponseBuilder.NotFound<FieldDssResultDetailedDto>();
 
                 var dssUserId = dss.FieldCropPest.FieldCrop.Field.Farm.UserFarms.FirstOrDefault().UserId;
-                if (userId != dssUserId) return GenericResponseBuilder.NotFound<FieldDssResultDto>();
+                if (userId != dssUserId) return GenericResponseBuilder.NotFound<FieldDssResultDetailedDto>();
 
-                var dataToReturn = this.mapper.Map<FieldDssResultDto>(dss);
-                return GenericResponseBuilder.Success<FieldDssResultDto>(dataToReturn);
+                var dataToReturn = this.mapper.Map<FieldDssResultDetailedDto>(dss);
+
+                // ToDo
+                //Get how to interpret the results
+                // var dssInformation = await internalCommunicationProvider
+                //     .GetDssInformationFromDssMicroservice(dss.CropPestDss.DssId, dss.CropPestDss.DssModelId);
+
+                // dataToReturn.WarningMessage = dssInformation.Output.WarningStatusInterpretation;
+
+
+                return GenericResponseBuilder.Success<FieldDssResultDetailedDto>(dataToReturn);
             }
             catch (Exception ex)
             {
                 logger.LogError(string.Format("Error in BLL - GetFieldCropPestDssById. {0}", ex.Message), ex);
                 String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
-                return GenericResponseBuilder.NoSuccess<FieldDssResultDto>(null, $"{ex.Message} InnerException: {innerMessage}");
+                return GenericResponseBuilder.NoSuccess<FieldDssResultDetailedDto>(null, $"{ex.Message} InnerException: {innerMessage}");
             }
         }
 

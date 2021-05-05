@@ -1,12 +1,10 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net.Mime;
 using System.Threading.Tasks;
 using H2020.IPMDecisions.UPR.API.Filters;
 using H2020.IPMDecisions.UPR.BLL;
 using H2020.IPMDecisions.UPR.Core.Dtos;
-using H2020.IPMDecisions.UPR.Core.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -60,7 +58,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         /// <remarks>The user will be identified using the UserId on the authentification JWT.
         /// <para>The DSS must belong to the user</para>
         /// </remarks>
-        [ProducesResponseType(typeof(FieldCropPestDssDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(FieldDssResultDetailedDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [Produces(MediaTypeNames.Application.Json)]
