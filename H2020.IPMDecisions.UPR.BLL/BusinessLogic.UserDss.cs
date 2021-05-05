@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using H2020.IPMDecisions.UPR.Core.Dtos;
+using H2020.IPMDecisions.UPR.Core.Entities;
 using H2020.IPMDecisions.UPR.Core.Models;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -21,48 +22,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                 var dssUserId = dss.FieldCropPest.FieldCrop.Field.Farm.UserFarms.FirstOrDefault().UserId;
                 if (userId != dssUserId) return GenericResponseBuilder.NotFound<FieldDssResultDetailedDto>();
 
-                var dataToReturn = this.mapper.Map<FieldDssResultDetailedDto>(dss);
-
-                // ToDo Tidy up
-                var dssInformation = await internalCommunicationProvider
-                    .GetDssInformationFromDssMicroservice(dss.CropPestDss.DssId, dss.CropPestDss.DssModelId);
-                dataToReturn.WarningMessage = dssInformation.Output.WarningStatusInterpretation;
-
-                var dssOutput = JsonConvert.DeserializeObject<DssModelOutputInformation>(dataToReturn.DssFullResult);
-
-                dataToReturn.OutputTimeStart = dssOutput.TimeStart;
-                dataToReturn.OutputTimeEnd = dssOutput.TimeEnd;
-                dataToReturn.Interval = dssOutput.Interval;
-                //Take last 7 days of Data
-                var dataLastSevenDays = dssOutput.LocationResult.FirstOrDefault().Data.TakeLast(7);
-
-                for (int i = 0; i < dssOutput.ResultParameters.Count; i++)
-                {
-                    var resultParameter = new ResultParameters();
-                    var parameterCode = dssOutput.ResultParameters[i];
-                    var parameterInformationFromDss = dssInformation
-                        .Output
-                        .ResultParameters
-                        .Where(n => n.Id == parameterCode)
-                        .FirstOrDefault();
-                    if (parameterInformationFromDss != null)
-                    {
-                        resultParameter.Code = parameterInformationFromDss.Id;
-                        resultParameter.Title = parameterInformationFromDss.Title;
-                        resultParameter.Description = parameterInformationFromDss.Description;
-                    }
-                    else
-                    {
-                        resultParameter.Code = parameterCode;
-                    }
-
-                    foreach (var dataForParameters in dataLastSevenDays)
-                    {
-                        var data = dataForParameters[i];
-                        resultParameter.Data.Add(data);
-                    }
-                    dataToReturn.ResultParameters.Add(resultParameter);
-                }
+                FieldDssResultDetailedDto dataToReturn = await CreateDetailedResultToReturn(dss);
                 return GenericResponseBuilder.Success<FieldDssResultDetailedDto>(dataToReturn);
             }
             catch (Exception ex)
@@ -133,6 +93,56 @@ namespace H2020.IPMDecisions.UPR.BLL
                 String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
                 return GenericResponseBuilder.NoSuccess($"{ex.Message} InnerException: {innerMessage}");
             }
+        }
+
+        private async Task<FieldDssResultDetailedDto> CreateDetailedResultToReturn(FieldCropPestDss dss)
+        {
+            var dataToReturn = this.mapper.Map<FieldDssResultDetailedDto>(dss);
+            var dssInformation = await internalCommunicationProvider
+                            .GetDssInformationFromDssMicroservice(dss.CropPestDss.DssId, dss.CropPestDss.DssModelId);
+
+            if (dssInformation == null) return dataToReturn;
+            dataToReturn.WarningMessage = dssInformation.Output.WarningStatusInterpretation;
+
+            var dssFullOutputAsObject = JsonConvert.DeserializeObject<DssModelOutputInformation>(dataToReturn.DssFullResult);
+            dataToReturn.OutputTimeStart = dssFullOutputAsObject.TimeStart;
+            dataToReturn.OutputTimeEnd = dssFullOutputAsObject.TimeEnd;
+            dataToReturn.Interval = dssFullOutputAsObject.Interval;
+
+            var locationResultData = dssFullOutputAsObject.LocationResult.FirstOrDefault();
+            IEnumerable<List<double>> dataLastSevenDays = new List<List<double>>();
+
+            if (locationResultData != null)
+            {
+                //Take last 7 days of Data
+                dataLastSevenDays = locationResultData.Data.TakeLast(7);
+            };
+
+            for (int i = 0; i < dssFullOutputAsObject.ResultParameters.Count; i++)
+            {
+                var parameterCode = dssFullOutputAsObject.ResultParameters[i];
+                var resultParameter = new ResultParameters();
+
+                resultParameter.Code = parameterCode;
+                var parameterInformationFromDss = dssInformation
+                        .Output
+                        .ResultParameters
+                        .Where(n => n.Id == parameterCode)
+                        .FirstOrDefault();
+                if (parameterInformationFromDss != null)
+                {
+                    resultParameter.Title = parameterInformationFromDss.Title;
+                    resultParameter.Description = parameterInformationFromDss.Description;
+                }
+
+                foreach (var dataForParameters in dataLastSevenDays)
+                {
+                    var data = dataForParameters[i];
+                    resultParameter.Data.Add(data);
+                }
+                dataToReturn.ResultParameters.Add(resultParameter);
+            }
+            return dataToReturn;
         }
     }
 }
