@@ -162,7 +162,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
 
                 if (dssInformation.Input.WeatherParameters != null)
                 {
-                    GetWeatherDataResult responseWeather = await PrepareWeatherData(httpClient, dss, dssInformation, inputSchemaAsJson);
+                    GetWeatherDataResult responseWeather = await PrepareWeatherData(dss, dssInformation, inputSchemaAsJson);
 
                     if (!responseWeather.Continue)
                     {
@@ -194,7 +194,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             }
         }
 
-        private async Task<GetWeatherDataResult> PrepareWeatherData(HttpClient httpClient, FieldCropPestDss dss, DssInformation dssInformation, JObject dssInputSchemaAsJson)
+        private async Task<GetWeatherDataResult> PrepareWeatherData(FieldCropPestDss dss, DssInformation dssInformation, JObject dssInputSchemaAsJson)
         {
             var listOfPreferredWeatherDataSources = new List<WeatherSchemaForHttp>();
             var farm = dss.FieldCropPest.FieldCrop.Field.Farm;
@@ -219,8 +219,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 listOfPreferredWeatherDataSources.Add(weatherToCall);
             }
 
-            var responseWeather = await GetWeatherData(farm.Location.X.ToString(), farm.Location.Y.ToString(), listOfPreferredWeatherDataSources, dssInformation.Input);
-            return responseWeather;
+            return await GetWeatherData(farm.Location.X.ToString(), farm.Location.Y.ToString(), listOfPreferredWeatherDataSources, dssInformation.Input);
         }
 
         private static async Task ProcessDssResult(FieldDssResult dssResult, HttpResponseMessage responseDss)
