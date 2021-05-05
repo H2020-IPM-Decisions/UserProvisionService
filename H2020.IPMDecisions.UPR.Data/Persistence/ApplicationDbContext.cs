@@ -1,5 +1,6 @@
 using H2020.IPMDecisions.UPR.Core;
 using H2020.IPMDecisions.UPR.Core.Entities;
+using H2020.IPMDecisions.UPR.Core.Models;
 using H2020.IPMDecisions.UPR.Data.Persistence.Configurations;
 using H2020.IPMDecisions.UPR.Data.Persistence.Extensions;
 using Microsoft.EntityFrameworkCore;
@@ -11,6 +12,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence
         public DbSet<CropPest> CropPest { get; set; }
         public DbSet<CropPestDss> CropPestDss { get; set; }
         public DbSet<DataSharingRequest> DataSharingRequest { get; set; }
+        public DbSet<DssResultDatabaseView> DssResult { get; set; }
         public DbSet<DataSharingRequestStatus> DataSharingRequestStatus { get; set; }
         public DbSet<Farm> Farm { get; set; }
         public DbSet<Field> Field { get; set; }
@@ -68,6 +70,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence
             modelBuilder.ApplyConfiguration(new WeatherHistoricalConfiguration());
             modelBuilder.ApplyConfiguration(new WidgetConfiguration());
 
+            // modelBuilder.Ignore<DssResultDatabaseView>();
             modelBuilder.Seed();
         }
     }

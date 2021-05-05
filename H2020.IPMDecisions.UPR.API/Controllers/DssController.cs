@@ -34,7 +34,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         /// </summary>
         /// <remarks>The user will be identified using the UserId on the authentification JWT.
         /// </remarks>
-        [ProducesResponseType(typeof(List<FieldCropPestDssDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(IEnumerable<FieldDssResultDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [Produces(MediaTypeNames.Application.Json)]
@@ -45,7 +45,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         {
             var userId = Guid.Parse(HttpContext.Items["userId"].ToString());
 
-            var response = await businessLogic.GetAllUserFieldCropPestDss(userId);
+            var response = await businessLogic.GetAllDssResults(userId);
             if (!response.IsSuccessful)
                 return BadRequest(new { message = response.ErrorMessage });
 
@@ -58,7 +58,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         /// <remarks>The user will be identified using the UserId on the authentification JWT.
         /// <para>The DSS must belong to the user</para>
         /// </remarks>
-        [ProducesResponseType(typeof(FieldCropPestDssDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(FieldDssResultDetailedDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [Produces(MediaTypeNames.Application.Json)]
@@ -70,7 +70,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
 
             var response = await businessLogic.GetFieldCropPestDssById(id, userId);
             if (!response.IsSuccessful)
-                return BadRequest(new { message = response.ErrorMessage });
+                return response.RequestResult;
 
             return Ok(response.Result);
         }
@@ -86,12 +86,32 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [HttpPut("{id:guid}", Name = "api.dss.put.byid")]
-        // GET: api/dss/1
+        // PUT: api/dss/1
         public async Task<IActionResult> Put([FromRoute] Guid id, [FromBody] FieldCropPestDssForUpdateDto fieldCropPestDssForUpdateDto)
         {
             var userId = Guid.Parse(HttpContext.Items["userId"].ToString());
 
             var response = await businessLogic.UpdateFieldCropPestDssById(id, userId, fieldCropPestDssForUpdateDto);
+            if (!response.IsSuccessful)
+                return BadRequest(new { message = response.ErrorMessage });
+
+            return NoContent();
+        }
+
+        /// <summary>Use this endpoint to remove a DSS by ID
+        /// <remarks>The user will be identified using the UserId on the authentification JWT.
+        /// <para>The DSS must belong to the user</para>
+        /// </remarks>
+        /// </summary>
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [HttpDelete("{id:guid}", Name = "api.dss.delete.byid")]
+        //DELETE: api/dss/1
+        public async Task<IActionResult> Delete([FromRoute] Guid id)
+        {
+            var userId = Guid.Parse(HttpContext.Items["userId"].ToString());
+            var response = await this.businessLogic.DeleteDss(id, userId);
+
             if (!response.IsSuccessful)
                 return BadRequest(new { message = response.ErrorMessage });
 

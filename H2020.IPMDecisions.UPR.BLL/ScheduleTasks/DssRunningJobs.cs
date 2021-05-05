@@ -13,6 +13,7 @@ using H2020.IPMDecisions.UPR.Data.Core;
 using Hangfire;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
@@ -124,19 +125,19 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
         #region DSS Common Stuff
         public async Task<FieldDssResult> RunOnTheFlyDss(HttpClient httpClient, FieldCropPestDss dss)
         {
-            var dssResult = new FieldDssResult() { CreationDate = DateTime.Now };
+            var dssResult = new FieldDssResult() { CreationDate = DateTime.Now, IsValid = false };
             try
             {
                 DssInformation dssInformation = await GetDssInformationFromMicroservice(dss);
                 if (dssInformation == null)
                 {
-                    dssResult.Result = JObject.Parse("{\"message\": \"Error getting DSS information from  microservice.\"}").ToString();
+                    dssResult.DssFullResult = JObject.Parse("{\"message\": \"Error getting DSS information from  microservice.\"}").ToString();
                     return dssResult;
                 };
 
                 if (string.IsNullOrEmpty(dssInformation.Execution.EndPoint))
                 {
-                    dssResult.Result = JObject.Parse("{\"message\": \"End point not available to run DSS.\"}").ToString();
+                    dssResult.DssFullResult = JObject.Parse("{\"message\": \"End point not available to run DSS.\"}").ToString();
                     return dssResult;
                 }
                 if (dssInformation.Execution.Type.ToLower() != "onthefly") return null;
@@ -145,7 +146,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 JObject userInputJsonObject = JObject.Parse(dss.DssParameters.ToString());
                 if (userInputJsonObject == null)
                 {
-                    dssResult.Result = JObject.Parse("{\"message\": \"Missing user DSS parameters input.\"}").ToString();
+                    dssResult.DssFullResult = JObject.Parse("{\"message\": \"Missing user DSS parameters input.\"}").ToString();
                     return dssResult;
                 }
                 foreach (var property in userInputJsonObject.Properties())
@@ -161,33 +162,11 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
 
                 if (dssInformation.Input.WeatherParameters != null)
                 {
-                    var listOfPreferredWeatherDataSources = new List<WeatherSchemaForHttp>();
-                    var farm = dss.FieldCropPest.FieldCrop.Field.Farm;
-                    if (farm.WeatherForecast != null)
-                    {
-                        var weatherToCall = this.mapper.Map<WeatherSchemaForHttp>(farm.WeatherForecast);
-                        listOfPreferredWeatherDataSources.Add(weatherToCall);
-                    }
-                    if (farm.WeatherHistorical != null)
-                    {
-                        var weatherToCall = this.mapper.Map<WeatherSchemaForHttp>(farm.WeatherHistorical);
-                        if (dssInformation.Input.WeatherDataPeriodStart != null)
-                        {
-                            var weatherStartDateJsonLocation = dssInformation.Input.WeatherDataPeriodStart.Value.ToString();
-                            weatherToCall.WeatherTimeStart = DateTime.Parse(inputSchemaAsJson.SelectTokens(weatherStartDateJsonLocation).FirstOrDefault().ToString());
-                        }
-                        if (dssInformation.Input.WeatherDataPeriodEnd != null)
-                        {
-                            var weatherEndDateJsonLocation = dssInformation.Input.WeatherDataPeriodEnd.Value.ToString();
-                            weatherToCall.WeatherTimeEnd = DateTime.Parse(inputSchemaAsJson.SelectTokens(weatherEndDateJsonLocation).FirstOrDefault().ToString());
-                        }
-                        listOfPreferredWeatherDataSources.Add(weatherToCall);
-                    }
+                    GetWeatherDataResult responseWeather = await PrepareWeatherData(dss, dssInformation, inputSchemaAsJson);
 
-                    var responseWeather = await GetWeatherData(httpClient, farm.Location.X.ToString(), farm.Location.Y.ToString(), listOfPreferredWeatherDataSources, dssInformation.Input);
                     if (!responseWeather.Continue)
                     {
-                        dssResult.Result = responseWeather.ResponseWeather;
+                        dssResult.DssFullResult = responseWeather.ResponseWeather;
                         return dssResult;
                     }
                     inputSchemaAsJson["weatherData"] = JObject.Parse(responseWeather.ResponseWeather.ToString());
@@ -200,20 +179,59 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
 
                 if (!responseDss.IsSuccessStatusCode)
                 {
-                    dssResult.Result = JObject.Parse("{\"message\": \"Error running the DSS on endPoint - " + responseDss.ReasonPhrase.ToString() + " \"}").ToString();
+                    var responseAsText = await responseDss.Content.ReadAsStringAsync();
+                    dssResult.DssFullResult = JObject.Parse("{\"message\": \"Error running the DSS on endPoint - " + responseDss.ReasonPhrase.ToString() + " \"}").ToString();
                     return dssResult;
                 }
-                var responseAsText = await responseDss.Content.ReadAsStringAsync();
-                dssResult.Result = responseAsText;
-                dssResult.IsValid = true;
+                await ProcessDssResult(dssResult, responseDss);
                 return dssResult;
             }
             catch (Exception ex)
             {
                 logger.LogError(string.Format("Error running DSS. Id: {0}, Parameters {1}. Error: {2}", dss.Id.ToString(), dss.DssParameters.ToString(), ex.Message));
-                dssResult.Result = JObject.Parse("{\"message\": \"Error running the DSS - " + ex.Message.ToString() + " \"}").ToString();
+                dssResult.DssFullResult = JObject.Parse("{\"message\": \"Error running the DSS - " + ex.Message.ToString() + " \"}").ToString();
                 return dssResult;
             }
+        }
+
+        private async Task<GetWeatherDataResult> PrepareWeatherData(FieldCropPestDss dss, DssInformation dssInformation, JObject dssInputSchemaAsJson)
+        {
+            var listOfPreferredWeatherDataSources = new List<WeatherSchemaForHttp>();
+            var farm = dss.FieldCropPest.FieldCrop.Field.Farm;
+            if (farm.WeatherForecast != null)
+            {
+                var weatherToCall = this.mapper.Map<WeatherSchemaForHttp>(farm.WeatherForecast);
+                listOfPreferredWeatherDataSources.Add(weatherToCall);
+            }
+            if (farm.WeatherHistorical != null)
+            {
+                var weatherToCall = this.mapper.Map<WeatherSchemaForHttp>(farm.WeatherHistorical);
+                if (dssInformation.Input.WeatherDataPeriodStart != null)
+                {
+                    var weatherStartDateJsonLocation = dssInformation.Input.WeatherDataPeriodStart.Value.ToString();
+                    weatherToCall.WeatherTimeStart = DateTime.Parse(dssInputSchemaAsJson.SelectTokens(weatherStartDateJsonLocation).FirstOrDefault().ToString());
+                }
+                if (dssInformation.Input.WeatherDataPeriodEnd != null)
+                {
+                    var weatherEndDateJsonLocation = dssInformation.Input.WeatherDataPeriodEnd.Value.ToString();
+                    weatherToCall.WeatherTimeEnd = DateTime.Parse(dssInputSchemaAsJson.SelectTokens(weatherEndDateJsonLocation).FirstOrDefault().ToString());
+                }
+                listOfPreferredWeatherDataSources.Add(weatherToCall);
+            }
+
+            return await GetWeatherData(farm.Location.X.ToString(), farm.Location.Y.ToString(), listOfPreferredWeatherDataSources, dssInformation.Input);
+        }
+
+        private static async Task ProcessDssResult(FieldDssResult dssResult, HttpResponseMessage responseDss)
+        {
+            var responseAsText = await responseDss.Content.ReadAsStringAsync();
+            var dssOutput = JsonConvert.DeserializeObject<DssModelOutputInformation>(responseAsText);
+
+            var warningStatuses = dssOutput.LocationResult.FirstOrDefault().WarningStatus;
+            //Get the max warning status for the week
+            dssResult.WarningStatus = warningStatuses.TakeLast(7).Max();
+            dssResult.DssFullResult = responseAsText;
+            dssResult.IsValid = true;
         }
 
         private async Task<DssInformation> GetDssInformationFromMicroservice(FieldCropPestDss dss)
@@ -225,7 +243,6 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
 
         #region Weather Common Stuff
         public async Task<GetWeatherDataResult> GetWeatherData(
-            HttpClient httpClient,
             string farmLocationX,
             string farmLocationY,
             List<WeatherSchemaForHttp> listWeatherDataSource,
@@ -241,12 +258,11 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             //ToDo - Ask what to do when multiple weather data sources associated to a farm. At the moment use only one
             var weatherDataSource = listWeatherDataSource.FirstOrDefault();
 
-            foreach (var parameter in dssWeatherInput.WeatherParameters)
-            {
-                weatherDataSource.WeatherDssParameters = parameter.ParameterCode.ToString() + ", " + weatherDataSource.WeatherDssParameters;
-            }
+            List<string> parameterCodes = dssWeatherInput.WeatherParameters.Select(s => s.ParameterCode.ToString()).ToList();
+            weatherDataSource.WeatherDssParameters = string.Join(",", parameterCodes);
+
             weatherDataSource.Interval = dssWeatherInput.WeatherParameters.FirstOrDefault().Interval;
-            var responseWeather = await MakeWeatherDataCall(httpClient, farmLocationX, farmLocationY, weatherDataSource);
+            var responseWeather = await PrepareWeatherDataCall(farmLocationX, farmLocationY, weatherDataSource);
 
             result.Continue = false;
             if (!responseWeather.IsSuccessStatusCode)
@@ -287,39 +303,37 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             }
         }
 
-        public async Task<HttpResponseMessage> MakeWeatherDataCall(
-            HttpClient httpClient,
+        public async Task<HttpResponseMessage> PrepareWeatherDataCall(
             string farmLocationX,
             string farmLocationY,
             WeatherSchemaForHttp weatherDataSource)
         {
-            var weatherEndPoint = weatherDataSource.Url;
-
-            var weatherUrl = "";
+            var weatherStringParametersUrl = "";
             if (weatherDataSource.IsForecast)
             {
-                weatherUrl = string.Format("{0}?longitude={1}&latitude={2}",
-                    weatherEndPoint, farmLocationX, farmLocationY);
+                weatherStringParametersUrl = string.Format("longitude={0}&latitude={1}",
+                    farmLocationX, farmLocationY);
             }
             else
             {
-                weatherUrl = string.Format("{0}?interval={1}&timeStart={2}&timeEnd={3}&ignoreErrors=true",
-                    weatherEndPoint,
+                weatherStringParametersUrl = string.Format("interval={0}&timeStart={1}&timeEnd={2}&ignoreErrors=true",
                     weatherDataSource.Interval.ToString(),
                     weatherDataSource.WeatherTimeStart.ToString("yyyy-MM-dd"),
                     weatherDataSource.WeatherTimeEnd.ToString("yyyy-MM-dd"));
             }
             if (!string.IsNullOrEmpty(weatherDataSource.WeatherDssParameters))
             {
-                weatherUrl = string.Format("{0}&parameters={1}",
-                    weatherUrl, weatherDataSource.WeatherDssParameters);
+                weatherStringParametersUrl = string.Format("{0}&parameters={1}",
+                    weatherStringParametersUrl, weatherDataSource.WeatherDssParameters);
             }
             // if (!string.IsNullOrEmpty(weatherDataSource.StationId))
             // {
             //     weatherUrl = string.Format("{0}&weatherStationId={1}",
             //         weatherUrl, weatherDataSource.StationId.ToString());
             // }
-            return await httpClient.GetAsync(weatherUrl);
+            return await
+                    internalCommunicationProvider
+                    .GetWeatherUsingAmalgamationService(weatherDataSource.Url, weatherStringParametersUrl);
         }
         #endregion
     }

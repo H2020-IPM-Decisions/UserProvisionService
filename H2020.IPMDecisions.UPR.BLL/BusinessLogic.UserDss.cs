@@ -3,50 +3,33 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using H2020.IPMDecisions.UPR.Core.Dtos;
+using H2020.IPMDecisions.UPR.Core.Entities;
 using H2020.IPMDecisions.UPR.Core.Models;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 
 namespace H2020.IPMDecisions.UPR.BLL
 {
     public partial class BusinessLogic : IBusinessLogic
     {
-        public async Task<GenericResponse<List<FieldCropPestDssDto>>> GetAllUserFieldCropPestDss(Guid userId)
-        {
-            try
-            {
-                var fieldCropPestDssesAsEntities = await this.dataService
-                    .FieldCropPestDsses
-                    .FindAllAsync(f => f.FieldCropPest.FieldCrop.Field.Farm.UserFarms.Any(uf => uf.UserId == userId && uf.Authorised == true));
-
-                var dataToReturn = this.mapper.Map<List<FieldCropPestDssDto>>(fieldCropPestDssesAsEntities);
-                return GenericResponseBuilder.Success<List<FieldCropPestDssDto>>(dataToReturn);
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(string.Format("Error in BLL - GetAllUserFieldCropPestDss. {0}", ex.Message), ex);
-                String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
-                return GenericResponseBuilder.NoSuccess<List<FieldCropPestDssDto>>(null, $"{ex.Message} InnerException: {innerMessage}");
-            }
-        }
-
-        public async Task<GenericResponse<FieldCropPestDssDto>> GetFieldCropPestDssById(Guid id, Guid userId)
+        public async Task<GenericResponse<FieldDssResultDetailedDto>> GetFieldCropPestDssById(Guid id, Guid userId)
         {
             try
             {
                 var dss = await this.dataService.FieldCropPestDsses.FindByIdAsync(id);
-                if (dss == null) return GenericResponseBuilder.NotFound<FieldCropPestDssDto>();
+                if (dss == null) return GenericResponseBuilder.NotFound<FieldDssResultDetailedDto>();
 
                 var dssUserId = dss.FieldCropPest.FieldCrop.Field.Farm.UserFarms.FirstOrDefault().UserId;
-                if (userId != dssUserId) return GenericResponseBuilder.NotFound<FieldCropPestDssDto>();
+                if (userId != dssUserId) return GenericResponseBuilder.NotFound<FieldDssResultDetailedDto>();
 
-                var dataToReturn = this.mapper.Map<FieldCropPestDssDto>(dss);
-                return GenericResponseBuilder.Success<FieldCropPestDssDto>(dataToReturn);
+                FieldDssResultDetailedDto dataToReturn = await CreateDetailedResultToReturn(dss);
+                return GenericResponseBuilder.Success<FieldDssResultDetailedDto>(dataToReturn);
             }
             catch (Exception ex)
             {
                 logger.LogError(string.Format("Error in BLL - GetFieldCropPestDssById. {0}", ex.Message), ex);
                 String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
-                return GenericResponseBuilder.NoSuccess<FieldCropPestDssDto>(null, $"{ex.Message} InnerException: {innerMessage}");
+                return GenericResponseBuilder.NoSuccess<FieldDssResultDetailedDto>(null, $"{ex.Message} InnerException: {innerMessage}");
             }
         }
 
@@ -71,6 +54,95 @@ namespace H2020.IPMDecisions.UPR.BLL
                 String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
                 return GenericResponseBuilder.NoSuccess($"{ex.Message} InnerException: {innerMessage}");
             }
+        }
+
+        public async Task<GenericResponse<IEnumerable<FieldDssResultDto>>> GetAllDssResults(Guid userId)
+        {
+            try
+            {
+                var dssResults = await this.dataService.DssResult.GetAllDssResults(userId);
+                var dssResultsToReturn = this.mapper.Map<IEnumerable<FieldDssResultDto>>(dssResults);
+                return GenericResponseBuilder.Success<IEnumerable<FieldDssResultDto>>(dssResultsToReturn);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(string.Format("Error in BLL - GetAllUserFieldCropPestDss. {0}", ex.Message), ex);
+                String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
+                return GenericResponseBuilder.NoSuccess<IEnumerable<FieldDssResultDto>>(null, $"{ex.Message} InnerException: {innerMessage}");
+            }
+        }
+
+        public async Task<GenericResponse> DeleteDss(Guid id, Guid userId)
+        {
+            try
+            {
+                var dss = await this.dataService.FieldCropPestDsses.FindByIdAsync(id);
+                if (dss == null) return GenericResponseBuilder.Success();
+
+                var dssUserId = dss.FieldCropPest.FieldCrop.Field.Farm.UserFarms.FirstOrDefault().UserId;
+                if (userId != dssUserId) return GenericResponseBuilder.Success();
+
+                this.dataService.FieldCropPestDsses.Delete(dss);
+                await this.dataService.CompleteAsync();
+
+                return GenericResponseBuilder.Success();
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(string.Format("Error in BLL - DeleteDss. {0}", ex.Message), ex);
+                String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
+                return GenericResponseBuilder.NoSuccess($"{ex.Message} InnerException: {innerMessage}");
+            }
+        }
+
+        private async Task<FieldDssResultDetailedDto> CreateDetailedResultToReturn(FieldCropPestDss dss)
+        {
+            var dataToReturn = this.mapper.Map<FieldDssResultDetailedDto>(dss);
+            var dssInformation = await internalCommunicationProvider
+                            .GetDssInformationFromDssMicroservice(dss.CropPestDss.DssId, dss.CropPestDss.DssModelId);
+
+            if (dssInformation == null) return dataToReturn;
+            dataToReturn.WarningMessage = dssInformation.Output.WarningStatusInterpretation;
+
+            var dssFullOutputAsObject = JsonConvert.DeserializeObject<DssModelOutputInformation>(dataToReturn.DssFullResult);
+            dataToReturn.OutputTimeStart = dssFullOutputAsObject.TimeStart;
+            dataToReturn.OutputTimeEnd = dssFullOutputAsObject.TimeEnd;
+            dataToReturn.Interval = dssFullOutputAsObject.Interval;
+
+            var locationResultData = dssFullOutputAsObject.LocationResult.FirstOrDefault();
+            IEnumerable<List<double>> dataLastSevenDays = new List<List<double>>();
+
+            if (locationResultData != null)
+            {
+                //Take last 7 days of Data
+                dataLastSevenDays = locationResultData.Data.TakeLast(7);
+            };
+
+            for (int i = 0; i < dssFullOutputAsObject.ResultParameters.Count; i++)
+            {
+                var parameterCode = dssFullOutputAsObject.ResultParameters[i];
+                var resultParameter = new ResultParameters();
+
+                resultParameter.Code = parameterCode;
+                var parameterInformationFromDss = dssInformation
+                        .Output
+                        .ResultParameters
+                        .Where(n => n.Id == parameterCode)
+                        .FirstOrDefault();
+                if (parameterInformationFromDss != null)
+                {
+                    resultParameter.Title = parameterInformationFromDss.Title;
+                    resultParameter.Description = parameterInformationFromDss.Description;
+                }
+
+                foreach (var dataForParameters in dataLastSevenDays)
+                {
+                    var data = dataForParameters[i];
+                    resultParameter.Data.Add(data);
+                }
+                dataToReturn.ResultParameters.Add(resultParameter);
+            }
+            return dataToReturn;
         }
     }
 }

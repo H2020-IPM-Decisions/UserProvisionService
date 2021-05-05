@@ -5,6 +5,6 @@ namespace H2020.IPMDecisions.UPR.Core.Dtos
     public class FieldDssResultForCreationDto
     {
         [Required]
-        public string Result { get; set; }
+        public string DssFullResult { get; set; }
     }
 }

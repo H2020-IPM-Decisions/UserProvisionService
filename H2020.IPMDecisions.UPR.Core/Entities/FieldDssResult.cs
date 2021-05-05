@@ -9,7 +9,9 @@ namespace H2020.IPMDecisions.UPR.Core.Entities
         public Guid Id { get; set; }
         public DateTime CreationDate { get; set; }
         public bool IsValid { get; set; }
-        public string Result { get; set; }
+        public string DssFullResult { get; set; }
+        public int WarningStatus { get; set; }
+        public string WarningMessage { get; set; }
         public Guid FieldCropPestDssId { get; set; }
         public FieldCropPestDss FieldCropPestDss { get; set; }
     }

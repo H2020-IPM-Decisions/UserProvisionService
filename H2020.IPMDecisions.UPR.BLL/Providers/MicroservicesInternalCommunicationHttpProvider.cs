@@ -1,8 +1,10 @@
 using System;
+using System.Net;
 using System.Net.Http;
 using System.Net.Mime;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 using H2020.IPMDecisions.UPR.Core.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -139,6 +141,23 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
             {
                 logger.LogError(string.Format("Error in Internal Communication - ValidateWeatherdDataSchemaFromDssMicroservice. {0}", ex.Message));
                 return false;
+            }
+        }
+
+        public async Task<HttpResponseMessage> GetWeatherUsingAmalgamationService(string endPointUrl, string endPointQueryString)
+        {
+            try
+            {
+                var wxEndPoint = config["MicroserviceInternalCommunication:WeatherMicroservice"];
+                var endPointUrlEncoded = HttpUtility.UrlEncode(endPointUrl);
+                var endPointQueryStringEncoded = HttpUtility.UrlEncode(endPointQueryString);
+
+                return await httpClient.GetAsync(string.Format("{0}rest/amalgamation/amalgamate/?endpointURL={1}&endpointQueryStr={2}", wxEndPoint, endPointUrlEncoded, endPointQueryStringEncoded));
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(string.Format("Error in Internal Communication - GetWeatherUsingAmalgamationService. {0}", ex.Message));
+                return new HttpResponseMessage(HttpStatusCode.BadRequest);
             }
         }
     }

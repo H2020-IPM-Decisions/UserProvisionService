@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.JsonPatch;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace H2020.IPMDecisions.UPR.BLL
@@ -101,9 +102,10 @@ namespace H2020.IPMDecisions.UPR.BLL
         #endregion
 
         #region User DSS
-        Task<GenericResponse<List<FieldCropPestDssDto>>> GetAllUserFieldCropPestDss(Guid userId);
-        Task<GenericResponse<FieldCropPestDssDto>> GetFieldCropPestDssById(Guid id, Guid userId);
+        Task<GenericResponse<FieldDssResultDetailedDto>> GetFieldCropPestDssById(Guid id, Guid userId);
         Task<GenericResponse> UpdateFieldCropPestDssById(Guid id, Guid userId, FieldCropPestDssForUpdateDto fieldCropPestDssForUpdateDto);
+        Task<GenericResponse> DeleteDss(Guid id, Guid userId);
+        Task<GenericResponse<IEnumerable<FieldDssResultDto>>> GetAllDssResults(Guid userId);
         #endregion
 
         #region DssResults

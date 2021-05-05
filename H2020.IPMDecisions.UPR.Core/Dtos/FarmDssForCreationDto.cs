@@ -19,5 +19,6 @@ namespace H2020.IPMDecisions.UPR.Core.Dtos
         public override string DssExecutionType { get; set; }
         [Required]
         public override string DssParameters { get; set; }
+        public override string DssEndPoint { get; set; }
     }
 }

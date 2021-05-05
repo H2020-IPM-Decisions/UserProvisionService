@@ -8,7 +8,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Configurations
         public void Configure(Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<FieldDssResult> builder)
         {
             builder
-                .Property(f => f.Result)
+                .Property(f => f.DssFullResult)
                 .HasColumnType("jsonb");
         }
     }

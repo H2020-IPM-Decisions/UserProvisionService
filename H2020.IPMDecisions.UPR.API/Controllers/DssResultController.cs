@@ -16,6 +16,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
     /// These end points allows to manage the results of a DSS.
     /// <para>The user will be identified using the UserId on the authentification JWT.</para>
     /// </summary>
+    [Obsolete]
     [ApiController]
     [Route("api/dss/{dssId:guid}/result")]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
