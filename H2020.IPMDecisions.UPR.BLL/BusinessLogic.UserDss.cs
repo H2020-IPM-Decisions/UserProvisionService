@@ -102,9 +102,10 @@ namespace H2020.IPMDecisions.UPR.BLL
                             .GetDssInformationFromDssMicroservice(dss.CropPestDss.DssId, dss.CropPestDss.DssModelId);
 
             if (dssInformation == null) return dataToReturn;
-            dataToReturn.WarningMessage = dssInformation.Output.WarningStatusInterpretation;
+            if (!dataToReturn.IsValid) return dataToReturn;
 
             var dssFullOutputAsObject = JsonConvert.DeserializeObject<DssModelOutputInformation>(dataToReturn.DssFullResult);
+            dataToReturn.WarningMessage = dssInformation.Output.WarningStatusInterpretation;
             dataToReturn.OutputTimeStart = dssFullOutputAsObject.TimeStart;
             dataToReturn.OutputTimeEnd = dssFullOutputAsObject.TimeEnd;
             dataToReturn.Interval = dssFullOutputAsObject.Interval;
