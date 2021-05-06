@@ -102,10 +102,15 @@ namespace H2020.IPMDecisions.UPR.BLL
                             .GetDssInformationFromDssMicroservice(dss.CropPestDss.DssId, dss.CropPestDss.DssModelId);
 
             if (dssInformation == null) return dataToReturn;
+            dataToReturn.DssTypeOfDecision = dssInformation.TypeOfDecision;
+            dataToReturn.DssTypeOfOutput = dssInformation.TypeOfOutput;
+            dataToReturn.DssDescription = dssInformation.Description;
+            dataToReturn.DssDescriptionUrl = dssInformation.DescriptionUrl;
+            dataToReturn.WarningMessage = dssInformation.Output.WarningStatusInterpretation;
+
             if (!dataToReturn.IsValid) return dataToReturn;
 
             var dssFullOutputAsObject = JsonConvert.DeserializeObject<DssModelOutputInformation>(dataToReturn.DssFullResult);
-            dataToReturn.WarningMessage = dssInformation.Output.WarningStatusInterpretation;
             dataToReturn.OutputTimeStart = dssFullOutputAsObject.TimeStart;
             dataToReturn.OutputTimeEnd = dssFullOutputAsObject.TimeEnd;
             dataToReturn.Interval = dssFullOutputAsObject.Interval;
@@ -116,7 +121,9 @@ namespace H2020.IPMDecisions.UPR.BLL
             if (locationResultData != null)
             {
                 //Take last 7 days of Data
-                dataLastSevenDays = locationResultData.Data.TakeLast(7);
+                var maxDaysOutput = 7;
+                dataLastSevenDays = locationResultData.Data.TakeLast(maxDaysOutput);
+                dataToReturn.WarningStatusPerDay = locationResultData.WarningStatus.TakeLast(maxDaysOutput).ToList();
             };
 
             for (int i = 0; i < dssFullOutputAsObject.ResultParameters.Count; i++)

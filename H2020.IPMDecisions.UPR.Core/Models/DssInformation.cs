@@ -6,6 +6,13 @@ namespace H2020.IPMDecisions.UPR.Core.Models
     // This class matches the schema definition of /api/dss/rest/schema/dss
     public class DssInformation
     {
+        [JsonProperty("type_of_decision")]
+        public string TypeOfDecision { get; set; }
+        [JsonProperty("type_of_output")]
+        public string TypeOfOutput { get; set; }
+        [JsonProperty("description_URL")]
+        public string DescriptionUrl { get; set; }
+        public string Description { get; set; }
         public DssSchemaExecution Execution { get; set; }
         public DssSchemaInput Input { get; set; }
         public DssSchemaOutput Output { get; set; }
