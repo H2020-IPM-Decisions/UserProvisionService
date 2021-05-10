@@ -31,17 +31,28 @@ namespace H2020.IPMDecisions.UPR.Core.Models
         public string Id { get; set; }
         public string Title { get; set; }
         public string Description { get; set; }
+        [JsonProperty("chart_info")]
+        public OutputChartInfo ChartInfo { get; set; }
+    }
+
+    public class OutputChartInfo
+    {
+        [JsonProperty("default_visible")]
+        public bool DefaultVisible { get; set; }
+        public string Unit { get; set; }
+        public string Type { get; set; }
+        public string Color { get; set; }
     }
 
     public class DssSchemaInput
     {
-        [JsonProperty("Weather_Parameters")]
+        [JsonProperty("weather_parameters")]
         public List<WeatherParameters> WeatherParameters { get; set; }
-        [JsonProperty("Field_Observation")]
+        [JsonProperty("field_observation")]
         public DssSchemaFieldObservation FieldObservation { get; set; }
-        [JsonProperty("Weather_Data_Period_Start")]
+        [JsonProperty("weather_data_period_start")]
         public WeatherDataPeriod WeatherDataPeriodStart { get; set; }
-        [JsonProperty("Weather_Data_Period_End")]
+        [JsonProperty("weather_data_period_end")]
         public WeatherDataPeriod WeatherDataPeriodEnd { get; set; }
     }
 
@@ -52,14 +63,14 @@ namespace H2020.IPMDecisions.UPR.Core.Models
 
     public class WeatherDataPeriod
     {
-        [JsonProperty("Determined_By")]
+        [JsonProperty("determined_by")]
         public string DeterminedBy { get; set; }
         public string Value { get; set; }
     }
 
     public class WeatherParameters
     {
-        [JsonProperty("Parameter_Code")]
+        [JsonProperty("parameter_code")]
         public int ParameterCode { get; set; }
         public int Interval { get; set; }
     }
@@ -70,7 +81,7 @@ namespace H2020.IPMDecisions.UPR.Core.Models
         public string InputSchema { get; set; }
         public string Type { get; set; }
         public string EndPoint { get; set; }
-        [JsonProperty("Form_Method")]
+        [JsonProperty("form_method")]
         public string FormMethod { get; set; }
     }
 }

@@ -54,7 +54,7 @@ dotnet build
 This instructions are simplified as they are for testing proposes, please follow official instructions for detailed information.
 
 ```console
-docker run --name postgresdev -d -p 5432:5432 -e POSTGRES_PASSWORD=postgres postgis/postgis:12-master
+docker run --name postgresdev -d -p 5432:5432 -e POSTGRES_PASSWORD=postgres postgis/postgis:12-2.5-alpine
 ```
 
 Your `ConnectionStrings\MyPostgreSQLConnection` will be `Host=127.0.0.1;Port=5432;Database=H2020.IPMDecisions.UPR;Username=postgres;Password=postgres`
