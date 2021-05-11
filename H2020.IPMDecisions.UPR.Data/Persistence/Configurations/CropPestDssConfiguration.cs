@@ -27,7 +27,13 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Configurations
             builder.Property(c => c.DssId)
                 .IsRequired();
 
+            builder.Property(c => c.DssName)
+                .IsRequired();
+
             builder.Property(c => c.DssModelId)
+                .IsRequired();
+
+            builder.Property(c => c.DssModelName)
                 .IsRequired();
 
             builder.Property(c => c.DssExecutionType)

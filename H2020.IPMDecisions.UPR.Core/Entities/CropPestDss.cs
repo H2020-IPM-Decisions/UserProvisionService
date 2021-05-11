@@ -12,8 +12,11 @@ namespace H2020.IPMDecisions.UPR.Core.Entities
         public CropPest CropPest { get; set; }
         [Required]
         public string DssId { get; set; }
+        public string DssName { get; set; }
         [Required]
         public string DssModelId { get; set; }
+        [Required]
+        public string DssModelName { get; set; }
         [Required]
         public string DssVersion { get; set; }
         [Required]
