@@ -114,6 +114,7 @@ namespace H2020.IPMDecisions.UPR.BLL
             dataToReturn.OutputTimeStart = dssFullOutputAsObject.TimeStart;
             dataToReturn.OutputTimeEnd = dssFullOutputAsObject.TimeEnd;
             dataToReturn.Interval = dssFullOutputAsObject.Interval;
+            dataToReturn.ResultParametersWidth = dssFullOutputAsObject.ResultParameters.Count;
 
             var locationResultData = dssFullOutputAsObject.LocationResult.FirstOrDefault();
             IEnumerable<List<double>> dataLastSevenDays = new List<List<double>>();
@@ -123,6 +124,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                 //Take last 7 days of Data
                 var maxDaysOutput = 7;
                 dataLastSevenDays = locationResultData.Data.TakeLast(maxDaysOutput);
+                dataToReturn.ResultParametersLength = dataLastSevenDays.Count();
                 dataToReturn.WarningStatusPerDay = locationResultData.WarningStatus.TakeLast(maxDaysOutput).ToList();
             };
 
