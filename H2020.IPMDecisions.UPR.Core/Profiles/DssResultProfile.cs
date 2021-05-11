@@ -125,6 +125,8 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
                             break;
                     }
                 });
+
+            CreateMap<OutputChartInfo, DssParameterChartInformation>();
         }
     }
 }

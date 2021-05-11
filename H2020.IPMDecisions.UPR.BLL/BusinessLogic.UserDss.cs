@@ -128,10 +128,13 @@ namespace H2020.IPMDecisions.UPR.BLL
                 dataToReturn.WarningStatusPerDay = locationResultData.WarningStatus.TakeLast(maxDaysOutput).ToList();
             };
 
+            List<string> labels = CreateResultParametersLabels(dataToReturn.OutputTimeEnd, dataLastSevenDays.Count());
+
             for (int i = 0; i < dssFullOutputAsObject.ResultParameters.Count; i++)
             {
                 var parameterCode = dssFullOutputAsObject.ResultParameters[i];
                 var resultParameter = new ResultParameters();
+                resultParameter.Labels = labels;
 
                 resultParameter.Code = parameterCode;
                 var parameterInformationFromDss = dssInformation
@@ -143,6 +146,11 @@ namespace H2020.IPMDecisions.UPR.BLL
                 {
                     resultParameter.Title = parameterInformationFromDss.Title;
                     resultParameter.Description = parameterInformationFromDss.Description;
+
+                    if (parameterInformationFromDss.ChartInfo != null)
+                    {
+                        resultParameter.ChartInformation = this.mapper.Map<DssParameterChartInformation>(parameterInformationFromDss.ChartInfo);
+                    };
                 }
 
                 foreach (var dataForParameters in dataLastSevenDays)
@@ -153,6 +161,21 @@ namespace H2020.IPMDecisions.UPR.BLL
                 dataToReturn.ResultParameters.Add(resultParameter);
             }
             return dataToReturn;
+        }
+
+        private List<string> CreateResultParametersLabels(string outputTimeEnd, int days)
+        {
+            if (outputTimeEnd is null) return null;
+
+            var isADate = DateTime.TryParse(outputTimeEnd, out DateTime dateTime);
+            if (!isADate) return null;
+
+            var labelsList = new List<string>();
+            for (int i = days - 1; i >= 0; i--)
+            {
+                labelsList.Add(dateTime.AddDays(-i).ToShortDateString());
+            }
+            return labelsList;
         }
     }
 }
