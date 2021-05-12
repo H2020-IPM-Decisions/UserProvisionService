@@ -1,8 +1,8 @@
-version: '3.4'
+version: '3.8'
 
 services:
   upr.db:
-    image: postgres:12.2
+    image: postgis:12-2.5-alpine
     container_name: upr-postgres
     environment:
       # change default username/password 

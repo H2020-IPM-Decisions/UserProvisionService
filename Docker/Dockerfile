@@ -9,7 +9,6 @@ LABEL h2020.ipmdecisions.upr.version=${BUILDER_VERSION} \
     vendor="RSK ADAS Ltd" \
     h2020.ipmdecisions.uprrelease-date=${RELEASE_DATE}
 
-
 WORKDIR /app
 EXPOSE ${URL_EXPOSE_PORT}
 EXPOSE ${URL_EXPOSE_PORT_HTTPS}
