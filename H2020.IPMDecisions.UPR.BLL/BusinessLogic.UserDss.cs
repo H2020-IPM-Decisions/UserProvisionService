@@ -102,13 +102,19 @@ namespace H2020.IPMDecisions.UPR.BLL
                             .GetDssInformationFromDssMicroservice(dss.CropPestDss.DssId, dss.CropPestDss.DssModelId);
 
             if (dssInformation == null) return dataToReturn;
+            dataToReturn.DssTypeOfDecision = dssInformation.TypeOfDecision;
+            dataToReturn.DssTypeOfOutput = dssInformation.TypeOfOutput;
+            dataToReturn.DssDescription = dssInformation.Description;
+            dataToReturn.DssDescriptionUrl = dssInformation.DescriptionUrl;
+            dataToReturn.WarningMessage = dssInformation.Output.WarningStatusInterpretation;
+
             if (!dataToReturn.IsValid) return dataToReturn;
 
             var dssFullOutputAsObject = JsonConvert.DeserializeObject<DssModelOutputInformation>(dataToReturn.DssFullResult);
-            dataToReturn.WarningMessage = dssInformation.Output.WarningStatusInterpretation;
             dataToReturn.OutputTimeStart = dssFullOutputAsObject.TimeStart;
             dataToReturn.OutputTimeEnd = dssFullOutputAsObject.TimeEnd;
             dataToReturn.Interval = dssFullOutputAsObject.Interval;
+            dataToReturn.ResultParametersWidth = dssFullOutputAsObject.ResultParameters.Count;
 
             var locationResultData = dssFullOutputAsObject.LocationResult.FirstOrDefault();
             IEnumerable<List<double>> dataLastSevenDays = new List<List<double>>();
@@ -116,13 +122,19 @@ namespace H2020.IPMDecisions.UPR.BLL
             if (locationResultData != null)
             {
                 //Take last 7 days of Data
-                dataLastSevenDays = locationResultData.Data.TakeLast(7);
+                var maxDaysOutput = 7;
+                dataLastSevenDays = locationResultData.Data.TakeLast(maxDaysOutput);
+                dataToReturn.ResultParametersLength = dataLastSevenDays.Count();
+                dataToReturn.WarningStatusPerDay = locationResultData.WarningStatus.TakeLast(maxDaysOutput).ToList();
             };
+
+            List<string> labels = CreateResultParametersLabels(dataToReturn.OutputTimeEnd, dataLastSevenDays.Count());
 
             for (int i = 0; i < dssFullOutputAsObject.ResultParameters.Count; i++)
             {
                 var parameterCode = dssFullOutputAsObject.ResultParameters[i];
                 var resultParameter = new ResultParameters();
+                resultParameter.Labels = labels;
 
                 resultParameter.Code = parameterCode;
                 var parameterInformationFromDss = dssInformation
@@ -134,6 +146,11 @@ namespace H2020.IPMDecisions.UPR.BLL
                 {
                     resultParameter.Title = parameterInformationFromDss.Title;
                     resultParameter.Description = parameterInformationFromDss.Description;
+
+                    if (parameterInformationFromDss.ChartInfo != null)
+                    {
+                        resultParameter.ChartInformation = this.mapper.Map<DssParameterChartInformation>(parameterInformationFromDss.ChartInfo);
+                    };
                 }
 
                 foreach (var dataForParameters in dataLastSevenDays)
@@ -144,6 +161,21 @@ namespace H2020.IPMDecisions.UPR.BLL
                 dataToReturn.ResultParameters.Add(resultParameter);
             }
             return dataToReturn;
+        }
+
+        private List<string> CreateResultParametersLabels(string outputTimeEnd, int days)
+        {
+            if (outputTimeEnd is null) return null;
+
+            var isADate = DateTime.TryParse(outputTimeEnd, out DateTime dateTime);
+            if (!isADate) return null;
+
+            var labelsList = new List<string>();
+            for (int i = days - 1; i >= 0; i--)
+            {
+                labelsList.Add(dateTime.AddDays(-i).ToShortDateString());
+            }
+            return labelsList;
         }
     }
 }

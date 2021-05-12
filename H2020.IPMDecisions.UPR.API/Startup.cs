@@ -117,7 +117,7 @@ namespace H2020.IPMDecisions.UPR.API
             });
             app.UseSwaggerUI(c =>
             {
-                c.SwaggerEndpoint($"/{apiBasePath}swagger/v1/swagger.json", "H2020 IPM Decisions - Email Service API");
+                c.SwaggerEndpoint($"/{apiBasePath}swagger/v1/swagger.json", "H2020 IPM Decisions - User Provision Service API");
                 c.RoutePrefix = $"{apiBasePath}swagger";
             });
 
@@ -125,7 +125,7 @@ namespace H2020.IPMDecisions.UPR.API
             if (!CurrentEnvironment.IsDevelopment())
             {
                 dashboardOptions.Authorization = new[] { new IsAdminFilter() }; ;
-                dashboardOptions.IsReadOnlyFunc = (DashboardContext context) => true;
+                dashboardOptions.IsReadOnlyFunc = (DashboardContext context) => false;
             }
 
             app.UseHangfireDashboard($"/{apiBasePath}dashboard", dashboardOptions);
