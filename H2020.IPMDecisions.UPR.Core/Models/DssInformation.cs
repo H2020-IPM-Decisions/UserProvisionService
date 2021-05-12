@@ -40,7 +40,8 @@ namespace H2020.IPMDecisions.UPR.Core.Models
         [JsonProperty("default_visible")]
         public bool DefaultVisible { get; set; }
         public string Unit { get; set; }
-        public string Type { get; set; }
+        [JsonProperty("chart_type")]
+        public string ChartType { get; set; }
         public string Color { get; set; }
     }
 

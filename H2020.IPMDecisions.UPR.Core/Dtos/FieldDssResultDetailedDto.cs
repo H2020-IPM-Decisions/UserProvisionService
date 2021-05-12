@@ -46,7 +46,7 @@ namespace H2020.IPMDecisions.UPR.Core.Dtos
     {
         public bool DefaultVisible { get; set; }
         public string Unit { get; set; }
-        public string Type { get; set; }
+        public string ChartType { get; set; }
         public string Color { get; set; }
     }
 }
