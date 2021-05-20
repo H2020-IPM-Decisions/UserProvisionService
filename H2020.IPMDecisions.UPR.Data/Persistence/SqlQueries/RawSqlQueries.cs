@@ -4,7 +4,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.SqlQueries
     {
         public const string GetDssResults = @"SELECT ""Field"".""FarmId"", ""Field"".""Id"" as ""FieldId"", ""FieldCropPestDss"".""Id"",fc.""CropEppoCode"", ""CropPest"".""PestEppoCode"",
         ""CropPestDss"".""DssId"",""CropPestDss"".""DssModelId"",""CropPestDss"".""DssExecutionType"", ""CropPestDss"".""DssModelName"", ""CropPestDss"".""DssName"",
-        dssResults.""CreationDate"", dssResults.""DssFullResult"", dssResults.""WarningStatus"", dssResults.""WarningMessage"",
+        dssResults.""CreationDate"", dssResults.""DssFullResult"", dssResults.""WarningStatus"", dssResults.""WarningMessage"", dssResults.""ResultMessageType"", dssResults.""ResultMessage"",
         dssResults.""IsValid""
                 FROM ""FieldCrop"" fc
                 INNER JOIN ""Field"" ON ""Field"".""Id"" = fc.""FieldId""

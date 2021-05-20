@@ -20,5 +20,7 @@ namespace H2020.IPMDecisions.UPR.Core.Dtos
         public int WarningStatus { get; set; }
         public string WarningStatusRepresentation { get; set; }
         public string WarningMessage { get; set; }
+        public int? ResultMessageType { get; set; }
+        public string ResultMessage { get; set; }
     }
 }

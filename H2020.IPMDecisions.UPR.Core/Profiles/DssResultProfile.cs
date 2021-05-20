@@ -30,6 +30,10 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
                     opt => opt.MapFrom(src => src.FieldDssResults.OrderByDescending(r => r.CreationDate).FirstOrDefault().WarningStatus))
                 .ForMember(dest => dest.DssFullResult,
                     opt => opt.MapFrom(src => src.FieldDssResults.OrderByDescending(r => r.CreationDate).FirstOrDefault().DssFullResult))
+                .ForMember(dest => dest.ResultMessageType,
+                    opt => opt.MapFrom(src => src.FieldDssResults.OrderByDescending(r => r.CreationDate).FirstOrDefault().ResultMessageType))
+                .ForMember(dest => dest.ResultMessage,
+                    opt => opt.MapFrom(src => src.FieldDssResults.OrderByDescending(r => r.CreationDate).FirstOrDefault().ResultMessage))
                 .AfterMap((src, dest) =>
                 {
                     switch (dest.WarningStatus)
@@ -72,6 +76,10 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
                     opt => opt.MapFrom(src => src.FieldDssResults.OrderByDescending(r => r.CreationDate).FirstOrDefault().WarningStatus))
                 .ForMember(dest => dest.DssFullResult,
                     opt => opt.MapFrom(src => src.FieldDssResults.OrderByDescending(r => r.CreationDate).FirstOrDefault().DssFullResult))
+                .ForMember(dest => dest.ResultMessageType,
+                    opt => opt.MapFrom(src => src.FieldDssResults.OrderByDescending(r => r.CreationDate).FirstOrDefault().ResultMessageType))
+                .ForMember(dest => dest.ResultMessage,
+                    opt => opt.MapFrom(src => src.FieldDssResults.OrderByDescending(r => r.CreationDate).FirstOrDefault().ResultMessage))
                 .AfterMap((src, dest) =>
                 {
                     switch (dest.WarningStatus)

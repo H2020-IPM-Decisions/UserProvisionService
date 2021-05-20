@@ -10,7 +10,7 @@ namespace H2020.IPMDecisions.UPR.Core.Models
         public string Interval { get; set; }
         public List<string> ResultParameters { get; set; }
         public string Message { get; set; }
-        public int MessageType { get; set; }
+        public int? MessageType { get; set; }
         public List<LocationResultDssOutput> LocationResult { get; set; }
     }
 
