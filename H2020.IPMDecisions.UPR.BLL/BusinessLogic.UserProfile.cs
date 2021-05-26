@@ -88,7 +88,7 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
         }
 
-        public async Task<GenericResponse> DeleteUserProfileClient(Guid userId)
+        public async Task<GenericResponse> DeleteUserProfile(Guid userId)
         {
             try
             {
