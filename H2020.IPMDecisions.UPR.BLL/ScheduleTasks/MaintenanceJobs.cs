@@ -1,11 +1,7 @@
 using System;
 using System.Threading.Tasks;
-using AutoMapper;
-using H2020.IPMDecisions.UPR.BLL.Helpers;
-using H2020.IPMDecisions.UPR.BLL.Providers;
 using H2020.IPMDecisions.UPR.Data.Core;
 using Hangfire;
-using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.Logging;
 
 namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
@@ -18,17 +14,10 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
     public class MaintenanceJobs : IMaintenanceJobs
     {
         private readonly IDataService dataService;
-        private readonly IMicroservicesInternalCommunicationHttpProvider internalCommunicationProvider;
-        private readonly ILogger<DssRunningJobs> logger;
-        private readonly IDataProtectionProvider dataProtectionProvider;
-        private readonly IMapper mapper;
-        private EncryptionHelper _encryption;
+        private readonly ILogger<MaintenanceJobs> logger;
         public MaintenanceJobs(
             IDataService dataService,
-            IMicroservicesInternalCommunicationHttpProvider internalCommunicationProvider,
-            ILogger<DssRunningJobs> logger,
-            IDataProtectionProvider dataProtectionProvider,
-            IMapper mapper)
+            ILogger<MaintenanceJobs> logger)
         {
             this.dataService = dataService
                 ?? throw new ArgumentNullException(nameof(dataService));
