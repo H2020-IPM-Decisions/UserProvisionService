@@ -234,6 +234,19 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence
             }
         }
 
+        public IEppoCodeRepository eppoCodes;
+        public IEppoCodeRepository EppoCodes
+        {
+            get
+            {
+                if (eppoCodes == null)
+                {
+                    eppoCodes = new EppoCodeRepository(this.context);
+                }
+                return eppoCodes;
+            }
+        }
+
         public DataService(
             ApplicationDbContext context,
             IPropertyMappingService propertyMappingService)

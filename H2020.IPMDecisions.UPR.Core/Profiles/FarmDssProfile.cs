@@ -12,7 +12,7 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
             CreateMap<Farm, FarmDssDto>()
             .AfterMap((src, dest, context) =>
                 {
-                }); ;
+                });
         }
     }
 }

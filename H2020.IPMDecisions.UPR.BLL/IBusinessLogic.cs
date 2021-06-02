@@ -112,5 +112,9 @@ namespace H2020.IPMDecisions.UPR.BLL
         Task<GenericResponse<FieldDssResultDto>> GetLatestFieldCropPestDssResult(Guid dssId, Guid userId);
         Task<GenericResponse<FieldDssResultDto>> CreateFieldCropPestDssResult(Guid dssId, Guid userId, FieldDssResultForCreationDto dssResultDto);
         #endregion
+
+        #region EppoCodes
+        Task<GenericResponse<List<EppoCodeTypeDto>>> GetAllEppoCodes();
+        #endregion
     }
 }
