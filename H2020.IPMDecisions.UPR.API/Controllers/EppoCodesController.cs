@@ -73,9 +73,13 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         [HttpGet("types", Name = "api.eppocode.get.types")]
         [HttpHead]
         // GET: api/eppocodes/types
-        public IActionResult GetEppoCodeTypes()
+        public async Task<IActionResult> GetEppoCodeTypes()
         {
-            throw new NotImplementedException();
+            var response = await businessLogic.GetEppoCodeTypes();
+            if (!response.IsSuccessful)
+                return BadRequest(new { message = response.ErrorMessage });
+
+            return Ok(response.Result);
         }
 
         /// <summary>Requests permitted on this URL</summary>

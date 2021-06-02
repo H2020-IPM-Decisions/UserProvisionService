@@ -30,15 +30,29 @@ namespace H2020.IPMDecisions.UPR.BLL
                         eppoCodeType.EppoCodesDto.Add(eppoCodeDto);
                     }
                     dataToReturn.Add(eppoCodeType);
-                }              
-                
+                }
                 return GenericResponseBuilder.Success<List<EppoCodeTypeDto>>(dataToReturn);
             }
             catch (Exception ex)
             {
-                logger.LogError(string.Format("Error in BLL - DeleteFarm. {0}", ex.Message));
+                logger.LogError(string.Format("Error in BLL - GetAllEppoCodes. {0}", ex.Message));
                 String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
                 return GenericResponseBuilder.NoSuccess<List<EppoCodeTypeDto>>(null, $"{ex.Message} InnerException: {innerMessage}");
+            }
+        }
+
+        public async Task<GenericResponse<List<string>>> GetEppoCodeTypes()
+        {
+            try
+            {
+                List<string> eppoCodeTypes = await this.dataService.EppoCodes.GetEppoCodeTypesAsync();
+                return GenericResponseBuilder.Success<List<string>>(eppoCodeTypes);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(string.Format("Error in BLL - GetEppoCodeTypes. {0}", ex.Message));
+                String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
+                return GenericResponseBuilder.NoSuccess<List<string>>(null, $"{ex.Message} InnerException: {innerMessage}");
             }
         }
         #region Helpers

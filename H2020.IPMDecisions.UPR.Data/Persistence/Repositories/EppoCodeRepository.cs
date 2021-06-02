@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using H2020.IPMDecisions.UPR.Core.Entities;
 using H2020.IPMDecisions.UPR.Data.Core.Repositories;
@@ -19,6 +20,11 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
         public async Task<List<EppoCode>> GetEppoCodesAsync()
         {
             return await this.context.EppoCode.ToListAsync();
+        }
+
+        public async Task<List<string>> GetEppoCodeTypesAsync()
+        {
+            return await this.context.EppoCode.Select(e => e.Type).ToListAsync();
         }
     }
 }
