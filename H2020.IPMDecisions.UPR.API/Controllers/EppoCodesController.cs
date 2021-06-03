@@ -49,7 +49,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         /// </summary>
         /// <remarks>Type of EPPO code (pest, crop, etc) is needed.
         /// <p>If a EPPO code is not specified the whole list of the type specified will be returned</p></remarks>
-        [ProducesResponseType(typeof(EppoCodeDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(EppoCodeTypeDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [Produces(MediaTypeNames.Application.Json)]
@@ -62,9 +62,9 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         {
             var response = await businessLogic.GetEppoCode(eppoCodeType, eppoCode);
             if (!response.IsSuccessful)
-                return BadRequest(new { message = response.ErrorMessage });
+                return response.RequestResult;
 
-            return Ok(response);
+            return Ok(response.Result);
         }
 
         /// <summary>Use this endpoint to get and specific EPPO code.
