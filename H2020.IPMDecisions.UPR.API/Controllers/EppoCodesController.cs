@@ -16,7 +16,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
     /// <para>These endpoints are protected by JWT.</para>
     /// </summary>
     [ApiController]
-    [Route("api/eppocode")]
+    [Route("api/eppocodes")]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class EppoCodesController : ControllerBase
     {
@@ -56,11 +56,15 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         [HttpGet("{eppoCodeType}", Name = "api.eppocode.get.bycode")]
         [HttpHead]
         // GET: api/eppocodes/type?name
-        public IActionResult GetEppoCode(
+        public async Task<IActionResult> GetEppoCode(
             [FromRoute] string eppoCodeType,
             [FromQuery] string eppoCode)
         {
-            throw new NotImplementedException();
+            var response = await businessLogic.GetEppoCode(eppoCodeType, eppoCode);
+            if (!response.IsSuccessful)
+                return BadRequest(new { message = response.ErrorMessage });
+
+            return Ok(response);
         }
 
         /// <summary>Use this endpoint to get and specific EPPO code.

@@ -6,7 +6,7 @@ namespace H2020.IPMDecisions.UPR.Data.Core.Repositories
 {
     public interface IEppoCodeRepository
     {
-        Task<List<EppoCode>> GetEppoCodesAsync();
+        Task<List<EppoCode>> GetEppoCodesAsync(string eppoCodeType = "");
         Task<List<string>> GetEppoCodeTypesAsync();
     }
 }

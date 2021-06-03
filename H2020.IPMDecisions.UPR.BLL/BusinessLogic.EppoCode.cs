@@ -55,6 +55,24 @@ namespace H2020.IPMDecisions.UPR.BLL
                 return GenericResponseBuilder.NoSuccess<List<string>>(null, $"{ex.Message} InnerException: {innerMessage}");
             }
         }
+
+
+
+        public async Task<GenericResponse> GetEppoCode(string eppoCodeType, string eppoCode)
+        {
+            try
+            {
+                var eppoCodes = await this.dataService.EppoCodes.GetEppoCodesAsync(eppoCodeType);
+                // ToDo                
+                return GenericResponseBuilder.Success();
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(string.Format("Error in BLL - GetEppoCode. {0}", ex.Message));
+                String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
+                return GenericResponseBuilder.NoSuccess($"{ex.Message} InnerException: {innerMessage}");
+            }
+        }
         #region Helpers
         #endregion
     }

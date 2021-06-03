@@ -116,6 +116,7 @@ namespace H2020.IPMDecisions.UPR.BLL
         #region EppoCodes
         Task<GenericResponse<List<string>>> GetEppoCodeTypes();
         Task<GenericResponse<List<EppoCodeTypeDto>>> GetAllEppoCodes();
+        Task<GenericResponse> GetEppoCode(string eppoCodeType, string eppoCode);
         #endregion
     }
 }
