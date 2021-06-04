@@ -36,9 +36,9 @@ namespace H2020.IPMDecisions.UPR.Tests
         public readonly Guid FirstFarmIdUser2Farms = Guid.Parse("843185ed-5f66-4982-a6e6-38379c39fe92");
         public readonly Guid DefaultAdvisorUserId = Guid.Parse("4d0fc5dc-ab3a-4c5c-9363-e82a37175b83"); // Same as FakeApiGatewayHost
         public readonly Guid ExtraAdvisorUserId = Guid.Parse("3d5e4a33-5681-4231-b9ac-e6793a593ef0");
-        public readonly Guid FamerNoUserId = Guid.Parse("4d0fc5dc-ab3a-4c5c-9363-e82a37175b83");
-        public readonly Guid FamerWithDataShareRequest = Guid.Parse("d88ad6d9-c756-4901-ae22-8c7a1c178555");
-        public readonly Guid FamerWithDataShareRequestDeclined = Guid.Parse("91f59dba-cd51-4dc9-ada9-3d21e4f82351");
+        public readonly Guid FarmerNoUserId = Guid.Parse("4d0fc5dc-ab3a-4c5c-9363-e82a37175b83");
+        public readonly Guid FarmerWithDataShareRequest = Guid.Parse("d88ad6d9-c756-4901-ae22-8c7a1c178555");
+        public readonly Guid FarmerWithDataShareRequestDeclined = Guid.Parse("91f59dba-cd51-4dc9-ada9-3d21e4f82351");
         public readonly Guid DefaultDataShareId = Guid.Parse("34b1fcaf-32f5-4ded-af70-3a5cd09b51eb");
         public readonly Guid DataShareIdToDelete1 = Guid.Parse("12a7f95f-78db-4da9-b08f-84e28e0dfdcf");
         public readonly Guid DataShareIdToDelete2 = Guid.Parse("c3330b39-0c0c-430e-be35-28a2b7ae3841");
@@ -113,20 +113,35 @@ namespace H2020.IPMDecisions.UPR.Tests
                         var userFarmType = _context.UserFarmType.FirstOrDefault(u => u.Description.Equals("Owner"));
 
                         IList<UserProfile> defaultUsers = new List<UserProfile>()
-                    {
-                        new UserProfile()
                         {
-                            UserId = DefaultAdminUserId,
-                            FirstName = "Admin"
-                        },
-                        new UserProfile()
-                        {
-                            UserId = ExtraNormalUserId,
-                            FirstName = "Extra"
-                        }
-                    };
+                            new UserProfile()
+                            {
+                                UserId = DefaultAdminUserId,
+                                FirstName = "Admin"
+                            },
+                            new UserProfile()
+                            {
+                                UserId = ExtraNormalUserId,
+                                FirstName = "Extra"
+                            }
+                        };
 
                         _context.UserProfile.AddRange(defaultUsers);
+
+                        var weatherForecast = new WeatherForecast()
+                        {
+                            Name = "1",
+                            Url = "1",
+                            WeatherId = "1"
+                        };
+                        _context.WeatherForecast.Add(weatherForecast);
+                        var weatherHistorical = new WeatherHistorical()
+                        {
+                            Name = "1",
+                            Url = "1",
+                            WeatherId = "1"
+                        };
+                        _context.WeatherHistorical.Add(weatherHistorical);
 
                         var userWithFarm = new UserProfile()
                         {
@@ -142,7 +157,9 @@ namespace H2020.IPMDecisions.UPR.Tests
                             Farm = new Farm {
                                 Id = DefaultFarmId,
                                 Name = DefaultFarmName,
-                                Location = new Point(1, 1)
+                                Location = new Point(1, 1),
+                                WeatherForecast = weatherForecast,
+                                WeatherHistorical = weatherHistorical
                             },
                             UserFarmType = userFarmType
                         }
@@ -157,27 +174,31 @@ namespace H2020.IPMDecisions.UPR.Tests
                         };
 
                         userWith2Farms.UserFarms = new List<UserFarm>
-                    {
-                        new UserFarm
                         {
-                            UserProfile = userWith2Farms,
-                            Farm = new Farm {
-                                Id = FirstFarmIdUser2Farms,
-                                Name = "AAA",
-                                Location = new Point(11, 10)
+                            new UserFarm
+                            {
+                                UserProfile = userWith2Farms,
+                                Farm = new Farm {
+                                    Id = FirstFarmIdUser2Farms,
+                                    Name = "AAA",
+                                    Location = new Point(11, 10),
+                                    WeatherForecast = weatherForecast,
+                                    WeatherHistorical = weatherHistorical
+                                },
+                                UserFarmType = userFarmType
                             },
-                            UserFarmType = userFarmType
-                        },
-                        new UserFarm
-                        {
-                            UserProfile = userWith2Farms,
-                            Farm = new Farm {
-                                Name = "BBB",
-                                Location = new Point(22, 20)
-                            },
-                            UserFarmType = userFarmType
-                        }
-                    };
+                            new UserFarm
+                            {
+                                UserProfile = userWith2Farms,
+                                Farm = new Farm {
+                                    Name = "BBB",
+                                    Location = new Point(22, 20),
+                                    WeatherForecast = weatherForecast,
+                                    WeatherHistorical = weatherHistorical
+                                },
+                                UserFarmType = userFarmType
+                            }
+                        };
                         _context.UserProfile.Add(userWith2Farms);
 
                         var userWith3Farms = new UserProfile()
@@ -193,7 +214,9 @@ namespace H2020.IPMDecisions.UPR.Tests
                             UserProfile = userWith3Farms,
                             Farm = new Farm {
                                 Name = "AAA",
-                                Location = new Point(10, 10)
+                                Location = new Point(10, 10),
+                                WeatherForecast = weatherForecast,
+                                WeatherHistorical = weatherHistorical
                             },
                             UserFarmType = userFarmType
                         },
@@ -202,7 +225,9 @@ namespace H2020.IPMDecisions.UPR.Tests
                             UserProfile = userWith3Farms,
                             Farm = new Farm {
                                 Name = "BBB",
-                                Location = new Point(20, 20)
+                                Location = new Point(20, 20),
+                                WeatherForecast = weatherForecast,
+                                WeatherHistorical = weatherHistorical
                             },
                             UserFarmType = userFarmType
                         },
@@ -211,7 +236,9 @@ namespace H2020.IPMDecisions.UPR.Tests
                             UserProfile = userWith3Farms,
                             Farm = new Farm {
                                 Name = "ZZZ",
-                                Location = new Point(30, 30)
+                                Location = new Point(30, 30),
+                                WeatherForecast = weatherForecast,
+                                WeatherHistorical = weatherHistorical
                             },
                             UserFarmType = userFarmType
                         }
@@ -235,7 +262,7 @@ namespace H2020.IPMDecisions.UPR.Tests
 
                         var farmerDataRequest = new UserProfile()
                         {
-                            UserId = FamerWithDataShareRequest,
+                            UserId = FarmerWithDataShareRequest,
                             FirstName = "FarmerDataRequest"
                         };
 
@@ -255,7 +282,7 @@ namespace H2020.IPMDecisions.UPR.Tests
 
                         var farmerDataRequestDeclined = new UserProfile()
                         {
-                            UserId = FamerWithDataShareRequestDeclined,
+                            UserId = FarmerWithDataShareRequestDeclined,
                             FirstName = "FarmerDataRequestDeclined"
                         };
                         _context.UserProfile.Add(farmerDataRequestDeclined);
