@@ -112,6 +112,30 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
                 response.Result);
         }
 
+        /// <summary>End point to update existing EPPO codes
+        /// </summary>
+        /// <remarks><p>Endpoint expects full list of EPP codes as JSON string</p>
+        /// <p>End point accessible only by administrators</p>
+        /// </remarks>
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [Consumes(MediaTypeNames.Application.Json)]
+        [Authorize(Roles = "Admin", AuthenticationSchemes =
+            JwtBearerDefaults.AuthenticationScheme)]
+        [HttpPut("{eppoCodeType}", Name = "api.eppocode.put.eppocode")]
+        // PUT: api/eppocodes/1
+        public async Task<IActionResult> Put(
+            [FromRoute] string eppoCodeType,
+            [FromBody] EppoCodeForUpdateDto eppoCodeForUpdateDto)
+        {
+            var response = await businessLogic.UpdateEppoCodeType(eppoCodeType, eppoCodeForUpdateDto);
+            if (!response.IsSuccessful)
+                return response.RequestResult;
+
+            return NoContent();
+        }
+
         /// <summary>Requests permitted on this URL</summary>
         [ProducesResponseType(StatusCodes.Status200OK)]
         [HttpOptions]

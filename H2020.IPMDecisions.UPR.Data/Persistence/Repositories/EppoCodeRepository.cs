@@ -36,5 +36,10 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
         {
             return await this.context.EppoCode.Select(e => e.Type).ToListAsync();
         }
+
+        public void Update(EppoCode entity)
+        {
+            this.context.Update(entity);
+        }
     }
 }

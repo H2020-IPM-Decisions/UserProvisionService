@@ -80,11 +80,32 @@ namespace H2020.IPMDecisions.UPR.BLL
                 EppoCodeTypeDto dataToReturn = EppoCodeToEppoCodeTypeDto(eppoCodeAsEntity);
                 return GenericResponseBuilder.Success<EppoCodeTypeDto>(dataToReturn);
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
-                logger.LogError(string.Format("Error in BLL - GetEppoCode. {0}", ex.Message));
+                logger.LogError(string.Format("Error in BLL - CreateEppoCode. {0}", ex.Message));
                 String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
                 return GenericResponseBuilder.NoSuccess<EppoCodeTypeDto>(null, $"{ex.Message} InnerException: {innerMessage}");
+            }
+        }
+
+        public async Task<GenericResponse> UpdateEppoCodeType(string eppoCodeType, EppoCodeForUpdateDto eppoCodeForUpdateDto)
+        {
+            try
+            {
+                var eppoCodeTypeFiltered = await this.dataService.EppoCodes.GetEppoCodesAsync(eppoCodeType);
+                if (eppoCodeTypeFiltered.Count == 0) return GenericResponseBuilder.NotFound<EppoCodeTypeDto>();
+
+                var eppoCodeToUpdate = eppoCodeTypeFiltered.FirstOrDefault();
+                eppoCodeToUpdate.Data = eppoCodeForUpdateDto.EppoCodes;
+                this.dataService.EppoCodes.Update(eppoCodeToUpdate);
+                await this.dataService.CompleteAsync();
+                return GenericResponseBuilder.Success();
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(string.Format("Error in BLL - UpdateEppoCodeType. {0}", ex.Message));
+                String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
+                return GenericResponseBuilder.NoSuccess($"{ex.Message} InnerException: {innerMessage}");
             }
         }
 
