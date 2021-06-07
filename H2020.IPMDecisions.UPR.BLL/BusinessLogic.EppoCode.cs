@@ -73,7 +73,12 @@ namespace H2020.IPMDecisions.UPR.BLL
         {
             try
             {
-                return GenericResponseBuilder.Success<EppoCodeTypeDto>(null);
+                var eppoCodeAsEntity = this.mapper.Map<EppoCode>(eppoCodeForCreationDto);
+                this.dataService.EppoCodes.Create(eppoCodeAsEntity);
+                await this.dataService.CompleteAsync();
+
+                EppoCodeTypeDto dataToReturn = EppoCodeToEppoCodeTypeDto(eppoCodeAsEntity);
+                return GenericResponseBuilder.Success<EppoCodeTypeDto>(dataToReturn);
             }
             catch (System.Exception ex)
             {

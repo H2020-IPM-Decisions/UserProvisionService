@@ -91,10 +91,12 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         /// <remarks><p>Endpoint expects full list of EPP codes as JSON string</p>
         /// <p>End point accessible only by administrators</p>
         /// </remarks>
-        [ProducesResponseType(typeof(object), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(EppoCodeTypeDto), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [Produces(MediaTypeNames.Application.Json)]
         [Consumes(MediaTypeNames.Application.Json)]
+        [Authorize(Roles = "Admin", AuthenticationSchemes =
+            JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost("", Name = "api.eppocode.post.eppocode")]
         // POST: api/eppocodes
         public async Task<IActionResult> Post(
@@ -104,7 +106,10 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
             if (!response.IsSuccessful)
                 return BadRequest(new { message = response.ErrorMessage });
 
-            return Ok(response.Result);
+            return CreatedAtRoute(
+                "api.eppocode.get.bycode",
+                new { eppoCodeType = response.Result.EppoCodeType },
+                response.Result);
         }
 
         /// <summary>Requests permitted on this URL</summary>

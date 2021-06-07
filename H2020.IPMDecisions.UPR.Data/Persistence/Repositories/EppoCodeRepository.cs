@@ -17,6 +17,11 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
                 ?? throw new System.ArgumentNullException(nameof(context));
         }
 
+        public void Create(EppoCode entity)
+        {
+            this.context.Add(entity);
+        }
+
         public async Task<List<EppoCode>> GetEppoCodesAsync(string eppoCodeType = "")
         {
             var collection = this.context.EppoCode as IQueryable<EppoCode>;
