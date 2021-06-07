@@ -68,6 +68,21 @@ namespace H2020.IPMDecisions.UPR.BLL
                 return GenericResponseBuilder.NoSuccess<EppoCodeTypeDto>(null, $"{ex.Message} InnerException: {innerMessage}");
             }
         }
+
+        public async Task<GenericResponse<EppoCodeTypeDto>> CreateEppoCodeType(EppoCodeForCreationDto eppoCodeForCreationDto)
+        {
+            try
+            {
+                return GenericResponseBuilder.Success<EppoCodeTypeDto>(null);
+            }
+            catch (System.Exception ex)
+            {
+                logger.LogError(string.Format("Error in BLL - GetEppoCode. {0}", ex.Message));
+                String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
+                return GenericResponseBuilder.NoSuccess<EppoCodeTypeDto>(null, $"{ex.Message} InnerException: {innerMessage}");
+            }
+        }
+
         #region Helpers
         private EppoCodeTypeDto EppoCodeToEppoCodeTypeDto(EppoCode type, string eppoCodeFilter = "")
         {
@@ -82,7 +97,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                           d.TryGetValue("EPPOCode", out string value)
                           && value is string i && i.ToLower() == eppoCodeFilter.ToLower())
                       .FirstOrDefault();
-                      
+
                 if (selectedEppoCodeDto == null) return null;
 
                 eppoCodeDto.Languages = selectedEppoCodeDto;

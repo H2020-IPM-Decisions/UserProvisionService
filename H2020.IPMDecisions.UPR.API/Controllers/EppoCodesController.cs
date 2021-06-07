@@ -86,6 +86,27 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
             return Ok(response.Result);
         }
 
+        /// <summary>End point to add new EPPO codes into the database
+        /// </summary>
+        /// <remarks><p>Endpoint expects full list of EPP codes as JSON string</p>
+        /// <p>End point accessible only by administrators</p>
+        /// </remarks>
+        [ProducesResponseType(typeof(object), StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [Produces(MediaTypeNames.Application.Json)]
+        [Consumes(MediaTypeNames.Application.Json)]
+        [HttpPost("", Name = "api.eppocode.post.eppocode")]
+        // POST: api/eppocodes
+        public async Task<IActionResult> Post(
+            [FromBody] EppoCodeForCreationDto eppoCodeForCreationDto)
+        {
+            var response = await businessLogic.CreateEppoCodeType(eppoCodeForCreationDto);
+            if (!response.IsSuccessful)
+                return BadRequest(new { message = response.ErrorMessage });
+
+            return Ok(response.Result);
+        }
+
         /// <summary>Requests permitted on this URL</summary>
         [ProducesResponseType(StatusCodes.Status200OK)]
         [HttpOptions]
