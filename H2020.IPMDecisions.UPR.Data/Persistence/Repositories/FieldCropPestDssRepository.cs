@@ -35,6 +35,12 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
             this.context.Remove(entity);
         }
 
+        public async Task DeleteDssResultsByCondition(Expression<Func<FieldDssResult, bool>> expression)
+        {
+            var entities = await this.context.FieldDssResult.Where(expression).ToListAsync();
+            this.context.RemoveRange(entities);
+        }
+
         public async Task<IEnumerable<FieldCropPestDss>> FindAllAsync()
         {
             return await this

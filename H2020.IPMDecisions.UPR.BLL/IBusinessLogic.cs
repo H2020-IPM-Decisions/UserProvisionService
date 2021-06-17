@@ -76,7 +76,7 @@ namespace H2020.IPMDecisions.UPR.BLL
         #region  UserProfile
         Task<GenericResponse<IDictionary<string, object>>> AddNewUserProfile(Guid userId, UserProfileForCreationDto userProfileForCreation, string mediaType);
         Task<GenericResponse<UserProfileDto>> AddNewUserProfile(Guid userId, UserProfileForCreationDto userProfileForCreation);
-        Task<GenericResponse> DeleteUserProfileClient(Guid userId);
+        Task<GenericResponse> DeleteUserProfile(Guid userId);
         Task<GenericResponse<UserProfile>> GetUserProfileByUserId(Guid userId, bool includeAssociatedData = false);
         Task<GenericResponse<IDictionary<string, object>>> GetUserProfileDto(Guid userId, string fields, string mediaType);
         UserProfileForCreationDto MapToUserProfileForCreation(UserProfileForUpdateDto userProfileDto);
@@ -111,6 +111,14 @@ namespace H2020.IPMDecisions.UPR.BLL
         #region DssResults
         Task<GenericResponse<FieldDssResultDto>> GetLatestFieldCropPestDssResult(Guid dssId, Guid userId);
         Task<GenericResponse<FieldDssResultDto>> CreateFieldCropPestDssResult(Guid dssId, Guid userId, FieldDssResultForCreationDto dssResultDto);
+        #endregion
+
+        #region EppoCodes
+        Task<GenericResponse<EppoCodeTypeDto>> CreateEppoCodeType(EppoCodeForCreationDto eppoCodeForCreationDto);
+        Task<GenericResponse<List<string>>> GetEppoCodeTypes();
+        Task<GenericResponse<List<EppoCodeTypeDto>>> GetAllEppoCodes();
+        Task<GenericResponse<EppoCodeTypeDto>> GetEppoCode(string eppoCodeType, string eppoCode);
+        Task<GenericResponse> UpdateEppoCodeType(string eppoCodeType, EppoCodeForUpdateDto eppoCodeForUpdateDto);
         #endregion
     }
 }

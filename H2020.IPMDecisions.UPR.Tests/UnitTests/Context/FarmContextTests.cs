@@ -13,7 +13,7 @@ namespace H2020.IPMDecisions.UPR.Tests.UnitTests.Context
     [Collection("WithDatabase")]
     [Trait("Category", "Docker")]
     public class FarmContextTests
-    {  
+    {
         [Fact]
         public async Task AddNewFarm_WithUserProfileSameTime_True()
         {
@@ -24,11 +24,27 @@ namespace H2020.IPMDecisions.UPR.Tests.UnitTests.Context
                 var context = databaseFixture.DbContext;
 
                 var location = new Point(51.5, -0.12);
+                var weatherForecast = new WeatherForecast()
+                {
+                    Name = "1",
+                    Url = "1",
+                    WeatherId = "1"
+                };
+                context.WeatherForecast.Add(weatherForecast);
+                var weatherHistorical = new WeatherHistorical()
+                {
+                    Name = "1",
+                    Url = "1",
+                    WeatherId = "1"
+                };
+                context.WeatherHistorical.Add(weatherHistorical);
 
                 var farm = new Farm()
                 {
                     Name = "My Farm",
                     Location = location,
+                    WeatherForecast = weatherForecast,
+                    WeatherHistorical = weatherHistorical
                 };
 
                 var userProfile = new UserProfile()
@@ -61,7 +77,7 @@ namespace H2020.IPMDecisions.UPR.Tests.UnitTests.Context
                    .SingleOrDefaultAsync(u =>
                    u.UserId == userProfile.UserId);
 
-                Assert.Equal(3, dbEntries);
+                Assert.Equal(5, dbEntries);
                 userProfileObject.UserAddress.Should().BeNull();
                 userProfileObject.UserFarms.Should().NotBeNull();
                 userProfileObject.UserFarms.Count.Should().Equals(1);
@@ -73,15 +89,31 @@ namespace H2020.IPMDecisions.UPR.Tests.UnitTests.Context
         public async Task AddNewFarm_UserProfileAlreadyExist_True()
         {
             // Arrange
-
             using (var databaseFixture = new DatabaseFixture())
             {
                 var context = databaseFixture.DbContext;
 
+                var weatherForecast = new WeatherForecast()
+                {
+                    Name = "1",
+                    Url = "1",
+                    WeatherId = "1"
+                };
+                context.WeatherForecast.Add(weatherForecast);
+                var weatherHistorical = new WeatherHistorical()
+                {
+                    Name = "1",
+                    Url = "1",
+                    WeatherId = "1"
+                };
+                context.WeatherHistorical.Add(weatherHistorical);
+
                 var farm = new Farm()
                 {
                     Name = "My Farm",
-                    Location = new Point(1, 1)
+                    Location = new Point(1, 1),
+                    WeatherForecast = weatherForecast,
+                    WeatherHistorical = weatherHistorical
                 };
 
                 var userProfile = new UserProfile()
@@ -139,17 +171,35 @@ namespace H2020.IPMDecisions.UPR.Tests.UnitTests.Context
             {
                 var context = databaseFixture.DbContext;
 
+                var weatherForecast = new WeatherForecast()
+                {
+                    Name = "1",
+                    Url = "1",
+                    WeatherId = "1"
+                };
+                context.WeatherForecast.Add(weatherForecast);
+                var weatherHistorical = new WeatherHistorical()
+                {
+                    Name = "1",
+                    Url = "1",
+                    WeatherId = "1"
+                };
+                context.WeatherHistorical.Add(weatherHistorical);
 
                 var farm = new Farm()
                 {
                     Name = "My Farm",
-                    Location = new Point(1, 1)
+                    Location = new Point(1, 1),
+                    WeatherForecast = weatherForecast,
+                    WeatherHistorical = weatherHistorical
                 };
 
                 var farm1 = new Farm()
                 {
                     Name = "My Second Farm",
-                    Location = new Point(2, 2)
+                    Location = new Point(2, 2),
+                    WeatherForecast = weatherForecast,
+                    WeatherHistorical = weatherHistorical
                 };
 
                 var userProfile = new UserProfile()
@@ -212,10 +262,27 @@ namespace H2020.IPMDecisions.UPR.Tests.UnitTests.Context
             {
                 var context = databaseFixture.DbContext;
 
+                var weatherForecast = new WeatherForecast()
+                {
+                    Name = "1",
+                    Url = "1",
+                    WeatherId = "1"
+                };
+                context.WeatherForecast.Add(weatherForecast);
+                var weatherHistorical = new WeatherHistorical()
+                {
+                    Name = "1",
+                    Url = "1",
+                    WeatherId = "1"
+                };
+                context.WeatherHistorical.Add(weatherHistorical);
+
                 var farm = new Farm()
                 {
                     Name = "My Farm",
-                    Location = new Point(1, 1)
+                    Location = new Point(1, 1),
+                    WeatherForecast = weatherForecast,
+                    WeatherHistorical = weatherHistorical
                 };
 
                 var userProfile = new UserProfile()

@@ -24,11 +24,27 @@ namespace H2020.IPMDecisions.UPR.Tests.UnitTests.Context
                 var context = databaseFixture.DbContext;
 
                 var location = new Point(51.5, -0.12);
+                var weatherForecast = new WeatherForecast()
+                {
+                    Name = "1",
+                    Url = "1",
+                    WeatherId = "1"
+                };
+                context.WeatherForecast.Add(weatherForecast);
+                var weatherHistorical = new WeatherHistorical()
+                {
+                    Name = "1",
+                    Url = "1",
+                    WeatherId = "1"
+                };
+                context.WeatherHistorical.Add(weatherHistorical);
 
                 var farm = new Farm()
                 {
                     Name = "My Farm",
                     Location = location,
+                    WeatherForecast = weatherForecast,
+                    WeatherHistorical = weatherHistorical
                 };
 
                 var userProfile = new UserProfile()
@@ -84,11 +100,26 @@ namespace H2020.IPMDecisions.UPR.Tests.UnitTests.Context
                 var context = databaseFixture.DbContext;
 
                 var location = new Point(51.5, -0.12);
-
+                var weatherForecast = new WeatherForecast()
+                {
+                    Name = "1",
+                    Url = "1",
+                    WeatherId = "1"
+                };
+                context.WeatherForecast.Add(weatherForecast);
+                var weatherHistorical = new WeatherHistorical()
+                {
+                    Name = "1",
+                    Url = "1",
+                    WeatherId = "1"
+                };
+                context.WeatherHistorical.Add(weatherHistorical);
                 var farm = new Farm()
                 {
                     Name = "My Farm",
                     Location = location,
+                    WeatherForecast = weatherForecast,
+                    WeatherHistorical = weatherHistorical
                 };
 
                 var userProfile = new UserProfile()

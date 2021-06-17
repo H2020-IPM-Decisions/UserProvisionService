@@ -11,6 +11,7 @@ namespace H2020.IPMDecisions.UPR.Core
         DbSet<DataSharingRequest> DataSharingRequest { get; set; }
         DbSet<DssResultDatabaseView> DssResult { get; set; }
         DbSet<DataSharingRequestStatus> DataSharingRequestStatus { get; set; }
+        DbSet<EppoCode> EppoCode { get; set; }
         DbSet<Farm> Farm { get; set; }
         DbSet<Field> Field { get; set; }
         DbSet<FieldDssResult> FieldDssResult { get; set; }

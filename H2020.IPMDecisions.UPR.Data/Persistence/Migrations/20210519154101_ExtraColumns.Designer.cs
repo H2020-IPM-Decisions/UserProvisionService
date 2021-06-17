@@ -3,6 +3,7 @@ using System;
 using H2020.IPMDecisions.UPR.Data.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetTopologySuite.Geometries;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -10,9 +11,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace H2020.IPMDecisions.UPR.Data.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210519154101_ExtraColumns")]
+    partial class ExtraColumns
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -168,23 +170,6 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Migrations
                             Id = 2,
                             Description = "Declined"
                         });
-                });
-
-            modelBuilder.Entity("H2020.IPMDecisions.UPR.Core.Entities.EppoCode", b =>
-                {
-                    b.Property<string>("Type")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Data")
-                        .IsRequired()
-                        .HasColumnType("jsonb");
-
-                    b.HasKey("Type");
-
-                    b.HasIndex("Type")
-                        .IsUnique();
-
-                    b.ToTable("EppoCode");
                 });
 
             modelBuilder.Entity("H2020.IPMDecisions.UPR.Core.Entities.Farm", b =>
@@ -736,7 +721,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Migrations
                             Description = "Weather"
                         });
                 });
-
+                
             modelBuilder.Entity("H2020.IPMDecisions.UPR.Core.Entities.CropPestDss", b =>
                 {
                     b.HasOne("H2020.IPMDecisions.UPR.Core.Entities.CropPest", "CropPest")

@@ -36,7 +36,20 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
             var response = await businessLogic.InitialUserProfileCreation(userProfileDto);
             if (response.IsSuccessful)
                 return Ok();
+            return BadRequest(new { message = response.ErrorMessage });
+        }
 
+        [Consumes(MediaTypeNames.Application.Json)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [HttpDelete("userprofile/{userId:guid}", Name = "api.internal.delete.profile")]
+        // DELETE: api/internalcall/userprofile
+        public async Task<IActionResult> Delete(
+            [FromRoute] Guid userId)
+        {
+            var response = await businessLogic.DeleteUserProfile(userId);
+            if (response.IsSuccessful)
+                return Ok();
             return BadRequest(new { message = response.ErrorMessage });
         }
     }

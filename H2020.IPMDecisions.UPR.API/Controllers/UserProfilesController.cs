@@ -117,7 +117,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
             if (!isAdmin || userId == default(Guid))
                 userId = Guid.Parse(HttpContext.Items["userId"].ToString());
 
-            var response = await this.businessLogic.DeleteUserProfileClient(userId);
+            var response = await this.businessLogic.DeleteUserProfile(userId);
             if (!response.IsSuccessful)
                 return BadRequest(new { message = response.ErrorMessage });
 

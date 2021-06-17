@@ -14,6 +14,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence
         public DbSet<DataSharingRequest> DataSharingRequest { get; set; }
         public DbSet<DssResultDatabaseView> DssResult { get; set; }
         public DbSet<DataSharingRequestStatus> DataSharingRequestStatus { get; set; }
+        public DbSet<EppoCode> EppoCode { get; set; }
         public DbSet<Farm> Farm { get; set; }
         public DbSet<Field> Field { get; set; }
         public DbSet<FieldDssResult> FieldDssResult { get; set; }
@@ -46,10 +47,11 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence
 
             modelBuilder.ApplyConfiguration(new CropPestConfiguration());
             modelBuilder.ApplyConfiguration(new CropPestDssConfiguration());
-            modelBuilder.ApplyConfiguration(new FieldCropPestConfiguration());
             modelBuilder.ApplyConfiguration(new DataSharingRequestConfiguration());
             modelBuilder.ApplyConfiguration(new DataSharingRequestStatusConfiguration());
+            modelBuilder.ApplyConfiguration(new EppoCodeConfiguration());
             modelBuilder.ApplyConfiguration(new FarmConfiguration());
+            modelBuilder.ApplyConfiguration(new FieldCropPestConfiguration());
             modelBuilder.ApplyConfiguration(new FieldConfiguration());
             modelBuilder.ApplyConfiguration(new FieldDssResultConfiguration());
             modelBuilder.ApplyConfiguration(new FieldCropPestConfiguration());
@@ -70,7 +72,8 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence
             modelBuilder.ApplyConfiguration(new WeatherHistoricalConfiguration());
             modelBuilder.ApplyConfiguration(new WidgetConfiguration());
 
-            // modelBuilder.Ignore<DssResultDatabaseView>();
+            // Comment it out when adding new EF migration
+            //modelBuilder.Ignore<DssResultDatabaseView>();
             modelBuilder.Seed();
         }
     }

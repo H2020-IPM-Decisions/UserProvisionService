@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
@@ -8,6 +9,7 @@ using AutoMapper;
 using H2020.IPMDecisions.UPR.BLL.Helpers;
 using H2020.IPMDecisions.UPR.BLL.Providers;
 using H2020.IPMDecisions.UPR.Core.Entities;
+using H2020.IPMDecisions.UPR.Core.Enums;
 using H2020.IPMDecisions.UPR.Core.Models;
 using H2020.IPMDecisions.UPR.Data.Core;
 using Hangfire;
@@ -132,20 +134,27 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 if (dssInformation == null)
                 {
                     dssResult.DssFullResult = JObject.Parse("{\"message\": \"Error getting DSS information from  microservice.\"}").ToString();
+                    dssResult.ResultMessageType = (int)DssOutputMessageTypeEnum.Error;
+                    dssResult.ResultMessage = "Error getting DSS information from  microservice.";
                     return dssResult;
                 };
 
                 if (string.IsNullOrEmpty(dssInformation.Execution.EndPoint))
                 {
+                    dssResult.ResultMessageType = (int)DssOutputMessageTypeEnum.Error;
+                    dssResult.ResultMessage = "End point not available to run DSS.";
                     dssResult.DssFullResult = JObject.Parse("{\"message\": \"End point not available to run DSS.\"}").ToString();
                     return dssResult;
                 }
                 if (dssInformation.Execution.Type.ToLower() != "onthefly") return null;
 
                 var inputSchemaAsJson = JsonSchemaToJson.ToJsonObject(dssInformation.Execution.InputSchema);
+                // ToDo Check if required inputs are provided by the user
                 JObject userInputJsonObject = JObject.Parse(dss.DssParameters.ToString());
                 if (userInputJsonObject == null)
                 {
+                    dssResult.ResultMessageType = (int)DssOutputMessageTypeEnum.Error;
+                    dssResult.ResultMessage = "Missing user DSS parameters input.";
                     dssResult.DssFullResult = JObject.Parse("{\"message\": \"Missing user DSS parameters input.\"}").ToString();
                     return dssResult;
                 }
@@ -166,7 +175,9 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
 
                     if (!responseWeather.Continue)
                     {
-                        dssResult.DssFullResult = responseWeather.ResponseWeather;
+                        dssResult.ResultMessageType = (int)DssOutputMessageTypeEnum.Error;
+                        dssResult.ResultMessage = responseWeather.ResponseWeather;
+                        dssResult.DssFullResult = JObject.Parse("{\"message\": \"Error with Weather Data - " + responseWeather.ResponseWeather.ToString() + "\"}").ToString();
                         return dssResult;
                     }
                     inputSchemaAsJson["weatherData"] = JObject.Parse(responseWeather.ResponseWeather.ToString());
@@ -177,18 +188,14 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                      Encoding.UTF8, "application/json");
                 var responseDss = await httpClient.PostAsync(dssInformation.Execution.EndPoint, content);
 
-                if (!responseDss.IsSuccessStatusCode)
-                {
-                    var responseAsText = await responseDss.Content.ReadAsStringAsync();
-                    dssResult.DssFullResult = JObject.Parse("{\"message\": \"Error running the DSS on endPoint - " + responseDss.ReasonPhrase.ToString() + " \"}").ToString();
-                    return dssResult;
-                }
                 await ProcessDssResult(dssResult, responseDss);
                 return dssResult;
             }
             catch (Exception ex)
             {
                 logger.LogError(string.Format("Error running DSS. Id: {0}, Parameters {1}. Error: {2}", dss.Id.ToString(), dss.DssParameters.ToString(), ex.Message));
+                dssResult.ResultMessageType = (int)DssOutputMessageTypeEnum.Error;
+                dssResult.ResultMessage = ex.Message.ToString();
                 dssResult.DssFullResult = JObject.Parse("{\"message\": \"Error running the DSS - " + ex.Message.ToString() + " \"}").ToString();
                 return dssResult;
             }
@@ -227,9 +234,31 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             var responseAsText = await responseDss.Content.ReadAsStringAsync();
             var dssOutput = JsonConvert.DeserializeObject<DssModelOutputInformation>(responseAsText);
 
-            var warningStatuses = dssOutput.LocationResult.FirstOrDefault().WarningStatus;
-            //Get the max warning status for the week
-            dssResult.WarningStatus = warningStatuses.TakeLast(7).Max();
+            // ToDo. Check valid responses when DSS do not run properly
+            if (!responseDss.StatusCode.Equals(HttpStatusCode.InternalServerError))
+            {
+                dssResult.ResultMessageType = (int)DssOutputMessageTypeEnum.Error;
+                dssResult.ResultMessage = string.Format("DSS returned a Internal Server Error. {0}", responseAsText.ToString());
+                dssResult.DssFullResult = JObject.Parse("{\"message\": \"Error running the DSS on endPoint\"}").ToString();
+                return;
+            }
+
+            if (!string.IsNullOrEmpty(dssOutput.Message))
+            {
+                dssResult.ResultMessageType = dssOutput.MessageType;
+                dssResult.ResultMessage = dssOutput.Message;
+                dssResult.DssFullResult = responseAsText;
+                dssResult.IsValid = false;
+                return;
+            }
+
+            if (dssOutput.LocationResult != null)
+            {
+                var warningStatuses = dssOutput.LocationResult.FirstOrDefault().WarningStatus;
+                //Take last 7 days of Data
+                var maxDaysOutput = 7;
+                dssResult.WarningStatus = warningStatuses.TakeLast(maxDaysOutput).Max();
+            }
             dssResult.DssFullResult = responseAsText;
             dssResult.IsValid = true;
         }
@@ -251,7 +280,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             var result = new GetWeatherDataResult();
             if (listWeatherDataSource.Count < 1)
             {
-                result.ResponseWeather = JObject.Parse("{\"message\": \"No Weather Data Sources or Weather Stations associated to the farm\"}").ToString();
+                result.ResponseWeather = "No Weather Data Sources or Weather Stations associated to the farm";
                 return result;
             }
 
@@ -267,20 +296,20 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             result.Continue = false;
             if (!responseWeather.IsSuccessStatusCode)
             {
-                result.ResponseWeather = JObject.Parse("{\"message\": \"Error getting the weather data - " + responseWeather.ReasonPhrase.ToString() + " \"}").ToString();
+                result.ResponseWeather = string.Format("Error getting the weather data - {0}", responseWeather.ReasonPhrase.ToString());
                 return result;
             }
 
             var responseWeatherAsText = await responseWeather.Content.ReadAsStringAsync();
             if (!DataParseHelper.IsValidJson(responseWeatherAsText))
             {
-                result.ResponseWeather = JObject.Parse("{\"message\": \"Weather data received in not in a JSON format.\"}").ToString();
+                result.ResponseWeather = "Weather data received in not in a JSON format.";
                 return result;
             };
 
             if (!await ValidateWeatherDataSchema(responseWeatherAsText))
             {
-                result.ResponseWeather = JObject.Parse("{\"message\": \"Weather data received failed the Weather validation schema. This might be because the weather data source selected do not accept weather parameters required by the DSS: " + weatherDataSource.WeatherDssParameters.ToString() + "\"}").ToString();
+                result.ResponseWeather = string.Format("Weather data received failed the Weather validation schema. This might be because the weather data source selected do not accept weather parameters required by the DSS: {0}", weatherDataSource.WeatherDssParameters.ToString());
                 return result;
             };
             result.Continue = true;

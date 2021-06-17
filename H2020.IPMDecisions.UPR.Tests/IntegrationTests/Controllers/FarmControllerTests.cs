@@ -49,15 +49,15 @@ namespace H2020.IPMDecisions.UPR.Tests.IntegrationTests.Controllers
             jsonObjectLocation.Add("srid", "4236");
 
             var jsonObjectWeatherData = new JsonObject();
-            jsonObjectWeatherData.Add("id", "1");
+            jsonObjectWeatherData.Add("weatherId", "1");
             jsonObjectWeatherData.Add("name", "1");
-            jsonObjectWeatherData.Add("url", "x");
+            jsonObjectWeatherData.Add("url", "1");
 
             var jsonObject = new JsonObject();
             jsonObject.Add("name", fakeWebHost.DefaultFarmName);
             jsonObject.Add("location", jsonObjectLocation);
-            jsonObject.Add("weatherStationDto", jsonObjectWeatherData);
-            jsonObject.Add("weatherDataSourceDto", jsonObjectWeatherData);
+            jsonObject.Add("weatherHistoricalDto", jsonObjectWeatherData);
+            jsonObject.Add("weatherForecastDto", jsonObjectWeatherData);
             var content = new StringContent(
                 jsonObject.ToString(),
                 Encoding.UTF8,
@@ -267,7 +267,7 @@ namespace H2020.IPMDecisions.UPR.Tests.IntegrationTests.Controllers
             response.StatusCode.Should().Be(HttpStatusCode.NotFound);
         }
 
-        [Fact]
+        [Fact(Skip = "PATCH method obsolete, use PUT")]
         public async void UserPatch_FarmExist_NotContentAndUpdated()
         {
             // Arrange
