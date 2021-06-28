@@ -115,9 +115,9 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
                 "DELETE"));
 
             links.Add(new LinkDto(
-                GenerateResourceLink(url, "api.farm.patch.farmbyid", new { farmId }),
+                GenerateResourceLink(url, "api.farm.put.farmbyid", new { farmId }),
                 "update_farm",
-                "PATCH"));
+                "PUT"));
 
             links.Add(new LinkDto(
                 GenerateResourceLink(url, "api.field.get.all", new { farmId }),
