@@ -7,7 +7,7 @@ namespace H2020.IPMDecisions.UPR.Data.Core.Repositories
 {
     public interface IAdminVariableRepository
     {
-        Task<AdministrationVariable> FindById(AdminValuesEnum id);
+        Task<AdministrationVariable> FindByIdAsync(AdminValuesEnum id);
         Task<List<AdministrationVariable>> FindAllAsync();
         void Update(AdministrationVariable entity);
     }

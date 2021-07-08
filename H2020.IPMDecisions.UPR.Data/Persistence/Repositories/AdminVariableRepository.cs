@@ -23,7 +23,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
                 .ToListAsync<AdministrationVariable>();
         }
 
-        public async Task<AdministrationVariable> FindById(AdminValuesEnum id)
+        public async Task<AdministrationVariable> FindByIdAsync(AdminValuesEnum id)
         {
             return await this
                 .context

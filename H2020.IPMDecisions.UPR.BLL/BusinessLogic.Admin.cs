@@ -31,7 +31,7 @@ namespace H2020.IPMDecisions.UPR.BLL
         {
             try
             {
-                var adminVariable = await this.dataService.AdminVariables.FindById(id);
+                var adminVariable = await this.dataService.AdminVariables.FindByIdAsync(id);
                 if (adminVariable == null)
                 {
                     return GenericResponseBuilder.NotFound<AdministrationVariable>();
