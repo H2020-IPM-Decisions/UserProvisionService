@@ -36,7 +36,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [Produces(MediaTypeNames.Application.Json)]
-        [HttpGet(Name = "api.dss.get.all")]
+        [HttpGet(Name = "api.admin.get.all")]
         [HttpHead]
         // GET: api/admin
         public async Task<IActionResult> Get()
