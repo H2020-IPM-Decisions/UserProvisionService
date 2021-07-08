@@ -120,5 +120,9 @@ namespace H2020.IPMDecisions.UPR.BLL
         Task<GenericResponse<EppoCodeTypeDto>> GetEppoCode(string eppoCodeType, string eppoCode);
         Task<GenericResponse> UpdateEppoCodeType(string eppoCodeType, EppoCodeForUpdateDto eppoCodeForUpdateDto);
         #endregion
+
+        #region Administration
+        Task<GenericResponse<IEnumerable<AdminVariableDto>>> GetAllAdminVariables();
+        #endregion
     }
 }
