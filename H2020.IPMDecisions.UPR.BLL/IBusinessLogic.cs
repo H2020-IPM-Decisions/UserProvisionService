@@ -1,5 +1,6 @@
 using H2020.IPMDecisions.UPR.Core.Dtos;
 using H2020.IPMDecisions.UPR.Core.Entities;
+using H2020.IPMDecisions.UPR.Core.Enums;
 using H2020.IPMDecisions.UPR.Core.Models;
 using H2020.IPMDecisions.UPR.Core.ResourceParameters;
 using Microsoft.AspNetCore.Http;
@@ -123,6 +124,7 @@ namespace H2020.IPMDecisions.UPR.BLL
 
         #region Administration
         Task<GenericResponse<IEnumerable<AdminVariableDto>>> GetAllAdminVariables();
+        Task<GenericResponse> UpdateAdminVariableById(AdminValuesEnum id, AdminVariableForManipulationDto adminVariableForManipulationDto);
         #endregion
     }
 }

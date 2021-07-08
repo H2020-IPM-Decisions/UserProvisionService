@@ -9,6 +9,11 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
         {
             // Entities to Dtos
             CreateMap<AdministrationVariable, AdminVariableDto>();
+
+            // Dtos to Entities
+            CreateMap<AdminVariableForManipulationDto, AdministrationVariable>()
+                .ForMember(dest => dest.Description, opt => opt.Ignore())
+                .ForMember(dest => dest.Id, opt => opt.Ignore());
         }
     }
 }
