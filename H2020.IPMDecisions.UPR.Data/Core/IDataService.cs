@@ -7,6 +7,7 @@ namespace H2020.IPMDecisions.UPR.Data.Core
     public interface IDataService : IDisposable
     {
         Task CompleteAsync();
+        IAdminVariableRepository AdminVariables { get; }
         ICropPestRepository CropPests { get; }
         ICropPestDssRepository CropPestDsses { get; }
         IDssResultRepository DssResult { get; }

@@ -247,6 +247,19 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence
             }
         }
 
+        public IAdminVariableRepository adminVariables;
+        public IAdminVariableRepository AdminVariables
+        {
+            get
+            {
+                if (adminVariables == null)
+                {
+                    adminVariables = new AdminVariableRepository(this.context);
+                }
+                return adminVariables;
+            }
+        }
+
         public DataService(
             ApplicationDbContext context,
             IPropertyMappingService propertyMappingService)

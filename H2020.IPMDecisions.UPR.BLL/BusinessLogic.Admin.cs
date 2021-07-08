@@ -13,7 +13,9 @@ namespace H2020.IPMDecisions.UPR.BLL
         {
             try
             {
-                return GenericResponseBuilder.Success<IEnumerable<AdminVariableDto>>(null);
+                var adminVariables = await this.dataService.AdminVariables.FindAllAsync();
+                var variablesToReturn = this.mapper.Map<IEnumerable<AdminVariableDto>>(adminVariables);
+                return GenericResponseBuilder.Success<IEnumerable<AdminVariableDto>>(variablesToReturn);
             }
             catch (Exception ex)
             {
