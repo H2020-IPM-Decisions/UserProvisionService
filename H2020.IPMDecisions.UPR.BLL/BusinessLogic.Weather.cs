@@ -43,9 +43,9 @@ namespace H2020.IPMDecisions.UPR.BLL
                 // call weather service with ID and create weather object - Waiting for Service on WX API
                 var weatherHistoricalDefault = new WeatherHistoricalForCreationDto()
                 {
-                    WeatherId = "MeteoBot API",
-                    Name = "MeteoBot API",
-                    Url = "https://ipmdecisions.nibio.no/api/wx/rest/weatheradapter/meteobot/"
+                    WeatherId = "Finnish Meteorological Institute measured data",
+                    Name = "Finnish Meteorological Institute measured data",
+                    Url = "https://ipmdecisions.nibio.no/api/wx/rest/weatheradapter/fmi/"
                 };
                 weatherStationAsEntity = this.mapper.Map<WeatherHistorical>(weatherHistoricalDefault);
                 this.dataService.WeatherHistoricals.Create(weatherStationAsEntity);
