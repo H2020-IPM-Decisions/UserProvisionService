@@ -48,16 +48,13 @@ namespace H2020.IPMDecisions.UPR.BLL
                     return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, "Please create a `User Profile` first.");
                 }
 
-                // ToDo: GET Default Weather datasource from Database.
-                var weatherForecastDefault = new WeatherForecastForCreationDto()
-                {
-                    WeatherId = "FMI weather forecasts",
-                    Name = "FMI weather forecasts",
-                    Url = "https://ipmdecisions.nibio.no/api/wx/rest/weatheradapter/fmi/forecasts"
-                };
-                await EnsureWeatherForecastExists(weatherForecastDefault);
+                var defaultIdWeatherForecast = AdminValuesEnum.WeatherForecastService;
+                var weatherForecastDefaultValue = await this.dataService.AdminVariables.FindByIdAsync(defaultIdWeatherForecast);
+                // ToDo: Wait till WX API ID value works.
+                weatherForecastDefaultValue.Value = "FMI weather forecasts";
+                await EnsureWeatherForecastExists(weatherForecastDefaultValue.Value);
 
-                var farmAsEntity = this.mapper.Map<Farm>(farmForCreationDto); 
+                var farmAsEntity = this.mapper.Map<Farm>(farmForCreationDto);
                 farmAsEntity.Id = id;
 
                 await this.dataService.UserProfiles.AddFarm(userProfile.Result, farmAsEntity, UserFarmTypeEnum.Owner, false);
@@ -92,24 +89,20 @@ namespace H2020.IPMDecisions.UPR.BLL
                 }
 
                 var farmAsEntity = this.mapper.Map<Farm>(farmForCreationDto);
-                // ToDo: GET Default Weather datasource from Database.
-                var weatherForecastDefault = new WeatherForecastForCreationDto()
-                {
-                    WeatherId = "FMI weather forecasts",
-                    Name = "FMI weather forecasts",
-                    Url = "https://ipmdecisions.nibio.no/api/wx/rest/weatheradapter/fmi/forecasts"
-                };
-                var weatherForecast = await EnsureWeatherForecastExists(weatherForecastDefault);
-                farmAsEntity.WeatherForecast = weatherForecast;
-                var weatherHistoricalDefault = new WeatherHistoricalForCreationDto()
-                {
-                    WeatherId = "MeteoBot API",
-                    Name = "MeteoBot API",
-                    Url = "https://ipmdecisions.nibio.no/api/wx/rest/weatheradapter/meteobot/"
-                };
-                var weatherHistorical = await EncodeWeatherHistoricalExists(weatherHistoricalDefault);
-                farmAsEntity.WeatherHistorical = weatherHistorical;
 
+                var defaultIdWeatherForecast = AdminValuesEnum.WeatherForecastService;
+                var weatherForecastDefaultValue = await this.dataService.AdminVariables.FindByIdAsync(defaultIdWeatherForecast);
+                // ToDo: Wait until WX API ID value works.
+                weatherForecastDefaultValue.Value = "FMI weather forecasts";
+                var weatherForecast = await EnsureWeatherForecastExists(weatherForecastDefaultValue.Value);
+                farmAsEntity.WeatherForecast = weatherForecast;
+
+                var defaultIdWeatherhistorical = AdminValuesEnum.WeatherForecastService;
+                var weatherHistoricalDefaultValue = await this.dataService.AdminVariables.FindByIdAsync(defaultIdWeatherhistorical);
+                // ToDo: Wait until WX API ID value works.
+                weatherHistoricalDefaultValue.Value = "MeteoBot API";
+                var weatherHistorical = await EncodeWeatherHistoricalExists(weatherHistoricalDefaultValue.Value);
+                farmAsEntity.WeatherHistorical = weatherHistorical;
 
                 await this.dataService.UserProfiles.AddFarm(userProfile.Result, farmAsEntity, UserFarmTypeEnum.Owner, false);
                 await this.dataService.CompleteAsync();
