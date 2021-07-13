@@ -5,7 +5,7 @@
 -- Dumped from database version 12.7
 -- Dumped by pg_dump version 12.7
 
--- Started on 2021-07-01 10:07:31 UTC
+-- Started on 2021-07-13 16:02:08 UTC
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -149,8 +149,7 @@ CREATE TABLE public."Field" (
     "Id" uuid NOT NULL,
     "Name" text NOT NULL,
     "FarmId" uuid NOT NULL,
-    "SowingDate" timestamp without time zone,
-    "Variety" text
+    "SowingDate" timestamp without time zone
 );
 
 
@@ -1208,7 +1207,7 @@ ALTER TABLE ONLY public."UserProfile"
     ADD CONSTRAINT "FK_User_UserAddress" FOREIGN KEY ("UserAddressId") REFERENCES public."UserAddress"("Id") ON DELETE CASCADE;
 
 
--- Completed on 2021-07-01 10:07:32 UTC
+-- Completed on 2021-07-13 16:02:09 UTC
 
 --
 -- PostgreSQL database dump complete

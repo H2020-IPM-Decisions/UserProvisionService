@@ -10,7 +10,6 @@ namespace H2020.IPMDecisions.UPR.Core.Entities
         [Required]
         public string Name { get; set; }
         public DateTime? SowingDate { get; set; }
-        public string Variety { get; set; }
 
         public Guid FarmId { get; set; }
         public Farm Farm { get; set; }
