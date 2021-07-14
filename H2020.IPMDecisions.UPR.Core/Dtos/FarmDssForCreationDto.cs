@@ -7,6 +7,7 @@ namespace H2020.IPMDecisions.UPR.Core.Dtos
     {
         public Guid? FieldId { get; set; }
         public string FieldName { get; set; }
+        public virtual DateTime? SowingDate { get; set; }
         [Required]
         public CropPestForCreationDto CropPest { get; set; }
         [Required]

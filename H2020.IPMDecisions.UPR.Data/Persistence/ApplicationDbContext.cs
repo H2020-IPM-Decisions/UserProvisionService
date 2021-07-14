@@ -75,7 +75,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence
             modelBuilder.ApplyConfiguration(new WidgetConfiguration());
 
             // Comment it out when adding new EF migration
-            modelBuilder.Ignore<DssResultDatabaseView>();
+            // modelBuilder.Ignore<DssResultDatabaseView>();
             modelBuilder.Seed();
         }
     }
