@@ -43,6 +43,17 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Extensions
                     Description = e.ToString()
                 })
             );
+
+            modelBuilder.Entity<AdministrationVariable>()
+            .HasData(
+                Enum.GetValues(typeof(AdminValuesEnum))
+                .Cast<AdminValuesEnum>()
+                .Select(e => new AdministrationVariable()
+                {
+                    Id = e,
+                    Description = e.ToString()
+                })
+            );
         }
     }
 }

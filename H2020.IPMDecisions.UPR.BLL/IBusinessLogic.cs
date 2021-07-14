@@ -1,12 +1,12 @@
 using H2020.IPMDecisions.UPR.Core.Dtos;
 using H2020.IPMDecisions.UPR.Core.Entities;
+using H2020.IPMDecisions.UPR.Core.Enums;
 using H2020.IPMDecisions.UPR.Core.Models;
 using H2020.IPMDecisions.UPR.Core.ResourceParameters;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.JsonPatch;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace H2020.IPMDecisions.UPR.BLL
@@ -14,7 +14,6 @@ namespace H2020.IPMDecisions.UPR.BLL
     public interface IBusinessLogic
     {
         #region User Farms
-        Task<GenericResponse<IDictionary<string, object>>> LinkNewFarmToUserProfile(FarmForCreationDto farmForCreationDto, Guid id, Guid userId);
         Task<GenericResponse<IDictionary<string, object>>> LinkNewFarmToUserProfile(FarmForCreationDto farmForCreationDto, Guid userId, string mediaType);
         #endregion
 
@@ -119,6 +118,11 @@ namespace H2020.IPMDecisions.UPR.BLL
         Task<GenericResponse<List<EppoCodeTypeDto>>> GetAllEppoCodes();
         Task<GenericResponse<EppoCodeTypeDto>> GetEppoCode(string eppoCodeType, string eppoCode);
         Task<GenericResponse> UpdateEppoCodeType(string eppoCodeType, EppoCodeForUpdateDto eppoCodeForUpdateDto);
+        #endregion
+
+        #region Administration
+        Task<GenericResponse<IEnumerable<AdminVariableDto>>> GetAllAdminVariables();
+        Task<GenericResponse> UpdateAdminVariableById(AdminValuesEnum id, AdminVariableForManipulationDto adminVariableForManipulationDto);
         #endregion
     }
 }

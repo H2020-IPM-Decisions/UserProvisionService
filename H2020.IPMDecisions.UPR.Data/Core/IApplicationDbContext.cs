@@ -6,6 +6,7 @@ namespace H2020.IPMDecisions.UPR.Core
 {
     public interface IApplicationDbContext
     {
+        DbSet<AdministrationVariable> AdministrationVariable { get; set; }
         DbSet<CropPest> CropPest { get; set; }
         DbSet<CropPestDss> CropPestDss { get; set; }
         DbSet<DataSharingRequest> DataSharingRequest { get; set; }

@@ -235,7 +235,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             var dssOutput = JsonConvert.DeserializeObject<DssModelOutputInformation>(responseAsText);
 
             // ToDo. Check valid responses when DSS do not run properly
-            if (!responseDss.StatusCode.Equals(HttpStatusCode.InternalServerError))
+            if (responseDss.StatusCode.Equals(HttpStatusCode.InternalServerError))
             {
                 dssResult.ResultMessageType = (int)DssOutputMessageTypeEnum.Error;
                 dssResult.ResultMessage = string.Format("DSS returned a Internal Server Error. {0}", responseAsText.ToString());

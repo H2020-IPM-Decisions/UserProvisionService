@@ -152,6 +152,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [HttpPatch("{farmId:guid}", Name = "api.farm.patch.farmbyid")]
         [SwaggerRequestExample(typeof(Operation[]), typeof(JsonPatchFarmRequestExample))]
+        [Obsolete("Deprecated. Please use PUT method.")]
         //PATCH: api/farms/1
         public async Task<IActionResult> PartialUpdate(
             [FromRoute] Guid farmId,

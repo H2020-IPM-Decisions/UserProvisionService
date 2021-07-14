@@ -38,38 +38,6 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
         }
 
-        public async Task<GenericResponse<IDictionary<string, object>>> LinkNewFarmToUserProfile(FarmForCreationDto farmForCreationDto, Guid id, Guid userId)
-        {
-            try
-            {
-                var userProfile = await GetUserProfileByUserId(userId);
-                if (userProfile.Result == null)
-                {
-                    return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, "Please create a `User Profile` first.");
-                }
-
-                await EnsureWeatherForecastExists(farmForCreationDto.WeatherForecastDto);
-
-                var farmAsEntity = this.mapper.Map<Farm>(farmForCreationDto);
-                farmAsEntity.Id = id;
-
-                await this.dataService.UserProfiles.AddFarm(userProfile.Result, farmAsEntity, UserFarmTypeEnum.Owner, false);
-                await this.dataService.CompleteAsync();
-
-                var farmToReturn = this.mapper.Map<FarmDto>(farmAsEntity)
-                    .ShapeData()
-                    as IDictionary<string, object>;
-
-                return GenericResponseBuilder.Success<IDictionary<string, object>>(farmToReturn);
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(string.Format("Error in BLL - LinkNewFarmToUserProfile. {0}", ex.Message), ex);
-                String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
-                return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, $"{ex.Message} InnerException: {innerMessage}");
-            }
-        }
-
         public async Task<GenericResponse<IDictionary<string, object>>> LinkNewFarmToUserProfile(FarmForCreationDto farmForCreationDto, Guid userId, string mediaType)
         {
             try
@@ -85,16 +53,20 @@ namespace H2020.IPMDecisions.UPR.BLL
                 }
 
                 var farmAsEntity = this.mapper.Map<Farm>(farmForCreationDto);
-                if (farmForCreationDto.WeatherForecastDto != null)
-                {
-                    var weatherForecast = await EnsureWeatherForecastExists(farmForCreationDto.WeatherForecastDto);
-                    farmAsEntity.WeatherForecast = weatherForecast;
-                }
-                if (farmForCreationDto.WeatherHistoricalDto != null)
-                {
-                    var weatherHistorical = await EncodeWeatherHistoricalExists(farmForCreationDto.WeatherHistoricalDto);
-                    farmAsEntity.WeatherHistorical = weatherHistorical;
-                }
+
+                var defaultIdWeatherForecast = AdminValuesEnum.WeatherForecastService;
+                var weatherForecastDefaultValue = await this.dataService.AdminVariables.FindByIdAsync(defaultIdWeatherForecast);
+                // ToDo: Wait until WX API ID value works.
+                weatherForecastDefaultValue.Value = "FMI weather forecasts";
+                var weatherForecast = await EnsureWeatherForecastExists(weatherForecastDefaultValue.Value);
+                farmAsEntity.WeatherForecast = weatherForecast;
+
+                var defaultIdWeatherhistorical = AdminValuesEnum.WeatherForecastService;
+                var weatherHistoricalDefaultValue = await this.dataService.AdminVariables.FindByIdAsync(defaultIdWeatherhistorical);
+                // ToDo: Wait until WX API ID value works.
+                weatherHistoricalDefaultValue.Value = "Finnish Meteorological Institute measured data";
+                var weatherHistorical = await EncodeWeatherHistoricalExists(weatherHistoricalDefaultValue.Value);
+                farmAsEntity.WeatherHistorical = weatherHistorical;
 
                 await this.dataService.UserProfiles.AddFarm(userProfile.Result, farmAsEntity, UserFarmTypeEnum.Owner, false);
                 await this.dataService.CompleteAsync();

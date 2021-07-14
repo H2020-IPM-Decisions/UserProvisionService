@@ -9,6 +9,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence
 {
     public class ApplicationDbContext : DbContext, IApplicationDbContext
     {
+        public DbSet<AdministrationVariable> AdministrationVariable { get; set; }
         public DbSet<CropPest> CropPest { get; set; }
         public DbSet<CropPestDss> CropPestDss { get; set; }
         public DbSet<DataSharingRequest> DataSharingRequest { get; set; }
@@ -45,6 +46,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence
         {
             modelBuilder.HasPostgresExtension("postgis");
 
+            modelBuilder.ApplyConfiguration(new AdministrationVariableConfiguration());
             modelBuilder.ApplyConfiguration(new CropPestConfiguration());
             modelBuilder.ApplyConfiguration(new CropPestDssConfiguration());
             modelBuilder.ApplyConfiguration(new DataSharingRequestConfiguration());
@@ -73,7 +75,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence
             modelBuilder.ApplyConfiguration(new WidgetConfiguration());
 
             // Comment it out when adding new EF migration
-            //modelBuilder.Ignore<DssResultDatabaseView>();
+            // modelBuilder.Ignore<DssResultDatabaseView>();
             modelBuilder.Seed();
         }
     }

@@ -117,8 +117,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
             {
                 var searchQuery = resourceParameter.SearchQuery.Trim().ToLower();
                 collection = collection.Where(f =>
-                    f.Name.ToLower().Contains(searchQuery)
-                    || f.Variety.ToLower().Contains(searchQuery));
+                    f.Name.ToLower().Contains(searchQuery));
             }
             if (!string.IsNullOrEmpty(resourceParameter.OrderBy))
             {
