@@ -62,10 +62,17 @@ namespace H2020.IPMDecisions.UPR.BLL
             {
                 var dssResults = await this.dataService.DssResult.GetAllDssResults(userId);
 
-                if (dssResults.Count != 0)
+                if (dssResults != null || dssResults.Count != 0)
                 {
                     var listOfDss = await this.internalCommunicationProvider.GetAllListOfDssFromDssMicroservice();
-                    // Todo Merge listDss with userDss
+                    if (listOfDss != null || listOfDss.Count() != 0)
+                    {
+                        foreach (var dss in dssResults)
+                        {
+                            // ToDo check if DssVersion needed with Tor-Einar
+                            var selectedDss = listOfDss.Where(d => d.Id == dss.DssId).FirstOrDefault();
+                        }
+                    }
                 }
                 var dssResultsToReturn = this.mapper.Map<IEnumerable<FieldDssResultDto>>(dssResults);
                 return GenericResponseBuilder.Success<IEnumerable<FieldDssResultDto>>(dssResultsToReturn);
