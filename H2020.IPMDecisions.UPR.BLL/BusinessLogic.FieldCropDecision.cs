@@ -189,7 +189,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                 c.CropPestId == fieldCropPest.CropPest.Id
                 & c.DssId == cropPestDss.DssId
                 & c.DssModelId == cropPestDss.DssModelId
-                & c.DssVersion == cropPestDss.DssVersion
+                & c.DssModelVersion == cropPestDss.DssModelVersion
                 & c.DssExecutionType.ToLower() == cropPestDss.DssExecutionType.ToLower());
 
             if (cropPestDssExist == null)

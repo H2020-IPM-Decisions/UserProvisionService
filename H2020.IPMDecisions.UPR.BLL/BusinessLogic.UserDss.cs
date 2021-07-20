@@ -62,10 +62,10 @@ namespace H2020.IPMDecisions.UPR.BLL
             {
                 var dssResults = await this.dataService.DssResult.GetAllDssResults(userId);
 
-                if (dssResults != null || dssResults.Count != 0)
+                if (dssResults != null && dssResults.Count != 0)
                 {
                     var listOfDss = await this.internalCommunicationProvider.GetAllListOfDssFromDssMicroservice();
-                    if (listOfDss != null || listOfDss.Count() != 0)
+                    if (listOfDss != null && listOfDss.Count() != 0)
                     {
                         foreach (var dss in dssResults)
                         {

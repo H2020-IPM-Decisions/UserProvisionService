@@ -11,8 +11,10 @@ namespace H2020.IPMDecisions.UPR.Core.Models
         public string PestEppoCode { get; set; }
         public string DssId { get; set; }
         public string DssName { get; set; }
+        // public string DssVersion { get; set; }
         public string DssModelId { get; set; }
         public string DssModelName { get; set; }
+        public string DssModelVersion { get; set; }
         public string DssExecutionType { get; set; }
         public DateTime CreationDate { get; set; }
         public string DssFullResult { get; set; }
