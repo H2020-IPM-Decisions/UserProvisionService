@@ -62,19 +62,12 @@ namespace H2020.IPMDecisions.UPR.BLL
             {
                 var dssResults = await this.dataService.DssResult.GetAllDssResults(userId);
 
-                if (dssResults != null && dssResults.Count != 0)
-                {
-                    var listOfDss = await this.internalCommunicationProvider.GetAllListOfDssFromDssMicroservice();
-                    if (listOfDss != null && listOfDss.Count() != 0)
-                    {
-                        foreach (var dss in dssResults)
-                        {
-                            // ToDo check if DssVersion needed with Tor-Einar
-                            var selectedDss = listOfDss.Where(d => d.Id == dss.DssId).FirstOrDefault();
-                        }
-                    }
-                }
                 var dssResultsToReturn = this.mapper.Map<IEnumerable<FieldDssResultDto>>(dssResults);
+
+                if (dssResultsToReturn != null && dssResultsToReturn.Count() != 0)
+                {
+                    await AddExtraInformationToDss(dssResultsToReturn);
+                }
                 return GenericResponseBuilder.Success<IEnumerable<FieldDssResultDto>>(dssResultsToReturn);
             }
             catch (Exception ex)
@@ -82,6 +75,26 @@ namespace H2020.IPMDecisions.UPR.BLL
                 logger.LogError(string.Format("Error in BLL - GetAllUserFieldCropPestDss. {0}", ex.Message), ex);
                 String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
                 return GenericResponseBuilder.NoSuccess<IEnumerable<FieldDssResultDto>>(null, $"{ex.Message} InnerException: {innerMessage}");
+            }
+        }
+
+        private async Task AddExtraInformationToDss(IEnumerable<FieldDssResultDto> dssResultsToReturn)
+        {
+            var listOfDss = await this.internalCommunicationProvider.GetAllListOfDssFromDssMicroservice();
+            if (listOfDss != null && listOfDss.Count() != 0)
+            {
+                foreach (var dss in dssResultsToReturn)
+                {
+                    // ToDo check if DssVersion needed with Tor-Einar
+                    var selectedDss = listOfDss
+                        .Where(d => d.Id == dss.DssId)
+                        .FirstOrDefault()
+                        .DssModelInformation
+                        .Where(dm => dm.Id == dss.DssModelId && dm.Version == dss.DssModelVersion)
+                        .FirstOrDefault();
+
+                    if (selectedDss != null) dss.DssDescription = selectedDss.Description;
+                }
             }
         }
 

@@ -20,6 +20,7 @@ namespace H2020.IPMDecisions.UPR.Core.Dtos
         public string DssModelVersion { get; set; }
         public string DssExecutionType { get; set; }
         public string DssFullResult { get; set; }
+        public string DssDescription { get; set; }
         public int WarningStatus { get; set; }
         public string WarningStatusRepresentation { get; set; }
         public string WarningMessage { get; set; }
