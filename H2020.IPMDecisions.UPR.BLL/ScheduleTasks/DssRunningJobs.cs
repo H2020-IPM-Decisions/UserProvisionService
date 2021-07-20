@@ -275,7 +275,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             string farmLocationX,
             string farmLocationY,
             List<WeatherSchemaForHttp> listWeatherDataSource,
-            DssSchemaInput dssWeatherInput)
+            DssModelSchemaInput dssWeatherInput)
         {
             var result = new GetWeatherDataResult();
             if (listWeatherDataSource.Count < 1)

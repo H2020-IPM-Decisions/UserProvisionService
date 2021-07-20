@@ -13,17 +13,36 @@ namespace H2020.IPMDecisions.UPR.Core.Models
         [JsonProperty("description_URL")]
         public string DescriptionUrl { get; set; }
         public string Description { get; set; }
-        public DssSchemaExecution Execution { get; set; }
-        public DssSchemaInput Input { get; set; }
-        public DssSchemaOutput Output { get; set; }
+        public string Version { get; set; }
+        public DssModelSchemaExecution Execution { get; set; }
+        public DssModelSchemaInput Input { get; set; }
+        public DssModelSchemaOutput Output { get; set; }
+        [JsonProperty("valid_spatial")]
+        public DssModelValidSpatial ValidSpatial { get; set; }
+        public IEnumerable<DssModelAuthors> Authors { get; set; }
     }
 
-    public class DssSchemaOutput
+    public class DssModelValidSpatial
+    {
+        public IEnumerable<string> Countries { get; set; }
+        public string GeoJson { get; set; }
+    }
+
+    public class DssModelAuthors
+    {
+        public string Name { get; set; }
+        public string Email { get; set; }
+        public string Organization { get; set; }
+    }
+
+    public class DssModelSchemaOutput
     {
         [JsonProperty("warning_status_interpretation")]
         public string WarningStatusInterpretation { get; set; }
         [JsonProperty("result_parameters")]
         public List<OutputResultParameters> ResultParameters { get; set; }
+        [JsonProperty("chart_heading")]
+        public string ChartHeading { get; set; }
     }
 
     public class OutputResultParameters
@@ -45,7 +64,7 @@ namespace H2020.IPMDecisions.UPR.Core.Models
         public string Color { get; set; }
     }
 
-    public class DssSchemaInput
+    public class DssModelSchemaInput
     {
         [JsonProperty("weather_parameters")]
         public List<WeatherParameters> WeatherParameters { get; set; }
@@ -76,7 +95,7 @@ namespace H2020.IPMDecisions.UPR.Core.Models
         public int Interval { get; set; }
     }
 
-    public class DssSchemaExecution
+    public class DssModelSchemaExecution
     {
         [JsonProperty("input_schema")]
         public string InputSchema { get; set; }
