@@ -5,7 +5,7 @@
 -- Dumped from database version 12.7
 -- Dumped by pg_dump version 12.7
 
--- Started on 2021-07-13 16:02:08 UTC
+-- Started on 2021-07-20 15:03:58 UTC
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -72,10 +72,10 @@ CREATE TABLE public."CropPestDss" (
     "DssId" text NOT NULL,
     "DssModelId" text DEFAULT ''::text NOT NULL,
     "DssExecutionType" text DEFAULT ''::text NOT NULL,
-    "DssVersion" text DEFAULT ''::text NOT NULL,
     "DssEndPoint" text,
     "DssModelName" text DEFAULT ''::text NOT NULL,
-    "DssName" text NOT NULL
+    "DssName" text NOT NULL,
+    "DssModelVersion" text DEFAULT ''::text NOT NULL
 );
 
 
@@ -718,11 +718,11 @@ CREATE INDEX "IX_CropPestDssResult_CropPestDssId" ON public."CropPestDssResult" 
 
 
 --
--- TOC entry 4549 (class 1259 OID 22993)
--- Name: IX_CropPestDss_CropPestId_DssId_DssModelId_DssVersion_DssExecu~; Type: INDEX; Schema: public; Owner: -
+-- TOC entry 4549 (class 1259 OID 45315)
+-- Name: IX_CropPestDss_All; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX "IX_CropPestDss_CropPestId_DssId_DssModelId_DssVersion_DssExecu~" ON public."CropPestDss" USING btree ("CropPestId", "DssId", "DssModelId", "DssVersion", "DssExecutionType");
+CREATE UNIQUE INDEX "IX_CropPestDss_All" ON public."CropPestDss" USING btree ("CropPestId", "DssId", "DssModelId", "DssModelVersion", "DssExecutionType");
 
 
 --
@@ -1207,7 +1207,7 @@ ALTER TABLE ONLY public."UserProfile"
     ADD CONSTRAINT "FK_User_UserAddress" FOREIGN KEY ("UserAddressId") REFERENCES public."UserAddress"("Id") ON DELETE CASCADE;
 
 
--- Completed on 2021-07-13 16:02:09 UTC
+-- Completed on 2021-07-20 15:03:58 UTC
 
 --
 -- PostgreSQL database dump complete
