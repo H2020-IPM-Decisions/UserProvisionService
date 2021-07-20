@@ -61,6 +61,12 @@ namespace H2020.IPMDecisions.UPR.BLL
             try
             {
                 var dssResults = await this.dataService.DssResult.GetAllDssResults(userId);
+
+                if (dssResults.Count != 0)
+                {
+                    var listOfDss = await this.internalCommunicationProvider.GetAllListOfDssFromDssMicroservice();
+                    // Todo Merge listDss with userDss
+                }
                 var dssResultsToReturn = this.mapper.Map<IEnumerable<FieldDssResultDto>>(dssResults);
                 return GenericResponseBuilder.Success<IEnumerable<FieldDssResultDto>>(dssResultsToReturn);
             }
@@ -99,7 +105,7 @@ namespace H2020.IPMDecisions.UPR.BLL
         {
             var dataToReturn = this.mapper.Map<FieldDssResultDetailedDto>(dss);
             var dssInformation = await internalCommunicationProvider
-                            .GetDssInformationFromDssMicroservice(dss.CropPestDss.DssId, dss.CropPestDss.DssModelId);
+                            .GetDssModelInformationFromDssMicroservice(dss.CropPestDss.DssId, dss.CropPestDss.DssModelId);
 
             if (dssInformation == null) return dataToReturn;
             dataToReturn.DssTypeOfDecision = dssInformation.TypeOfDecision;

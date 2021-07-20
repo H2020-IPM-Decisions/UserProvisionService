@@ -130,7 +130,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             var dssResult = new FieldDssResult() { CreationDate = DateTime.Now, IsValid = false };
             try
             {
-                DssInformation dssInformation = await GetDssInformationFromMicroservice(dss);
+                DssModelInformation dssInformation = await GetDssInformationFromMicroservice(dss);
                 if (dssInformation == null)
                 {
                     dssResult.DssFullResult = JObject.Parse("{\"message\": \"Error getting DSS information from  microservice.\"}").ToString();
@@ -201,7 +201,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             }
         }
 
-        private async Task<GetWeatherDataResult> PrepareWeatherData(FieldCropPestDss dss, DssInformation dssInformation, JObject dssInputSchemaAsJson)
+        private async Task<GetWeatherDataResult> PrepareWeatherData(FieldCropPestDss dss, DssModelInformation dssInformation, JObject dssInputSchemaAsJson)
         {
             var listOfPreferredWeatherDataSources = new List<WeatherSchemaForHttp>();
             var farm = dss.FieldCropPest.FieldCrop.Field.Farm;
@@ -263,10 +263,10 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             dssResult.IsValid = true;
         }
 
-        private async Task<DssInformation> GetDssInformationFromMicroservice(FieldCropPestDss dss)
+        private async Task<DssModelInformation> GetDssInformationFromMicroservice(FieldCropPestDss dss)
         {
             return await internalCommunicationProvider
-                .GetDssInformationFromDssMicroservice(dss.CropPestDss.DssId, dss.CropPestDss.DssModelId);
+                .GetDssModelInformationFromDssMicroservice(dss.CropPestDss.DssId, dss.CropPestDss.DssModelId);
         }
         #endregion
 
