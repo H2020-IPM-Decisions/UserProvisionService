@@ -80,9 +80,10 @@ namespace H2020.IPMDecisions.UPR.BLL
         private async Task AddExtraInformationToDss(IEnumerable<FieldDssResultDto> dssResultsToReturn)
         {
             var listOfDss = await this.internalCommunicationProvider.GetAllListOfDssFromDssMicroservice();
-            if (listOfDss != null && listOfDss.Count() != 0)
+            var eppoCodesData = await this.dataService.EppoCodes.GetEppoCodesAsync();
+            foreach (var dss in dssResultsToReturn)
             {
-                foreach (var dss in dssResultsToReturn)
+                if (listOfDss != null && listOfDss.Count() != 0)
                 {
                     // ToDo check if DssVersion needed with Tor-Einar
                     var selectedDss = listOfDss
@@ -94,6 +95,10 @@ namespace H2020.IPMDecisions.UPR.BLL
 
                     if (selectedDss != null) dss.DssDescription = selectedDss.Description;
                 }
+
+                // crop and pest text match default loaded data
+                dss.CropLanguages = GetNameFromEppoCodeData(eppoCodesData, "crop", dss.CropEppoCode);
+                dss.PestLanguages = GetNameFromEppoCodeData(eppoCodesData, "pest", dss.PestEppoCode);
             }
         }
 
@@ -173,7 +178,8 @@ namespace H2020.IPMDecisions.UPR.BLL
         private async Task AddDssCropPestNames(FieldDssResultDetailedDto dataToReturn)
         {
             var eppoCodesData = await this.dataService.EppoCodes.GetEppoCodesAsync();
-
+            
+            // crop and pest text match default loaded data
             dataToReturn.CropLanguages = GetNameFromEppoCodeData(eppoCodesData, "crop", dataToReturn.CropEppoCode);
             dataToReturn.PestLanguages = GetNameFromEppoCodeData(eppoCodesData, "pest", dataToReturn.PestEppoCode);
         }
