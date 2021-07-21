@@ -61,7 +61,6 @@ namespace H2020.IPMDecisions.UPR.BLL
             try
             {
                 var dssResults = await this.dataService.DssResult.GetAllDssResults(userId);
-
                 var dssResultsToReturn = this.mapper.Map<IEnumerable<FieldDssResultDto>>(dssResults);
 
                 if (dssResultsToReturn != null && dssResultsToReturn.Count() != 0)
@@ -128,32 +127,14 @@ namespace H2020.IPMDecisions.UPR.BLL
                             .GetDssModelInformationFromDssMicroservice(dss.CropPestDss.DssId, dss.CropPestDss.DssModelId);
 
             if (dssInformation == null) return dataToReturn;
-            dataToReturn.DssTypeOfDecision = dssInformation.TypeOfDecision;
-            dataToReturn.DssTypeOfOutput = dssInformation.TypeOfOutput;
-            dataToReturn.DssDescription = dssInformation.Description;
-            dataToReturn.DssDescriptionUrl = dssInformation.DescriptionUrl;
-            dataToReturn.WarningMessage = dssInformation.Output.WarningStatusInterpretation;
+            AddDssBasicData(dataToReturn, dssInformation);
+            await AddDssCropPestNames(dataToReturn);
 
             if (!dataToReturn.IsValid) return dataToReturn;
-
-            var dssFullOutputAsObject = JsonConvert.DeserializeObject<DssModelOutputInformation>(dataToReturn.DssFullResult);
-            dataToReturn.OutputTimeStart = dssFullOutputAsObject.TimeStart;
-            dataToReturn.OutputTimeEnd = dssFullOutputAsObject.TimeEnd;
-            dataToReturn.Interval = dssFullOutputAsObject.Interval;
-            dataToReturn.ResultParametersWidth = dssFullOutputAsObject.ResultParameters.Count;
+            DssModelOutputInformation dssFullOutputAsObject = AddDssFullResultData(dataToReturn);
 
             var locationResultData = dssFullOutputAsObject.LocationResult.FirstOrDefault();
-            IEnumerable<List<double>> dataLastSevenDays = new List<List<double>>();
-
-            if (locationResultData != null)
-            {
-                //Take last 7 days of Data
-                var maxDaysOutput = 7;
-                dataLastSevenDays = locationResultData.Data.TakeLast(maxDaysOutput);
-                dataToReturn.ResultParametersLength = dataLastSevenDays.Count();
-                dataToReturn.WarningStatusPerDay = locationResultData.WarningStatus.TakeLast(maxDaysOutput).ToList();
-            };
-
+            IEnumerable<List<double>> dataLastSevenDays = SelectDssLastResultsData(dataToReturn, locationResultData);
             List<string> labels = CreateResultParametersLabels(dataToReturn.OutputTimeEnd, dataLastSevenDays.Count());
 
             for (int i = 0; i < dssFullOutputAsObject.ResultParameters.Count; i++)
@@ -187,6 +168,48 @@ namespace H2020.IPMDecisions.UPR.BLL
                 dataToReturn.ResultParameters.Add(resultParameter);
             }
             return dataToReturn;
+        }
+
+        private async Task AddDssCropPestNames(FieldDssResultDetailedDto dataToReturn)
+        {
+            var eppoCodesData = await this.dataService.EppoCodes.GetEppoCodesAsync();
+
+            dataToReturn.CropLanguages = GetNameFromEppoCodeData(eppoCodesData, "crop", dataToReturn.CropEppoCode);
+            dataToReturn.PestLanguages = GetNameFromEppoCodeData(eppoCodesData, "pest", dataToReturn.PestEppoCode);
+        }
+
+        private static IEnumerable<List<double>> SelectDssLastResultsData(FieldDssResultDetailedDto dataToReturn, LocationResultDssOutput locationResultData)
+        {
+            IEnumerable<List<double>> dataLastSevenDays = new List<List<double>>();
+
+            if (locationResultData != null)
+            {
+                //Take last 7 days of Data
+                var maxDaysOutput = 7;
+                dataLastSevenDays = locationResultData.Data.TakeLast(maxDaysOutput);
+                dataToReturn.ResultParametersLength = dataLastSevenDays.Count();
+                dataToReturn.WarningStatusPerDay = locationResultData.WarningStatus.TakeLast(maxDaysOutput).ToList();
+            };
+            return dataLastSevenDays;
+        }
+
+        private static DssModelOutputInformation AddDssFullResultData(FieldDssResultDetailedDto dataToReturn)
+        {
+            var dssFullOutputAsObject = JsonConvert.DeserializeObject<DssModelOutputInformation>(dataToReturn.DssFullResult);
+            dataToReturn.OutputTimeStart = dssFullOutputAsObject.TimeStart;
+            dataToReturn.OutputTimeEnd = dssFullOutputAsObject.TimeEnd;
+            dataToReturn.Interval = dssFullOutputAsObject.Interval;
+            dataToReturn.ResultParametersWidth = dssFullOutputAsObject.ResultParameters.Count;
+            return dssFullOutputAsObject;
+        }
+
+        private static void AddDssBasicData(FieldDssResultDetailedDto dataToReturn, DssModelInformation dssInformation)
+        {
+            dataToReturn.DssTypeOfDecision = dssInformation.TypeOfDecision;
+            dataToReturn.DssTypeOfOutput = dssInformation.TypeOfOutput;
+            dataToReturn.DssDescription = dssInformation.Description;
+            dataToReturn.DssDescriptionUrl = dssInformation.DescriptionUrl;
+            dataToReturn.WarningMessage = dssInformation.Output.WarningStatusInterpretation;
         }
 
         private List<string> CreateResultParametersLabels(string outputTimeEnd, int days)

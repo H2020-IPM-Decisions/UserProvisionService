@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace H2020.IPMDecisions.UPR.Core.Dtos
 {
@@ -10,7 +11,9 @@ namespace H2020.IPMDecisions.UPR.Core.Dtos
         public DateTime CreationDate { get; set; }
         public bool IsValid { get; set; }
         public string CropEppoCode { get; set; }
+        public IDictionary<string, string> CropLanguages { get; set; }
         public string PestEppoCode { get; set; }
+        public IDictionary<string, string> PestLanguages { get; set; }
         public string DssId { get; set; }
         public string DssName { get; set; }
         public string DssModelId { get; set; }

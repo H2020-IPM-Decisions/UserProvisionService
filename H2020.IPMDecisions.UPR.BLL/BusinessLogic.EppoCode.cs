@@ -141,6 +141,18 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
             return eppoCodeType;
         }
+
+        private IDictionary<string, string> GetNameFromEppoCodeData(List<EppoCode> eppoCodesData, string eppoCodeType, string cropEppoCode)
+        {
+            var cropData = eppoCodesData.Where(e => e.Type == eppoCodeType).FirstOrDefault();
+            var eppoCodesOnType = JsonConvert.DeserializeObject<List<IDictionary<string, string>>>(cropData.Data);
+
+            return eppoCodesOnType
+                      .Where(d =>
+                          d.TryGetValue("EPPOCode", out string value)
+                          && value is string i && i.ToLower() == cropEppoCode.ToLower())
+                      .FirstOrDefault();
+        }
         #endregion
     }
 }
