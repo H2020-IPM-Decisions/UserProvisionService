@@ -228,9 +228,9 @@ namespace H2020.IPMDecisions.UPR.BLL
 
                 var paginationMetaDataChildren = MiscellaneousHelper.CreatePaginationMetadata(childrenAsPaged);
 
-                var shapedChildrenToReturn = this.mapper
-                    .Map<IEnumerable<FieldCropPestDssDto>>(childrenAsPaged)
-                    .ShapeData(resourceParameter.Fields);
+                var dataAsDto = this.mapper
+                    .Map<IEnumerable<FieldCropPestDssDto>>(childrenAsPaged);
+                var shapedChildrenToReturn = dataAsDto.ShapeData(resourceParameter.Fields);
 
                 var shapedChildrenToReturnWithLinks = shapedChildrenToReturn.Select(fieldCropPestDss =>
                 {
