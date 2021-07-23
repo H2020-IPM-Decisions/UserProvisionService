@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using H2020.IPMDecisions.UPR.BLL.Helpers;
 using H2020.IPMDecisions.UPR.Core.Dtos;
 using H2020.IPMDecisions.UPR.Core.Entities;
 using H2020.IPMDecisions.UPR.Core.Models;
@@ -96,9 +97,9 @@ namespace H2020.IPMDecisions.UPR.BLL
                     if (selectedDss != null) dss.DssDescription = selectedDss.Description;
                 }
 
-                // crop and pest text match default loaded data
-                dss.CropLanguages = GetNameFromEppoCodeData(eppoCodesData, "crop", dss.CropEppoCode);
-                dss.PestLanguages = GetNameFromEppoCodeData(eppoCodesData, "pest", dss.PestEppoCode);
+                var eppoCodeLanguages = EppoCodesHelper.GetCropPestEppoCodesNames(eppoCodesData, dss.CropEppoCode, dss.PestEppoCode);
+                dss.CropLanguages = eppoCodeLanguages.CropLanguages;
+                dss.PestLanguages = eppoCodeLanguages.PestLanguages;
             }
         }
 
@@ -178,10 +179,10 @@ namespace H2020.IPMDecisions.UPR.BLL
         private async Task AddDssCropPestNames(FieldDssResultDetailedDto dataToReturn)
         {
             var eppoCodesData = await this.dataService.EppoCodes.GetEppoCodesAsync();
-            
-            // crop and pest text match default loaded data
-            dataToReturn.CropLanguages = GetNameFromEppoCodeData(eppoCodesData, "crop", dataToReturn.CropEppoCode);
-            dataToReturn.PestLanguages = GetNameFromEppoCodeData(eppoCodesData, "pest", dataToReturn.PestEppoCode);
+
+            var eppoCodeLanguages = EppoCodesHelper.GetCropPestEppoCodesNames(eppoCodesData, dataToReturn.CropEppoCode, dataToReturn.PestEppoCode);
+            dataToReturn.CropLanguages = eppoCodeLanguages.CropLanguages;
+            dataToReturn.PestLanguages = eppoCodeLanguages.PestLanguages;
         }
 
         private static IEnumerable<List<double>> SelectDssLastResultsData(FieldDssResultDetailedDto dataToReturn, LocationResultDssOutput locationResultData)
