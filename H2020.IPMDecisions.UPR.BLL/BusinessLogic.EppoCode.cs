@@ -110,7 +110,7 @@ namespace H2020.IPMDecisions.UPR.BLL
         }
 
         #region Helpers
-        private EppoCodeTypeDto EppoCodeToEppoCodeTypeDto(EppoCode type, string eppoCodeFilter = "")
+        private EppoCodeTypeDto EppoCodeToEppoCodeTypeDto(EppoCode type, string eppoCodeFilter = "", string languageFilter = "en")
         {
             EppoCodeTypeDto eppoCodeType = this.mapper.Map<EppoCodeTypeDto>(type);
             var eppoCodesOnType = JsonConvert.DeserializeObject<List<IDictionary<string, string>>>(type.Data);
@@ -118,15 +118,10 @@ namespace H2020.IPMDecisions.UPR.BLL
             if (!string.IsNullOrEmpty(eppoCodeFilter))
             {
                 EppoCodeDto eppoCodeDto = new EppoCodeDto();
-                var selectedEppoCodeDto = eppoCodesOnType
-                      .Where(d =>
-                          d.TryGetValue("EPPOCode", out string value)
-                          && value is string i && i.ToLower() == eppoCodeFilter.ToLower())
-                      .FirstOrDefault();
-
+                var selectedEppoCodeDto = FilterEppoCodesByEppoCode(eppoCodeFilter, eppoCodesOnType);
                 if (selectedEppoCodeDto == null) return null;
 
-                eppoCodeDto.Languages = selectedEppoCodeDto;
+                eppoCodeDto.Languages = DoLanguageFilter(languageFilter, selectedEppoCodeDto);
                 eppoCodeDto.EppoCode = selectedEppoCodeDto["EPPOCode"];
                 eppoCodeType.EppoCodesDto.Add(eppoCodeDto);
                 return eppoCodeType;
@@ -136,22 +131,51 @@ namespace H2020.IPMDecisions.UPR.BLL
             {
                 EppoCodeDto eppoCodeDto = new EppoCodeDto();
                 eppoCodeDto.EppoCode = eppoCode["EPPOCode"];
-                eppoCodeDto.Languages = eppoCode;
+                eppoCodeDto.Languages = DoLanguageFilter(languageFilter, eppoCode);
+
                 eppoCodeType.EppoCodesDto.Add(eppoCodeDto);
             }
             return eppoCodeType;
         }
 
-        private IDictionary<string, string> GetNameFromEppoCodeData(List<EppoCode> eppoCodesData, string eppoCodeType, string cropEppoCode)
+        private static IDictionary<string, string> DoLanguageFilter(string languageFilter, IDictionary<string, string> eppoCode)
+        {
+            if (!string.IsNullOrEmpty(languageFilter))
+                return FilterEppoCodeLanguage(languageFilter, eppoCode);
+
+            return eppoCode;
+        }
+
+        private static IDictionary<string, string> FilterEppoCodeLanguage(string languageFilter, IDictionary<string, string> eppoCode)
+        {
+            // default languages english (en) and latin (la)
+            return eppoCode
+                .Where(e => e.Key == "la"
+                || e.Key.ToLower() == "en"
+                || e.Key.ToLower() == languageFilter.ToLower())
+                .ToDictionary(e => e.Key, e => e.Value);
+        }
+
+        private IDictionary<string, string> GetNameFromEppoCodeData(
+            List<EppoCode> eppoCodesData,
+            string eppoCodeType,
+            string eppoCodeFilter,
+            string languageFilter = "en")
         {
             var cropData = eppoCodesData.Where(e => e.Type == eppoCodeType).FirstOrDefault();
             var eppoCodesOnType = JsonConvert.DeserializeObject<List<IDictionary<string, string>>>(cropData.Data);
+            var selectedEppoCodeDto = FilterEppoCodesByEppoCode(eppoCodeFilter, eppoCodesOnType);
+            if (selectedEppoCodeDto == null) return null;            
+            return DoLanguageFilter(languageFilter, selectedEppoCodeDto);
+        }
 
+        private static IDictionary<string, string> FilterEppoCodesByEppoCode(string eppoCodeFilter, List<IDictionary<string, string>> eppoCodesOnType)
+        {
             return eppoCodesOnType
-                      .Where(d =>
-                          d.TryGetValue("EPPOCode", out string value)
-                          && value is string i && i.ToLower() == cropEppoCode.ToLower())
-                      .FirstOrDefault();
+                .Where(d =>
+                    d.TryGetValue("EPPOCode", out string value)
+                    && value is string i && i.ToLower() == eppoCodeFilter.ToLower())
+                .FirstOrDefault();
         }
         #endregion
     }
