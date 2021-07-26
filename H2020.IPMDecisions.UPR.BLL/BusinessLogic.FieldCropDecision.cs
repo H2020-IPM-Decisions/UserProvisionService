@@ -96,7 +96,7 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
         }
 
-        public GenericResponse<IDictionary<string, object>> GetFieldCropDecision(Guid id, HttpContext httpContext, string mediaType)
+        public async Task<GenericResponse<IDictionary<string, object>>> GetFieldCropDecision(Guid id, HttpContext httpContext, string mediaType)
         {
             try
             {
@@ -109,9 +109,13 @@ namespace H2020.IPMDecisions.UPR.BLL
                     .FirstOrDefault();
                 if (fieldCropDssExist == null) return GenericResponseBuilder.NotFound<IDictionary<string, object>>();
 
-                var fieldCropDssToReturn = this.mapper
-                    .Map<FieldCropPestDssDto>(fieldCropDssExist)
-                    .ShapeData() as IDictionary<string, object>;
+                var fieldCropDssAsDto = this.mapper
+                    .Map<FieldCropPestDssDto>(fieldCropDssExist);
+
+                var eppoCodesData = await this.dataService.EppoCodes.GetEppoCodesAsync();
+                AddCropPestNameToFieldCropPestDssDto(eppoCodesData, fieldCropDssAsDto);
+
+                var fieldCropDssToReturn = fieldCropDssAsDto.ShapeData() as IDictionary<string, object>;
                 return GenericResponseBuilder.Success<IDictionary<string, object>>(fieldCropDssToReturn);
             }
             catch (Exception ex)
@@ -160,13 +164,22 @@ namespace H2020.IPMDecisions.UPR.BLL
                         fieldCropDssAsEntities.HasNext,
                         fieldCropDssAsEntities.HasPrevious);
 
-                var shapedObservationsToReturn = this.mapper
-                    .Map<IEnumerable<FieldCropPestDssDto>>(fieldCropDssAsEntities)
+                var dataToReturnAsDto = this.mapper
+                                    .Map<IEnumerable<FieldCropPestDssDto>>(fieldCropDssAsEntities);
+
+                var eppoCodesData = await this.dataService.EppoCodes.GetEppoCodesAsync();
+
+                foreach (var fieldCropPestDssDto in dataToReturnAsDto)
+                {
+                    AddCropPestNameToFieldCropPestDssDto(eppoCodesData, fieldCropPestDssDto);
+                }
+
+                var shapedDataToReturn = dataToReturnAsDto
                     .ShapeData(resourceParameter.Fields);
 
                 var dataToReturn = new ShapedDataWithLinks()
                 {
-                    Value = shapedObservationsToReturn,
+                    Value = shapedDataToReturn,
                     Links = links,
                     PaginationMetaData = paginationMetaData
                 };
@@ -181,6 +194,16 @@ namespace H2020.IPMDecisions.UPR.BLL
         }
 
         #region Helpers
+        private static void AddCropPestNameToFieldCropPestDssDto(List<EppoCode> eppoCodesData, FieldCropPestDssDto fieldCropPestDssDto)
+        {
+            var eppoCodeLanguages = EppoCodesHelper.GetCropPestEppoCodesNames(eppoCodesData,
+                                    fieldCropPestDssDto.FieldCropPest.CropPestDto.CropEppoCode,
+                                    fieldCropPestDssDto.FieldCropPest.CropPestDto.PestEppoCode);
+
+            fieldCropPestDssDto.FieldCropPest.CropPestDto.CropLanguages = eppoCodeLanguages.CropLanguages;
+            fieldCropPestDssDto.FieldCropPest.CropPestDto.PestLanguages = eppoCodeLanguages.PestLanguages;
+            fieldCropPestDssDto.FieldCropPest.PestLanguages = eppoCodeLanguages.PestLanguages;
+        }
         private async Task<FieldCropPestDss> CreateFieldCropPestDss(FieldCropPest fieldCropPest, CropPestDss cropPestDss, string dssParameters = "")
         {
             var cropPestDssExist = await this.dataService
