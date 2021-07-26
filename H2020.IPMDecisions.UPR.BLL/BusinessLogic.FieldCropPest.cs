@@ -61,8 +61,19 @@ namespace H2020.IPMDecisions.UPR.BLL
                 };
                 this.dataService.FieldCropPests.Create(newFieldCropPest);
                 await this.dataService.CompleteAsync();
-                var cropPestToReturn = this.mapper
-                    .Map<FieldCropWithChildrenDto>(fieldCrop)
+                var cropPestAsDto = this.mapper
+                    .Map<FieldCropWithChildrenDto>(fieldCrop);
+
+                var eppoCodesData = await this.dataService.EppoCodes.GetEppoCodesAsync();
+                var cropLanguages = EppoCodesHelper.GetNameFromEppoCodeData(eppoCodesData, "crop", cropPestForCreationDto.CropEppoCode);
+                cropPestAsDto.CropLanguages = cropLanguages;
+                foreach (var fieldCropPest in cropPestAsDto.FieldCropPestDto)
+                {
+                    fieldCropPest.PestLanguages = EppoCodesHelper.GetNameFromEppoCodeData(eppoCodesData, "pest", fieldCropPest.PestEppoCode);
+                    fieldCropPest.CropPestDto.PestLanguages = fieldCropPest.PestLanguages;
+                    fieldCropPest.CropPestDto.CropLanguages = cropLanguages;
+                }
+                var cropPestToReturn = cropPestAsDto
                     .ShapeData() as IDictionary<string, object>;
 
                 return GenericResponseBuilder.Success<IDictionary<string, object>>(cropPestToReturn);
