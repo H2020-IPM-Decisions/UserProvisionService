@@ -14,15 +14,20 @@ namespace H2020.IPMDecisions.UPR.BLL
     public partial class BusinessLogic : IBusinessLogic
     {
         #region Helpers
-        private FieldCropDto ShapeFieldCropWithChildren(Field field, FieldResourceParameter resourceParameter, bool includeLinks)
+        private FieldCropDto ShapeFieldCropWithChildren(
+            Field field,
+            FieldResourceParameter resourceParameter,
+            bool includeLinks,
+            List<EppoCode> eppoCodes)
         {
             try
             {
                 var fieldCropToReturn = this.mapper
                     .Map<FieldCropDto>(field.FieldCrop);
 
+                fieldCropToReturn.CropLanguages = EppoCodesHelper.GetNameFromEppoCodeData(eppoCodes, "crop", fieldCropToReturn.CropEppoCode);
                 var fieldCropPestResourceParameter = this.mapper.Map<FieldCropPestResourceParameter>(resourceParameter);
-                fieldCropToReturn.FieldCropPestDto = ShapeFieldCropPestAsChildren(field.FieldCrop, fieldCropPestResourceParameter, includeLinks);
+                fieldCropToReturn.FieldCropPestDto = ShapeFieldCropPestAsChildren(field.FieldCrop, fieldCropPestResourceParameter, includeLinks, eppoCodes, fieldCropToReturn.CropLanguages);
 
                 return fieldCropToReturn;
             }
@@ -33,7 +38,12 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
         }
 
-        private ShapedDataWithLinks ShapeFieldCropPestAsChildren(FieldCrop fieldCrop, FieldCropPestResourceParameter resourceParameter, bool includeLinks)
+        private ShapedDataWithLinks ShapeFieldCropPestAsChildren(
+            FieldCrop fieldCrop,
+            FieldCropPestResourceParameter resourceParameter,
+            bool includeLinks,
+            List<EppoCode> eppoCodes,
+            IDictionary<string, string> cropLanguages)
         {
             try
             {
@@ -50,8 +60,16 @@ namespace H2020.IPMDecisions.UPR.BLL
                     childrenAsPaged.HasNext,
                     childrenAsPaged.HasPrevious);
 
-                var shapedChildrenToReturn = this.mapper
-                    .Map<IEnumerable<FieldCropPestWithChildrenDto>>(childrenAsPaged)
+                var shapedChildrenAsDto = this.mapper
+                    .Map<IEnumerable<FieldCropPestWithChildrenDto>>(childrenAsPaged);
+                foreach (var fieldCropPestDto in shapedChildrenAsDto)
+                {
+                    fieldCropPestDto.PestLanguages = EppoCodesHelper.GetNameFromEppoCodeData(eppoCodes, "pest", fieldCropPestDto.PestEppoCode);
+                    fieldCropPestDto.CropPestDto.PestLanguages = fieldCropPestDto.PestLanguages;
+                    fieldCropPestDto.CropPestDto.CropLanguages = cropLanguages;
+                }
+
+                var shapedChildrenToReturn = shapedChildrenAsDto
                     .ShapeData(resourceParameter.Fields) as IEnumerable<IDictionary<string, object>>;
 
                 foreach (var shapedChildren in shapedChildrenToReturn)

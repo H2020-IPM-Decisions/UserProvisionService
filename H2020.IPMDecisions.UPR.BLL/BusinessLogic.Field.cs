@@ -153,13 +153,15 @@ namespace H2020.IPMDecisions.UPR.BLL
 
                 if (includeChildren)
                 {
+                    var eppoCodesData = await this.dataService.EppoCodes.GetEppoCodesAsync();
                     var fieldsAsDictionaryList = fieldsAsEntities.Select(field =>
                     {
                         return CreateFieldWithChildrenAsDictionary(
                             resourceParameter,
                             includeLinks,
                             field,
-                            links);
+                            links,
+                            eppoCodesData);
                     });
 
                     var farmsToReturnWitChildren = new ShapedDataWithLinks()
@@ -245,11 +247,13 @@ namespace H2020.IPMDecisions.UPR.BLL
 
                 if (includeChildren)
                 {
+                    var eppoCodesData = await this.dataService.EppoCodes.GetEppoCodesAsync();
                     var fieldToReturnWithChildrenShaped = CreateFieldWithChildrenAsDictionary(
                        resourceParameter,
                        includeLinks,
                        fieldAsEntity,
-                       links);
+                       links,
+                       eppoCodesData);
 
                     return GenericResponseBuilder.Success<IDictionary<string, object>>(fieldToReturnWithChildrenShaped);
                 }
@@ -450,7 +454,8 @@ namespace H2020.IPMDecisions.UPR.BLL
             FieldResourceParameter resourceParameter,
             bool includeLinks,
             Field fieldAsEntity,
-            IEnumerable<LinkDto> links)
+            IEnumerable<LinkDto> links,
+            List<EppoCode> eppoCodes)
         {
             try
             {
@@ -460,7 +465,8 @@ namespace H2020.IPMDecisions.UPR.BLL
                     fieldCropToReturn = ShapeFieldCropWithChildren(
                                     fieldAsEntity,
                                     resourceParameter,
-                                    includeLinks);
+                                    includeLinks,
+                                    eppoCodes);
                 }
 
                 var fieldToReturnWithChildren = this.mapper.Map<FieldWithChildrenDto>(fieldAsEntity);
