@@ -39,7 +39,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
             };
         }
 
-        private static IDictionary<string, string> GetNameFromEppoCodeData(
+        public static IDictionary<string, string> GetNameFromEppoCodeData(
             List<EppoCode> eppoCodesData,
             string eppoCodeType,
             string eppoCodeFilter,
