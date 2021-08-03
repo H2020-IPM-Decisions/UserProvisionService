@@ -46,7 +46,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                     {
                         if (fieldAsEntity.FieldCrop.CropEppoCode.ToUpper() != farmDssDto.CropPest.CropEppoCode.ToUpper())
                         {
-                            return GenericResponseBuilder.Duplicated<FieldCropPestDssDto>(string.Format("Field only accepts {0} crop EPPO code", fieldAsEntity.FieldCrop.CropEppoCode));
+                            return GenericResponseBuilder.Duplicated<FieldCropPestDssDto>(string.Format("Field only accepts '{0}' crop EPPO code", fieldAsEntity.FieldCrop.CropEppoCode));
                         }
                         await AddCropPestToField(farmDssDto.CropPest, fieldAsEntity);
                         fieldCropPestExists = fieldAsEntity.FieldCrop.FieldCropPests.FirstOrDefault();
@@ -62,7 +62,11 @@ namespace H2020.IPMDecisions.UPR.BLL
                                                     & fcpd.CropPestDss.DssId == farmDssDto.DssId
                                                     & fcpd.CropPestDss.DssModelId == farmDssDto.DssModelId));
                         if (duplicatedCropPestDssRecord)
-                            return GenericResponseBuilder.Duplicated<FieldCropPestDssDto>();
+                            return GenericResponseBuilder.Duplicated<FieldCropPestDssDto>(string
+                                .Format("Field already has crop ({0}), pest ({1}), and DSS ({2}) combination.",
+                                farmDssDto.CropPest.CropEppoCode,
+                                farmDssDto.CropPest.PestEppoCode,
+                                farmDssDto.DssModelName));
                     }
                 }
                 var cropPestDss = this.mapper.Map<CropPestDss>(farmDssDto);

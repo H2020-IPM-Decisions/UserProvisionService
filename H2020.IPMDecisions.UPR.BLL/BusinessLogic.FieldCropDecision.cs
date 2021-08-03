@@ -33,7 +33,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                             & fcpd.CropPestDss.DssId == cropPestDssForCreationDto.DssId
                             & fcpd.CropPestDss.DssModelId == cropPestDssForCreationDto.DssModelId));
                 if (duplicatedRecord)
-                    return GenericResponseBuilder.Duplicated<IDictionary<string, object>>();
+                    return GenericResponseBuilder.Duplicated<IDictionary<string, object>>("Crop, Pest and DSS combination already exists on the field.");
 
                 var getFieldCropPest = field
                     .FieldCrop
