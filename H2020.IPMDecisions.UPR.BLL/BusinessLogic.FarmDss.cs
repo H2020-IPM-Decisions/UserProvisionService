@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using H2020.IPMDecisions.UPR.Core.Dtos;
@@ -12,6 +13,26 @@ namespace H2020.IPMDecisions.UPR.BLL
 {
     public partial class BusinessLogic : IBusinessLogic
     {
+        public async Task<GenericResponse> AddListOfFarmDss(IEnumerable<FarmDssForCreationDto> listOfFarmDssDto, HttpContext httpContext, string mediaType)
+        {
+            try
+            {
+                if (!MediaTypeHeaderValue.TryParse(mediaType,
+                      out MediaTypeHeaderValue parsedMediaType))
+                    return GenericResponseBuilder.NoSuccess("Wrong media type.");
+
+                var test = await AddNewFarmDss(listOfFarmDssDto.FirstOrDefault(), httpContext, mediaType);
+
+                return GenericResponseBuilder.Success();
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(string.Format("Error in BLL - AddListOfFarmDss. {0}", ex.Message), ex);
+                String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
+                return GenericResponseBuilder.NoSuccess<FieldCropPestDssDto>(null, $"{ex.Message} InnerException: {innerMessage}");
+            }
+        }
+
         public async Task<GenericResponse<FieldCropPestDssDto>> AddNewFarmDss(FarmDssForCreationDto farmDssDto, HttpContext httpContext, string mediaType)
         {
             try
@@ -30,7 +51,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                     fieldAsEntity.Farm = farm;
                     this.dataService.Fields.Create(fieldAsEntity);
 
-                    await AddCropPestToField(farmDssDto.CropPest, fieldAsEntity);
+                    await AddCropPestToField(this.mapper.Map<CropPestForCreationDto>(farmDssDto), fieldAsEntity);
                     fieldCropPestExists = fieldAsEntity.FieldCrop.FieldCropPests.FirstOrDefault();
                 }
                 else
@@ -38,17 +59,17 @@ namespace H2020.IPMDecisions.UPR.BLL
                     fieldCropPestExists = fieldAsEntity
                         .FieldCrop
                         .FieldCropPests.Where(
-                            fi => fi.CropPest.CropEppoCode == farmDssDto.CropPest.CropEppoCode.ToUpper()
-                            && fi.CropPest.PestEppoCode == farmDssDto.CropPest.PestEppoCode.ToUpper())
+                            fi => fi.CropPest.CropEppoCode == farmDssDto.CropEppoCode.ToUpper()
+                            && fi.CropPest.PestEppoCode == farmDssDto.PestEppoCode.ToUpper())
                             .FirstOrDefault();
 
                     if (fieldCropPestExists == null)
                     {
-                        if (fieldAsEntity.FieldCrop.CropEppoCode.ToUpper() != farmDssDto.CropPest.CropEppoCode.ToUpper())
+                        if (fieldAsEntity.FieldCrop.CropEppoCode.ToUpper() != farmDssDto.CropEppoCode.ToUpper())
                         {
                             return GenericResponseBuilder.Duplicated<FieldCropPestDssDto>(string.Format("Field only accepts '{0}' crop EPPO code", fieldAsEntity.FieldCrop.CropEppoCode));
                         }
-                        await AddCropPestToField(farmDssDto.CropPest, fieldAsEntity);
+                        await AddCropPestToField(this.mapper.Map<CropPestForCreationDto>(farmDssDto), fieldAsEntity);
                         fieldCropPestExists = fieldAsEntity.FieldCrop.FieldCropPests.FirstOrDefault();
                     }
                     else
@@ -64,8 +85,8 @@ namespace H2020.IPMDecisions.UPR.BLL
                         if (duplicatedCropPestDssRecord)
                             return GenericResponseBuilder.Duplicated<FieldCropPestDssDto>(string
                                 .Format("Field already has crop ({0}), pest ({1}), and DSS ({2}) combination.",
-                                farmDssDto.CropPest.CropEppoCode,
-                                farmDssDto.CropPest.PestEppoCode,
+                                farmDssDto.CropEppoCode,
+                                farmDssDto.PestEppoCode,
                                 farmDssDto.DssModelName));
                     }
                 }

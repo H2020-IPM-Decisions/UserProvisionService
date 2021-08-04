@@ -8,8 +8,13 @@ namespace H2020.IPMDecisions.UPR.Core.Dtos
         public Guid? FieldId { get; set; }
         public string FieldName { get; set; }
         public virtual DateTime? SowingDate { get; set; }
-        [Required]
-        public CropPestForCreationDto CropPest { get; set; }
+        [Required(ErrorMessage = "Crop EPPO Code is required")]
+        [MaxLength(6, ErrorMessage = "EPPO Codes max length is 6 characters")]
+        public string CropEppoCode { get; set; }
+
+        [Required(ErrorMessage = "Pest EPPO Code is required")]
+        [MaxLength(6, ErrorMessage = "EPPO Codes max length is 6 characters")]
+        public string PestEppoCode { get; set; }
         [Required]
         public override string DssId { get; set; }
         [Required]
@@ -25,7 +30,6 @@ namespace H2020.IPMDecisions.UPR.Core.Dtos
         public override string DssModelVersion { get; set; }
         [Required]
         public override string DssExecutionType { get; set; }
-        [Required]
         public override string DssParameters { get; set; }
         public override string DssEndPoint { get; set; }
     }

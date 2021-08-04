@@ -153,6 +153,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 JObject userInputJsonObject = JObject.Parse(dss.DssParameters.ToString());
                 if (userInputJsonObject == null)
                 {
+                    // ToDo All metadata should have default values... use defaults
                     dssResult.ResultMessageType = (int)DssOutputMessageTypeEnum.Error;
                     dssResult.ResultMessage = "Missing user DSS parameters input.";
                     dssResult.DssFullResult = JObject.Parse("{\"message\": \"Missing user DSS parameters input.\"}").ToString();
