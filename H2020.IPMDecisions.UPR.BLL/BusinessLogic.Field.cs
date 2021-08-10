@@ -357,6 +357,59 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
         }
 
+        private FieldCrop AddFieldCropToField(Field field, string cropEppoCode)
+        {
+            if (field is null) return null;
+
+            var fieldCrop = new FieldCrop()
+            {
+                CropEppoCode = cropEppoCode,
+                Field = field
+            };
+
+            field.FieldCrop = fieldCrop;
+            return fieldCrop;
+        }
+
+        private async Task<FieldCropPest> AddCropPestToFieldCrop(FieldCrop fieldCrop, string pestEppoCode)
+        {
+            if (fieldCrop is null) return null;
+
+            var cropPestAsEntity = await this.dataService.CropPests
+                .FindByConditionAsync
+                (c => c.CropEppoCode.ToUpper().Equals(fieldCrop.CropEppoCode.ToUpper())
+                 && c.PestEppoCode.ToUpper().Equals(pestEppoCode.ToUpper()));
+
+            if (cropPestAsEntity == null)
+            {
+                cropPestAsEntity = new CropPest()
+                {
+                    CropEppoCode = fieldCrop.CropEppoCode.ToUpper(),
+                    PestEppoCode = pestEppoCode.ToUpper(),
+                };
+                this.dataService.CropPests.Create(cropPestAsEntity);
+            }
+            // Check if already exist on the second loop
+            if (fieldCrop.FieldCropPests == null)
+            {
+                fieldCrop.FieldCropPests = new List<FieldCropPest>();
+            }
+            else
+            {
+                var existingFieldCropPest = fieldCrop.FieldCropPests.Where(f => f.CropPestId == cropPestAsEntity.Id).FirstOrDefault();
+                if (existingFieldCropPest != null) return existingFieldCropPest;
+            }
+
+            var newFieldCropPest = new FieldCropPest()
+            {
+                CropPest = cropPestAsEntity,
+                FieldCrop = fieldCrop
+            };
+
+            fieldCrop.FieldCropPests.Add(newFieldCropPest);
+            return newFieldCropPest;
+        }
+
         private async Task AddCropPestToField(CropPestForCreationDto cropPestRequest, Field field)
         {
             if (cropPestRequest is null) return;

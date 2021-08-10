@@ -24,14 +24,12 @@ namespace H2020.IPMDecisions.UPR.BLL
             try
             {
                 var field = httpContext.Items["field"] as Field;
-                var duplicatedRecord = field
-                    .FieldCrop
-                    .FieldCropPests
-                    .Any(f => f.FieldCropPestDsses
-                        .Any(fcpd =>
-                            fcpd.FieldCropPestId == cropPestDssForCreationDto.FieldCropPestId
-                            & fcpd.CropPestDss.DssId == cropPestDssForCreationDto.DssId
-                            & fcpd.CropPestDss.DssModelId == cropPestDssForCreationDto.DssModelId));
+                var duplicatedRecord = HasCropPestDssCombination(field,
+                    cropPestDssForCreationDto.FieldCropPestId,
+                    cropPestDssForCreationDto.DssId,
+                    cropPestDssForCreationDto.DssModelId,
+                    cropPestDssForCreationDto.DssModelVersion);
+                    
                 if (duplicatedRecord)
                     return GenericResponseBuilder.Duplicated<IDictionary<string, object>>("Crop, Pest and DSS combination already exists on the field.");
 

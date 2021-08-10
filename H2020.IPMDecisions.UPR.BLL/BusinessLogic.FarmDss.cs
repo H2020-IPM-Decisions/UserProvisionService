@@ -21,7 +21,49 @@ namespace H2020.IPMDecisions.UPR.BLL
                       out MediaTypeHeaderValue parsedMediaType))
                     return GenericResponseBuilder.NoSuccess("Wrong media type.");
 
-                var test = await AddNewFarmDss(listOfFarmDssDto.FirstOrDefault(), httpContext, mediaType);
+                if (listOfFarmDssDto.Count() == 0) return GenericResponseBuilder.NoSuccess("Data missing on payload");
+
+                var farm = httpContext.Items["farm"] as Farm;
+                var listOfNewFieldCropPestDss = new List<FieldCropPestDss>();
+                var dataAsCropGroup = listOfFarmDssDto.GroupBy(f => new { f.CropEppoCode, f.FieldId }).ToList();
+                foreach (var cropGroup in dataAsCropGroup)
+                {
+                    var fieldId = cropGroup.Key.FieldId;
+                    var fieldAsEntity = farm.Fields.FirstOrDefault(fi => fi.Id == fieldId);
+                    var fieldCrop = new FieldCrop();
+                    if (fieldAsEntity == null)
+                    {
+                        var firstFarmForCreation = cropGroup.FirstOrDefault();
+                        fieldAsEntity = AddFieldToFarm(firstFarmForCreation, farm);
+                        fieldCrop = AddFieldCropToField(fieldAsEntity, cropGroup.Key.CropEppoCode);
+                    }
+                    else
+                    {
+                        // ToDo
+                    }
+                    var fieldCropPestExists = new FieldCropPest();
+                    foreach (var farmForcreation in cropGroup)
+                    {
+                        fieldCropPestExists = await AddCropPestToFieldCrop(fieldCrop, farmForcreation.PestEppoCode);
+
+                        var cropPestDss = this.mapper.Map<CropPestDss>(farmForcreation);
+                        var newFieldCropPestDss = await CreateFieldCropPestDss(
+                            fieldCropPestExists,
+                            cropPestDss,
+                            farmForcreation.DssParameters);
+                        listOfNewFieldCropPestDss.Add(newFieldCropPestDss);
+                    }
+                }
+
+                await this.dataService.CompleteAsync();
+                foreach (var item in listOfNewFieldCropPestDss)
+                {
+                    var fieldCropPestDssToReturn = this.mapper.Map<FieldCropPestDssDto>(item);
+                    if (item.CropPestDss.DssExecutionType.ToLower() == "onthefly")
+                    {
+                        var jobId = this.queueJobs.AddDssOnOnTheFlyQueue(item.Id);
+                    }
+                }
 
                 return GenericResponseBuilder.Success();
             }
@@ -33,7 +75,7 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
         }
 
-        public async Task<GenericResponse<FieldCropPestDssDto>> AddNewFarmDss(FarmDssForCreationDto farmDssDto, HttpContext httpContext, string mediaType)
+        private async Task<GenericResponse<FieldCropPestDssDto>> AddNewFarmDss(FarmDssForCreationDto farmDssDto, HttpContext httpContext, string mediaType)
         {
             try
             {
@@ -47,41 +89,24 @@ namespace H2020.IPMDecisions.UPR.BLL
                 var fieldCropPestExists = new FieldCropPest();
                 if (fieldAsEntity == null)
                 {
-                    fieldAsEntity = this.mapper.Map<Field>(farmDssDto);
-                    fieldAsEntity.Farm = farm;
-                    this.dataService.Fields.Create(fieldAsEntity);
-
-                    await AddCropPestToField(this.mapper.Map<CropPestForCreationDto>(farmDssDto), fieldAsEntity);
-                    fieldCropPestExists = fieldAsEntity.FieldCrop.FieldCropPests.FirstOrDefault();
+                    fieldAsEntity = AddFieldToFarm(farmDssDto, farm);
+                    fieldCropPestExists = await AddCropPestToField(farmDssDto, fieldAsEntity);
                 }
                 else
                 {
-                    fieldCropPestExists = fieldAsEntity
-                        .FieldCrop
-                        .FieldCropPests.Where(
-                            fi => fi.CropPest.CropEppoCode == farmDssDto.CropEppoCode.ToUpper()
-                            && fi.CropPest.PestEppoCode == farmDssDto.PestEppoCode.ToUpper())
-                            .FirstOrDefault();
+                    fieldCropPestExists = CheckIfFieldHasCropPestCombination(fieldAsEntity, farmDssDto.CropEppoCode, farmDssDto.PestEppoCode);
 
                     if (fieldCropPestExists == null)
                     {
                         if (fieldAsEntity.FieldCrop.CropEppoCode.ToUpper() != farmDssDto.CropEppoCode.ToUpper())
-                        {
                             return GenericResponseBuilder.Duplicated<FieldCropPestDssDto>(string.Format("Field only accepts '{0}' crop EPPO code", fieldAsEntity.FieldCrop.CropEppoCode));
-                        }
-                        await AddCropPestToField(this.mapper.Map<CropPestForCreationDto>(farmDssDto), fieldAsEntity);
-                        fieldCropPestExists = fieldAsEntity.FieldCrop.FieldCropPests.FirstOrDefault();
+
+                        fieldCropPestExists = await AddCropPestToField(farmDssDto, fieldAsEntity);
                     }
                     else
                     {
-                        var duplicatedCropPestDssRecord = fieldAsEntity
-                                            .FieldCrop
-                                            .FieldCropPests
-                                            .Any(f => f.FieldCropPestDsses
-                                                .Any(fcpd =>
-                                                    fcpd.FieldCropPestId == fieldCropPestExists.Id
-                                                    & fcpd.CropPestDss.DssId == farmDssDto.DssId
-                                                    & fcpd.CropPestDss.DssModelId == farmDssDto.DssModelId));
+                        bool duplicatedCropPestDssRecord = HasCropPestDssCombination(fieldAsEntity, fieldCropPestExists.Id, farmDssDto.DssId, farmDssDto.DssModelId, farmDssDto.DssModelVersion);
+
                         if (duplicatedCropPestDssRecord)
                             return GenericResponseBuilder.Duplicated<FieldCropPestDssDto>(string
                                 .Format("Field already has crop ({0}), pest ({1}), and DSS ({2}) combination.",
@@ -111,6 +136,43 @@ namespace H2020.IPMDecisions.UPR.BLL
                 String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
                 return GenericResponseBuilder.NoSuccess<FieldCropPestDssDto>(null, $"{ex.Message} InnerException: {innerMessage}");
             }
+        }
+
+        private static bool HasCropPestDssCombination(Field field, Guid fieldCropPestId, string dssId, string dssModelId, string dssModelVersion)
+        {
+            return field
+                .FieldCrop
+                .FieldCropPests
+                .Any(f => f.FieldCropPestDsses
+                    .Any(fcpd =>
+                        fcpd.FieldCropPestId == fieldCropPestId
+                        & fcpd.CropPestDss.DssId == dssId
+                        & fcpd.CropPestDss.DssModelId == dssModelId
+                        & fcpd.CropPestDss.DssModelVersion == dssModelVersion));
+        }
+
+        private static FieldCropPest CheckIfFieldHasCropPestCombination(Field field, string cropEppoCode, string pestEppoCode)
+        {
+            return field
+                .FieldCrop
+                .FieldCropPests.Where(
+                    fi => fi.CropPest.CropEppoCode.ToUpper() == cropEppoCode.ToUpper()
+                    && fi.CropPest.PestEppoCode.ToUpper() == pestEppoCode.ToUpper())
+                .FirstOrDefault();
+        }
+
+        private async Task<FieldCropPest> AddCropPestToField(FarmDssForCreationDto farmDssDto, Field field)
+        {
+            await AddCropPestToField(this.mapper.Map<CropPestForCreationDto>(farmDssDto), field);
+            return field.FieldCrop.FieldCropPests.FirstOrDefault();
+        }
+
+        private Field AddFieldToFarm(FarmDssForCreationDto farmDssDto, Farm farm)
+        {
+            Field fieldAsEntity = this.mapper.Map<Field>(farmDssDto);
+            fieldAsEntity.Farm = farm;
+            this.dataService.Fields.Create(fieldAsEntity);
+            return fieldAsEntity;
         }
     }
 }
