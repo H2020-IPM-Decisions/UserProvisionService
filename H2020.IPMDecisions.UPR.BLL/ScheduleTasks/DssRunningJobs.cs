@@ -149,16 +149,15 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 if (dssInformation.Execution.Type.ToLower() != "onthefly") return null;
 
                 var inputSchemaAsJson = JsonSchemaToJson.ToJsonObject(dssInformation.Execution.InputSchema);
-                // ToDo Check if required inputs are provided by the user
-                JObject userInputJsonObject = JObject.Parse(dss.DssParameters.ToString());
-                if (userInputJsonObject == null)
+                // ToDo All metadata should have default values... use defaults
+                if (string.IsNullOrEmpty(dss.DssParameters))
                 {
-                    // ToDo All metadata should have default values... use defaults
                     dssResult.ResultMessageType = (int)DssOutputMessageTypeEnum.Error;
                     dssResult.ResultMessage = "Missing user DSS parameters input.";
                     dssResult.DssFullResult = JObject.Parse("{\"message\": \"Missing user DSS parameters input.\"}").ToString();
                     return dssResult;
                 }
+                JObject userInputJsonObject = JObject.Parse(dss.DssParameters.ToString());
                 foreach (var property in userInputJsonObject.Properties())
                 {
                     var token = inputSchemaAsJson.SelectToken(property.Name);
@@ -194,7 +193,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             }
             catch (Exception ex)
             {
-                logger.LogError(string.Format("Error running DSS. Id: {0}, Parameters {1}. Error: {2}", dss.Id.ToString(), dss.DssParameters.ToString(), ex.Message));
+                logger.LogError(string.Format("Error running DSS. Id: {0}, Parameters {1}. Error: {2}", dss.Id.ToString(), dss.DssParameters, ex.Message));
                 dssResult.ResultMessageType = (int)DssOutputMessageTypeEnum.Error;
                 dssResult.ResultMessage = ex.Message.ToString();
                 dssResult.DssFullResult = JObject.Parse("{\"message\": \"Error running the DSS - " + ex.Message.ToString() + " \"}").ToString();

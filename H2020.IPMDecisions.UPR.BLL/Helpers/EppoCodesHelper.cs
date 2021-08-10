@@ -46,6 +46,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
             string languageFilter = "en")
         {
             var cropData = eppoCodesData.Where(e => e.Type == eppoCodeType).FirstOrDefault();
+            if (cropData == null) return null;
             var eppoCodesOnType = JsonConvert.DeserializeObject<List<IDictionary<string, string>>>(cropData.Data);
             var selectedEppoCodeDto = FilterEppoCodesByEppoCode(eppoCodeFilter, eppoCodesOnType);
             if (selectedEppoCodeDto == null) return null;
