@@ -29,7 +29,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                     cropPestDssForCreationDto.DssId,
                     cropPestDssForCreationDto.DssModelId,
                     cropPestDssForCreationDto.DssModelVersion);
-                    
+
                 if (duplicatedRecord)
                     return GenericResponseBuilder.Duplicated<IDictionary<string, object>>("Crop, Pest and DSS combination already exists on the field.");
 
@@ -218,6 +218,16 @@ namespace H2020.IPMDecisions.UPR.BLL
                 cropPestDssExist = cropPestDss;
                 cropPestDssExist.CropPest = fieldCropPest.CropPest;
                 this.dataService.CropPestDsses.Create(cropPestDssExist);
+            }
+            if (fieldCropPest.FieldCropPestDsses != null)
+            {
+                // check if same fieldcroppest and Dss combination already exists
+                var existingCombination = fieldCropPest.FieldCropPestDsses
+                    .Where(fcpd => fcpd.CropPestDssId == cropPestDssExist.Id
+                        && fcpd.FieldCropPestId == fieldCropPest.Id)
+                    .FirstOrDefault();
+
+                if (existingCombination != null) return null;
             }
 
             var newFieldCropPestDss = new FieldCropPestDss()

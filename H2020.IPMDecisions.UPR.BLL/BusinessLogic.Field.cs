@@ -403,7 +403,8 @@ namespace H2020.IPMDecisions.UPR.BLL
             var newFieldCropPest = new FieldCropPest()
             {
                 CropPest = cropPestAsEntity,
-                FieldCrop = fieldCrop
+                FieldCrop = fieldCrop,
+                Id = Guid.NewGuid()
             };
 
             fieldCrop.FieldCropPests.Add(newFieldCropPest);

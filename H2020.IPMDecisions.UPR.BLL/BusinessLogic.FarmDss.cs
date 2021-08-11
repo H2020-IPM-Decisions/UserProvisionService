@@ -13,18 +13,20 @@ namespace H2020.IPMDecisions.UPR.BLL
 {
     public partial class BusinessLogic : IBusinessLogic
     {
-        public async Task<GenericResponse> AddListOfFarmDss(IEnumerable<FarmDssForCreationDto> listOfFarmDssDto, HttpContext httpContext, string mediaType)
+        public async Task<GenericResponse<IEnumerable<FieldCropPestDssDto>>> AddListOfFarmDss(IEnumerable<FarmDssForCreationDto> listOfFarmDssDto, HttpContext httpContext, string mediaType)
         {
             try
             {
                 if (!MediaTypeHeaderValue.TryParse(mediaType,
                       out MediaTypeHeaderValue parsedMediaType))
-                    return GenericResponseBuilder.NoSuccess("Wrong media type.");
+                    return GenericResponseBuilder.NoSuccess<IEnumerable<FieldCropPestDssDto>>(null, "Wrong media type.");
 
-                if (listOfFarmDssDto.Count() == 0) return GenericResponseBuilder.NoSuccess("Data missing on payload");
+                if (listOfFarmDssDto.Count() == 0) return GenericResponseBuilder.NoSuccess<IEnumerable<FieldCropPestDssDto>>(null, "Data missing on payload");
 
                 var farm = httpContext.Items["farm"] as Farm;
                 var listOfNewFieldCropPestDss = new List<FieldCropPestDss>();
+                var listToReturn = new List<FieldCropPestDssDto>();
+
                 var dataAsCropGroup = listOfFarmDssDto.GroupBy(f => new { f.CropEppoCode, f.FieldId }).ToList();
                 foreach (var cropGroup in dataAsCropGroup)
                 {
@@ -51,11 +53,14 @@ namespace H2020.IPMDecisions.UPR.BLL
                             fieldCropPestExists,
                             cropPestDss,
                             farmForcreation.DssParameters);
-                        listOfNewFieldCropPestDss.Add(newFieldCropPestDss);
+                        if (newFieldCropPestDss != null)
+                            listOfNewFieldCropPestDss.Add(newFieldCropPestDss);
+                        // ToDo: add warning message about same Crop Pest Dss combination on payload 
                     }
                 }
 
                 await this.dataService.CompleteAsync();
+
                 foreach (var item in listOfNewFieldCropPestDss)
                 {
                     var fieldCropPestDssToReturn = this.mapper.Map<FieldCropPestDssDto>(item);
@@ -63,15 +68,16 @@ namespace H2020.IPMDecisions.UPR.BLL
                     {
                         var jobId = this.queueJobs.AddDssOnOnTheFlyQueue(item.Id);
                     }
+                    listToReturn.Add(fieldCropPestDssToReturn);
                 }
 
-                return GenericResponseBuilder.Success();
+                return GenericResponseBuilder.Success<IEnumerable<FieldCropPestDssDto>>(listToReturn);
             }
             catch (Exception ex)
             {
                 logger.LogError(string.Format("Error in BLL - AddListOfFarmDss. {0}", ex.Message), ex);
                 String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
-                return GenericResponseBuilder.NoSuccess<FieldCropPestDssDto>(null, $"{ex.Message} InnerException: {innerMessage}");
+                return GenericResponseBuilder.NoSuccess<IEnumerable<FieldCropPestDssDto>>(null, $"{ex.Message} InnerException: {innerMessage}");
             }
         }
 
