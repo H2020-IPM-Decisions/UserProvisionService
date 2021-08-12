@@ -87,14 +87,31 @@ namespace H2020.IPMDecisions.UPR.BLL
                 if (listOfDss != null && listOfDss.Count() != 0)
                 {
                     // ToDo check if DssVersion needed with Tor-Einar
-                    var selectedDss = listOfDss
+                    var dssOnListMatchDatabaseRecord = listOfDss
                         .Where(d => d.Id == dss.DssId)
-                        .FirstOrDefault()
-                        .DssModelInformation
-                        .Where(dm => dm.Id == dss.DssModelId && dm.Version == dss.DssModelVersion)
                         .FirstOrDefault();
 
-                    if (selectedDss != null) dss.DssDescription = selectedDss.Description;
+                    if (dssOnListMatchDatabaseRecord == null)
+                    {
+                        dss.DssDescription = string.Format("DSS with ID {0} do not exist on the DSS microservice.", dss.DssId);
+                    }
+                    else
+                    {
+                        var dssModelInformation = dssOnListMatchDatabaseRecord
+                                                .DssModelInformation
+                                                .Where(dm => dm.Id == dss.DssModelId && dm.Version == dss.DssModelVersion)
+                                                .FirstOrDefault();
+
+                        if (dssModelInformation == null)
+                        {
+                            dss.DssDescription = string.Format("The DSS with ID {0}, do not have any model with ID {1} and version {2} on the DSS microservice.",
+                                dss.DssId,
+                                dss.DssModelId,
+                                dss.DssModelVersion);
+                            continue;
+                        }
+                        dss.DssDescription = dssModelInformation.Description;
+                    }
                 }
 
                 var eppoCodeLanguages = EppoCodesHelper.GetCropPestEppoCodesNames(eppoCodesData, dss.CropEppoCode, dss.PestEppoCode);
