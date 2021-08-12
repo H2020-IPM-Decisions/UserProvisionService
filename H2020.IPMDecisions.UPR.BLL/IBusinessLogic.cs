@@ -43,7 +43,7 @@ namespace H2020.IPMDecisions.UPR.BLL
         #endregion
 
         #region FarmDss
-        Task<GenericResponse<IEnumerable<FieldCropPestDssDto>>> AddListOfFarmDss(IEnumerable<FarmDssForCreationDto> listOfFarmDssDto, HttpContext httpContext, string mediaType);
+        Task<GenericResponse<IDictionary<string, object>>> AddListOfFarmDss(IEnumerable<FarmDssForCreationDto> listOfFarmDssDto, HttpContext httpContext, string mediaType);
         #endregion
 
         #region Field

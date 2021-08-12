@@ -13,20 +13,20 @@ namespace H2020.IPMDecisions.UPR.BLL
 {
     public partial class BusinessLogic : IBusinessLogic
     {
-        public async Task<GenericResponse<IEnumerable<FieldCropPestDssDto>>> AddListOfFarmDss(IEnumerable<FarmDssForCreationDto> listOfFarmDssDto, HttpContext httpContext, string mediaType)
+        public async Task<GenericResponse<IDictionary<string, object>>> AddListOfFarmDss(IEnumerable<FarmDssForCreationDto> listOfFarmDssDto, HttpContext httpContext, string mediaType)
         {
             try
             {
                 if (!MediaTypeHeaderValue.TryParse(mediaType,
                       out MediaTypeHeaderValue parsedMediaType))
-                    return GenericResponseBuilder.NoSuccess<IEnumerable<FieldCropPestDssDto>>(null, "Wrong media type.");
+                    return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, "Wrong media type.");
 
-                if (listOfFarmDssDto.Count() == 0) return GenericResponseBuilder.NoSuccess<IEnumerable<FieldCropPestDssDto>>(null, "Data missing on payload");
+                if (listOfFarmDssDto.Count() == 0) return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, "Data missing on payload");
 
                 var farm = httpContext.Items["farm"] as Farm;
                 var listOfNewFieldCropPestDss = new List<FieldCropPestDss>();
                 var listToReturn = new List<FieldCropPestDssDto>();
-
+                var listOfErrorsToReturn = new List<string>();
                 var dataAsCropGroup = listOfFarmDssDto.GroupBy(f => new { f.CropEppoCode, f.FieldId }).ToList();
                 foreach (var cropGroup in dataAsCropGroup)
                 {
@@ -41,7 +41,14 @@ namespace H2020.IPMDecisions.UPR.BLL
                     }
                     else
                     {
-                        // ToDo
+                        if (fieldAsEntity.FieldCrop.CropEppoCode.ToUpper() != cropGroup.Key.CropEppoCode.ToUpper())
+                        {
+                            listOfErrorsToReturn.Add(string.Format("Field with ID {0} only accepts '{1}' crop EPPO code",
+                                                    fieldAsEntity.Id,
+                                                    fieldAsEntity.FieldCrop.CropEppoCode));
+                            continue;
+                        }
+                        fieldCrop = fieldAsEntity.FieldCrop;
                     }
                     var fieldCropPestExists = new FieldCropPest();
                     foreach (var farmForcreation in cropGroup)
@@ -55,7 +62,11 @@ namespace H2020.IPMDecisions.UPR.BLL
                             farmForcreation.DssParameters);
                         if (newFieldCropPestDss != null)
                             listOfNewFieldCropPestDss.Add(newFieldCropPestDss);
-                        // ToDo: add warning message about same Crop Pest Dss combination on payload 
+                        else
+                            listOfErrorsToReturn.Add(string.Format("Duplicated combination of Crop ({0}), Pest ({1}), DSS ({2}), Model ({3}) & DSS Model version ({4}) on a field. This records cannot be saved.",
+                                farmForcreation.CropEppoCode, farmForcreation.PestEppoCode,
+                                farmForcreation.DssId, farmForcreation.DssModelId,
+                                farmForcreation.DssModelVersion));
                     }
                 }
 
@@ -71,13 +82,17 @@ namespace H2020.IPMDecisions.UPR.BLL
                     listToReturn.Add(fieldCropPestDssToReturn);
                 }
 
-                return GenericResponseBuilder.Success<IEnumerable<FieldCropPestDssDto>>(listToReturn);
+                var dataToReturn = new Dictionary<string, object>();
+                dataToReturn.Add("value", listToReturn);
+                dataToReturn.Add("warnings", listOfErrorsToReturn);
+
+                return GenericResponseBuilder.Success<IDictionary<string, object>>(dataToReturn);
             }
             catch (Exception ex)
             {
                 logger.LogError(string.Format("Error in BLL - AddListOfFarmDss. {0}", ex.Message), ex);
                 String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
-                return GenericResponseBuilder.NoSuccess<IEnumerable<FieldCropPestDssDto>>(null, $"{ex.Message} InnerException: {innerMessage}");
+                return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, $"{ex.Message} InnerException: {innerMessage}");
             }
         }
 
