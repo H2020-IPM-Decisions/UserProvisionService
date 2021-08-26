@@ -47,9 +47,9 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status409Conflict)]
         [Produces(MediaTypeNames.Application.Json)]
-        [HttpPost("", Name = "api.farmdss.post.singledss")]
+        [HttpPost("", Name = "api.farmdss.post.dss")]
         // POST: api/farms/1/dss
-        public async Task<IActionResult> PostSingleRecord(
+        public async Task<IActionResult> Post(
             [FromRoute] Guid farmId,
             [FromBody] IEnumerable<FarmDssForCreationDto> farmDssDto,
             [FromHeader(Name = "Accept")] string mediaType)
