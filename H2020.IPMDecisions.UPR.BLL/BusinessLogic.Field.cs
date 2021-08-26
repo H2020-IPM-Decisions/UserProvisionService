@@ -375,10 +375,7 @@ namespace H2020.IPMDecisions.UPR.BLL
         {
             if (fieldCrop is null) return null;
 
-            var cropPestAsEntity = await this.dataService.CropPests
-                .FindByConditionAsync
-                (c => c.CropEppoCode.ToUpper().Equals(fieldCrop.CropEppoCode.ToUpper())
-                 && c.PestEppoCode.ToUpper().Equals(pestEppoCode.ToUpper()));
+            var cropPestAsEntity = await GetCropPest(fieldCrop, pestEppoCode);
 
             if (cropPestAsEntity == null)
             {
@@ -396,7 +393,11 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
             else
             {
-                var existingFieldCropPest = fieldCrop.FieldCropPests.Where(f => f.CropPestId == cropPestAsEntity.Id).FirstOrDefault();
+                var existingFieldCropPest = fieldCrop
+                    .FieldCropPests
+                    .Where(f => f.CropPestId == cropPestAsEntity.Id)
+                    .FirstOrDefault();
+
                 if (existingFieldCropPest != null) return existingFieldCropPest;
             }
 
@@ -409,6 +410,28 @@ namespace H2020.IPMDecisions.UPR.BLL
 
             fieldCrop.FieldCropPests.Add(newFieldCropPest);
             return newFieldCropPest;
+        }
+
+        private async Task<CropPest> GetCropPest(FieldCrop fieldCrop, string pestEppoCode)
+        {
+            // Check first on Database
+            var cropPestAsEntity = await this.dataService.CropPests
+                .FindByConditionAsync
+                (c => c.CropEppoCode.ToUpper().Equals(fieldCrop.CropEppoCode.ToUpper())
+                 && c.PestEppoCode.ToUpper().Equals(pestEppoCode.ToUpper()));
+            
+            if (cropPestAsEntity != null) return cropPestAsEntity;
+            // New on Db. Check if sent on same Payload
+            if (fieldCrop.FieldCropPests != null)
+            {
+                return fieldCrop
+                    .FieldCropPests
+                    .Where(f =>
+                        f.CropPest.CropEppoCode.ToUpper() == fieldCrop.CropEppoCode.ToUpper() &
+                        f.CropPest.PestEppoCode.ToUpper() == pestEppoCode.ToUpper())
+                        .FirstOrDefault().CropPest;
+            }
+            return null;
         }
 
         private async Task AddCropPestToField(CropPestForCreationDto cropPestRequest, Field field)
