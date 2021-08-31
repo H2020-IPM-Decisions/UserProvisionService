@@ -148,25 +148,30 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 }
                 if (dssInformation.Execution.Type.ToLower() != "onthefly") return null;
 
-                var inputSchemaAsJson = JsonSchemaToJson.ToJsonObject(dssInformation.Execution.InputSchema);
-                // ToDo All metadata should have default values... use defaults
-                if (string.IsNullOrEmpty(dss.DssParameters))
+                var inputSchemaAsJson = JsonSchemaToJson.ToJsonObject(dssInformation.Execution.InputSchema, logger);
+
+                // Add user parameters
+                if (!string.IsNullOrEmpty(dss.DssParameters))
                 {
-                    dssResult.ResultMessageType = (int)DssOutputMessageTypeEnum.Error;
-                    dssResult.ResultMessage = "Missing user DSS parameters input.";
-                    dssResult.DssFullResult = JObject.Parse("{\"message\": \"Missing user DSS parameters input.\"}").ToString();
-                    return dssResult;
+                    AddUserParametersToDss(dss.DssParameters, inputSchemaAsJson);
                 }
-                JObject userInputJsonObject = JObject.Parse(dss.DssParameters.ToString());
-                foreach (var property in userInputJsonObject.Properties())
+
+                // Check defaults
+                foreach (var property in inputSchemaAsJson.Properties())
                 {
-                    var token = inputSchemaAsJson.SelectToken(property.Name);
-                    if (token != null)
+                    if (property.Name.ToLower() == "weatherdata")
                     {
-                        token.Replace(userInputJsonObject.SelectToken(property.Name));
                         continue;
                     }
-                    inputSchemaAsJson.Add(property.Name, userInputJsonObject.SelectToken(property.Name));
+
+                    var missingValueProperty = ProcessChildProperties(property);
+                    if (!string.IsNullOrEmpty(missingValueProperty))
+                    {
+                        dssResult.ResultMessageType = (int)DssOutputMessageTypeEnum.Error;
+                        dssResult.ResultMessage = string.Format("Property {0} do not have a value.", missingValueProperty);
+                        dssResult.DssFullResult = JObject.Parse("{\"message\": \"Missing user DSS parameters input.\"}").ToString();
+                        return dssResult;
+                    }
                 }
 
                 if (dssInformation.Input.WeatherParameters != null)
@@ -198,6 +203,61 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 dssResult.ResultMessage = ex.Message.ToString();
                 dssResult.DssFullResult = JObject.Parse("{\"message\": \"Error running the DSS - " + ex.Message.ToString() + " \"}").ToString();
                 return dssResult;
+            }
+        }
+
+        private string ProcessChildProperties(JProperty property)
+        {
+            foreach (var childrenProperty in property.Children())
+            {
+                var hasMissingValue = "";
+                if (childrenProperty.Type.ToString().ToLower() == "object")
+                {
+                    hasMissingValue = ProcessObjectChildProperty(childrenProperty);
+                }
+                else
+                {
+                    hasMissingValue = ProcessOtherTypeChildProperty(childrenProperty);
+                }
+                if (!string.IsNullOrEmpty(hasMissingValue))
+                    return hasMissingValue;
+            }
+            return "";
+        }
+
+        private string ProcessOtherTypeChildProperty(JToken childrenProperty)
+        {
+            var value = ((JValue)childrenProperty).Value.ToString();
+            if (string.IsNullOrEmpty(value))
+                return childrenProperty.Path;
+            return "";
+        }
+
+        private static string ProcessObjectChildProperty(JToken childrenProperty)
+        {
+            foreach (var property in childrenProperty.Children())
+            {
+                var y = ((JProperty)property);
+
+                var value = ((JProperty)property).Value.ToString();
+                if (string.IsNullOrEmpty(value))
+                    return property.Path;
+            }
+            return "";
+        }
+
+        private static void AddUserParametersToDss(string userDssParameters, JObject inputSchemaAsJson)
+        {
+            JObject userInputJsonObject = JObject.Parse(userDssParameters.ToString());
+            foreach (var property in userInputJsonObject.Properties())
+            {
+                var token = inputSchemaAsJson.SelectToken(property.Name);
+                if (token != null)
+                {
+                    token.Replace(userInputJsonObject.SelectToken(property.Name));
+                    continue;
+                }
+                inputSchemaAsJson.Add(property.Name, userInputJsonObject.SelectToken(property.Name));
             }
         }
 
