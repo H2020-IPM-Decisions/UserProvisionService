@@ -19,10 +19,8 @@ namespace H2020.IPMDecisions.UPR.BLL
             {
                 var weatherInformation = await this.internalCommunicationProvider
                     .GetWeatherProviderInformationFromWeatherMicroservice(weatherForecastId);
-                if (weatherInformation == null)
-                {
-                    throw new NullReferenceException(string.Format("Weather service with ID '{0}' do not exist on weather microservice.", weatherForecastId));
-                }
+                if (weatherInformation == null) throw new NullReferenceException(string.Format("Weather service with ID '{0}' do not exist on weather microservice.", weatherForecastId));
+
                 weatherStationAsEntity = this.mapper.Map<WeatherForecast>(weatherInformation);
                 this.dataService.WeatherForecasts.Create(weatherStationAsEntity);
             }
@@ -40,10 +38,8 @@ namespace H2020.IPMDecisions.UPR.BLL
             {
                 var weatherInformation = await this.internalCommunicationProvider
                    .GetWeatherProviderInformationFromWeatherMicroservice(weatherHistoricalId);
-                if (weatherInformation == null)
-                {
-                    throw new NullReferenceException(string.Format("Weather service with ID '{0}' do not exist on weather microservice.", weatherForecastId));
-                }
+                if (weatherInformation == null) throw new NullReferenceException(string.Format("Weather service with ID '{0}' do not exist on weather microservice.", weatherHistoricalId));
+                
                 weatherStationAsEntity = this.mapper.Map<WeatherHistorical>(weatherInformation);
                 this.dataService.WeatherHistoricals.Create(weatherStationAsEntity);
             }
