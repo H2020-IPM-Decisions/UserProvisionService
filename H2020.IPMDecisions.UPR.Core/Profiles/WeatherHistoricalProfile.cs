@@ -11,6 +11,12 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
             CreateMap<WeatherHistorical, WeatherHistorical>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore());
 
+            // Models to Entities
+            CreateMap<WeatherDataSchema, WeatherHistorical>()
+                .ForMember(dest => dest.Id, opt => opt.Ignore())
+                .ForMember(dest => dest.WeatherId, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.EndPoint));
+
             // Entities to Dtos
             CreateMap<WeatherHistorical, WeatherHistoricalDto>();
             CreateMap<WeatherHistorical, WeatherHistoricalForCreationDto>();
