@@ -182,5 +182,26 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
                 return null;
             }
         }
+
+        public async Task<WeatherDataSchema> GetWeatherProviderInformationFromWeatherMicroservice(string weatherId)
+        {
+            try
+            {
+                var wxEndPoint = config["MicroserviceInternalCommunication:WeatherMicroservice"];
+                var response = await httpClient.GetAsync(string.Format("{0}rest/weatherdatasource/{1}", wxEndPoint, weatherId));
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var responseAsText = await response.Content.ReadAsStringAsync();
+                    return JsonConvert.DeserializeObject<WeatherDataSchema>(responseAsText);
+                }
+                return null;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(string.Format("Error in Internal Communication - GetWeatherProviderInformationFromWeatherMicroservice. {0}", ex.Message));
+                return null;
+            }
+        }
     }
 }
