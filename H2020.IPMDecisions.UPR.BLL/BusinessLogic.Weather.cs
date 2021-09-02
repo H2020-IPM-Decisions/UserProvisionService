@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using H2020.IPMDecisions.UPR.Core.Dtos;
 using H2020.IPMDecisions.UPR.Core.Entities;
@@ -16,15 +17,13 @@ namespace H2020.IPMDecisions.UPR.BLL
 
             if (weatherStationAsEntity == null)
             {
-                // ToDo
-                // call weather service with ID and create weather object - Waiting for Service on WX API
-                var weatherForecastDefault = new WeatherForecastForCreationDto()
+                var weatherInformation = await this.internalCommunicationProvider
+                    .GetWeatherProviderInformationFromWeatherMicroservice(weatherForecastId);
+                if (weatherInformation == null)
                 {
-                    WeatherId = "FMI weather forecasts",
-                    Name = "FMI weather forecasts",
-                    Url = "https://ipmdecisions.nibio.no/api/wx/rest/weatheradapter/fmi/forecasts"
-                };
-                weatherStationAsEntity = this.mapper.Map<WeatherForecast>(weatherForecastDefault);
+                    throw new NullReferenceException(string.Format("Weather service with ID '{0}' do not exist on weather microservice.", weatherForecastId));
+                }
+                weatherStationAsEntity = this.mapper.Map<WeatherForecast>(weatherInformation);
                 this.dataService.WeatherForecasts.Create(weatherStationAsEntity);
             }
             return weatherStationAsEntity;
@@ -39,15 +38,13 @@ namespace H2020.IPMDecisions.UPR.BLL
 
             if (weatherStationAsEntity == null)
             {
-                //ToDo
-                // call weather service with ID and create weather object - Waiting for Service on WX API
-                var weatherHistoricalDefault = new WeatherHistoricalForCreationDto()
+                var weatherInformation = await this.internalCommunicationProvider
+                   .GetWeatherProviderInformationFromWeatherMicroservice(weatherHistoricalId);
+                if (weatherInformation == null)
                 {
-                    WeatherId = "Finnish Meteorological Institute measured data",
-                    Name = "Finnish Meteorological Institute measured data",
-                    Url = "https://ipmdecisions.nibio.no/api/wx/rest/weatheradapter/fmi/"
-                };
-                weatherStationAsEntity = this.mapper.Map<WeatherHistorical>(weatherHistoricalDefault);
+                    throw new NullReferenceException(string.Format("Weather service with ID '{0}' do not exist on weather microservice.", weatherForecastId));
+                }
+                weatherStationAsEntity = this.mapper.Map<WeatherHistorical>(weatherInformation);
                 this.dataService.WeatherHistoricals.Create(weatherStationAsEntity);
             }
             return weatherStationAsEntity;

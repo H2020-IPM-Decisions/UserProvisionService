@@ -56,15 +56,13 @@ namespace H2020.IPMDecisions.UPR.BLL
 
                 var defaultIdWeatherForecast = AdminValuesEnum.WeatherForecastService;
                 var weatherForecastDefaultValue = await this.dataService.AdminVariables.FindByIdAsync(defaultIdWeatherForecast);
-                // ToDo: Wait until WX API ID value works.
-                weatherForecastDefaultValue.Value = "FMI weather forecasts";
+                if (weatherForecastDefaultValue == null) throw new ApplicationException("Database do not contain default weather forecast value.");
                 var weatherForecast = await EnsureWeatherForecastExists(weatherForecastDefaultValue.Value);
                 farmAsEntity.WeatherForecast = weatherForecast;
 
-                var defaultIdWeatherhistorical = AdminValuesEnum.WeatherForecastService;
+                var defaultIdWeatherhistorical = AdminValuesEnum.WeatherHistoricalService;
                 var weatherHistoricalDefaultValue = await this.dataService.AdminVariables.FindByIdAsync(defaultIdWeatherhistorical);
-                // ToDo: Wait until WX API ID value works.
-                weatherHistoricalDefaultValue.Value = "Finnish Meteorological Institute measured data";
+                if (weatherHistoricalDefaultValue == null) throw new ApplicationException("Database do not contain default weather historical value.");
                 var weatherHistorical = await EncodeWeatherHistoricalExists(weatherHistoricalDefaultValue.Value);
                 farmAsEntity.WeatherHistorical = weatherHistorical;
 
