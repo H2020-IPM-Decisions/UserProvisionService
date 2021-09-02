@@ -154,22 +154,11 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         [SwaggerRequestExample(typeof(Operation[]), typeof(JsonPatchFarmRequestExample))]
         [Obsolete("Deprecated. Please use PUT method.")]
         //PATCH: api/farms/1
-        public async Task<IActionResult> PartialUpdate(
+        public IActionResult PartialUpdate(
             [FromRoute] Guid farmId,
             JsonPatchDocument<FarmForUpdateDto> patchDocument)
         {
-            var farm = HttpContext.Items["farm"] as Farm;
-            FarmForUpdateDto farmToPatch =
-                this.businessLogic.MapToFarmForUpdateDto(farm);
-            patchDocument.ApplyTo(farmToPatch, ModelState);
-            if (!TryValidateModel(farmToPatch))
-                return ValidationProblem(ModelState);
-
-            var response = await this.businessLogic.UpdateFarm(farm, farmToPatch, patchDocument);
-            if (!response.IsSuccessful)
-                return BadRequest(new { message = response.ErrorMessage });
-
-            return NoContent();
+            return BadRequest("Method obsoleted, please use method PUT for updating a farm.");
         }
 
         /// <summary>Use this endpoint to make a full update of a farm.</summary>
