@@ -63,7 +63,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                 var defaultIdWeatherhistorical = AdminValuesEnum.WeatherHistoricalService;
                 var weatherHistoricalDefaultValue = await this.dataService.AdminVariables.FindByIdAsync(defaultIdWeatherhistorical);
                 if (weatherHistoricalDefaultValue == null) throw new ApplicationException("Database do not contain default weather historical value.");
-                var weatherHistorical = await EncodeWeatherHistoricalExists(weatherHistoricalDefaultValue.Value);
+                var weatherHistorical = await EnsureWeatherHistoricalExists(weatherHistoricalDefaultValue.Value);
                 farmAsEntity.WeatherHistorical = weatherHistorical;
 
                 await this.dataService.UserProfiles.AddFarm(userProfile.Result, farmAsEntity, UserFarmTypeEnum.Owner, false);
@@ -267,51 +267,12 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
         }
 
-        public async Task<GenericResponse> UpdateFarm(Farm farm, FarmForUpdateDto farmToPatch, JsonPatchDocument<FarmForUpdateDto> patchDocument)
-        {
-            try
-            {
-                if (farm.WeatherForecast != null)
-                {
-                    if (patchDocument.Operations.Any(o => o.path.ToLower().Contains("weatherforecastdto/")))
-                    {
-                        var weatherForecastAsCreation = this.mapper.Map<WeatherForecastForCreationDto>(farmToPatch.WeatherForecastDto);
-                        farm.WeatherForecast = await EnsureWeatherForecastExists(weatherForecastAsCreation);
-                    }
-                }
-
-                if (farm.WeatherHistorical != null)
-                {
-                    if (patchDocument.Operations.Any(o => o.path.ToLower().Contains("weatherhistoricaldto/")))
-                    {
-                        var weatherHistoricalAsCreation = this.mapper.Map<WeatherHistoricalForCreationDto>(farmToPatch.WeatherHistoricalDto);
-                        farm.WeatherHistorical = await EncodeWeatherHistoricalExists(weatherHistoricalAsCreation);
-                    }
-                }
-
-                this.mapper.Map(farmToPatch, farm);
-                this.dataService.Farms.Update(farm);
-                await this.dataService.CompleteAsync();
-
-                return GenericResponseBuilder.Success();
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(string.Format("Error in BLL - UpdateFarm. {0}", ex.Message), ex);
-                String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
-                return GenericResponseBuilder.NoSuccess($"{ex.Message} InnerException: {innerMessage}");
-            }
-        }
-
         public async Task<GenericResponse> FullUpdateFarm(Farm farm, FarmForFullUpdateDto farmForFullUpdate)
         {
             try
             {
-                var weatherForecastAsCreation = this.mapper.Map<WeatherForecastForCreationDto>(farmForFullUpdate.WeatherForecastDto);
-                farm.WeatherForecast = await EnsureWeatherForecastExists(weatherForecastAsCreation);
-
-                var weatherHistoricalAsCreation = this.mapper.Map<WeatherHistoricalForCreationDto>(farmForFullUpdate.WeatherHistoricalDto);
-                farm.WeatherHistorical = await EncodeWeatherHistoricalExists(weatherHistoricalAsCreation);
+                farm.WeatherForecast = await EnsureWeatherForecastExists(farmForFullUpdate.WeatherForecastDto.WeatherId);
+                farm.WeatherHistorical = await EnsureWeatherHistoricalExists(farmForFullUpdate.WeatherHistoricalDto.WeatherId);
 
                 this.mapper.Map(farmForFullUpdate, farm);
                 this.dataService.Farms.Update(farm);

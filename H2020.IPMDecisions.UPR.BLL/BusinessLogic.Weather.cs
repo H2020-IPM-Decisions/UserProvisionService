@@ -27,7 +27,7 @@ namespace H2020.IPMDecisions.UPR.BLL
             return weatherStationAsEntity;
         }
 
-        private async Task<WeatherHistorical> EncodeWeatherHistoricalExists(string weatherHistoricalId)
+        private async Task<WeatherHistorical> EnsureWeatherHistoricalExists(string weatherHistoricalId)
         {
             var weatherStationAsEntity = await this
                                 .dataService
@@ -39,37 +39,8 @@ namespace H2020.IPMDecisions.UPR.BLL
                 var weatherInformation = await this.internalCommunicationProvider
                    .GetWeatherProviderInformationFromWeatherMicroservice(weatherHistoricalId);
                 if (weatherInformation == null) throw new NullReferenceException(string.Format("Weather service with ID '{0}' do not exist on weather microservice.", weatherHistoricalId));
-                
+
                 weatherStationAsEntity = this.mapper.Map<WeatherHistorical>(weatherInformation);
-                this.dataService.WeatherHistoricals.Create(weatherStationAsEntity);
-            }
-            return weatherStationAsEntity;
-        }
-        private async Task<WeatherForecast> EnsureWeatherForecastExists(WeatherForecastForCreationDto weatherForecast)
-        {
-            var weatherStationAsEntity = await this
-                                .dataService
-                                .WeatherForecasts
-                                .FindByWeatherIdAsync(weatherForecast.WeatherId);
-
-            if (weatherStationAsEntity == null)
-            {
-                weatherStationAsEntity = this.mapper.Map<WeatherForecast>(weatherForecast);
-                this.dataService.WeatherForecasts.Create(weatherStationAsEntity);
-            }
-            return weatherStationAsEntity;
-        }
-
-        private async Task<WeatherHistorical> EncodeWeatherHistoricalExists(WeatherHistoricalForCreationDto weatherHistoricalDto)
-        {
-            var weatherStationAsEntity = await this
-                                .dataService
-                                .WeatherHistoricals
-                                .FindByWeatherIdAsync(weatherHistoricalDto.WeatherId);
-
-            if (weatherStationAsEntity == null)
-            {
-                weatherStationAsEntity = this.mapper.Map<WeatherHistorical>(weatherHistoricalDto);
                 this.dataService.WeatherHistoricals.Create(weatherStationAsEntity);
             }
             return weatherStationAsEntity;

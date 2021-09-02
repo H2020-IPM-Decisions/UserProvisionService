@@ -19,14 +19,11 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
 
             // Entities to Dtos
             CreateMap<WeatherHistorical, WeatherHistoricalDto>();
-            CreateMap<WeatherHistorical, WeatherHistoricalForCreationDto>();
-            CreateMap<WeatherHistorical, WeatherHistoricalForUpdateDto>();
+            CreateMap<WeatherHistorical, WeatherServiceForCreationDto>();
+            CreateMap<WeatherHistorical, WeatherServiceForUpdateDto>();
 
             // Dtos to entities
             CreateMap<WeatherHistoricalDto, WeatherHistorical>();
-            CreateMap<WeatherHistoricalForCreationDto, WeatherHistorical>();
-            CreateMap<WeatherHistoricalForUpdateDto, WeatherHistoricalForCreationDto>()
-                .ReverseMap();
 
             // Internal
             CreateMap<WeatherHistorical, WeatherSchemaForHttp>()

@@ -20,13 +20,13 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
             // Entities to Dtos
             CreateMap<WeatherForecast, WeatherForecastDto>()
                 .ReverseMap();
-            CreateMap<WeatherForecast, WeatherForecastForUpdateDto>()
+            CreateMap<WeatherForecast, WeatherServiceForUpdateDto>()
                 .ReverseMap();
 
             // Dtos to entities
-            CreateMap<WeatherForecastForCreationDto, WeatherForecast>();
-            CreateMap<WeatherForecastForUpdateDto, WeatherForecast>();
-            CreateMap<WeatherForecastForUpdateDto, WeatherForecastForCreationDto>()
+            CreateMap<WeatherServiceForCreationDto, WeatherForecast>();
+            CreateMap<WeatherServiceForUpdateDto, WeatherForecast>();
+            CreateMap<WeatherServiceForUpdateDto, WeatherServiceForCreationDto>()
                 .ReverseMap();
 
             // Internal

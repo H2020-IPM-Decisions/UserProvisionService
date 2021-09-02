@@ -12,9 +12,9 @@ namespace H2020.IPMDecisions.UPR.Core.Dtos
         public override CustomPointLocation Location { get; set; }
 
         [Required(ErrorMessage = "Weather Historical Data Source is required")]
-        public WeatherHistoricalForUpdateDto WeatherHistoricalDto { get; set; }
+        public WeatherServiceForUpdateDto WeatherHistoricalDto { get; set; }
 
         [Required(ErrorMessage = "Weather Forecast Data Source is required")]
-        public WeatherForecastForUpdateDto WeatherForecastDto { get; set; }
+        public WeatherServiceForUpdateDto WeatherForecastDto { get; set; }
     }
 }
