@@ -190,6 +190,23 @@ namespace H2020.IPMDecisions.UPR.BLL
                 }
                 dataToReturn.ResultParameters.Add(resultParameter);
             }
+            foreach (var group in dssInformation.Output.ChartGroups)
+            {
+                var chartGroupWithDataParameters = this.mapper.Map<ChartGroup>(group);
+
+                chartGroupWithDataParameters
+                    .ResultParameterIds
+                    .ForEach(id =>
+                    {
+                        var resultParameterOnChartGroup = dataToReturn
+                            .ResultParameters
+                            .Where(rp => rp.Code == id)
+                            .FirstOrDefault();
+                        if (resultParameterOnChartGroup != null)
+                            chartGroupWithDataParameters.ResultParameters.Add(resultParameterOnChartGroup);
+                    });
+                dataToReturn.ChartGroups.Add(chartGroupWithDataParameters);
+            }
             return dataToReturn;
         }
 

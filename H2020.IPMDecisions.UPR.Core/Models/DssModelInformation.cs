@@ -16,6 +16,10 @@ namespace H2020.IPMDecisions.UPR.Core.Models
         public string DescriptionUrl { get; set; }
         public string Description { get; set; }
         public string Version { get; set; }
+        // public string Citation { get; set; }
+        public string Keywords { get; set; }
+        public IEnumerable<string> Pests { get; set; }
+        public IEnumerable<string> Crops { get; set; }
         public DssModelSchemaExecution Execution { get; set; }
         public DssModelSchemaInput Input { get; set; }
         public DssModelSchemaOutput Output { get; set; }
@@ -42,12 +46,22 @@ namespace H2020.IPMDecisions.UPR.Core.Models
         [JsonProperty("warning_status_interpretation")]
         public string WarningStatusInterpretation { get; set; }
         [JsonProperty("result_parameters")]
-        public List<OutputResultParameters> ResultParameters { get; set; }
+        public IEnumerable<OutputResultParameter> ResultParameters { get; set; }
         [JsonProperty("chart_heading")]
         public string ChartHeading { get; set; }
+        [JsonProperty("chart_groups")]
+        public IEnumerable<OutputChartGroup> ChartGroups { get; set; }
     }
 
-    public class OutputResultParameters
+    public class OutputChartGroup
+    {
+        public string Id { get; set; }
+        public string Title { get; set; }
+        [JsonProperty("result_parameter_ids")]
+        public IEnumerable<string> ResultParameterIds { get; set; }
+    }
+
+    public class OutputResultParameter
     {
         public string Id { get; set; }
         public string Title { get; set; }
