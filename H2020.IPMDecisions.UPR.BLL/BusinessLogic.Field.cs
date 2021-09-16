@@ -419,17 +419,18 @@ namespace H2020.IPMDecisions.UPR.BLL
                 .FindByConditionAsync
                 (c => c.CropEppoCode.ToUpper().Equals(fieldCrop.CropEppoCode.ToUpper())
                  && c.PestEppoCode.ToUpper().Equals(pestEppoCode.ToUpper()));
-            
+
             if (cropPestAsEntity != null) return cropPestAsEntity;
             // New on Db. Check if sent on same Payload
             if (fieldCrop.FieldCropPests != null)
             {
-                return fieldCrop
+                var onPayload = fieldCrop
                     .FieldCropPests
                     .Where(f =>
                         f.CropPest.CropEppoCode.ToUpper() == fieldCrop.CropEppoCode.ToUpper() &
                         f.CropPest.PestEppoCode.ToUpper() == pestEppoCode.ToUpper())
-                        .FirstOrDefault().CropPest;
+                        .FirstOrDefault();
+                if (onPayload != null) return onPayload.CropPest;
             }
             return null;
         }
