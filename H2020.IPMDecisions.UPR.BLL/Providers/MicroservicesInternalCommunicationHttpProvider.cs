@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Net.Mime;
@@ -34,7 +35,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
             httpClient?.Dispose();
         }
 
-        public async Task<DssInformation> GetDssInformationFromDssMicroservice(string dssId, string modelId)
+        public async Task<DssModelInformation> GetDssModelInformationFromDssMicroservice(string dssId, string modelId)
         {
             try
             {
@@ -44,7 +45,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
                 if (response.IsSuccessStatusCode)
                 {
                     var responseAsText = await response.Content.ReadAsStringAsync();
-                    return JsonConvert.DeserializeObject<DssInformation>(responseAsText);
+                    return JsonConvert.DeserializeObject<DssModelInformation>(responseAsText);
                 }
                 return null;
             }
@@ -158,6 +159,48 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
             {
                 logger.LogError(string.Format("Error in Internal Communication - GetWeatherUsingAmalgamationService. {0}", ex.Message));
                 return new HttpResponseMessage(HttpStatusCode.BadRequest);
+            }
+        }
+
+        public async Task<IEnumerable<DssInformation>> GetAllListOfDssFromDssMicroservice()
+        {
+            try
+            {
+                var dssEndPoint = config["MicroserviceInternalCommunication:DssMicroservice"];
+                var response = await httpClient.GetAsync(string.Format("{0}rest/dss", dssEndPoint));
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var responseAsText = await response.Content.ReadAsStringAsync();
+                    return JsonConvert.DeserializeObject<IEnumerable<DssInformation>>(responseAsText);
+                }
+                return null;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(string.Format("Error in Internal Communication - GetAllListOfDssFromDssMicroservice. {0}", ex.Message));
+                return null;
+            }
+        }
+
+        public async Task<WeatherDataSchema> GetWeatherProviderInformationFromWeatherMicroservice(string weatherId)
+        {
+            try
+            {
+                var wxEndPoint = config["MicroserviceInternalCommunication:WeatherMicroservice"];
+                var response = await httpClient.GetAsync(string.Format("{0}rest/weatherdatasource/{1}", wxEndPoint, weatherId));
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var responseAsText = await response.Content.ReadAsStringAsync();
+                    return JsonConvert.DeserializeObject<WeatherDataSchema>(responseAsText);
+                }
+                return null;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(string.Format("Error in Internal Communication - GetWeatherProviderInformationFromWeatherMicroservice. {0}", ex.Message));
+                return null;
             }
         }
     }

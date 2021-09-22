@@ -6,10 +6,12 @@ namespace H2020.IPMDecisions.UPR.Core.Dtos
     public class FieldDssResultDetailedDto : FieldDssResultBaseDto
     {
         private List<ResultParameters> resultParameters = new List<ResultParameters>();
+        private List<ChartGroup> chartGroups = new List<ChartGroup>();
 
         public FieldDssResultDetailedDto()
         {
             ResultParameters = resultParameters;
+            ChartGroups = chartGroups;
         }
 
         public List<ResultParameters> ResultParameters { get; set; }
@@ -17,12 +19,25 @@ namespace H2020.IPMDecisions.UPR.Core.Dtos
         public string OutputTimeEnd { get; set; }
         public List<int> WarningStatusPerDay { get; set; }
         public string Interval { get; set; }
-        public string DssDescription { get; set; }
         public string DssTypeOfOutput { get; set; }
         public string DssTypeOfDecision { get; set; }
         public string DssDescriptionUrl { get; set; }
         public int ResultParametersLength { get; set; }
         public int ResultParametersWidth { get; set; }
+        public List<ChartGroup> ChartGroups { get; set; }
+    }
+
+    public class ChartGroup
+    {
+        private List<ResultParameters> resultParameters = new List<ResultParameters>();
+        public ChartGroup()
+        {
+            ResultParameters = resultParameters;
+        }
+        public string Id { get; set; }
+        public string Title { get; set; }
+        public List<string> ResultParameterIds { get; set; }
+        public List<ResultParameters> ResultParameters { get; set; }
     }
 
     public class ResultParameters

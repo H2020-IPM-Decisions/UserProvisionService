@@ -7,7 +7,6 @@ namespace H2020.IPMDecisions.UPR.Core.Dtos
     {
         [Required(ErrorMessage = "Name is required")]
         public override string Name { get => base.Name; set => base.Name = value; }
-
         public IEnumerable<FieldCropPestForUpdateDto> FieldCropPestDto { get; set; }
     }
 }

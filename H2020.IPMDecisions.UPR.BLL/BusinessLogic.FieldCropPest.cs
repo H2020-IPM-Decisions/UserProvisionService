@@ -61,8 +61,19 @@ namespace H2020.IPMDecisions.UPR.BLL
                 };
                 this.dataService.FieldCropPests.Create(newFieldCropPest);
                 await this.dataService.CompleteAsync();
-                var cropPestToReturn = this.mapper
-                    .Map<FieldCropWithChildrenDto>(fieldCrop)
+                var cropPestAsDto = this.mapper
+                    .Map<FieldCropWithChildrenDto>(fieldCrop);
+
+                var eppoCodesData = await this.dataService.EppoCodes.GetEppoCodesAsync();
+                var cropLanguages = EppoCodesHelper.GetNameFromEppoCodeData(eppoCodesData, "crop", cropPestForCreationDto.CropEppoCode);
+                cropPestAsDto.CropLanguages = cropLanguages;
+                foreach (var fieldCropPest in cropPestAsDto.FieldCropPestDto)
+                {
+                    fieldCropPest.PestLanguages = EppoCodesHelper.GetNameFromEppoCodeData(eppoCodesData, "pest", fieldCropPest.PestEppoCode);
+                    fieldCropPest.CropPestDto.PestLanguages = fieldCropPest.PestLanguages;
+                    fieldCropPest.CropPestDto.CropLanguages = cropLanguages;
+                }
+                var cropPestToReturn = cropPestAsDto
                     .ShapeData() as IDictionary<string, object>;
 
                 return GenericResponseBuilder.Success<IDictionary<string, object>>(cropPestToReturn);
@@ -129,9 +140,17 @@ namespace H2020.IPMDecisions.UPR.BLL
 
                 if (fieldCropPestExist == null) return GenericResponseBuilder.NotFound<IDictionary<string, object>>();
 
-                var cropPestToReturn = this.mapper
-                    .Map<FieldCropPestDto>(fieldCropPestExist)
-                    .ShapeData() as IDictionary<string, object>;
+                var cropPestAsDto = this.mapper
+                    .Map<FieldCropPestDto>(fieldCropPestExist);
+
+                var eppoCodesData = await this.dataService.EppoCodes.GetEppoCodesAsync();
+                var eppoCodeLanguages = EppoCodesHelper.GetCropPestEppoCodesNames(eppoCodesData, cropPestAsDto.CropPestDto.CropEppoCode, cropPestAsDto.CropPestDto.PestEppoCode);
+                cropPestAsDto.CropPestDto.CropLanguages = eppoCodeLanguages.CropLanguages;
+                cropPestAsDto.CropPestDto.PestLanguages = eppoCodeLanguages.PestLanguages;
+                cropPestAsDto.PestLanguages = eppoCodeLanguages.PestLanguages;
+
+                var cropPestToReturn = cropPestAsDto
+                   .ShapeData() as IDictionary<string, object>;
 
                 return GenericResponseBuilder.Success<IDictionary<string, object>>(cropPestToReturn);
 
@@ -168,8 +187,19 @@ namespace H2020.IPMDecisions.UPR.BLL
                     fieldCropPestAsEntities.HasNext,
                     fieldCropPestAsEntities.HasPrevious);
 
-                var shapedFieldCropPestToReturn = this.mapper
-                    .Map<IEnumerable<FieldCropPestWithChildrenDto>>(fieldCropPestAsEntities)
+                var fieldCropPestsAsDto = this.mapper
+                    .Map<IEnumerable<FieldCropPestWithChildrenDto>>(fieldCropPestAsEntities);
+
+                var eppoCodesData = await this.dataService.EppoCodes.GetEppoCodesAsync();
+
+                foreach (var fieldCropPest in fieldCropPestsAsDto)
+                {
+                    var eppoCodeLanguages = EppoCodesHelper.GetCropPestEppoCodesNames(eppoCodesData, fieldCropPest.CropPestDto.CropEppoCode, fieldCropPest.CropPestDto.PestEppoCode);
+                    fieldCropPest.CropPestDto.PestLanguages = eppoCodeLanguages.PestLanguages;
+                    fieldCropPest.PestLanguages = eppoCodeLanguages.PestLanguages;
+                    fieldCropPest.CropPestDto.CropLanguages = eppoCodeLanguages.CropLanguages;
+                }
+                var shapedFieldCropPestToReturn = fieldCropPestsAsDto
                     .ShapeData();
 
                 var dataToReturn = new ShapedDataWithLinks()

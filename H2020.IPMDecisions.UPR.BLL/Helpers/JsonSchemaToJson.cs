@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Schema;
 using System;
@@ -7,20 +8,21 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
 {
     public static class JsonSchemaToJson
     {
-        public static string ToJsonString(string jsonSchema)
+        public static string ToJsonString(string jsonSchema, ILogger logger)
         {
             try
             {
-                var jsonObject = ToJsonObject(jsonSchema);
+                var jsonObject = ToJsonObject(jsonSchema, logger);
                 return jsonObject.ToString();
             }
             catch (Exception ex)
             {
+                logger.LogError(string.Format("Error converting ToJsonString. {0}", ex.Message));
                 return ex.Message.ToString();
             }
         }
 
-        public static JObject ToJsonObject(string jsonSchema)
+        public static JObject ToJsonObject(string jsonSchema, ILogger logger)
         {
             try
             {
@@ -28,9 +30,9 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
                 JSchema schema = StringToJsonSchema(jsonSchema);
                 return ProcessJsonSchemaProperties(jsonObject, schema);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                //Todo Log error
+                logger.LogError(string.Format("Error converting ToJsonObject. {0}", ex.Message));
                 return null;
             }
         }

@@ -130,7 +130,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             var dssResult = new FieldDssResult() { CreationDate = DateTime.Now, IsValid = false };
             try
             {
-                DssInformation dssInformation = await GetDssInformationFromMicroservice(dss);
+                DssModelInformation dssInformation = await GetDssInformationFromMicroservice(dss);
                 if (dssInformation == null)
                 {
                     dssResult.DssFullResult = JObject.Parse("{\"message\": \"Error getting DSS information from  microservice.\"}").ToString();
@@ -148,25 +148,30 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 }
                 if (dssInformation.Execution.Type.ToLower() != "onthefly") return null;
 
-                var inputSchemaAsJson = JsonSchemaToJson.ToJsonObject(dssInformation.Execution.InputSchema);
-                // ToDo Check if required inputs are provided by the user
-                JObject userInputJsonObject = JObject.Parse(dss.DssParameters.ToString());
-                if (userInputJsonObject == null)
+                var inputSchemaAsJson = JsonSchemaToJson.ToJsonObject(dssInformation.Execution.InputSchema, logger);
+
+                // Add user parameters
+                if (!string.IsNullOrEmpty(dss.DssParameters))
                 {
-                    dssResult.ResultMessageType = (int)DssOutputMessageTypeEnum.Error;
-                    dssResult.ResultMessage = "Missing user DSS parameters input.";
-                    dssResult.DssFullResult = JObject.Parse("{\"message\": \"Missing user DSS parameters input.\"}").ToString();
-                    return dssResult;
+                    AddUserParametersToDss(dss.DssParameters, inputSchemaAsJson);
                 }
-                foreach (var property in userInputJsonObject.Properties())
+
+                // Check defaults
+                foreach (var property in inputSchemaAsJson.Properties())
                 {
-                    var token = inputSchemaAsJson.SelectToken(property.Name);
-                    if (token != null)
+                    if (property.Name.ToLower() == "weatherdata")
                     {
-                        token.Replace(userInputJsonObject.SelectToken(property.Name));
                         continue;
                     }
-                    inputSchemaAsJson.Add(property.Name, userInputJsonObject.SelectToken(property.Name));
+
+                    var missingValueProperty = ProcessChildProperties(property);
+                    if (!string.IsNullOrEmpty(missingValueProperty))
+                    {
+                        dssResult.ResultMessageType = (int)DssOutputMessageTypeEnum.Error;
+                        dssResult.ResultMessage = string.Format("Property {0} do not have a value.", missingValueProperty);
+                        dssResult.DssFullResult = JObject.Parse("{\"message\": \"Missing user DSS parameters input.\"}").ToString();
+                        return dssResult;
+                    }
                 }
 
                 if (dssInformation.Input.WeatherParameters != null)
@@ -193,7 +198,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             }
             catch (Exception ex)
             {
-                logger.LogError(string.Format("Error running DSS. Id: {0}, Parameters {1}. Error: {2}", dss.Id.ToString(), dss.DssParameters.ToString(), ex.Message));
+                logger.LogError(string.Format("Error running DSS. Id: {0}, Parameters {1}. Error: {2}", dss.Id.ToString(), dss.DssParameters, ex.Message));
                 dssResult.ResultMessageType = (int)DssOutputMessageTypeEnum.Error;
                 dssResult.ResultMessage = ex.Message.ToString();
                 dssResult.DssFullResult = JObject.Parse("{\"message\": \"Error running the DSS - " + ex.Message.ToString() + " \"}").ToString();
@@ -201,7 +206,62 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             }
         }
 
-        private async Task<GetWeatherDataResult> PrepareWeatherData(FieldCropPestDss dss, DssInformation dssInformation, JObject dssInputSchemaAsJson)
+        private string ProcessChildProperties(JProperty property)
+        {
+            foreach (var childrenProperty in property.Children())
+            {
+                var hasMissingValue = "";
+                if (childrenProperty.Type.ToString().ToLower() == "object")
+                {
+                    hasMissingValue = ProcessObjectChildProperty(childrenProperty);
+                }
+                else
+                {
+                    hasMissingValue = ProcessOtherTypeChildProperty(childrenProperty);
+                }
+                if (!string.IsNullOrEmpty(hasMissingValue))
+                    return hasMissingValue;
+            }
+            return "";
+        }
+
+        private string ProcessOtherTypeChildProperty(JToken childrenProperty)
+        {
+            var value = ((JValue)childrenProperty).Value.ToString();
+            if (string.IsNullOrEmpty(value))
+                return childrenProperty.Path;
+            return "";
+        }
+
+        private static string ProcessObjectChildProperty(JToken childrenProperty)
+        {
+            foreach (var property in childrenProperty.Children())
+            {
+                var y = ((JProperty)property);
+
+                var value = ((JProperty)property).Value.ToString();
+                if (string.IsNullOrEmpty(value))
+                    return property.Path;
+            }
+            return "";
+        }
+
+        private static void AddUserParametersToDss(string userDssParameters, JObject inputSchemaAsJson)
+        {
+            JObject userInputJsonObject = JObject.Parse(userDssParameters.ToString());
+            foreach (var property in userInputJsonObject.Properties())
+            {
+                var token = inputSchemaAsJson.SelectToken(property.Name);
+                if (token != null)
+                {
+                    token.Replace(userInputJsonObject.SelectToken(property.Name));
+                    continue;
+                }
+                inputSchemaAsJson.Add(property.Name, userInputJsonObject.SelectToken(property.Name));
+            }
+        }
+
+        private async Task<GetWeatherDataResult> PrepareWeatherData(FieldCropPestDss dss, DssModelInformation dssInformation, JObject dssInputSchemaAsJson)
         {
             var listOfPreferredWeatherDataSources = new List<WeatherSchemaForHttp>();
             var farm = dss.FieldCropPest.FieldCrop.Field.Farm;
@@ -263,10 +323,10 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             dssResult.IsValid = true;
         }
 
-        private async Task<DssInformation> GetDssInformationFromMicroservice(FieldCropPestDss dss)
+        private async Task<DssModelInformation> GetDssInformationFromMicroservice(FieldCropPestDss dss)
         {
             return await internalCommunicationProvider
-                .GetDssInformationFromDssMicroservice(dss.CropPestDss.DssId, dss.CropPestDss.DssModelId);
+                .GetDssModelInformationFromDssMicroservice(dss.CropPestDss.DssId, dss.CropPestDss.DssModelId);
         }
         #endregion
 
@@ -275,7 +335,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             string farmLocationX,
             string farmLocationY,
             List<WeatherSchemaForHttp> listWeatherDataSource,
-            DssSchemaInput dssWeatherInput)
+            DssModelSchemaInput dssWeatherInput)
         {
             var result = new GetWeatherDataResult();
             if (listWeatherDataSource.Count < 1)

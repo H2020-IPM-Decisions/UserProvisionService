@@ -153,13 +153,15 @@ namespace H2020.IPMDecisions.UPR.BLL
 
                 if (includeChildren)
                 {
+                    var eppoCodesData = await this.dataService.EppoCodes.GetEppoCodesAsync();
                     var fieldsAsDictionaryList = fieldsAsEntities.Select(field =>
                     {
                         return CreateFieldWithChildrenAsDictionary(
                             resourceParameter,
                             includeLinks,
                             field,
-                            links);
+                            links,
+                            eppoCodesData);
                     });
 
                     var farmsToReturnWitChildren = new ShapedDataWithLinks()
@@ -245,11 +247,13 @@ namespace H2020.IPMDecisions.UPR.BLL
 
                 if (includeChildren)
                 {
+                    var eppoCodesData = await this.dataService.EppoCodes.GetEppoCodesAsync();
                     var fieldToReturnWithChildrenShaped = CreateFieldWithChildrenAsDictionary(
                        resourceParameter,
                        includeLinks,
                        fieldAsEntity,
-                       links);
+                       links,
+                       eppoCodesData);
 
                     return GenericResponseBuilder.Success<IDictionary<string, object>>(fieldToReturnWithChildrenShaped);
                 }
@@ -353,6 +357,84 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
         }
 
+        private FieldCrop AddFieldCropToField(Field field, string cropEppoCode)
+        {
+            if (field is null) return null;
+
+            var fieldCrop = new FieldCrop()
+            {
+                CropEppoCode = cropEppoCode,
+                Field = field
+            };
+
+            field.FieldCrop = fieldCrop;
+            return fieldCrop;
+        }
+
+        private async Task<FieldCropPest> AddCropPestToFieldCrop(FieldCrop fieldCrop, string pestEppoCode)
+        {
+            if (fieldCrop is null) return null;
+
+            var cropPestAsEntity = await GetCropPest(fieldCrop, pestEppoCode);
+
+            if (cropPestAsEntity == null)
+            {
+                cropPestAsEntity = new CropPest()
+                {
+                    CropEppoCode = fieldCrop.CropEppoCode.ToUpper(),
+                    PestEppoCode = pestEppoCode.ToUpper(),
+                };
+                this.dataService.CropPests.Create(cropPestAsEntity);
+            }
+            // Check if already exist on the second loop
+            if (fieldCrop.FieldCropPests == null)
+            {
+                fieldCrop.FieldCropPests = new List<FieldCropPest>();
+            }
+            else
+            {
+                var existingFieldCropPest = fieldCrop
+                    .FieldCropPests
+                    .Where(f => f.CropPestId == cropPestAsEntity.Id)
+                    .FirstOrDefault();
+
+                if (existingFieldCropPest != null) return existingFieldCropPest;
+            }
+
+            var newFieldCropPest = new FieldCropPest()
+            {
+                CropPest = cropPestAsEntity,
+                FieldCrop = fieldCrop,
+                Id = Guid.NewGuid()
+            };
+
+            fieldCrop.FieldCropPests.Add(newFieldCropPest);
+            return newFieldCropPest;
+        }
+
+        private async Task<CropPest> GetCropPest(FieldCrop fieldCrop, string pestEppoCode)
+        {
+            // Check first on Database
+            var cropPestAsEntity = await this.dataService.CropPests
+                .FindByConditionAsync
+                (c => c.CropEppoCode.ToUpper().Equals(fieldCrop.CropEppoCode.ToUpper())
+                 && c.PestEppoCode.ToUpper().Equals(pestEppoCode.ToUpper()));
+
+            if (cropPestAsEntity != null) return cropPestAsEntity;
+            // New on Db. Check if sent on same Payload
+            if (fieldCrop.FieldCropPests != null)
+            {
+                var onPayload = fieldCrop
+                    .FieldCropPests
+                    .Where(f =>
+                        f.CropPest.CropEppoCode.ToUpper() == fieldCrop.CropEppoCode.ToUpper() &
+                        f.CropPest.PestEppoCode.ToUpper() == pestEppoCode.ToUpper())
+                        .FirstOrDefault();
+                if (onPayload != null) return onPayload.CropPest;
+            }
+            return null;
+        }
+
         private async Task AddCropPestToField(CropPestForCreationDto cropPestRequest, Field field)
         {
             if (cropPestRequest is null) return;
@@ -450,7 +532,8 @@ namespace H2020.IPMDecisions.UPR.BLL
             FieldResourceParameter resourceParameter,
             bool includeLinks,
             Field fieldAsEntity,
-            IEnumerable<LinkDto> links)
+            IEnumerable<LinkDto> links,
+            List<EppoCode> eppoCodes)
         {
             try
             {
@@ -460,7 +543,8 @@ namespace H2020.IPMDecisions.UPR.BLL
                     fieldCropToReturn = ShapeFieldCropWithChildren(
                                     fieldAsEntity,
                                     resourceParameter,
-                                    includeLinks);
+                                    includeLinks,
+                                    eppoCodes);
                 }
 
                 var fieldToReturnWithChildren = this.mapper.Map<FieldWithChildrenDto>(fieldAsEntity);

@@ -20,7 +20,7 @@ namespace H2020.IPMDecisions.UPR.BLL
         #region Crop Decision
         Task<GenericResponse<IDictionary<string, object>>> AddNewFieldCropDecision(CropPestDssForCreationDto cropPestDssForCreationDto, HttpContext httpContext, string mediaType);
         Task<GenericResponse> DeleteFieldCropDecision(Guid id, HttpContext httpContext);
-        GenericResponse<IDictionary<string, object>> GetFieldCropDecision(Guid id, HttpContext httpContext, string mediaType);
+        Task<GenericResponse<IDictionary<string, object>>> GetFieldCropDecision(Guid id, HttpContext httpContext, string mediaType);
         Task<GenericResponse<ShapedDataWithLinks>> GetFieldCropDecisions(FieldCropPestDssResourceParameter resourceParameter, HttpContext httpContext, string mediaType);
         #endregion
 
@@ -38,12 +38,11 @@ namespace H2020.IPMDecisions.UPR.BLL
         Task<GenericResponse<ShapedDataWithLinks>> GetFarms(Guid userId, FarmResourceParameter resourceParameter, string mediaType);
         FarmForCreationDto MapToFarmForCreation(FarmForUpdateDto farmDto);
         FarmForUpdateDto MapToFarmForUpdateDto(Farm farm);
-        Task<GenericResponse> UpdateFarm(Farm farm, FarmForUpdateDto farmToPatch, JsonPatchDocument<FarmForUpdateDto> patchDocument);
         Task<GenericResponse> FullUpdateFarm(Farm farm, FarmForFullUpdateDto farmForFullUpdate);
         #endregion
 
         #region FarmDss
-        Task<GenericResponse<FieldCropPestDssDto>> AddNewFarmDss(FarmDssForCreationDto farmDssDto, HttpContext httpContext, string mediaType);
+        Task<GenericResponse<IDictionary<string, object>>> AddListOfFarmDss(IEnumerable<FarmDssForCreationDto> listOfFarmDssDto, HttpContext httpContext, string mediaType);
         #endregion
 
         #region Field

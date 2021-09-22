@@ -78,7 +78,7 @@ namespace H2020.IPMDecisions.UPR.Core.Models
             {
                 IsSuccessful = false,
                 ErrorMessage = errorMessage,
-                RequestResult = new ConflictResult()
+                RequestResult = new CustomConflictResult(errorMessage)
             };
         }
 

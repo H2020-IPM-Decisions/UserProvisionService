@@ -151,9 +151,12 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
                 resourceParameter.PageSize);
         }
 
-        public Task<FieldCropPestDss> FindByConditionAsync(Expression<Func<FieldCropPestDss, bool>> expression)
+        public async Task<FieldCropPestDss> FindByConditionAsync(Expression<Func<FieldCropPestDss, bool>> expression)
         {
-            throw new NotImplementedException();
+            return await this.context
+               .FieldCropPestDss
+               .Where(expression)
+               .FirstOrDefaultAsync();
         }
 
         public Task<FieldCropPestDss> FindByConditionAsync(Expression<Func<FieldCropPestDss, bool>> expression, bool includeAssociatedData)

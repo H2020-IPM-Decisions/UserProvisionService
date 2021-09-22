@@ -3,6 +3,7 @@ using System;
 using H2020.IPMDecisions.UPR.Data.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetTopologySuite.Geometries;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -10,9 +11,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace H2020.IPMDecisions.UPR.Data.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210720131804_ExtraColumnsForDssVersion")]
+    partial class ExtraColumnsForDssVersion
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -113,11 +115,14 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("DssVersion")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("CropPestId", "DssId", "DssModelId", "DssModelVersion", "DssExecutionType")
-                        .IsUnique()
-                        .HasName("IX_CropPestDss_All");
+                    b.HasIndex("CropPestId", "DssId", "DssModelId", "DssVersion", "DssExecutionType")
+                        .IsUnique();
 
                     b.ToTable("CropPestDss");
                 });
@@ -765,68 +770,6 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Migrations
                             Id = 3,
                             Description = "Weather"
                         });
-                });
-
-            modelBuilder.Entity("H2020.IPMDecisions.UPR.Core.Models.DssResultDatabaseView", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("CreationDate")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<string>("CropEppoCode")
-                        .HasColumnType("text");
-
-                    b.Property<string>("DssExecutionType")
-                        .HasColumnType("text");
-
-                    b.Property<string>("DssFullResult")
-                        .HasColumnType("text");
-
-                    b.Property<string>("DssId")
-                        .HasColumnType("text");
-
-                    b.Property<string>("DssModelId")
-                        .HasColumnType("text");
-
-                    b.Property<string>("DssModelName")
-                        .HasColumnType("text");
-
-                    b.Property<string>("DssModelVersion")
-                        .HasColumnType("text");
-
-                    b.Property<string>("DssName")
-                        .HasColumnType("text");
-
-                    b.Property<Guid>("FarmId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("FieldId")
-                        .HasColumnType("uuid");
-
-                    b.Property<bool>("IsValid")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("PestEppoCode")
-                        .HasColumnType("text");
-
-                    b.Property<string>("ResultMessage")
-                        .HasColumnType("text");
-
-                    b.Property<int?>("ResultMessageType")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("WarningMessage")
-                        .HasColumnType("text");
-
-                    b.Property<int>("WarningStatus")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("DssResult");
                 });
 
             modelBuilder.Entity("H2020.IPMDecisions.UPR.Core.Entities.CropPestDss", b =>

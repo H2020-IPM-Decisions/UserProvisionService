@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using H2020.IPMDecisions.UPR.BLL.Helpers;
 using H2020.IPMDecisions.UPR.Core.Dtos;
 using H2020.IPMDecisions.UPR.Core.Entities;
 using H2020.IPMDecisions.UPR.Core.Models;
@@ -110,7 +111,7 @@ namespace H2020.IPMDecisions.UPR.BLL
         }
 
         #region Helpers
-        private EppoCodeTypeDto EppoCodeToEppoCodeTypeDto(EppoCode type, string eppoCodeFilter = "")
+        private EppoCodeTypeDto EppoCodeToEppoCodeTypeDto(EppoCode type, string eppoCodeFilter = "", string languageFilter = "en")
         {
             EppoCodeTypeDto eppoCodeType = this.mapper.Map<EppoCodeTypeDto>(type);
             var eppoCodesOnType = JsonConvert.DeserializeObject<List<IDictionary<string, string>>>(type.Data);
@@ -118,15 +119,10 @@ namespace H2020.IPMDecisions.UPR.BLL
             if (!string.IsNullOrEmpty(eppoCodeFilter))
             {
                 EppoCodeDto eppoCodeDto = new EppoCodeDto();
-                var selectedEppoCodeDto = eppoCodesOnType
-                      .Where(d =>
-                          d.TryGetValue("EPPOCode", out string value)
-                          && value is string i && i.ToLower() == eppoCodeFilter.ToLower())
-                      .FirstOrDefault();
-
+                var selectedEppoCodeDto = EppoCodesHelper.FilterEppoCodesByEppoCode(eppoCodeFilter, eppoCodesOnType);
                 if (selectedEppoCodeDto == null) return null;
 
-                eppoCodeDto.Languages = selectedEppoCodeDto;
+                eppoCodeDto.Languages = EppoCodesHelper.DoLanguageFilter(languageFilter, selectedEppoCodeDto);
                 eppoCodeDto.EppoCode = selectedEppoCodeDto["EPPOCode"];
                 eppoCodeType.EppoCodesDto.Add(eppoCodeDto);
                 return eppoCodeType;
@@ -136,7 +132,8 @@ namespace H2020.IPMDecisions.UPR.BLL
             {
                 EppoCodeDto eppoCodeDto = new EppoCodeDto();
                 eppoCodeDto.EppoCode = eppoCode["EPPOCode"];
-                eppoCodeDto.Languages = eppoCode;
+                eppoCodeDto.Languages = EppoCodesHelper.DoLanguageFilter(languageFilter, eppoCode);
+
                 eppoCodeType.EppoCodesDto.Add(eppoCodeDto);
             }
             return eppoCodeType;

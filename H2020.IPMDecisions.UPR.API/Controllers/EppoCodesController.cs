@@ -54,7 +54,6 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [Produces(MediaTypeNames.Application.Json)]
         [HttpGet("{eppoCodeType}", Name = "api.eppocode.get.bycode")]
-        [HttpHead]
         // GET: api/eppocodes/type?name
         public async Task<IActionResult> GetEppoCode(
             [FromRoute] string eppoCodeType,
@@ -75,7 +74,6 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [Produces(MediaTypeNames.Application.Json)]
         [HttpGet("types", Name = "api.eppocode.get.types")]
-        [HttpHead]
         // GET: api/eppocodes/types
         public async Task<IActionResult> GetEppoCodeTypes()
         {
@@ -142,7 +140,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         //OPTIONS: api/eppocodes
         public IActionResult Options()
         {
-            Response.Headers.Add("Allow", "OPTIONS, GET, PATCH, POST, DELETE");
+            Response.Headers.Add("Allow", "OPTIONS, GET, HEAD, POST, PUT");
             return Ok();
         }
     }

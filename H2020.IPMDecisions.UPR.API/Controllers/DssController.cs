@@ -106,7 +106,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [HttpDelete("{id:guid}", Name = "api.dss.delete.byid")]
-        //DELETE: api/dss/1
+        // DELETE: api/dss/1
         public async Task<IActionResult> Delete([FromRoute] Guid id)
         {
             var userId = Guid.Parse(HttpContext.Items["userId"].ToString());

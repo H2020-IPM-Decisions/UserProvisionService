@@ -1,3 +1,5 @@
+using System;
+
 namespace H2020.IPMDecisions.UPR.Core.Models
 {
     // This class matches the schema definition of /api/wx/rest/schema/weatherdata
@@ -5,6 +7,6 @@ namespace H2020.IPMDecisions.UPR.Core.Models
     {
         public string Id { get; set; }
         public string Name { get; set; }
-        public string EndPoint { get; set; }
+        public Uri EndPoint { get; set; }
     }
 }
