@@ -165,11 +165,16 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
         {
             try
             {
-                var wxEndPoint = config["MicroserviceInternalCommunication:WeatherMicroservice"];
-                var endPointUrlEncoded = HttpUtility.UrlEncode(endPointUrl);
-                var endPointQueryStringEncoded = HttpUtility.UrlEncode(endPointQueryString);
-
-                return await httpClient.GetAsync(string.Format("{0}rest/amalgamation/amalgamate/?endpointURL={1}&endpointQueryStr={2}", wxEndPoint, endPointUrlEncoded, endPointQueryStringEncoded));
+                var cacheKey = string.Format("weather_{0}_{1}", endPointUrl.ToLower(), endPointQueryString.ToLower());
+                if (!memoryCache.TryGetValue(cacheKey, out HttpResponseMessage weatherResponse))
+                {
+                    var wxEndPoint = config["MicroserviceInternalCommunication:WeatherMicroservice"];
+                    var endPointUrlEncoded = HttpUtility.UrlEncode(endPointUrl);
+                    var endPointQueryStringEncoded = HttpUtility.UrlEncode(endPointQueryString);                    
+                    weatherResponse = await httpClient.GetAsync(string.Format("{0}rest/amalgamation/amalgamate/?endpointURL={1}&endpointQueryStr={2}", wxEndPoint, endPointUrlEncoded, endPointQueryStringEncoded));
+                    memoryCache.Set(cacheKey, weatherResponse, MemoryCacheHelper.CreateMemoryCacheEntryOptions(1));
+                }
+                return weatherResponse;
             }
             catch (Exception ex)
             {
