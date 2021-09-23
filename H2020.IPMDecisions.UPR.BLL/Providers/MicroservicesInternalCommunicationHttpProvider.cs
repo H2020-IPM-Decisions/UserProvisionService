@@ -44,7 +44,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
         {
             try
             {
-                var cacheKey = string.Format("{0}_{1}", dssId.ToLower(), modelId.ToLower());
+                var cacheKey = string.Format("dssInformation_{0}_{1}", dssId.ToLower(), modelId.ToLower());
                 if (!memoryCache.TryGetValue(cacheKey, out DssModelInformation dssModelInformation))
                 {
                     var dssEndPoint = config["MicroserviceInternalCommunication:DssMicroservice"];
@@ -70,23 +70,29 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
         {
             try
             {
-                var jsonObject = new System.Json.JsonObject();
-                jsonObject.Add("email", userEmail);
-                var customContentType = config["MicroserviceInternalCommunication:ContentTypeHeader"];
-
-                var content = new StringContent(
-                    jsonObject.ToString(),
-                    Encoding.UTF8,
-                    customContentType);
-
-                var idpEndPoint = config["MicroserviceInternalCommunication:IdentityProviderMicroservice"];
-                var userIdResponse = await httpClient.PostAsync(idpEndPoint + "internal/getuserid", content);
-
-                if (userIdResponse.IsSuccessStatusCode)
+                var cacheKey = string.Format("user_{0}", userEmail.ToLower());
+                if (!memoryCache.TryGetValue(cacheKey, out string userId))
                 {
-                    return await userIdResponse.Content.ReadAsStringAsync();
+                    var jsonObject = new System.Json.JsonObject();
+                    jsonObject.Add("email", userEmail);
+                    var customContentType = config["MicroserviceInternalCommunication:ContentTypeHeader"];
+
+                    var content = new StringContent(
+                        jsonObject.ToString(),
+                        Encoding.UTF8,
+                        customContentType);
+
+                    var idpEndPoint = config["MicroserviceInternalCommunication:IdentityProviderMicroservice"];
+                    var userIdResponse = await httpClient.PostAsync(idpEndPoint + "internal/getuserid", content);
+
+                    if (!userIdResponse.IsSuccessStatusCode)
+                    {
+                        return null;
+                    }
+                    userId = await userIdResponse.Content.ReadAsStringAsync();
+                    memoryCache.Set(cacheKey, userId, MemoryCacheHelper.CreateMemoryCacheEntryOptions(15));
                 }
-                return null;
+                return userId;
             }
             catch (Exception ex)
             {
@@ -176,15 +182,20 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
         {
             try
             {
-                var dssEndPoint = config["MicroserviceInternalCommunication:DssMicroservice"];
-                var response = await httpClient.GetAsync(string.Format("{0}rest/dss", dssEndPoint));
-
-                if (response.IsSuccessStatusCode)
+                var cacheKey = "listOfDss";
+                if (!memoryCache.TryGetValue(cacheKey, out IEnumerable<DssInformation> listOfDss))
                 {
+                    var dssEndPoint = config["MicroserviceInternalCommunication:DssMicroservice"];
+                    var response = await httpClient.GetAsync(string.Format("{0}rest/dss", dssEndPoint));
+
+                    if (!response.IsSuccessStatusCode)
+                        return null;
+
                     var responseAsText = await response.Content.ReadAsStringAsync();
-                    return JsonConvert.DeserializeObject<IEnumerable<DssInformation>>(responseAsText);
+                    listOfDss = JsonConvert.DeserializeObject<IEnumerable<DssInformation>>(responseAsText);
+                    memoryCache.Set(cacheKey, listOfDss, MemoryCacheHelper.CreateMemoryCacheEntryOptions(7));
                 }
-                return null;
+                return listOfDss;
             }
             catch (Exception ex)
             {
@@ -197,15 +208,20 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
         {
             try
             {
-                var wxEndPoint = config["MicroserviceInternalCommunication:WeatherMicroservice"];
-                var response = await httpClient.GetAsync(string.Format("{0}rest/weatherdatasource/{1}", wxEndPoint, weatherId));
-
-                if (response.IsSuccessStatusCode)
+                var cacheKey = string.Format("weather_{0}", weatherId.ToLower());
+                if (!memoryCache.TryGetValue(cacheKey, out WeatherDataSchema listOfDss))
                 {
+                    var wxEndPoint = config["MicroserviceInternalCommunication:WeatherMicroservice"];
+                    var response = await httpClient.GetAsync(string.Format("{0}rest/weatherdatasource/{1}", wxEndPoint, weatherId));
+
+                    if (!response.IsSuccessStatusCode)
+                        return null;
+
                     var responseAsText = await response.Content.ReadAsStringAsync();
-                    return JsonConvert.DeserializeObject<WeatherDataSchema>(responseAsText);
+                    listOfDss = JsonConvert.DeserializeObject<WeatherDataSchema>(responseAsText);
+                    memoryCache.Set(cacheKey, listOfDss, MemoryCacheHelper.CreateMemoryCacheEntryOptions(7));
                 }
-                return null;
+                return listOfDss;
             }
             catch (Exception ex)
             {
