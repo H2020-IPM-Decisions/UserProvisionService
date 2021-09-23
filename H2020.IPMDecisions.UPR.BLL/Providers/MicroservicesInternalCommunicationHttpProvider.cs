@@ -6,7 +6,9 @@ using System.Net.Mime;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
+using H2020.IPMDecisions.UPR.BLL.Helpers;
 using H2020.IPMDecisions.UPR.Core.Models;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -19,15 +21,18 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
         private readonly HttpClient httpClient;
         private readonly IConfiguration config;
         private readonly ILogger<MicroservicesInternalCommunicationHttpProvider> logger;
+        private readonly IMemoryCache memoryCache;
 
         public MicroservicesInternalCommunicationHttpProvider(
             HttpClient httpClient,
             IConfiguration config,
-            ILogger<MicroservicesInternalCommunicationHttpProvider> logger)
+            ILogger<MicroservicesInternalCommunicationHttpProvider> logger,
+            IMemoryCache memoryCache)
         {
             this.httpClient = httpClient ?? throw new System.ArgumentNullException(nameof(httpClient));
             this.config = config ?? throw new System.ArgumentNullException(nameof(config));
             this.logger = logger ?? throw new System.ArgumentNullException(nameof(logger));
+            this.memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
         }
 
         public void Dispose()
@@ -39,15 +44,20 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
         {
             try
             {
-                var dssEndPoint = config["MicroserviceInternalCommunication:DssMicroservice"];
-                var response = await httpClient.GetAsync(string.Format("{0}rest/model/{1}/{2}", dssEndPoint, dssId, modelId));
-
-                if (response.IsSuccessStatusCode)
+                var cacheKey = string.Format("{0}_{1}", dssId.ToLower(), modelId.ToLower());
+                if (!memoryCache.TryGetValue(cacheKey, out DssModelInformation dssModelInformation))
                 {
+                    var dssEndPoint = config["MicroserviceInternalCommunication:DssMicroservice"];
+                    var response = await httpClient.GetAsync(string.Format("{0}rest/model/{1}/{2}", dssEndPoint, dssId, modelId));
+
+                    if (!response.IsSuccessStatusCode) return null;
+
                     var responseAsText = await response.Content.ReadAsStringAsync();
-                    return JsonConvert.DeserializeObject<DssModelInformation>(responseAsText);
+                    dssModelInformation = JsonConvert.DeserializeObject<DssModelInformation>(responseAsText);
+
+                    memoryCache.Set(cacheKey, dssModelInformation, MemoryCacheHelper.CreateMemoryCacheEntryOptions(7));
                 }
-                return null;
+                return dssModelInformation;
             }
             catch (Exception ex)
             {
