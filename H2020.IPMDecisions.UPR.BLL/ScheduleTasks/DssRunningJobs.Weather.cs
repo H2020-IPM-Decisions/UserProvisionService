@@ -1,21 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
-using AutoMapper;
 using H2020.IPMDecisions.UPR.BLL.Helpers;
-using H2020.IPMDecisions.UPR.BLL.Providers;
 using H2020.IPMDecisions.UPR.Core.Entities;
-using H2020.IPMDecisions.UPR.Core.Enums;
 using H2020.IPMDecisions.UPR.Core.Models;
-using H2020.IPMDecisions.UPR.Data.Core;
-using Hangfire;
-using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks

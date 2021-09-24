@@ -133,17 +133,13 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 DssModelInformation dssInformation = await GetDssInformationFromMicroservice(dss);
                 if (dssInformation == null)
                 {
-                    dssResult.DssFullResult = JObject.Parse("{\"message\": \"Error getting DSS information from  microservice.\"}").ToString();
-                    dssResult.ResultMessageType = (int)DssOutputMessageTypeEnum.Error;
-                    dssResult.ResultMessage = "Error getting DSS information from  microservice.";
+                    CreateDssRunErrorResult(dssResult, "Error getting DSS information from microservice.", DssOutputMessageTypeEnum.Error);
                     return dssResult;
                 };
 
                 if (string.IsNullOrEmpty(dssInformation.Execution.EndPoint))
                 {
-                    dssResult.ResultMessageType = (int)DssOutputMessageTypeEnum.Error;
-                    dssResult.ResultMessage = "End point not available to run DSS.";
-                    dssResult.DssFullResult = JObject.Parse("{\"message\": \"End point not available to run DSS.\"}").ToString();
+                    CreateDssRunErrorResult(dssResult, "End point not available to run DSS.", DssOutputMessageTypeEnum.Error);
                     return dssResult;
                 }
                 if (dssInformation.Execution.Type.ToLower() != "onthefly") return null;
@@ -160,16 +156,13 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 foreach (var property in inputSchemaAsJson.Properties())
                 {
                     if (property.Name.ToLower() == "weatherdata")
-                    {
-                        continue;
-                    }
+                        continue; // Do Nothing
 
-                    var missingValueProperty = ProcessChildProperties(property);
+                    var missingValueProperty = JsonHelper.CheckMissingJsonProperties(property);
                     if (!string.IsNullOrEmpty(missingValueProperty))
                     {
-                        dssResult.ResultMessageType = (int)DssOutputMessageTypeEnum.Error;
-                        dssResult.ResultMessage = string.Format("Property {0} do not have a value.", missingValueProperty);
-                        dssResult.DssFullResult = JObject.Parse("{\"message\": \"Missing user DSS parameters input.\"}").ToString();
+                        var errorMessage = string.Format("Property {0} do not have a value.", missingValueProperty);
+                        CreateDssRunErrorResult(dssResult, errorMessage, DssOutputMessageTypeEnum.Error);
                         return dssResult;
                     }
                 }
@@ -177,12 +170,10 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 if (dssInformation.Input.WeatherParameters != null)
                 {
                     GetWeatherDataResult responseWeather = await PrepareWeatherData(dss, dssInformation, inputSchemaAsJson);
-
                     if (!responseWeather.Continue)
                     {
-                        dssResult.ResultMessageType = (int)DssOutputMessageTypeEnum.Error;
-                        dssResult.ResultMessage = responseWeather.ResponseWeather;
-                        dssResult.DssFullResult = JObject.Parse("{\"message\": \"Error with Weather Data - " + responseWeather.ResponseWeather.ToString() + "\"}").ToString();
+                        var errorMessage = string.Format("Error with Weather Data -  {0}", responseWeather.ResponseWeather.ToString());
+                        CreateDssRunErrorResult(dssResult, errorMessage, DssOutputMessageTypeEnum.Error);
                         return dssResult;
                     }
                     inputSchemaAsJson["weatherData"] = JObject.Parse(responseWeather.ResponseWeather.ToString());
@@ -191,59 +182,18 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 var content = new StringContent(
                      inputSchemaAsJson.ToString(),
                      Encoding.UTF8, "application/json");
-                var responseDss = await httpClient.PostAsync(dssInformation.Execution.EndPoint, content);
 
+                var responseDss = await httpClient.PostAsync(dssInformation.Execution.EndPoint, content);
                 await ProcessDssResult(dssResult, responseDss);
                 return dssResult;
             }
             catch (Exception ex)
             {
                 logger.LogError(string.Format("Error running DSS. Id: {0}, Parameters {1}. Error: {2}", dss.Id.ToString(), dss.DssParameters, ex.Message));
-                dssResult.ResultMessageType = (int)DssOutputMessageTypeEnum.Error;
-                dssResult.ResultMessage = ex.Message.ToString();
-                dssResult.DssFullResult = JObject.Parse("{\"message\": \"Error running the DSS - " + ex.Message.ToString() + " \"}").ToString();
+                var errorMessage = "Error running the DSS - " + ex.Message.ToString();
+                CreateDssRunErrorResult(dssResult, errorMessage, DssOutputMessageTypeEnum.Error);
                 return dssResult;
             }
-        }
-
-        private string ProcessChildProperties(JProperty property)
-        {
-            foreach (var childrenProperty in property.Children())
-            {
-                var hasMissingValue = "";
-                if (childrenProperty.Type.ToString().ToLower() == "object")
-                {
-                    hasMissingValue = ProcessObjectChildProperty(childrenProperty);
-                }
-                else
-                {
-                    hasMissingValue = ProcessOtherTypeChildProperty(childrenProperty);
-                }
-                if (!string.IsNullOrEmpty(hasMissingValue))
-                    return hasMissingValue;
-            }
-            return "";
-        }
-
-        private string ProcessOtherTypeChildProperty(JToken childrenProperty)
-        {
-            var value = ((JValue)childrenProperty).Value.ToString();
-            if (string.IsNullOrEmpty(value))
-                return childrenProperty.Path;
-            return "";
-        }
-
-        private static string ProcessObjectChildProperty(JToken childrenProperty)
-        {
-            foreach (var property in childrenProperty.Children())
-            {
-                var y = ((JProperty)property);
-
-                var value = ((JProperty)property).Value.ToString();
-                if (string.IsNullOrEmpty(value))
-                    return property.Path;
-            }
-            return "";
         }
 
         private static void AddUserParametersToDss(string userDssParameters, JObject inputSchemaAsJson)
@@ -259,7 +209,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 }
                 inputSchemaAsJson.Add(property.Name, userInputJsonObject.SelectToken(property.Name));
             }
-        }      
+        }
 
         private static async Task ProcessDssResult(FieldDssResult dssResult, HttpResponseMessage responseDss)
         {
@@ -269,9 +219,8 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             // ToDo. Check valid responses when DSS do not run properly
             if (responseDss.StatusCode.Equals(HttpStatusCode.InternalServerError))
             {
-                dssResult.ResultMessageType = (int)DssOutputMessageTypeEnum.Error;
-                dssResult.ResultMessage = string.Format("DSS returned a Internal Server Error. {0}", responseAsText.ToString());
-                dssResult.DssFullResult = JObject.Parse("{\"message\": \"Error running the DSS on endPoint\"}").ToString();
+                var errorMessage = string.Format("DSS returned a Internal Server Error. {0}", responseAsText.ToString());
+                CreateDssRunErrorResult(dssResult, errorMessage, DssOutputMessageTypeEnum.Error);
                 return;
             }
 
@@ -294,12 +243,21 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             dssResult.DssFullResult = responseAsText;
             dssResult.IsValid = true;
         }
+        #endregion
 
+        #region helpers
         private async Task<DssModelInformation> GetDssInformationFromMicroservice(FieldCropPestDss dss)
         {
             return await internalCommunicationProvider
                 .GetDssModelInformationFromDssMicroservice(dss.CropPestDss.DssId, dss.CropPestDss.DssModelId);
         }
-        #endregion       
+
+        private static void CreateDssRunErrorResult(FieldDssResult dssResult, string errorMessage, DssOutputMessageTypeEnum errorType)
+        {
+            dssResult.ResultMessageType = (int)errorType;
+            dssResult.ResultMessage = errorMessage.ToString();
+            dssResult.DssFullResult = JObject.Parse("{\"message\": \"" + errorMessage + "\"}").ToString();
+        }
+        #endregion
     }
 }
