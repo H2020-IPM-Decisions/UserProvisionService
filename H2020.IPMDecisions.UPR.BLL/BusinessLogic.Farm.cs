@@ -6,7 +6,6 @@ using H2020.IPMDecisions.UPR.Core.Helpers;
 using H2020.IPMDecisions.UPR.Core.Models;
 using H2020.IPMDecisions.UPR.Core.ResourceParameters;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
 using System;
