@@ -75,6 +75,7 @@ namespace H2020.IPMDecisions.UPR.API
             services.ConfigureHangfire(Configuration);
             services.ConfigureSwagger();
             services.AddDataProtection();
+            services.ConfigureCaching();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

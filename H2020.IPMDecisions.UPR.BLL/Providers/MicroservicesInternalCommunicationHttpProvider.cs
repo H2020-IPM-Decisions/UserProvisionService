@@ -6,7 +6,9 @@ using System.Net.Mime;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
+using H2020.IPMDecisions.UPR.BLL.Helpers;
 using H2020.IPMDecisions.UPR.Core.Models;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -19,15 +21,18 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
         private readonly HttpClient httpClient;
         private readonly IConfiguration config;
         private readonly ILogger<MicroservicesInternalCommunicationHttpProvider> logger;
+        private readonly IMemoryCache memoryCache;
 
         public MicroservicesInternalCommunicationHttpProvider(
             HttpClient httpClient,
             IConfiguration config,
-            ILogger<MicroservicesInternalCommunicationHttpProvider> logger)
+            ILogger<MicroservicesInternalCommunicationHttpProvider> logger,
+            IMemoryCache memoryCache)
         {
             this.httpClient = httpClient ?? throw new System.ArgumentNullException(nameof(httpClient));
             this.config = config ?? throw new System.ArgumentNullException(nameof(config));
             this.logger = logger ?? throw new System.ArgumentNullException(nameof(logger));
+            this.memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
         }
 
         public void Dispose()
@@ -39,15 +44,20 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
         {
             try
             {
-                var dssEndPoint = config["MicroserviceInternalCommunication:DssMicroservice"];
-                var response = await httpClient.GetAsync(string.Format("{0}rest/model/{1}/{2}", dssEndPoint, dssId, modelId));
-
-                if (response.IsSuccessStatusCode)
+                var cacheKey = string.Format("dssInformation_{0}_{1}", dssId.ToLower(), modelId.ToLower());
+                if (!memoryCache.TryGetValue(cacheKey, out DssModelInformation dssModelInformation))
                 {
+                    var dssEndPoint = config["MicroserviceInternalCommunication:DssMicroservice"];
+                    var response = await httpClient.GetAsync(string.Format("{0}rest/model/{1}/{2}", dssEndPoint, dssId, modelId));
+
+                    if (!response.IsSuccessStatusCode) return null;
+
                     var responseAsText = await response.Content.ReadAsStringAsync();
-                    return JsonConvert.DeserializeObject<DssModelInformation>(responseAsText);
+                    dssModelInformation = JsonConvert.DeserializeObject<DssModelInformation>(responseAsText);
+
+                    memoryCache.Set(cacheKey, dssModelInformation, MemoryCacheHelper.CreateMemoryCacheEntryOptions(7));
                 }
-                return null;
+                return dssModelInformation;
             }
             catch (Exception ex)
             {
@@ -60,23 +70,29 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
         {
             try
             {
-                var jsonObject = new System.Json.JsonObject();
-                jsonObject.Add("email", userEmail);
-                var customContentType = config["MicroserviceInternalCommunication:ContentTypeHeader"];
-
-                var content = new StringContent(
-                    jsonObject.ToString(),
-                    Encoding.UTF8,
-                    customContentType);
-
-                var idpEndPoint = config["MicroserviceInternalCommunication:IdentityProviderMicroservice"];
-                var userIdResponse = await httpClient.PostAsync(idpEndPoint + "internal/getuserid", content);
-
-                if (userIdResponse.IsSuccessStatusCode)
+                var cacheKey = string.Format("user_{0}", userEmail.ToLower());
+                if (!memoryCache.TryGetValue(cacheKey, out string userId))
                 {
-                    return await userIdResponse.Content.ReadAsStringAsync();
+                    var jsonObject = new System.Json.JsonObject();
+                    jsonObject.Add("email", userEmail);
+                    var customContentType = config["MicroserviceInternalCommunication:ContentTypeHeader"];
+
+                    var content = new StringContent(
+                        jsonObject.ToString(),
+                        Encoding.UTF8,
+                        customContentType);
+
+                    var idpEndPoint = config["MicroserviceInternalCommunication:IdentityProviderMicroservice"];
+                    var userIdResponse = await httpClient.PostAsync(idpEndPoint + "internal/getuserid", content);
+
+                    if (!userIdResponse.IsSuccessStatusCode)
+                    {
+                        return null;
+                    }
+                    userId = await userIdResponse.Content.ReadAsStringAsync();
+                    memoryCache.Set(cacheKey, userId, MemoryCacheHelper.CreateMemoryCacheEntryOptions(15));
                 }
-                return null;
+                return userId;
             }
             catch (Exception ex)
             {
@@ -149,11 +165,16 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
         {
             try
             {
-                var wxEndPoint = config["MicroserviceInternalCommunication:WeatherMicroservice"];
-                var endPointUrlEncoded = HttpUtility.UrlEncode(endPointUrl);
-                var endPointQueryStringEncoded = HttpUtility.UrlEncode(endPointQueryString);
-
-                return await httpClient.GetAsync(string.Format("{0}rest/amalgamation/amalgamate/?endpointURL={1}&endpointQueryStr={2}", wxEndPoint, endPointUrlEncoded, endPointQueryStringEncoded));
+                var cacheKey = string.Format("weather_{0}_{1}", endPointUrl.ToLower(), endPointQueryString.ToLower());
+                if (!memoryCache.TryGetValue(cacheKey, out HttpResponseMessage weatherResponse))
+                {
+                    var wxEndPoint = config["MicroserviceInternalCommunication:WeatherMicroservice"];
+                    var endPointUrlEncoded = HttpUtility.UrlEncode(endPointUrl);
+                    var endPointQueryStringEncoded = HttpUtility.UrlEncode(endPointQueryString);                    
+                    weatherResponse = await httpClient.GetAsync(string.Format("{0}rest/amalgamation/amalgamate/?endpointURL={1}&endpointQueryStr={2}", wxEndPoint, endPointUrlEncoded, endPointQueryStringEncoded));
+                    memoryCache.Set(cacheKey, weatherResponse, MemoryCacheHelper.CreateMemoryCacheEntryOptions(1));
+                }
+                return weatherResponse;
             }
             catch (Exception ex)
             {
@@ -166,15 +187,20 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
         {
             try
             {
-                var dssEndPoint = config["MicroserviceInternalCommunication:DssMicroservice"];
-                var response = await httpClient.GetAsync(string.Format("{0}rest/dss", dssEndPoint));
-
-                if (response.IsSuccessStatusCode)
+                var cacheKey = "listOfDss";
+                if (!memoryCache.TryGetValue(cacheKey, out IEnumerable<DssInformation> listOfDss))
                 {
+                    var dssEndPoint = config["MicroserviceInternalCommunication:DssMicroservice"];
+                    var response = await httpClient.GetAsync(string.Format("{0}rest/dss", dssEndPoint));
+
+                    if (!response.IsSuccessStatusCode)
+                        return null;
+
                     var responseAsText = await response.Content.ReadAsStringAsync();
-                    return JsonConvert.DeserializeObject<IEnumerable<DssInformation>>(responseAsText);
+                    listOfDss = JsonConvert.DeserializeObject<IEnumerable<DssInformation>>(responseAsText);
+                    memoryCache.Set(cacheKey, listOfDss, MemoryCacheHelper.CreateMemoryCacheEntryOptions(7));
                 }
-                return null;
+                return listOfDss;
             }
             catch (Exception ex)
             {
@@ -187,15 +213,20 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
         {
             try
             {
-                var wxEndPoint = config["MicroserviceInternalCommunication:WeatherMicroservice"];
-                var response = await httpClient.GetAsync(string.Format("{0}rest/weatherdatasource/{1}", wxEndPoint, weatherId));
-
-                if (response.IsSuccessStatusCode)
+                var cacheKey = string.Format("weather_{0}", weatherId.ToLower());
+                if (!memoryCache.TryGetValue(cacheKey, out WeatherDataSchema listOfDss))
                 {
+                    var wxEndPoint = config["MicroserviceInternalCommunication:WeatherMicroservice"];
+                    var response = await httpClient.GetAsync(string.Format("{0}rest/weatherdatasource/{1}", wxEndPoint, weatherId));
+
+                    if (!response.IsSuccessStatusCode)
+                        return null;
+
                     var responseAsText = await response.Content.ReadAsStringAsync();
-                    return JsonConvert.DeserializeObject<WeatherDataSchema>(responseAsText);
+                    listOfDss = JsonConvert.DeserializeObject<WeatherDataSchema>(responseAsText);
+                    memoryCache.Set(cacheKey, listOfDss, MemoryCacheHelper.CreateMemoryCacheEntryOptions(7));
                 }
-                return null;
+                return listOfDss;
             }
             catch (Exception ex)
             {

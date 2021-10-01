@@ -18,7 +18,7 @@ namespace H2020.IPMDecisions.UPR.Core.Entities
         public string DssModelId { get; set; }
         [Required]
         public string DssModelName { get; set; }
-        // ToDo check if needed with Tor-Einar
+        // Make it required once UI implements it
         // [Required]
         // public string DssVersion { get; set; }
         [Required]

@@ -18,8 +18,7 @@ namespace H2020.IPMDecisions.UPR.Core.Dtos
         public string DssName { get; set; }
         public string DssModelId { get; set; }
         public string DssModelName { get; set; }
-        // ToDo check if needed with Tor-Einar
-        //public string DssVersion { get; set; }
+        public string DssVersion { get; set; }
         public string DssModelVersion { get; set; }
         public string DssExecutionType { get; set; }
         public string DssFullResult { get; set; }
