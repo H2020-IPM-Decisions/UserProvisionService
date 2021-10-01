@@ -27,8 +27,8 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
             try
             {
                 var jsonObject = new JObject();
-                JSchema schema = StringToJsonSchema(jsonSchema);
-                return ProcessJsonSchemaProperties(jsonObject, schema);
+                JSchema schema = StringToJsonSchema(jsonSchema, logger);
+                return ProcessJsonSchemaProperties(jsonObject, schema, logger);
             }
             catch (Exception ex)
             {
@@ -37,7 +37,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
             }
         }
 
-        private static JObject ProcessJsonSchemaProperties(JObject json, JSchema schema)
+        private static JObject ProcessJsonSchemaProperties(JObject json, JSchema schema, ILogger logger)
         {
             foreach (var property in schema.Properties)
             {
@@ -48,13 +48,13 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
                     case "number":
                     case "boolean":
                     case "string":
-                        json.Add(ProcessStandardTypeProperty(property));
+                        json.Add(ProcessStandardTypeProperty(property, logger));
                         break;
                     case "array":
-                        json.Add(property.Key.ToString(), ProcessArrayProperty(property));
+                        json.Add(property.Key.ToString(), ProcessArrayProperty(property, logger));
                         break;
                     case "object":
-                        json.Add(property.Key.ToString(), ProcessObjectProperty(property));
+                        json.Add(property.Key.ToString(), ProcessObjectProperty(property, logger));
                         break;
                     default:
                         break;
@@ -63,39 +63,72 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
             return json;
         }
 
-        private static JSchema StringToJsonSchema(string jsonSchema)
+        private static JSchema StringToJsonSchema(string jsonSchema, ILogger logger)
         {
-            JSchemaUrlResolver resolver = new JSchemaUrlResolver();
-            return JSchema.Parse(jsonSchema, resolver);
-        }
-
-        private static JProperty ProcessStandardTypeProperty(KeyValuePair<string, JSchema> property)
-        {
-            if (HasDefaultValue(property.Value))
+            try
             {
-                return new JProperty(property.Key, property.Value.Default.ToString());
-            };
-            return new JProperty(property.Key, null);
-        }
-
-        private static JObject ProcessObjectProperty(KeyValuePair<string, JSchema> property)
-        {
-            var jsonObject = new JObject();
-            JSchema schema = StringToJsonSchema(property.Value.ToString());
-            ProcessJsonSchemaProperties(jsonObject, schema);
-            return jsonObject;
-        }
-
-        private static JObject ProcessArrayProperty(KeyValuePair<string, JSchema> property)
-        {
-            var jsonObject = new JObject();
-            JSchema schema = StringToJsonSchema(property.Value.ToString());
-            foreach (var item in schema.Items)
-            {
-                //ToDo: Do we need to do this or object saved on DB?
+                JSchemaUrlResolver resolver = new JSchemaUrlResolver();
+                return JSchema.Parse(jsonSchema, resolver);
             }
-            ProcessJsonSchemaProperties(jsonObject, schema);
-            return jsonObject;
+            catch (Exception ex)
+            {
+                logger.LogError(string.Format("Error on StringToJsonSchema. {0}", ex.Message));
+                return null;
+            }
+        }
+
+        private static JProperty ProcessStandardTypeProperty(KeyValuePair<string, JSchema> property, ILogger logger)
+        {
+            try
+            {
+                if (HasDefaultValue(property.Value))
+                {
+                    return new JProperty(property.Key, property.Value.Default.ToString());
+                };
+                return new JProperty(property.Key, null);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(string.Format("Error on ProcessStandardTypeProperty. {0}", ex.Message));
+                return null;
+            }
+        }
+
+        private static JObject ProcessObjectProperty(KeyValuePair<string, JSchema> property, ILogger logger)
+        {
+            try
+            {
+                var jsonObject = new JObject();
+                JSchema schema = StringToJsonSchema(property.Value.ToString(), logger);
+                ProcessJsonSchemaProperties(jsonObject, schema, logger);
+                return jsonObject;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(string.Format("Error on ProcessObjectProperty. {0}", ex.Message));
+                return null;
+            }
+
+        }
+
+        private static JObject ProcessArrayProperty(KeyValuePair<string, JSchema> property, ILogger logger)
+        {
+            try
+            {
+                var jsonObject = new JObject();
+                JSchema schema = StringToJsonSchema(property.Value.ToString(), logger);
+                foreach (var item in schema.Items)
+                {
+                    //ToDo: Do we need to do this or object saved on DB?
+                }
+                ProcessJsonSchemaProperties(jsonObject, schema, logger);
+                return jsonObject;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(string.Format("Error on ProcessArrayProperty. {0}", ex.Message));
+                return null;
+            }
         }
 
         private static bool HasDefaultValue(JSchema propertyValue)
