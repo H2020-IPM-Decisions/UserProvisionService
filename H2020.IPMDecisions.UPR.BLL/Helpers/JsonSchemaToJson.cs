@@ -41,7 +41,6 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
         {
             foreach (var property in schema.Properties)
             {
-                if (property.Key.ToLower() == "weatherdata") continue;
                 switch (property.Value.Type.ToString().ToLower())
                 {
                     case "integer":

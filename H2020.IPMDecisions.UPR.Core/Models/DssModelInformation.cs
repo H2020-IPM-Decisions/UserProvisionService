@@ -14,7 +14,8 @@ namespace H2020.IPMDecisions.UPR.Core.Models
         public string TypeOfOutput { get; set; }
         [JsonProperty("description_URL")]
         public string DescriptionUrl { get; set; }
-        public string Description { get; set; }
+        [JsonProperty("description")]
+        public DssDescription Description { get; set; }
         public string Version { get; set; }
         // public string Citation { get; set; }
         public string Keywords { get; set; }
@@ -26,6 +27,17 @@ namespace H2020.IPMDecisions.UPR.Core.Models
         [JsonProperty("valid_spatial")]
         public DssModelValidSpatial ValidSpatial { get; set; }
         public IEnumerable<DssModelAuthors> Authors { get; set; }
+    }
+
+    public class DssDescription
+    {
+        [JsonProperty("created_by")]
+        public string CreatedBy { get; set; }
+        public string Age { get; set; }
+        public string Assumptions { get; set; }
+        [JsonProperty("peer_review")]
+        public string PeerReview { get; set; }
+        public string Other { get; set; }
     }
 
     public class DssModelValidSpatial

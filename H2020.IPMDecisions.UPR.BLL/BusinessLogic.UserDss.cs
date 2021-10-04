@@ -110,7 +110,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                                 dss.DssModelVersion);
                             continue;
                         }
-                        dss.DssDescription = dssModelInformation.Description;
+                        dss.DssDescription = CreateDssDescription(dssModelInformation.Description);
                     }
                 }
 
@@ -248,7 +248,7 @@ namespace H2020.IPMDecisions.UPR.BLL
         {
             dataToReturn.DssTypeOfDecision = dssInformation.TypeOfDecision;
             dataToReturn.DssTypeOfOutput = dssInformation.TypeOfOutput;
-            dataToReturn.DssDescription = dssInformation.Description;
+            dataToReturn.DssDescription = CreateDssDescription(dssInformation.Description);
             dataToReturn.DssDescriptionUrl = dssInformation.DescriptionUrl;
             dataToReturn.WarningMessage = dssInformation.Output.WarningStatusInterpretation;
         }
@@ -266,6 +266,27 @@ namespace H2020.IPMDecisions.UPR.BLL
                 labelsList.Add(dateTime.AddDays(-i).ToShortDateString());
             }
             return labelsList;
+        }
+
+        private static string CreateDssDescription(DssDescription description)
+        {
+            var dssDescriptionJoined = "";
+            if (!string.IsNullOrEmpty(description.Other))
+                dssDescriptionJoined = string.Format("{0}Other: {1}. ", dssDescriptionJoined, description.Other);
+
+            if (!string.IsNullOrEmpty(description.CreatedBy))
+                dssDescriptionJoined = string.Format("{0}Created by: {1}. ", dssDescriptionJoined, description.CreatedBy);
+
+            if (!string.IsNullOrEmpty(description.Age))
+                dssDescriptionJoined = string.Format("{0}Age: {1}. ", dssDescriptionJoined, description.Age);
+
+            if (!string.IsNullOrEmpty(description.Assumptions))
+                dssDescriptionJoined = string.Format("{0}Assumptions: {1}. ", dssDescriptionJoined, description.Assumptions);
+
+            if (!string.IsNullOrEmpty(description.PeerReview))
+                dssDescriptionJoined = string.Format("{0}Peer review: {1}. ", dssDescriptionJoined, description.PeerReview);
+
+            return dssDescriptionJoined;
         }
     }
 }
