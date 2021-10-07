@@ -133,5 +133,17 @@ namespace H2020.IPMDecisions.UPR.Core.Models
         public string FormMethod { get; set; }
         [JsonProperty("content_type")]
         public string ContentType { get; set; }
+        [JsonProperty("input_schema_categories")]
+        public DssInputSchemaCategories InputSchemaCategories { get; set; }
+    }
+
+    public class DssInputSchemaCategories
+    {
+        public List<string> Hidden { get; set; }
+        public List<string> Internal { get; set; }
+        public List<string> Triggered { get; set; }
+        [JsonProperty("user_Init")]
+        public List<string> UserInit { get; set; }
+        public List<string> System { get; set; }
     }
 }
