@@ -209,6 +209,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                 .FindByConditionAsync(c =>
                 c.CropPestId == fieldCropPest.CropPest.Id
                 & c.DssId == cropPestDss.DssId
+                & c.DssVersion == cropPestDss.DssVersion
                 & c.DssModelId == cropPestDss.DssModelId
                 & c.DssModelVersion == cropPestDss.DssModelVersion
                 & c.DssExecutionType.ToLower() == cropPestDss.DssExecutionType.ToLower());

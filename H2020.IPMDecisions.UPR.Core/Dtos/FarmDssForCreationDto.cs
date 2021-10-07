@@ -23,8 +23,7 @@ namespace H2020.IPMDecisions.UPR.Core.Dtos
         public override string DssModelId { get; set; }
         [Required]
         public override string DssModelName { get; set; }
-        // ToDo Uncomment Required when UI implementation ready
-        // [Required]
+        [Required]
         public override string DssVersion { get; set; }
         [Required]
         public override string DssModelVersion { get; set; }
