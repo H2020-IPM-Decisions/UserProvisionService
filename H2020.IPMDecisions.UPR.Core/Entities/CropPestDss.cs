@@ -18,9 +18,8 @@ namespace H2020.IPMDecisions.UPR.Core.Entities
         public string DssModelId { get; set; }
         [Required]
         public string DssModelName { get; set; }
-        // Make it required once UI implements it
-        // [Required]
-        // public string DssVersion { get; set; }
+        [Required]
+        public string DssVersion { get; set; }
         [Required]
         public string DssModelVersion { get; set; }
         [Required]
