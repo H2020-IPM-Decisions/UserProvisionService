@@ -6,6 +6,7 @@ namespace H2020.IPMDecisions.UPR.Core.Models
     {
         public Guid Id { get; set; }
         public Guid FarmId { get; set; }
+        public string FarmName { get; set; }
         public Guid FieldId { get; set; }
         public string CropEppoCode { get; set; }
         public string PestEppoCode { get; set; }

@@ -7,6 +7,7 @@ namespace H2020.IPMDecisions.UPR.Core.Dtos
     {
         public Guid Id { get; set; }
         public Guid FarmId { get; set; }
+        public string FarmName { get; set; }
         public Guid FieldId { get; set; }
         public DateTime CreationDate { get; set; }
         public bool IsValid { get; set; }
