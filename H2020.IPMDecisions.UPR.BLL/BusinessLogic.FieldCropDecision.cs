@@ -231,6 +231,9 @@ namespace H2020.IPMDecisions.UPR.BLL
                 if (existingCombination != null) return null;
             }
 
+            if (string.IsNullOrEmpty(dssParameters))
+                dssParameters = await AddDefaultDssParameters(cropPestDss, dssParameters);
+
             var newFieldCropPestDss = new FieldCropPestDss()
             {
                 FieldCropPest = fieldCropPest,
@@ -239,6 +242,15 @@ namespace H2020.IPMDecisions.UPR.BLL
             };
             this.dataService.FieldCropPestDsses.Create(newFieldCropPestDss);
             return newFieldCropPestDss;
+        }
+
+        private async Task<string> AddDefaultDssParameters(CropPestDss cropPestDss, string dssParameters)
+        {
+            var dssInformation = await internalCommunicationProvider
+                                        .GetDssModelInputSchemaMicroservice(cropPestDss.DssId, cropPestDss.DssModelId);
+            if (!string.IsNullOrEmpty(dssInformation))
+                dssParameters = JsonSchemaToJson.ToJsonString(dssInformation, logger);
+            return dssParameters;
         }
 
         private ShapedDataWithLinks ShapeFieldCropPestDssAsChildren(FieldCrop fieldCrop, Guid fieldCropPestId, FieldCropPestDssResourceParameter resourceParameter, bool includeLinks)

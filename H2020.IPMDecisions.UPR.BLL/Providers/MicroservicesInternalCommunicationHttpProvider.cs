@@ -170,7 +170,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
                 {
                     var wxEndPoint = config["MicroserviceInternalCommunication:WeatherMicroservice"];
                     var endPointUrlEncoded = HttpUtility.UrlEncode(endPointUrl);
-                    var endPointQueryStringEncoded = HttpUtility.UrlEncode(endPointQueryString);                    
+                    var endPointQueryStringEncoded = HttpUtility.UrlEncode(endPointQueryString);
                     weatherResponse = await httpClient.GetAsync(string.Format("{0}rest/amalgamation/amalgamate/?endpointURL={1}&endpointQueryStr={2}", wxEndPoint, endPointUrlEncoded, endPointQueryStringEncoded));
                     memoryCache.Set(cacheKey, weatherResponse, MemoryCacheHelper.CreateMemoryCacheEntryOptions(1));
                 }
@@ -231,6 +231,31 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
             catch (Exception ex)
             {
                 logger.LogError(string.Format("Error in Internal Communication - GetWeatherProviderInformationFromWeatherMicroservice. {0}", ex.Message));
+                return null;
+            }
+        }
+
+        public async Task<string> GetDssModelInputSchemaMicroservice(string dssId, string modelId)
+        {
+            try
+            {
+                var cacheKey = string.Format("dssInputSchema_{0}_{1}", dssId.ToLower(), modelId.ToLower());
+                if (!memoryCache.TryGetValue(cacheKey, out string dssInputSchema))
+                {
+                    var dssEndPoint = config["MicroserviceInternalCommunication:DssMicroservice"];
+                    var response = await httpClient.GetAsync(string.Format("{0}rest/model/{1}/{2}/input_schema/ui_form", dssEndPoint, dssId, modelId));
+
+                    if (!response.IsSuccessStatusCode) return null;
+
+                    dssInputSchema = await response.Content.ReadAsStringAsync();
+
+                    memoryCache.Set(cacheKey, dssInputSchema, MemoryCacheHelper.CreateMemoryCacheEntryOptions(7));
+                }
+                return dssInputSchema;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(string.Format("Error in Internal Communication - GetDssModelInputSchemaMicroservice. {0}", ex.Message));
                 return null;
             }
         }
