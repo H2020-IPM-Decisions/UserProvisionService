@@ -130,9 +130,18 @@ namespace H2020.IPMDecisions.UPR.BLL
                 var dssUserId = dss.FieldCropPest.FieldCrop.Field.Farm.UserFarms.FirstOrDefault().UserId;
                 if (userId != dssUserId) return GenericResponseBuilder.Success();
 
-                this.dataService.FieldCropPestDsses.Delete(dss);
-                await this.dataService.CompleteAsync();
+                if (dss.FieldCropPest.FieldCropPestDsses.Count() > 1)
+                {
+                    this.dataService.FieldCropPestDsses.Delete(dss);
+                }
+                else
+                {
+                    // If last CropPestDss, delete field
+                    var field = dss.FieldCropPest.FieldCrop.Field;
+                    this.dataService.Fields.Delete(field);
+                }
 
+                await this.dataService.CompleteAsync();
                 return GenericResponseBuilder.Success();
             }
             catch (Exception ex)
