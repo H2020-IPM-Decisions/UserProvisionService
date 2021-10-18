@@ -31,7 +31,11 @@ namespace H2020.IPMDecisions.UPR.BLL
                 foreach (var cropGroup in dataAsCropGroup)
                 {
                     var fieldId = cropGroup.Key.FieldId;
-                    var fieldAsEntity = farm.Fields.FirstOrDefault(fi => fi.Id == fieldId);
+                    var fieldAsEntity = farm
+                        .Fields
+                        .FirstOrDefault(
+                            fi => fi.Id == fieldId ||
+                            fi.FieldCrop.CropEppoCode == cropGroup.Key.CropEppoCode);
                     var fieldCrop = new FieldCrop();
                     if (fieldAsEntity == null)
                     {
