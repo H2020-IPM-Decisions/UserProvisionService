@@ -21,6 +21,7 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
                 .ForMember(dest => dest.DssModelName, opt => opt.MapFrom(src => src.CropPestDss.DssModelName))
                 .ForMember(dest => dest.DssExecutionType, opt => opt.MapFrom(src => src.CropPestDss.DssExecutionType))
                 .ForMember(dest => dest.FarmId, opt => opt.MapFrom(src => src.FieldCropPest.FieldCrop.Field.FarmId))
+                .ForMember(dest => dest.FarmName, opt => opt.MapFrom(src => src.FieldCropPest.FieldCrop.Field.Farm.Name))
                 .ForMember(dest => dest.FieldId, opt => opt.MapFrom(src => src.FieldCropPest.FieldCrop.Field.Id))
                 .ForMember(dest => dest.IsValid,
                     opt => opt.MapFrom(src => src.FieldDssResults.OrderByDescending(r => r.CreationDate).FirstOrDefault().IsValid))
@@ -68,6 +69,7 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
                 .ForMember(dest => dest.DssModelVersion, opt => opt.MapFrom(src => src.CropPestDss.DssModelVersion))
                 .ForMember(dest => dest.DssExecutionType, opt => opt.MapFrom(src => src.CropPestDss.DssExecutionType))
                 .ForMember(dest => dest.FarmId, opt => opt.MapFrom(src => src.FieldCropPest.FieldCrop.Field.FarmId))
+                .ForMember(dest => dest.FarmName, opt => opt.MapFrom(src => src.FieldCropPest.FieldCrop.Field.Farm.Name))
                 .ForMember(dest => dest.FieldId, opt => opt.MapFrom(src => src.FieldCropPest.FieldCrop.Field.Id))
                 .ForMember(dest => dest.IsValid,
                     opt => opt.MapFrom(src => src.FieldDssResults.OrderByDescending(r => r.CreationDate).FirstOrDefault().IsValid))

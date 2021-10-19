@@ -18,6 +18,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Configurations
                     {
                         c.CropPestId,
                         c.DssId,
+                        c.DssVersion,
                         c.DssModelId,
                         c.DssModelVersion,
                         c.DssExecutionType

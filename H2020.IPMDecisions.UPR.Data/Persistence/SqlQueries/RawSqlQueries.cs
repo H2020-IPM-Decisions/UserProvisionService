@@ -2,13 +2,14 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.SqlQueries
 {
     public static class RawSqlQueries
     {
-        public const string GetDssResults = @"SELECT ""Field"".""FarmId"", ""Field"".""Id"" as ""FieldId"", ""FieldCropPestDss"".""Id"",fc.""CropEppoCode"", ""CropPest"".""PestEppoCode"",
+        public const string GetDssResults = @"SELECT ""Farm"".""Name"" as ""FarmName"",""Field"".""FarmId"", ""Field"".""Id"" as ""FieldId"", ""FieldCropPestDss"".""Id"",fc.""CropEppoCode"", ""CropPest"".""PestEppoCode"",
         ""CropPestDss"".""DssId"",""CropPestDss"".""DssModelId"",""CropPestDss"".""DssExecutionType"", ""CropPestDss"".""DssModelName"", 
-        ""CropPestDss"".""DssName"", ""CropPestDss"".""DssModelVersion"",
+        ""CropPestDss"".""DssName"", ""CropPestDss"".""DssModelVersion"", ""CropPestDss"".""DssVersion"",
         dssResults.""CreationDate"", dssResults.""DssFullResult"", dssResults.""WarningStatus"", dssResults.""WarningMessage"", dssResults.""ResultMessageType"", dssResults.""ResultMessage"",
         dssResults.""IsValid""
                 FROM ""FieldCrop"" fc
                 INNER JOIN ""Field"" ON ""Field"".""Id"" = fc.""FieldId""
+                INNER JOIN ""Farm"" ON ""Farm"".""Id"" = ""Field"".""FarmId""
                 INNER JOIN ""FieldCropPest"" ON ""FieldCropPest"".""FieldCropId"" = fc.""Id""
                 LEFT JOIN ""CropPest"" ON ""CropPest"".""Id"" = ""FieldCropPest"".""CropPestId""
                 INNER JOIN ""FieldCropPestDss"" ON ""FieldCropPestDss"".""FieldCropPestId"" = ""FieldCropPest"".""Id"" 
