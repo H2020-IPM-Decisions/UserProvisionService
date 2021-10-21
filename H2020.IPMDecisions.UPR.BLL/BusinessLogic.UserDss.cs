@@ -47,6 +47,11 @@ namespace H2020.IPMDecisions.UPR.BLL
                 this.mapper.Map(fieldCropPestDssForUpdateDto, dss);
                 this.dataService.FieldCropPestDsses.Update(dss);
                 await this.dataService.CompleteAsync();
+
+                if (dss.CropPestDss.DssExecutionType.ToLower() == "onthefly")
+                {
+                    var jobId = this.queueJobs.AddDssOnOnTheFlyQueue(id);
+                }
                 return GenericResponseBuilder.Success();
             }
             catch (Exception ex)

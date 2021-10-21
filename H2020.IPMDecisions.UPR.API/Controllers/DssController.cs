@@ -93,7 +93,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
 
             var response = await businessLogic.UpdateFieldCropPestDssById(id, userId, fieldCropPestDssForUpdateDto);
             if (!response.IsSuccessful)
-                return BadRequest(new { message = response.ErrorMessage });
+                return response.RequestResult;
 
             return NoContent();
         }
