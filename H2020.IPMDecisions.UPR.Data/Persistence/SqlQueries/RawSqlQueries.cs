@@ -29,6 +29,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.SqlQueries
                     (SELECT ""FarmId""
                     FROM ""Farm""
                     INNER JOIN ""UserFarm"" ON ""UserFarm"".""FarmId"" = ""Farm"".""Id""
-                WHERE ""UserFarm"".""UserId"" = {0} AND ""UserFarm"".""Authorised"" = true));";
+                WHERE ""UserFarm"".""UserId"" = {0} AND ""UserFarm"".""Authorised"" = true))
+                ORDER BY ""Farm"".""Name"";";
     }
 }
