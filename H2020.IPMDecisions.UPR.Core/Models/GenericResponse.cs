@@ -40,7 +40,7 @@ namespace H2020.IPMDecisions.UPR.Core.Models
                 IsSuccessful = false,
                 Result = result,
                 ErrorMessage = errorMessage,
-                RequestResult = new BadRequestObjectResult(new { message = errorMessage })
+                RequestResult = new BadRequestObjectResult(new { message = errorMessage, result = result })
             };
         }
 
@@ -72,13 +72,13 @@ namespace H2020.IPMDecisions.UPR.Core.Models
             };
         }
 
-        public static GenericResponse<T> Duplicated<T>(string errorMessage = "")
+        public static GenericResponse<T> Duplicated<T>(string errorMessage = "", object result = null)
         {
             return new GenericResponse<T>()
             {
                 IsSuccessful = false,
                 ErrorMessage = errorMessage,
-                RequestResult = new CustomConflictResult(errorMessage)
+                RequestResult = new CustomConflictResult(errorMessage, result)
             };
         }
 

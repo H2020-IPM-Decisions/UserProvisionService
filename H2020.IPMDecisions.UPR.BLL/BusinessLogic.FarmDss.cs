@@ -67,15 +67,27 @@ namespace H2020.IPMDecisions.UPR.BLL
                         if (newFieldCropPestDss != null)
                             listOfNewFieldCropPestDss.Add(newFieldCropPestDss);
                         else
-                            listOfErrorsToReturn.Add(string.Format("Duplicated combination of Crop ({0}), Pest ({1}), DSS ({2}), Model ({3}) & DSS Model version ({4}) on a field. This record cannot be saved.",
+                            listOfErrorsToReturn.Add(string.Format("Duplicated combination of Crop ({0}), Pest ({1}), DSS ({2}), Model ({3}) & DSS Model version ({4}) on a field.",
                                 farmForcreation.CropEppoCode, farmForcreation.PestEppoCode,
                                 farmForcreation.DssId, farmForcreation.DssModelId,
                                 farmForcreation.DssModelVersion));
                     }
                 }
+                var dataToReturn = new Dictionary<string, object>();
+                if (listOfErrorsToReturn.Count > 0)
+                {
+                    dataToReturn.Add("warnings", listOfErrorsToReturn);
+                    var warningsAsString = "Please fix the following error(s) before saving:";
+                    foreach (var error in listOfErrorsToReturn)
+                    {
+                        warningsAsString = string.Format("{0} {1};", warningsAsString, error);
+                    }
+                    httpContext.Response.Headers.Add("Warning", "Warning");
+                    httpContext.Response.Headers.Add("warn-text", "One or more crop, pest & DSS combinations already exists. Please check response body for more information.");
+                    return GenericResponseBuilder.Duplicated<IDictionary<string, object>>(warningsAsString, dataToReturn);
+                }
 
                 await this.dataService.CompleteAsync();
-
                 foreach (var item in listOfNewFieldCropPestDss)
                 {
                     var fieldCropPestDssToReturn = this.mapper.Map<FieldCropPestDssDto>(item);
@@ -85,15 +97,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                     }
                     listToReturn.Add(fieldCropPestDssToReturn);
                 }
-
-                var dataToReturn = new Dictionary<string, object>();
                 dataToReturn.Add("value", listToReturn);
-                if (listOfErrorsToReturn.Count > 0)
-                {
-                    dataToReturn.Add("warnings", listOfErrorsToReturn);
-                    httpContext.Response.Headers.Add("Warning", "Warning");
-                    httpContext.Response.Headers.Add("warn-text", "One or more crop, pest & DSS combinations already exists. Please check response body for more information.");
-                }
 
                 return GenericResponseBuilder.Success<IDictionary<string, object>>(dataToReturn);
             }
