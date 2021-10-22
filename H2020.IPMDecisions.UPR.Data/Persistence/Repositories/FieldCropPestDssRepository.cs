@@ -190,6 +190,9 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
                 .Include(fcpd => fcpd.FieldDssResults)
                 .Include(fcpd => fcpd.FieldCropPest)
                     .ThenInclude(fcp => fcp.FieldCropPestDsses)
+                .Include(fcpd => fcpd.FieldCropPest)
+                    .ThenInclude(fcp => fcp.FieldCrop)
+                    .ThenInclude(fc => fc.FieldCropPests)
                 .Where(f =>
                     f.Id == id)
                 .FirstOrDefaultAsync();

@@ -135,15 +135,25 @@ namespace H2020.IPMDecisions.UPR.BLL
                 var dssUserId = dss.FieldCropPest.FieldCrop.Field.Farm.UserFarms.FirstOrDefault().UserId;
                 if (userId != dssUserId) return GenericResponseBuilder.Success();
 
-                if (dss.FieldCropPest.FieldCropPestDsses.Count() > 1)
+                // If last FieldCropPestDss and last FieldCropPest delete field
+                if (dss.FieldCropPest.FieldCropPestDsses.Count() == 1
+                    && dss.FieldCropPest.FieldCrop.FieldCropPests.Count() == 1)
                 {
-                    this.dataService.FieldCropPestDsses.Delete(dss);
-                }
-                else
-                {
-                    // If last CropPestDss, delete field
                     var field = dss.FieldCropPest.FieldCrop.Field;
                     this.dataService.Fields.Delete(field);
+                }
+                // If last FieldCropPestDss on FieldCropPest, but extra existing FieldCropPest, delete the FieldCropPest
+                else if (dss.FieldCropPest.FieldCropPestDsses.Count() == 1
+                    && dss.FieldCropPest.FieldCrop.FieldCropPests.Count() > 1)
+                {
+                    var fieldCropPest = dss.FieldCropPest;
+                    this.dataService.FieldCropPests.Delete(fieldCropPest);
+
+                }
+                // If more than one FieldCropPestDss, delete just FieldCropPestDss
+                else
+                {
+                    this.dataService.FieldCropPestDsses.Delete(dss);
                 }
 
                 await this.dataService.CompleteAsync();
