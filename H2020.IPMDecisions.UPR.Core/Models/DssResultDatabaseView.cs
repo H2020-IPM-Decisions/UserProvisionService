@@ -17,6 +17,7 @@ namespace H2020.IPMDecisions.UPR.Core.Models
         public string DssModelName { get; set; }
         public string DssModelVersion { get; set; }
         public string DssExecutionType { get; set; }
+        public string DssEndPoint { get; set; }
         public DateTime? CreationDate { get; set; }
         public string DssFullResult { get; set; }
         public int? WarningStatus { get; set; }

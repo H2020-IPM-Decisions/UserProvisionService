@@ -21,7 +21,6 @@ namespace H2020.IPMDecisions.UPR.Core.Dtos
         public string Interval { get; set; }
         public string DssTypeOfOutput { get; set; }
         public string DssTypeOfDecision { get; set; }
-        public string DssDescriptionUrl { get; set; }
         public int ResultParametersLength { get; set; }
         public int ResultParametersWidth { get; set; }
         public List<ChartGroup> ChartGroups { get; set; }
