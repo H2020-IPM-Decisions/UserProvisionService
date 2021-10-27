@@ -199,15 +199,21 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
         private static void AddUserParametersToDss(string userDssParameters, JObject inputSchemaAsJson)
         {
             JObject userInputJsonObject = JObject.Parse(userDssParameters.ToString());
-            foreach (var property in userInputJsonObject.Properties())
+
+            JEnumerable<JToken> userInputConfigParameters = new JEnumerable<JToken>();
+            if (userInputJsonObject.First.Path.ToString().ToLower() == "configparameters")
             {
-                var token = inputSchemaAsJson.SelectToken(property.Name);
+                userInputConfigParameters = userInputJsonObject.First.Children();
+            }
+            foreach (var property in userInputConfigParameters.Children())
+            {
+                var token = inputSchemaAsJson.SelectToken(property.Path);
                 if (token != null)
                 {
-                    token.Replace(userInputJsonObject.SelectToken(property.Name));
+                    token.Replace(userInputJsonObject.SelectToken(property.Path));
                     continue;
                 }
-                inputSchemaAsJson.Add(property.Name, userInputJsonObject.SelectToken(property.Name));
+                inputSchemaAsJson.Add(property.Path, userInputJsonObject.SelectToken(property.Path));
             }
         }
 
