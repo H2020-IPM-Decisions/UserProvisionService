@@ -273,8 +273,11 @@ namespace H2020.IPMDecisions.UPR.BLL
             dataToReturn.DssTypeOfDecision = dssInformation.TypeOfDecision;
             dataToReturn.DssTypeOfOutput = dssInformation.TypeOfOutput;
             dataToReturn.DssDescription = CreateDssDescription(dssInformation.Description);
-            dataToReturn.DssDescriptionUrl = dssInformation.DescriptionUrl;
-            dataToReturn.WarningMessage = dssInformation.Output.WarningStatusInterpretation;
+            dataToReturn.DssEndPoint = dssInformation.DescriptionUrl;
+
+            // DSS type link do not have this section
+            if (dssInformation.Output != null)
+                dataToReturn.WarningMessage = dssInformation.Output.WarningStatusInterpretation;
         }
 
         private List<string> CreateResultParametersLabels(string outputTimeEnd, int days)
