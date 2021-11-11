@@ -76,6 +76,29 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         }
 
         /// <summary>
+        /// Use this request to get the DSS parameters setup by the user
+        /// </summary>
+        /// <remarks>The user will be identified using the UserId on the authentification JWT.
+        /// <para>The DSS must belong to the user</para>
+        /// </remarks>
+        [ProducesResponseType(typeof(FieldDssResultDetailedDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [Produces(MediaTypeNames.Application.Json)]
+        [HttpGet("{id:guid}/parameters", Name = "api.dss.getparameters.byid")]
+        // GET: api/dss/1/parameters
+        public async Task<IActionResult> GetParametersById([FromRoute] Guid id)
+        {
+            var userId = Guid.Parse(HttpContext.Items["userId"].ToString());
+
+            var response = await businessLogic.GetFieldCropPestDssParametersById(id, userId);
+            if (!response.IsSuccessful)
+                return response.RequestResult;
+
+            return Ok(response.Result);
+        }
+
+        /// <summary>
         /// Use this request to update a DSS parameter
         /// </summary>
         /// <remarks>The user will be identified using the UserId on the authentification JWT.
