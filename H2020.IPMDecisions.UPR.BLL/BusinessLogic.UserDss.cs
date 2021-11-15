@@ -202,8 +202,9 @@ namespace H2020.IPMDecisions.UPR.BLL
             DssModelOutputInformation dssFullOutputAsObject = AddDssFullResultData(dataToReturn);
 
             var locationResultData = dssFullOutputAsObject.LocationResult.FirstOrDefault();
-            IEnumerable<List<double>> dataLastSevenDays = SelectDssLastResultsData(dataToReturn, locationResultData);
-            List<string> labels = CreateResultParametersLabels(dataToReturn.OutputTimeEnd, dataLastSevenDays.Count());
+            IEnumerable<List<double>> dataLastDays = SelectDssLastResultsData(dataToReturn, locationResultData);
+            List<string> labels = CreateResultParametersLabels(dataToReturn.OutputTimeEnd, dataLastDays.Count());
+            dataToReturn.WarningStatusLabels = labels;
 
             for (int i = 0; i < dssFullOutputAsObject.ResultParameters.Count; i++)
             {
@@ -228,7 +229,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                     };
                 }
 
-                foreach (var dataForParameters in dataLastSevenDays)
+                foreach (var dataForParameters in dataLastDays)
                 {
                     var data = dataForParameters[i];
                     resultParameter.Data.Add(data);
@@ -264,14 +265,15 @@ namespace H2020.IPMDecisions.UPR.BLL
             dataToReturn.PestLanguages = eppoCodeLanguages.PestLanguages;
         }
 
-        private static IEnumerable<List<double>> SelectDssLastResultsData(FieldDssResultDetailedDto dataToReturn, LocationResultDssOutput locationResultData)
+        private static IEnumerable<List<double>> SelectDssLastResultsData(
+            FieldDssResultDetailedDto dataToReturn,
+            LocationResultDssOutput locationResultData,
+            int maxDaysOutput = 7)
         {
             IEnumerable<List<double>> dataLastSevenDays = new List<List<double>>();
 
             if (locationResultData != null)
             {
-                //Take last 7 days of Data
-                var maxDaysOutput = 7;
                 dataLastSevenDays = locationResultData.Data.TakeLast(maxDaysOutput);
                 dataToReturn.ResultParametersLength = dataLastSevenDays.Count();
                 dataToReturn.WarningStatusPerDay = locationResultData.WarningStatus.TakeLast(maxDaysOutput).ToList();
