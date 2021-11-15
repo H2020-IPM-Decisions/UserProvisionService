@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace H2020.IPMDecisions.UPR.Core.Models
 {
@@ -10,6 +11,7 @@ namespace H2020.IPMDecisions.UPR.Core.Models
         public int Interval { get; set; }
         public DateTime WeatherTimeStart { get; set; }
         public DateTime WeatherTimeEnd { get; set; }
+        public IEnumerable<string> WeatherParameters { get; set; }
         public string WeatherDssParameters { get; set; }
     }
 }

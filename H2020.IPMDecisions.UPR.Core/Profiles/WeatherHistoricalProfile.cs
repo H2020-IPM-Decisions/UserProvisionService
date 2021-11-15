@@ -4,9 +4,9 @@ using H2020.IPMDecisions.UPR.Core.Models;
 
 namespace H2020.IPMDecisions.UPR.Core.Profiles
 {
-    public class WeatherStationProfile : MainProfile
+    public class WeatherHistoricalProfile : MainProfile
     {
-        public WeatherStationProfile()
+        public WeatherHistoricalProfile()
         {
             CreateMap<WeatherHistorical, WeatherHistorical>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore());
@@ -24,13 +24,6 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
 
             // Dtos to entities
             CreateMap<WeatherHistoricalDto, WeatherHistorical>();
-
-            // Internal
-            CreateMap<WeatherHistorical, WeatherSchemaForHttp>()
-                .AfterMap((src, dest) =>
-                {
-                    dest.IsForecast = false;
-                });
         }
     }
 }
