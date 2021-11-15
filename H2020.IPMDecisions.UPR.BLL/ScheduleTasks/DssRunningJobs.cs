@@ -28,6 +28,8 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
 
     public partial class DssRunningJobs : IDssRunningJobs
     {
+        private HttpClient httpClient;
+
         private readonly IDataService dataService;
         private readonly IMicroservicesInternalCommunicationHttpProvider internalCommunicationProvider;
         private readonly ILogger<DssRunningJobs> logger;
@@ -75,7 +77,8 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             var totalRecordsOnBatch = 50;
             var totalBatches = System.Math.Ceiling((decimal)count / totalRecordsOnBatch);
 
-            HttpClient httpClient = new HttpClient();
+            httpClient = new HttpClient();
+
             for (int batchNumber = 1; batchNumber <= totalBatches; batchNumber++)
             {
                 var listOfDss = await this
@@ -85,11 +88,15 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
 
                 foreach (var dss in listOfDss)
                 {
-                    var dssResult = await RunOnTheFlyDss(httpClient, dss);
-                    if (dssResult == null) continue;
-                    this.dataService.FieldCropPestDsses.AddDssResult(dss, dssResult);
+                    BackgroundJob.Enqueue<DssRunningJobs>(
+                        job => job.QueueOnTheFlyDss(JobCancellationToken.Null, dss.Id));
+                    
+                    // UnComment while debuggin 
+                    // var dssResult = await RunOnTheFlyDss(dss);
+                    // if (dssResult == null) continue;
+                    // this.dataService.FieldCropPestDsses.AddDssResult(dss, dssResult);
                 }
-                await this.dataService.CompleteAsync();
+                // await this.dataService.CompleteAsync();
             }
         }
 
@@ -111,9 +118,9 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
         {
             try
             {
-                HttpClient httpClient = new HttpClient();
+                httpClient = new HttpClient();
                 var dss = await this.dataService.FieldCropPestDsses.FindByIdAsync(dssId);
-                var dssResult = await RunOnTheFlyDss(httpClient, dss);
+                var dssResult = await RunOnTheFlyDss(dss);
                 if (dssResult == null) return;
                 this.dataService.FieldCropPestDsses.AddDssResult(dss, dssResult);
                 await this.dataService.CompleteAsync();
@@ -122,10 +129,15 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             {
                 logger.LogError(string.Format("Error in BLL - ExecuteDssOnQueue. {0}", ex.Message));
             }
+            finally
+            {
+                httpClient.Dispose();
+
+            }
         }
 
         #region DSS Common Stuff
-        public async Task<FieldDssResult> RunOnTheFlyDss(HttpClient httpClient, FieldCropPestDss dss)
+        public async Task<FieldDssResult> RunOnTheFlyDss(FieldCropPestDss dss)
         {
             var dssResult = new FieldDssResult() { CreationDate = DateTime.Now, IsValid = false };
             try
@@ -262,7 +274,14 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
         {
             dssResult.ResultMessageType = (int)errorType;
             dssResult.ResultMessage = errorMessage.ToString();
-            dssResult.DssFullResult = JObject.Parse("{\"message\": \"" + errorMessage + "\"}").ToString();
+            if (DataParseHelper.IsValidJson(("{\"message\": \"" + errorMessage + "\"}")))
+            {
+                dssResult.DssFullResult = JObject.Parse("{\"message\": \"" + errorMessage + "\"}").ToString();
+            }
+            else
+            {
+                dssResult.DssFullResult = JObject.Parse("{\"message\": \"Message error from DSS do not follow IPM Decisions standards\"}").ToString();
+            }
         }
         #endregion
     }
