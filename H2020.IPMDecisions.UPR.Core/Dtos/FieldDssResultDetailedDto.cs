@@ -18,6 +18,7 @@ namespace H2020.IPMDecisions.UPR.Core.Dtos
         public string OutputTimeStart { get; set; }
         public string OutputTimeEnd { get; set; }
         public List<int> WarningStatusPerDay { get; set; }
+        public List<string> WarningStatusLabels { get; set; }
         public string Interval { get; set; }
         public string DssTypeOfOutput { get; set; }
         public string DssTypeOfDecision { get; set; }
