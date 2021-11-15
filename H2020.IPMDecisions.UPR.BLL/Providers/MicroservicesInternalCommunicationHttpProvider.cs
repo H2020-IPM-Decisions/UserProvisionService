@@ -172,7 +172,8 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
                     var endPointUrlEncoded = HttpUtility.UrlEncode(endPointUrl);
                     var endPointQueryStringEncoded = HttpUtility.UrlEncode(endPointQueryString);
                     weatherResponse = await httpClient.GetAsync(string.Format("{0}rest/amalgamation/amalgamate/?endpointURL={1}&endpointQueryStr={2}", wxEndPoint, endPointUrlEncoded, endPointQueryStringEncoded));
-                    memoryCache.Set(cacheKey, weatherResponse, MemoryCacheHelper.CreateMemoryCacheEntryOptions(1));
+                    if (weatherResponse.IsSuccessStatusCode)
+                        memoryCache.Set(cacheKey, weatherResponse, MemoryCacheHelper.CreateMemoryCacheEntryOptions(1));
                 }
                 return weatherResponse;
             }
@@ -214,7 +215,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
             try
             {
                 var cacheKey = string.Format("weather_{0}", weatherId.ToLower());
-                if (!memoryCache.TryGetValue(cacheKey, out WeatherDataSchema listOfDss))
+                if (!memoryCache.TryGetValue(cacheKey, out WeatherDataSchema weatherSchema))
                 {
                     var wxEndPoint = config["MicroserviceInternalCommunication:WeatherMicroservice"];
                     var response = await httpClient.GetAsync(string.Format("{0}rest/weatherdatasource/{1}", wxEndPoint, weatherId));
@@ -223,10 +224,10 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
                         return null;
 
                     var responseAsText = await response.Content.ReadAsStringAsync();
-                    listOfDss = JsonConvert.DeserializeObject<WeatherDataSchema>(responseAsText);
-                    memoryCache.Set(cacheKey, listOfDss, MemoryCacheHelper.CreateMemoryCacheEntryOptions(7));
+                    weatherSchema = JsonConvert.DeserializeObject<WeatherDataSchema>(responseAsText);
+                    memoryCache.Set(cacheKey, weatherSchema, MemoryCacheHelper.CreateMemoryCacheEntryOptions(7));
                 }
-                return listOfDss;
+                return weatherSchema;
             }
             catch (Exception ex)
             {
