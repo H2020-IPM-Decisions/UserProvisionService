@@ -82,10 +82,10 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 //Great hack to work with Euroweather until is fixed
                 if (responseText.Contains("This is the first time this"))
                 {
-                    result.ResponseWeather = @"Error getting the weather data - This is the first time this season that weather data has been requested for this location. Please allow 2 hours of initial processing time.";
+                    result.ResponseWeather = @"This is the first time this season that weather data has been requested for this location. Please allow 2 hours of initial processing time.";
                     return result;
                 }
-                result.ResponseWeather = string.Format("Error getting the weather data - {0}", responseWeather.ReasonPhrase.ToString());
+                result.ResponseWeather = string.Format("{0} - {1}", responseWeather.ReasonPhrase.ToString(), responseText);
                 return result;
             }
 
@@ -148,17 +148,12 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             string farmLocationY,
             WeatherSchemaForHttp weatherDataSource)
         {
-            // var weatherStringParametersUrl = string.Format("longitude={0}&latitude={1}&interval={2}&timeStart={3}&timeEnd={4}&ignoreErrors=true",
-            //     farmLocationX,
-            //     farmLocationY,
-            //     weatherDataSource.Interval.ToString(),
-            //     weatherDataSource.WeatherTimeStart.ToString("yyyy-MM-dd"),
-            //     weatherDataSource.WeatherTimeEnd.ToString("yyyy-MM-dd"));
-            var weatherStringParametersUrl = string.Format("longitude={0}&latitude={1}&timeStart={2}&timeEnd={3}&ignoreErrors=true",
-            farmLocationX,
-            farmLocationY,
-            weatherDataSource.WeatherTimeStart.ToString("yyyy-MM-dd"),
-            weatherDataSource.WeatherTimeEnd.ToString("yyyy-MM-dd"));
+            var weatherStringParametersUrl = string.Format("longitude={0}&latitude={1}&interval={2}&timeStart={3}&timeEnd={4}&ignoreErrors=true",
+                farmLocationX,
+                farmLocationY,
+                weatherDataSource.Interval.ToString(),
+                weatherDataSource.WeatherTimeStart.ToString("yyyy-MM-dd"),
+                weatherDataSource.WeatherTimeEnd.ToString("yyyy-MM-dd"));
 
             if (!string.IsNullOrEmpty(weatherDataSource.WeatherDssParameters))
             {
