@@ -174,7 +174,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                     if (!string.IsNullOrEmpty(missingValueProperty))
                     {
                         var errorMessage = string.Format("Property {0} do not have a value.", missingValueProperty);
-                        CreateDssRunErrorResult(dssResult, errorMessage, DssOutputMessageTypeEnum.Error);
+                        CreateDssRunErrorResult(dssResult, errorMessage, DssOutputMessageTypeEnum.Info);
                         return dssResult;
                     }
                 }
