@@ -90,7 +90,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 {
                     BackgroundJob.Enqueue<DssRunningJobs>(
                         job => job.QueueOnTheFlyDss(JobCancellationToken.Null, dss.Id));
-                    
+
                     // UnComment while debuggin 
                     // var dssResult = await RunOnTheFlyDss(dss);
                     // if (dssResult == null) continue;
@@ -237,7 +237,23 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             // ToDo. Check valid responses when DSS do not run properly
             if (responseDss.StatusCode.Equals(HttpStatusCode.InternalServerError))
             {
-                var errorMessage = string.Format("DSS returned a Internal Server Error. {0}", responseAsText.ToString());
+                if (!string.IsNullOrEmpty(dssOutput.Message))
+                {
+                    if (dssOutput.MessageType == null)
+                    {
+                        dssResult.ResultMessageType = (int)DssOutputMessageTypeEnum.Error;
+                    }
+                    else
+                    {
+                        dssResult.ResultMessageType = dssOutput.MessageType;
+                    }
+                    dssResult.ResultMessage = dssOutput.Message;
+                    dssResult.DssFullResult = responseAsText;
+                    dssResult.IsValid = false;
+                    return;
+                }
+
+                var errorMessage = string.Format(responseAsText.ToString());
                 CreateDssRunErrorResult(dssResult, errorMessage, DssOutputMessageTypeEnum.Error);
                 return;
             }

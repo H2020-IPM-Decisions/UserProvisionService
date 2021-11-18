@@ -202,7 +202,7 @@ namespace H2020.IPMDecisions.UPR.BLL
             DssModelOutputInformation dssFullOutputAsObject = AddDssFullResultData(dataToReturn);
 
             var locationResultData = dssFullOutputAsObject.LocationResult.FirstOrDefault();
-            IEnumerable<List<double>> dataLastDays = SelectDssLastResultsData(dataToReturn, locationResultData);
+            IEnumerable<List<double?>> dataLastDays = SelectDssLastResultsData(dataToReturn, locationResultData);
             List<string> labels = CreateResultParametersLabels(dataToReturn.OutputTimeEnd, dataLastDays.Count());
             dataToReturn.WarningStatusLabels = labels;
 
@@ -265,12 +265,12 @@ namespace H2020.IPMDecisions.UPR.BLL
             dataToReturn.PestLanguages = eppoCodeLanguages.PestLanguages;
         }
 
-        private static IEnumerable<List<double>> SelectDssLastResultsData(
+        private static IEnumerable<List<double?>> SelectDssLastResultsData(
             FieldDssResultDetailedDto dataToReturn,
             LocationResultDssOutput locationResultData,
             int maxDaysOutput = 7)
         {
-            IEnumerable<List<double>> dataLastSevenDays = new List<List<double>>();
+            IEnumerable<List<double?>> dataLastSevenDays = new List<List<double?>>();
 
             if (locationResultData != null)
             {
