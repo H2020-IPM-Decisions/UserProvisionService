@@ -20,7 +20,7 @@ namespace H2020.IPMDecisions.UPR.Core.Models
         public double? Latitude { get; set; }
         public int Width { get; set; }
         public int Length { get; set; }
-        public List<int> WarningStatus { get; set; }
-        public List<List<double>> Data { get; set; }
+        public List<int?> WarningStatus { get; set; }
+        public List<List<double?>> Data { get; set; }
     }
 }

@@ -13,6 +13,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
         Task<string> GetDssModelInputSchemaMicroservice(string dssId, string modelId);
         Task<bool> ValidateWeatherdDataSchemaFromDssMicroservice(string weatherDataSchema);
         Task<HttpResponseMessage> GetWeatherUsingAmalgamationService(string endPointUrl, string endPointQueryString);
+        Task<HttpResponseMessage> GetWeatherUsingOwnService(string endPointUrl, string endPointParameters);
         Task<IEnumerable<DssInformation>> GetAllListOfDssFromDssMicroservice();
         Task<WeatherDataSchema> GetWeatherProviderInformationFromWeatherMicroservice(string weatherId);
     }

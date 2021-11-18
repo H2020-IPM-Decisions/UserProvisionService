@@ -17,7 +17,7 @@ namespace H2020.IPMDecisions.UPR.Core.Dtos
         public List<ResultParameters> ResultParameters { get; set; }
         public string OutputTimeStart { get; set; }
         public string OutputTimeEnd { get; set; }
-        public List<int> WarningStatusPerDay { get; set; }
+        public List<int?> WarningStatusPerDay { get; set; }
         public List<string> WarningStatusLabels { get; set; }
         public string Interval { get; set; }
         public string DssTypeOfOutput { get; set; }
@@ -42,7 +42,7 @@ namespace H2020.IPMDecisions.UPR.Core.Dtos
 
     public class ResultParameters
     {
-        private List<double> data = new List<double>();
+        private List<double?> data = new List<double?>();
         private List<string> labels = new List<string>();
         public ResultParameters()
         {
@@ -52,7 +52,7 @@ namespace H2020.IPMDecisions.UPR.Core.Dtos
         public string Code { get; set; }
         public string Title { get; set; }
         public string Description { get; set; }
-        public List<double> Data { get; set; }
+        public List<double?> Data { get; set; }
         public List<string> Labels { get; set; }
         public DssParameterChartInformation ChartInformation { get; set; }
     }

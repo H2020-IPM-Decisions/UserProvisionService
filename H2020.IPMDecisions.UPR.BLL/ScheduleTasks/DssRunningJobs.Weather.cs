@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Reflection;
 using System.Threading.Tasks;
 using H2020.IPMDecisions.UPR.BLL.Helpers;
 using H2020.IPMDecisions.UPR.Core.Entities;
@@ -71,18 +73,27 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             var weatherDataSource = listWeatherDataSource.FirstOrDefault();
 
             PrepareWeatherDssParameters(dssWeatherInput, weatherDataSource);
-
             weatherDataSource.Interval = dssWeatherInput.WeatherParameters.FirstOrDefault().Interval;
-            var responseWeather = await PrepareWeatherDataCall(farmLocationX, farmLocationY, weatherDataSource);
 
-            result.Continue = false;
-            if (!responseWeather.IsSuccessStatusCode)
-            {
-                result.ResponseWeather = string.Format("Error getting the weather data - {0}", responseWeather.ReasonPhrase.ToString());
-                return result;
-            }
-
-            var responseWeatherAsText = await responseWeather.Content.ReadAsStringAsync();
+            var responseWeatherAsText = GetWeatherDataTestFile(weatherDataSource.Interval);
+            
+            // Use only debug files for November Demo
+            // var responseWeather = await PrepareWeatherDataCall(farmLocationX, farmLocationY, weatherDataSource);            
+            // result.Continue = false;
+            // if (!responseWeather.IsSuccessStatusCode)
+            // {
+            //     var responseText = await responseWeather.Content.ReadAsStringAsync();
+            //     //Great hack to work with Euroweather until is fixed
+            //     if (responseText.Contains("This is the first time this"))
+            //     {
+            //         result.ResponseWeather = @"This is the first time this season that weather data has been requested for this location. Please allow 2 hours of initial processing time.";
+            //         return result;
+            //     }
+            //     result.ResponseWeather = string.Format("{0} - {1}", responseWeather.ReasonPhrase.ToString(), responseText);
+            //     return result;
+            // }
+            // var responseWeatherAsText = await responseWeather.Content.ReadAsStringAsync();
+            
             if (!DataParseHelper.IsValidJson(responseWeatherAsText))
             {
                 result.ResponseWeather = "Weather data received in not in a JSON format.";
@@ -97,6 +108,36 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             result.Continue = true;
             result.ResponseWeather = responseWeatherAsText;
             return result;
+        }
+
+        private string GetWeatherDataTestFile(int interval)
+        {
+            try
+            {
+                var assembly = Assembly.GetExecutingAssembly();
+                var fileName = "IPMDecision_FullSeasonWeather";
+                if (interval == 86400)
+                {
+                    fileName = fileName + "_Daily.json";
+                }
+                else
+                {
+                    fileName = fileName + "_Hourly.json";
+
+                }
+                var resourceName = string.Format("H2020.IPMDecisions.UPR.BLL.Files.{0}", fileName);
+
+                using (Stream stream = assembly.GetManifestResourceStream(resourceName))
+                using (StreamReader reader = new StreamReader(stream))
+                {
+                    return reader.ReadToEnd();
+                }
+            }
+            catch (Exception ex)
+            {
+                ex.Message.ToString();
+                throw;
+            }
         }
 
         private static void PrepareWeatherDssParameters(DssModelSchemaInput dssWeatherInput, WeatherSchemaForHttp weatherDataSource)

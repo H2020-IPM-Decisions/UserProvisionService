@@ -8,6 +8,7 @@ using H2020.IPMDecisions.UPR.Core.ResourceParameters;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
+using NetTopologySuite.Geometries;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -53,6 +54,11 @@ namespace H2020.IPMDecisions.UPR.BLL
 
                 var farmAsEntity = this.mapper.Map<Farm>(farmForCreationDto);
 
+                // Call Euroweather with Farm location to start getting Euroweather data from location
+#pragma warning disable 4014
+                StartEuroweatherDataCollectionProcess(farmAsEntity.Location);
+#pragma warning restore 4014
+
                 var defaultIdWeatherForecast = AdminValuesEnum.WeatherForecastService;
                 var weatherForecastDefaultValue = await this.dataService.AdminVariables.FindByIdAsync(defaultIdWeatherForecast);
                 if (weatherForecastDefaultValue == null) throw new ApplicationException("Database do not contain default weather forecast value.");
@@ -87,6 +93,31 @@ namespace H2020.IPMDecisions.UPR.BLL
                 String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
                 return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, $"{ex.Message} InnerException: {innerMessage}");
             }
+        }
+
+        private async Task StartEuroweatherDataCollectionProcess(Point location)
+        {
+            try
+            {
+                var euroWeatherId = "net.ipmdecisions.dwd.euroweather";
+                var weatherInformation = await this.internalCommunicationProvider
+                      .GetWeatherProviderInformationFromWeatherMicroservice(euroWeatherId);
+                var parametersUrl = string.Format("longitude={0}&latitude={1}",
+                    location.X,
+                    location.Y);
+
+                // Do not wait as is not important for the process
+#pragma warning disable 4014
+                this.internalCommunicationProvider.GetWeatherUsingOwnService(weatherInformation.EndPoint.AbsoluteUri, parametersUrl);
+#pragma warning restore 4014
+            }
+            catch (Exception ex)
+            {
+
+                logger.LogError(string.Format("Error in BLL - StartEuroweatherDataCollectionProcess. {0}", ex.Message), ex);
+                String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
+            }
+            throw new NotImplementedException();
         }
 
         public async Task<GenericResponse<Farm>> GetFarm(Guid id, HttpContext httpContext)
