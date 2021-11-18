@@ -184,6 +184,26 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
             }
         }
 
+        public async Task<HttpResponseMessage> GetWeatherUsingOwnService(string endPointUrl, string endPointParameters)
+        {
+            try
+            {
+                var cacheKey = string.Format("weather_own_service_{0}_{1}", endPointUrl.ToLower(), endPointParameters.ToLower());
+                if (!memoryCache.TryGetValue(cacheKey, out HttpResponseMessage weatherResponse))
+                {
+                    weatherResponse = await httpClient.GetAsync(string.Format("{0}?{1}", endPointUrl, endPointParameters));
+                    if (weatherResponse.IsSuccessStatusCode)
+                        memoryCache.Set(cacheKey, weatherResponse, MemoryCacheHelper.CreateMemoryCacheEntryOptions(1));
+                }
+                return weatherResponse;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(string.Format("Error in Internal Communication - GetWeatherUsingAmalgamationService. {0}", ex.Message));
+                return new HttpResponseMessage(HttpStatusCode.BadRequest);
+            }
+        }
+
         public async Task<IEnumerable<DssInformation>> GetAllListOfDssFromDssMicroservice()
         {
             try
