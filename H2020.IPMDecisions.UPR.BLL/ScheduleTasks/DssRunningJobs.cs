@@ -139,7 +139,12 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
         #region DSS Common Stuff
         public async Task<FieldDssResult> RunOnTheFlyDss(FieldCropPestDss dss)
         {
-            var dssResult = new FieldDssResult() { CreationDate = DateTime.Now, IsValid = false };
+            var dssResult = new FieldDssResult()
+            {
+                CreationDate = DateTime.Now,
+                IsValid = false,
+                WarningStatus = 0
+            };
             try
             {
                 DssModelInformation dssInformation = await GetDssInformationFromMicroservice(dss);
@@ -213,7 +218,9 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             JObject userInputJsonObject = JObject.Parse(userDssParameters.ToString());
 
             JEnumerable<JToken> userInputConfigParameters = new JEnumerable<JToken>();
-            if (userInputJsonObject.First.Path.ToString().ToLower() == "configparameters")
+
+            var listOfPotentialDssParameters = new string[] { "configparameters", "dssparameters" };
+            if (listOfPotentialDssParameters.Contains(userInputJsonObject.First.Path.ToString().ToLower()))
             {
                 userInputConfigParameters = userInputJsonObject.First.Children();
             }
