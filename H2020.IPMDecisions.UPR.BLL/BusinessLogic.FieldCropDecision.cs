@@ -246,11 +246,20 @@ namespace H2020.IPMDecisions.UPR.BLL
 
         private async Task<string> AddDefaultDssParameters(CropPestDss cropPestDss, string dssParameters)
         {
-            var dssInformation = await internalCommunicationProvider
+            var dssInputInformation = await internalCommunicationProvider
                                         .GetDssModelInputSchemaMicroservice(cropPestDss.DssId, cropPestDss.DssModelId);
-            if (!string.IsNullOrEmpty(dssInformation))
-                dssParameters = JsonSchemaToJson.ToJsonString(dssInformation, logger);
+            if (!string.IsNullOrEmpty(dssInputInformation))
+            {
+                dssInputInformation = AddDefaultDates(dssInputInformation);
+                dssParameters = JsonSchemaToJson.ToJsonString(dssInputInformation, logger);
+            }
             return dssParameters;
+        }
+
+        private static string AddDefaultDates(string dssInputInformation)
+        {
+            dssInputInformation = dssInputInformation.Replace("{CURRENT_YEAR}", DateTime.Today.Year.ToString());
+            return dssInputInformation;
         }
 
         private ShapedDataWithLinks ShapeFieldCropPestDssAsChildren(FieldCrop fieldCrop, Guid fieldCropPestId, FieldCropPestDssResourceParameter resourceParameter, bool includeLinks)
