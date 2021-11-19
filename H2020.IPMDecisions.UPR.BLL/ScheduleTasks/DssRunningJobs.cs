@@ -216,7 +216,6 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
         private static void AddUserParametersToDss(string userDssParameters, JObject inputSchemaAsJson)
         {
             JObject userInputJsonObject = JObject.Parse(userDssParameters.ToString());
-
             JEnumerable<JToken> userInputConfigParameters = new JEnumerable<JToken>();
 
             var listOfPotentialDssParameters = new string[] { "configparameters", "dssparameters" };

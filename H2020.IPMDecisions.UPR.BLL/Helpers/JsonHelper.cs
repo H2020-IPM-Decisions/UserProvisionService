@@ -25,6 +25,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
 
         private static string CheckMissingOtherTypeChildProperty(JToken childrenProperty)
         {
+            if (((JValue)childrenProperty).Value == null) return childrenProperty.Path;
             var value = ((JValue)childrenProperty).Value.ToString();
             if (string.IsNullOrEmpty(value))
                 return childrenProperty.Path;
@@ -35,6 +36,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
         {
             foreach (var property in childrenProperty.Children())
             {
+                if (((JValue)childrenProperty).Value == null) return childrenProperty.Path;
                 var value = ((JProperty)property).Value.ToString();
                 if (string.IsNullOrEmpty(value))
                     return property.Path;
