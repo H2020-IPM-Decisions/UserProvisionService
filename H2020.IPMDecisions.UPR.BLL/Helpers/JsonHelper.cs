@@ -36,8 +36,9 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
         {
             foreach (var property in childrenProperty.Children())
             {
-                if (((JValue)childrenProperty).Value == null) return childrenProperty.Path;
-                var value = ((JProperty)property).Value.ToString();
+                var propertyAsJProperty = (JProperty)property;
+                if (propertyAsJProperty.Value == null) return property.Path;
+                var value = propertyAsJProperty.Value.ToString();
                 if (string.IsNullOrEmpty(value))
                     return property.Path;
             }

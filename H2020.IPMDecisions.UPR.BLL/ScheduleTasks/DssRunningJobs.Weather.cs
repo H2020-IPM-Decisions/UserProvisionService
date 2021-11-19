@@ -76,7 +76,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             weatherDataSource.Interval = dssWeatherInput.WeatherParameters.FirstOrDefault().Interval;
 
             var responseWeatherAsText = GetWeatherDataTestFile(weatherDataSource.Interval);
-            
+
             // Use only debug files for November Demo
             // var responseWeather = await PrepareWeatherDataCall(farmLocationX, farmLocationY, weatherDataSource);            
             // result.Continue = false;
@@ -93,7 +93,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             //     return result;
             // }
             // var responseWeatherAsText = await responseWeather.Content.ReadAsStringAsync();
-            
+
             if (!DataParseHelper.IsValidJson(responseWeatherAsText))
             {
                 result.ResponseWeather = "Weather data received in not in a JSON format.";
@@ -115,7 +115,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             try
             {
                 var assembly = Assembly.GetExecutingAssembly();
-                var fileName = "IPMDecision_FullSeasonWeather";
+                var fileName = "IPMDecision_DemoWeather";
                 if (interval == 86400)
                 {
                     fileName = fileName + "_Daily.json";

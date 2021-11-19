@@ -17,12 +17,20 @@
   <ItemGroup>
     <None Remove="Files\IPMDecision_FullSeasonWeather_Daily.json" />
     <None Remove="Files\IPMDecision_FullSeasonWeather_Hourly.json" />
+    <None Remove="Files\IPMDecision_DemoWeather_Daily.json" />
+    <None Remove="Files\IPMDecision_DemoWeather_Hourly.json" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Files\IPMDecision_FullSeasonWeather_Daily.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </EmbeddedResource>
     <EmbeddedResource Include="Files\IPMDecision_FullSeasonWeather_Hourly.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Files\IPMDecision_DemoWeather_Daily.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Files\IPMDecision_DemoWeather_Hourly.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </EmbeddedResource>
   </ItemGroup>
