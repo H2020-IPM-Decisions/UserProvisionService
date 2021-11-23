@@ -57,6 +57,8 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
                             dest.WarningStatusRepresentation = "Status gives no meaning (e.g. outside of season or before biofix)";
                             break;
                     }
+
+                    if (src.CropPestDss.DssExecutionType.ToLower() == "link") dest.IsValid = true;
                 });
 
             CreateMap<FieldCropPestDss, FieldDssResultDetailedDto>()
@@ -105,6 +107,8 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
                             dest.WarningStatusRepresentation = "Status gives no meaning (e.g. outside of season or before biofix)";
                             break;
                     }
+
+                    if (src.CropPestDss.DssExecutionType.ToLower() == "link") dest.IsValid = true;
                 });
 
             // Dtos to Entities
@@ -135,6 +139,8 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
                             dest.WarningStatusRepresentation = "Status gives no meaning (e.g. outside of season or before biofix)";
                             break;
                     }
+
+                    if (src.DssExecutionType.ToLower() == "link") dest.IsValid = true;
                 });
 
             CreateMap<OutputChartInfo, DssParameterChartInformation>();

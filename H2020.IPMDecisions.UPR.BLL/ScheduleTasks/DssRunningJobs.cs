@@ -259,7 +259,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                     return;
                 }
 
-                var errorMessage = string.Format(responseAsText.ToString());
+                var errorMessage = responseAsText.ToString();
                 CreateDssRunErrorResult(dssResult, errorMessage, DssOutputMessageTypeEnum.Error);
                 return;
             }
@@ -302,7 +302,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             }
             else
             {
-                dssResult.DssFullResult = JObject.Parse("{\"message\": \"Message error from DSS do not follow IPM Decisions standards\"}").ToString();
+                dssResult.DssFullResult = JObject.Parse("{\"message\": \"Message error from DSS do not follow IPM Decisions standards, so unfortunately we can not provide more information.\"}").ToString();
             }
         }
         #endregion

@@ -198,7 +198,7 @@ namespace H2020.IPMDecisions.UPR.BLL
             AddDssBasicData(dataToReturn, dssInformation);
             await AddDssCropPestNames(dataToReturn);
 
-            if (!dataToReturn.IsValid) return dataToReturn;
+            if (!dataToReturn.IsValid || dataToReturn.DssExecutionType.ToLower() == "link") return dataToReturn;
             DssModelOutputInformation dssFullOutputAsObject = AddDssFullResultData(dataToReturn);
 
             var locationResultData = dssFullOutputAsObject.LocationResult.FirstOrDefault();
