@@ -75,24 +75,23 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             PrepareWeatherDssParameters(dssWeatherInput, weatherDataSource);
             weatherDataSource.Interval = dssWeatherInput.WeatherParameters.FirstOrDefault().Interval;
 
-            var responseWeatherAsText = GetWeatherDataTestFile(weatherDataSource.Interval);
-
             // Use only debug files for November Demo
-            // var responseWeather = await PrepareWeatherDataCall(farmLocationX, farmLocationY, weatherDataSource);            
-            // result.Continue = false;
-            // if (!responseWeather.IsSuccessStatusCode)
-            // {
-            //     var responseText = await responseWeather.Content.ReadAsStringAsync();
-            //     //Great hack to work with Euroweather until is fixed
-            //     if (responseText.Contains("This is the first time this"))
-            //     {
-            //         result.ResponseWeather = @"This is the first time this season that weather data has been requested for this location. Please allow 2 hours of initial processing time.";
-            //         return result;
-            //     }
-            //     result.ResponseWeather = string.Format("{0} - {1}", responseWeather.ReasonPhrase.ToString(), responseText);
-            //     return result;
-            // }
-            // var responseWeatherAsText = await responseWeather.Content.ReadAsStringAsync();
+            // var responseWeatherAsText = GetWeatherDataTestFile(weatherDataSource.Interval);
+            var responseWeather = await PrepareWeatherDataCall(farmLocationX, farmLocationY, weatherDataSource);            
+            result.Continue = false;
+            if (!responseWeather.IsSuccessStatusCode)
+            {
+                var responseText = await responseWeather.Content.ReadAsStringAsync();
+                //Great hack to work with Euroweather until is fixed
+                if (responseText.Contains("This is the first time this"))
+                {
+                    result.ResponseWeather = @"This is the first time this season that weather data has been requested for this location. Please allow 2 hours of initial processing time.";
+                    return result;
+                }
+                result.ResponseWeather = string.Format("{0} - {1}", responseWeather.ReasonPhrase.ToString(), responseText);
+                return result;
+            }
+            var responseWeatherAsText = await responseWeather.Content.ReadAsStringAsync();
 
             if (!DataParseHelper.IsValidJson(responseWeatherAsText))
             {
