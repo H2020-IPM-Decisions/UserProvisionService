@@ -17,6 +17,7 @@ using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Schema;
 
 namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
 {
@@ -161,43 +162,41 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 }
                 if (dssInformation.Execution.Type.ToLower() != "onthefly") return null;
 
-                var inputSchemaAsJson = JsonSchemaToJson.ToJsonObject(dssInformation.Execution.InputSchema, logger);
+                var inputAsJsonObject = JsonSchemaToJson.ToJsonObject(dssInformation.Execution.InputSchema, logger);
+                var inputSchema = JsonSchemaToJson.StringToJsonSchema(dssInformation.Execution.InputSchema, logger);
 
                 // Add user parameters
                 if (!string.IsNullOrEmpty(dss.DssParameters))
                 {
-                    AddUserParametersToDss(dss.DssParameters, inputSchemaAsJson);
+                    AddUserParametersToDss(dss.DssParameters, inputAsJsonObject);
                 }
 
-                // Check defaults
-                foreach (var property in inputSchemaAsJson.Properties())
-                {
-                    if (property.Name.ToLower() == "weatherdata")
-                        continue; // Do Nothing
+                // Check required properties with Json Schema, remove not required
+                RemoveNotRequiredInputSchemaProperties(inputSchema);
 
-                    var missingValueProperty = JsonHelper.CheckMissingJsonProperties(property);
-                    if (!string.IsNullOrEmpty(missingValueProperty))
-                    {
-                        var errorMessage = string.Format("Property {0} do not have a value.", missingValueProperty);
-                        CreateDssRunErrorResult(dssResult, errorMessage, DssOutputMessageTypeEnum.Info);
-                        return dssResult;
-                    }
+                IList<string> validationErrormessages;
+                bool isJsonObjectvalid = inputAsJsonObject.IsValid(inputSchema, out validationErrormessages);
+                if (!isJsonObjectvalid)
+                {
+                    string errorMessageToReturn = string.Join(" ", validationErrormessages);
+                    CreateDssRunErrorResult(dssResult, errorMessageToReturn, DssOutputMessageTypeEnum.Info);
+                    return dssResult;
                 }
 
                 if (dssInformation.Input.WeatherParameters != null)
                 {
-                    GetWeatherDataResult responseWeather = await PrepareWeatherData(dss, dssInformation, inputSchemaAsJson);
+                    GetWeatherDataResult responseWeather = await PrepareWeatherData(dss, dssInformation, inputAsJsonObject);
                     if (!responseWeather.Continue)
                     {
                         var errorMessage = string.Format("Error with Weather Data -  {0}", responseWeather.ResponseWeather.ToString());
                         CreateDssRunErrorResult(dssResult, errorMessage, DssOutputMessageTypeEnum.Error);
                         return dssResult;
                     }
-                    inputSchemaAsJson["weatherData"] = JObject.Parse(responseWeather.ResponseWeather.ToString());
+                    inputAsJsonObject["weatherData"] = JObject.Parse(responseWeather.ResponseWeather.ToString());
                 }
 
                 var content = new StringContent(
-                     inputSchemaAsJson.ToString(),
+                     inputAsJsonObject.ToString(),
                      Encoding.UTF8, "application/json");
 
                 var responseDss = await httpClient.PostAsync(dssInformation.Execution.EndPoint, content);
@@ -304,6 +303,15 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             else
             {
                 dssResult.DssFullResult = JObject.Parse("{\"message\": \"Message error from DSS do not follow IPM Decisions standards, so unfortunately we can not provide more information.\"}").ToString();
+            }
+        }
+
+        private static void RemoveNotRequiredInputSchemaProperties(JSchema inputSchema)
+        {
+            var notRequiredProperties = inputSchema.Properties.Keys.Where(k => !inputSchema.Required.Any(k2 => k2 == k));
+            foreach (var property in notRequiredProperties)
+            {
+                inputSchema.Properties.Remove(property);
             }
         }
         #endregion
