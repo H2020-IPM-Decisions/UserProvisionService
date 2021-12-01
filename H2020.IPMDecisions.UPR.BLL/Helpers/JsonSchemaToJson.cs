@@ -62,7 +62,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
             return json;
         }
 
-        private static JSchema StringToJsonSchema(string jsonSchema, ILogger logger)
+        public static JSchema StringToJsonSchema(string jsonSchema, ILogger logger)
         {
             try
             {

@@ -104,6 +104,7 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
         }
 
+        // ToDo Ask for DSS languages
         private async Task AddExtraInformationToDss(IEnumerable<FieldDssResultDto> dssResultsToReturn)
         {
             var listOfDss = await this.internalCommunicationProvider.GetAllListOfDssFromDssMicroservice();
@@ -188,6 +189,7 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
         }
 
+        // ToDo Ask for DSS languages
         private async Task<FieldDssResultDetailedDto> CreateDetailedResultToReturn(FieldCropPestDss dss)
         {
             var dataToReturn = this.mapper.Map<FieldDssResultDetailedDto>(dss);

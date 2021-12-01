@@ -40,6 +40,8 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
             httpClient?.Dispose();
         }
 
+        #region DSS Microservice calls
+        // ToDo Ask for DSS languages
         public async Task<DssModelInformation> GetDssModelInformationFromDssMicroservice(string dssId, string modelId)
         {
             try
@@ -66,6 +68,59 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
             }
         }
 
+        public async Task<IEnumerable<DssInformation>> GetAllListOfDssFromDssMicroservice()
+        {
+            try
+            {
+                var cacheKey = "listOfDss";
+                if (!memoryCache.TryGetValue(cacheKey, out IEnumerable<DssInformation> listOfDss))
+                {
+                    var dssEndPoint = config["MicroserviceInternalCommunication:DssMicroservice"];
+                    var response = await httpClient.GetAsync(string.Format("{0}rest/dss", dssEndPoint));
+
+                    if (!response.IsSuccessStatusCode)
+                        return null;
+
+                    var responseAsText = await response.Content.ReadAsStringAsync();
+                    listOfDss = JsonConvert.DeserializeObject<IEnumerable<DssInformation>>(responseAsText);
+                    memoryCache.Set(cacheKey, listOfDss, MemoryCacheHelper.CreateMemoryCacheEntryOptions(7));
+                }
+                return listOfDss;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(string.Format("Error in Internal Communication - GetAllListOfDssFromDssMicroservice. {0}", ex.Message));
+                return null;
+            }
+        }
+
+        public async Task<string> GetDssModelInputSchemaMicroservice(string dssId, string modelId)
+        {
+            try
+            {
+                var cacheKey = string.Format("dssInputSchema_{0}_{1}", dssId.ToLower(), modelId.ToLower());
+                if (!memoryCache.TryGetValue(cacheKey, out string dssInputSchema))
+                {
+                    var dssEndPoint = config["MicroserviceInternalCommunication:DssMicroservice"];
+                    var response = await httpClient.GetAsync(string.Format("{0}rest/model/{1}/{2}/input_schema/ui_form", dssEndPoint, dssId, modelId));
+
+                    if (!response.IsSuccessStatusCode) return null;
+
+                    dssInputSchema = await response.Content.ReadAsStringAsync();
+
+                    memoryCache.Set(cacheKey, dssInputSchema, MemoryCacheHelper.CreateMemoryCacheEntryOptions(7));
+                }
+                return dssInputSchema;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(string.Format("Error in Internal Communication - GetDssModelInputSchemaMicroservice. {0}", ex.Message));
+                return null;
+            }
+        }
+        #endregion
+
+        #region Weather Microservice calls
         public async Task<string> GetUserIdFromIdpMicroservice(string userEmail)
         {
             try
@@ -199,34 +254,8 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
             }
             catch (Exception ex)
             {
-                logger.LogError(string.Format("Error in Internal Communication - GetWeatherUsingAmalgamationService. {0}", ex.Message));
+                logger.LogError(string.Format("Error in Internal Communication - GetWeatherUsingOwnService. {0}", ex.Message));
                 return new HttpResponseMessage(HttpStatusCode.BadRequest);
-            }
-        }
-
-        public async Task<IEnumerable<DssInformation>> GetAllListOfDssFromDssMicroservice()
-        {
-            try
-            {
-                var cacheKey = "listOfDss";
-                if (!memoryCache.TryGetValue(cacheKey, out IEnumerable<DssInformation> listOfDss))
-                {
-                    var dssEndPoint = config["MicroserviceInternalCommunication:DssMicroservice"];
-                    var response = await httpClient.GetAsync(string.Format("{0}rest/dss", dssEndPoint));
-
-                    if (!response.IsSuccessStatusCode)
-                        return null;
-
-                    var responseAsText = await response.Content.ReadAsStringAsync();
-                    listOfDss = JsonConvert.DeserializeObject<IEnumerable<DssInformation>>(responseAsText);
-                    memoryCache.Set(cacheKey, listOfDss, MemoryCacheHelper.CreateMemoryCacheEntryOptions(7));
-                }
-                return listOfDss;
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(string.Format("Error in Internal Communication - GetAllListOfDssFromDssMicroservice. {0}", ex.Message));
-                return null;
             }
         }
 
@@ -255,30 +284,6 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
                 return null;
             }
         }
-
-        public async Task<string> GetDssModelInputSchemaMicroservice(string dssId, string modelId)
-        {
-            try
-            {
-                var cacheKey = string.Format("dssInputSchema_{0}_{1}", dssId.ToLower(), modelId.ToLower());
-                if (!memoryCache.TryGetValue(cacheKey, out string dssInputSchema))
-                {
-                    var dssEndPoint = config["MicroserviceInternalCommunication:DssMicroservice"];
-                    var response = await httpClient.GetAsync(string.Format("{0}rest/model/{1}/{2}/input_schema/ui_form", dssEndPoint, dssId, modelId));
-
-                    if (!response.IsSuccessStatusCode) return null;
-
-                    dssInputSchema = await response.Content.ReadAsStringAsync();
-
-                    memoryCache.Set(cacheKey, dssInputSchema, MemoryCacheHelper.CreateMemoryCacheEntryOptions(7));
-                }
-                return dssInputSchema;
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(string.Format("Error in Internal Communication - GetDssModelInputSchemaMicroservice. {0}", ex.Message));
-                return null;
-            }
-        }
+        #endregion
     }
 }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using H2020.IPMDecisions.UPR.Core.Enums;
 using Newtonsoft.Json;
 
 namespace H2020.IPMDecisions.UPR.Core.Models
@@ -10,8 +11,8 @@ namespace H2020.IPMDecisions.UPR.Core.Models
         public string Id { get; set; }
         public string Name { get; set; }
         public Uri EndPoint { get; set; }
-        [JsonProperty("authentication_required")]
-        public bool AuthenticationRequired { get; set; }
+        [JsonProperty("authentication_type")]
+        public WeatherAuthenticationTypeEnum AuthenticationType { get; set; }
         [JsonProperty("access_type")]
         public string AccessType { get; set; }
         public WeatherDataTemporal Temporal { get; set; }
