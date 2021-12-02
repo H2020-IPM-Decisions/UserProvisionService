@@ -124,5 +124,9 @@ namespace H2020.IPMDecisions.UPR.BLL
         Task<GenericResponse<IEnumerable<AdminVariableDto>>> GetAllAdminVariables();
         Task<GenericResponse> UpdateAdminVariableById(AdminValuesEnum id, AdminVariableForManipulationDto adminVariableForManipulationDto);
         #endregion
+
+        #region Comparision DSS
+        Task<GenericResponse<IEnumerable<FieldDssResultDetailedDto>>> CompareDssByIds(List<Guid> ids, Guid userId);
+        #endregion
     }
 }

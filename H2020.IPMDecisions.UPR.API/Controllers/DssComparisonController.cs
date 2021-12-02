@@ -34,7 +34,8 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         /// </summary>
         /// <remarks>The user will be identified using the UserId on the authentification JWT.
         /// <para>Due to the GUID complexity, the query parameters should be like the following:
-        /// api/upr/dsscomparison?dssids=firstDssId&amp;dssids=secondDssId</para>
+        /// api/upr/dsscomparison?dssids=firstDssId&amp;dssids=secondDssId&amp;dssids=otherDssId</para>
+        /// <para> It is a limit of 5 DSS ids on the list</para> 
         /// </remarks>
         [ProducesResponseType(typeof(IEnumerable<FieldDssResultDetailedDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -47,7 +48,11 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         {
             var userId = Guid.Parse(HttpContext.Items["userId"].ToString());
 
-            return Ok();
+            var response = await businessLogic.CompareDssByIds(dssIds, userId);
+            if (!response.IsSuccessful)
+                return response.RequestResult;
+
+            return Ok(response.Result);
         }
 
         // <summary>Requests permitted on this URL</summary>
