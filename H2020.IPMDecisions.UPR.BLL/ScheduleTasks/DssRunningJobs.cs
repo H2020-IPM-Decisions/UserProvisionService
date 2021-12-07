@@ -172,7 +172,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 }
 
                 // Check required properties with Json Schema, remove not required
-                RemoveNotRequiredInputSchemaProperties(inputSchema);
+                RemoveNotRequiredInputSchemaProperties(inputSchema);              
 
                 IList<string> validationErrormessages;
                 bool isJsonObjectvalid = inputAsJsonObject.IsValid(inputSchema, out validationErrormessages);
@@ -308,10 +308,19 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
 
         private static void RemoveNotRequiredInputSchemaProperties(JSchema inputSchema)
         {
-            var notRequiredProperties = inputSchema.Properties.Keys.Where(k => !inputSchema.Required.Any(k2 => k2 == k));
+            RemoveNotRequiredOnJSchema(inputSchema);
+            foreach (var schemaProperty in inputSchema.Properties.Values)
+            {
+                RemoveNotRequiredOnJSchema(schemaProperty);
+            }
+        }
+
+        private static void RemoveNotRequiredOnJSchema(JSchema schema)
+        {
+            var notRequiredProperties = schema.Properties.Keys.Where(k => !schema.Required.Any(k2 => k2 == k));
             foreach (var property in notRequiredProperties)
             {
-                inputSchema.Properties.Remove(property);
+                schema.Properties.Remove(property);
             }
         }
         #endregion

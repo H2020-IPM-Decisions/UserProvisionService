@@ -46,6 +46,8 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
                     case "integer":
                     case "number":
                     case "boolean":
+                        json.Add(ProcessNumberTypeProperty(property, logger));
+                        break;
                     case "string":
                         json.Add(ProcessStandardTypeProperty(property, logger));
                         break;
@@ -84,6 +86,23 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
                 {
                     return new JProperty(property.Key, property.Value.Default.ToString());
                 };
+                return new JProperty(property.Key, "");
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(string.Format("Error on ProcessStandardTypeProperty. {0}", ex.Message));
+                return null;
+            }
+        }
+
+        private static JProperty ProcessNumberTypeProperty(KeyValuePair<string, JSchema> property, ILogger logger)
+        {
+            try
+            {
+                if (HasDefaultValue(property.Value))
+                {
+                    return new JProperty(property.Key, property.Value.Default);
+                };  
                 return new JProperty(property.Key, null);
             }
             catch (Exception ex)
