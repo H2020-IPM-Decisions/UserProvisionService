@@ -65,8 +65,6 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             else // "fixed_date" as specified on //dss/rest/schema/dss
             {
                 var value = weatherDateJson.Replace("{CURRENT_YEAR}", DateTime.Today.Year.ToString());
-                // ToDo Remove once metadata fixed
-                value = weatherDateJson.Replace("XXXX", DateTime.Today.Year.ToString());
                 return DateTime.Parse(value);
             }
         }
