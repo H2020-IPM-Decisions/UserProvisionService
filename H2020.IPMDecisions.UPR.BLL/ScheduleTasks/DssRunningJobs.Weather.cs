@@ -46,13 +46,28 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
         {
             if (dssInformation.Input.WeatherDataPeriodStart != null)
             {
-                var weatherStartDateJsonLocation = dssInformation.Input.WeatherDataPeriodStart.Value.ToString();
-                weatherToCall.WeatherTimeStart = DateTime.Parse(dssInputSchemaAsJson.SelectTokens(weatherStartDateJsonLocation).FirstOrDefault().ToString());
+                weatherToCall.WeatherTimeStart = ProcessWeatherDataPeriod(dssInformation.Input.WeatherDataPeriodStart, dssInputSchemaAsJson);
             }
             if (dssInformation.Input.WeatherDataPeriodEnd != null)
             {
-                var weatherEndDateJsonLocation = dssInformation.Input.WeatherDataPeriodEnd.Value.ToString();
-                weatherToCall.WeatherTimeEnd = DateTime.Parse(dssInputSchemaAsJson.SelectTokens(weatherEndDateJsonLocation).FirstOrDefault().ToString());
+                weatherToCall.WeatherTimeEnd = ProcessWeatherDataPeriod(dssInformation.Input.WeatherDataPeriodEnd, dssInputSchemaAsJson);
+            }
+        }
+
+        public static DateTime ProcessWeatherDataPeriod(WeatherDataPeriod weatherDataPeriod, JObject dssInputSchemaAsJson)
+        {
+            var weatherDateJson = weatherDataPeriod.Value.ToString();
+
+            if (weatherDataPeriod.DeterminedBy.ToLower() == "input_schema_property")
+            {
+                return DateTime.Parse(dssInputSchemaAsJson.SelectTokens(weatherDateJson).FirstOrDefault().ToString());
+            }
+            else // "fixed_date" as specified on //dss/rest/schema/dss
+            {
+                var value = weatherDateJson.Replace("{CURRENT_YEAR}", DateTime.Today.Year.ToString());
+                // ToDo Remove once metadata fixed
+                value = weatherDateJson.Replace("XXXX", DateTime.Today.Year.ToString());
+                return DateTime.Parse(value);
             }
         }
 
@@ -77,7 +92,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
 
             // Use only debug files for November Demo
             // var responseWeatherAsText = GetWeatherDataTestFile(weatherDataSource.Interval);
-            var responseWeather = await PrepareWeatherDataCall(farmLocationX, farmLocationY, weatherDataSource);            
+            var responseWeather = await PrepareWeatherDataCall(farmLocationX, farmLocationY, weatherDataSource);
             result.Continue = false;
             if (!responseWeather.IsSuccessStatusCode)
             {
