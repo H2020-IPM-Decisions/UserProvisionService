@@ -9,23 +9,6 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
 {
     public static class EppoCodesHelper
     {
-        public static PaginationMetaData CreatePaginationMetadata<T>(PagedList<T> pagedList)
-        {
-            if (pagedList is null) return null;
-
-            return new PaginationMetaData()
-            {
-                TotalCount = pagedList.TotalCount,
-                PageSize = pagedList.PageSize,
-                CurrentPage = pagedList.CurrentPage,
-                TotalPages = pagedList.TotalPages,
-                IsFirstPage = pagedList.IsFirstPage,
-                IsLastPage = pagedList.IsLastPage,
-                HasPrevious = pagedList.HasPrevious,
-                HasNext = pagedList.HasNext,
-            };
-        }
-
         public static CropAndPestNameAsDictionaries GetCropPestEppoCodesNames(
             List<EppoCode> eppoCodesData,
             string cropEppoCode,
