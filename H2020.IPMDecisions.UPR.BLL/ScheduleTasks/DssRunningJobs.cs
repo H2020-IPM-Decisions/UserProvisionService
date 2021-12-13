@@ -146,6 +146,13 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 IsValid = false,
                 WarningStatus = 0
             };
+
+            if (dss is null)
+            {
+                var errorMessage = "Error running the DSS - System not ready.";
+                CreateDssRunErrorResult(dssResult, errorMessage, DssOutputMessageTypeEnum.Error);
+                return dssResult;
+            }
             try
             {
                 DssModelInformation dssInformation = await GetDssInformationFromMicroservice(dss);
@@ -172,7 +179,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 }
 
                 // Check required properties with Json Schema, remove not required
-                RemoveNotRequiredInputSchemaProperties(inputSchema);              
+                RemoveNotRequiredInputSchemaProperties(inputSchema);
 
                 IList<string> validationErrormessages;
                 bool isJsonObjectvalid = inputAsJsonObject.IsValid(inputSchema, out validationErrormessages);
@@ -215,22 +222,42 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
         private static void AddUserParametersToDss(string userDssParameters, JObject inputSchemaAsJson)
         {
             JObject userInputJsonObject = JObject.Parse(userDssParameters.ToString());
-            JEnumerable<JToken> userInputConfigParameters = new JEnumerable<JToken>();
-
-            var listOfPotentialDssParameters = new string[] { "configparameters", "dssparameters" };
-            if (listOfPotentialDssParameters.Contains(userInputJsonObject.First.Path.ToString().ToLower()))
+            var pathsList = AddUserDssParametersPaths(userInputJsonObject);
+            foreach (var userParameterPath in pathsList)
             {
-                userInputConfigParameters = userInputJsonObject.First.Children();
-            }
-            foreach (var property in userInputConfigParameters.Children())
-            {
-                var token = inputSchemaAsJson.SelectToken(property.Path);
+                var token = inputSchemaAsJson.SelectToken(userParameterPath);
+                var userToken = userInputJsonObject.SelectToken(userParameterPath);
                 if (token != null)
                 {
-                    token.Replace(userInputJsonObject.SelectToken(property.Path));
+                    token.Replace(userToken);
                     continue;
                 }
-                inputSchemaAsJson.Add(property.Path, userInputJsonObject.SelectToken(property.Path));
+                inputSchemaAsJson.Add(userParameterPath, userToken);
+            }
+        }
+
+        private static List<string> AddUserDssParametersPaths(JObject jsonObject)
+        {
+            List<string> pathsList = new List<string>();
+            foreach (var jsonChild in jsonObject.Children())
+            {
+                CheckIfJTokenHasChildren(jsonChild, pathsList);
+            }
+            return pathsList;
+        }
+
+        private static void CheckIfJTokenHasChildren(JToken jsonChild, List<string> pathsList)
+        {
+            if (jsonChild.Children().Any())
+            {
+                foreach (var child in jsonChild.Children())
+                {
+                    CheckIfJTokenHasChildren(child, pathsList);
+                }
+            }
+            else
+            {
+                pathsList.Add(jsonChild.Path);
             }
         }
 
