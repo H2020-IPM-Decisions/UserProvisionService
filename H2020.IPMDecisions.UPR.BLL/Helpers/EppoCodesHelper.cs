@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using H2020.IPMDecisions.UPR.Core.Entities;
-using H2020.IPMDecisions.UPR.Core.Helpers;
 using H2020.IPMDecisions.UPR.Core.Models;
 using Newtonsoft.Json;
 

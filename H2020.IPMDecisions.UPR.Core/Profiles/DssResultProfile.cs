@@ -35,29 +35,7 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
                     opt => opt.MapFrom(src => src.FieldDssResults.OrderByDescending(r => r.CreationDate).FirstOrDefault().ResultMessageType))
                 .ForMember(dest => dest.ResultMessage,
                     opt => opt.MapFrom(src => src.FieldDssResults.OrderByDescending(r => r.CreationDate).FirstOrDefault().ResultMessage))
-                .AfterMap((src, dest) =>
-                {
-                    switch (dest.WarningStatus)
-                    {
-                        // Representation from /api/dss/rest/schema/modeloutput
-                        case 1:
-                            dest.WarningStatusRepresentation = "Cannot give status due to error";
-                            break;
-                        case 2:
-                            dest.WarningStatusRepresentation = "No risk of infection";
-                            break;
-                        case 3:
-                            dest.WarningStatusRepresentation = "Medium risk of infection";
-                            break;
-                        case 4:
-                            dest.WarningStatusRepresentation = "High risk of infection";
-                            break;
-                        case 0:
-                        default:
-                            dest.WarningStatusRepresentation = "Status gives no meaning (e.g. outside of season or before biofix)";
-                            break;
-                    }
-
+                .AfterMap((src, dest) =>                {
                     if (src.CropPestDss.DssExecutionType.ToLower() == "link") dest.IsValid = true;
                 });
 
@@ -87,27 +65,6 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
                     opt => opt.MapFrom(src => src.FieldDssResults.OrderByDescending(r => r.CreationDate).FirstOrDefault().ResultMessage))
                 .AfterMap((src, dest) =>
                 {
-                    switch (dest.WarningStatus)
-                    {
-                        // Representation from /api/dss/rest/schema/modeloutput
-                        case 1:
-                            dest.WarningStatusRepresentation = "Cannot give status due to error";
-                            break;
-                        case 2:
-                            dest.WarningStatusRepresentation = "No risk of infection";
-                            break;
-                        case 3:
-                            dest.WarningStatusRepresentation = "Medium risk of infection";
-                            break;
-                        case 4:
-                            dest.WarningStatusRepresentation = "High risk of infection";
-                            break;
-                        case 0:
-                        default:
-                            dest.WarningStatusRepresentation = "Status gives no meaning (e.g. outside of season or before biofix)";
-                            break;
-                    }
-
                     if (src.CropPestDss.DssExecutionType.ToLower() == "link") dest.IsValid = true;
                 });
 
@@ -119,27 +76,6 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
             CreateMap<DssResultDatabaseView, FieldDssResultDto>()
                 .AfterMap((src, dest) =>
                 {
-                    switch (src.WarningStatus)
-                    {
-                        // Representation from /api/dss/rest/schema/modeloutput
-                        case 1:
-                            dest.WarningStatusRepresentation = "Cannot give status due to error";
-                            break;
-                        case 2:
-                            dest.WarningStatusRepresentation = "No risk of infection";
-                            break;
-                        case 3:
-                            dest.WarningStatusRepresentation = "Medium risk of infection";
-                            break;
-                        case 4:
-                            dest.WarningStatusRepresentation = "High risk of infection";
-                            break;
-                        case 0:
-                        default:
-                            dest.WarningStatusRepresentation = "Status gives no meaning (e.g. outside of season or before biofix)";
-                            break;
-                    }
-
                     if (src.DssExecutionType.ToLower() == "link") dest.IsValid = true;
                 });
 

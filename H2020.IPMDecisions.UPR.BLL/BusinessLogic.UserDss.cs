@@ -113,14 +113,16 @@ namespace H2020.IPMDecisions.UPR.BLL
             {
                 if (listOfDss != null && listOfDss.Count() != 0)
                 {
-                    // ToDo check if DssVersion needed with Tor-Einar
                     var dssOnListMatchDatabaseRecord = listOfDss
-                        .Where(d => d.Id == dss.DssId)
+                        .Where(d => d.Id == dss.DssId
+                            & d.Version == dss.DssVersion)
                         .FirstOrDefault();
 
                     if (dssOnListMatchDatabaseRecord == null)
                     {
-                        dss.DssDescription = string.Format("DSS with ID {0} do not exist on the DSS microservice.", dss.DssId);
+                        dss.DssDescription = string.Format("DSS with ID {0} and version {1} do not exist on the DSS microservice.",
+                        dss.DssId,
+                        dss.DssVersion);
                     }
                     else
                     {
@@ -138,6 +140,10 @@ namespace H2020.IPMDecisions.UPR.BLL
                             continue;
                         }
                         dss.DssDescription = CreateDssDescription(dssModelInformation.Description);
+                        if (dssModelInformation.Output != null)
+                        {
+                            AddWarningMessages(dss, dssModelInformation);
+                        }
                     }
                 }
 
@@ -302,7 +308,9 @@ namespace H2020.IPMDecisions.UPR.BLL
 
             // DSS type link do not have this section
             if (dssInformation.Output != null)
-                dataToReturn.WarningMessage = dssInformation.Output.WarningStatusInterpretation;
+            {
+                AddWarningMessages(dataToReturn, dssInformation);
+            }
         }
 
         private List<string> CreateResultParametersLabels(string outputTimeEnd, int days)
@@ -339,6 +347,12 @@ namespace H2020.IPMDecisions.UPR.BLL
                 dssDescriptionJoined = string.Format("{0}Peer review: {1}. ", dssDescriptionJoined, description.PeerReview);
 
             return dssDescriptionJoined;
+        }
+
+        private static void AddWarningMessages(FieldDssResultBaseDto dss, DssModelInformation dssModelInformation)
+        {
+            dss.WarningStatusRepresentation = dssModelInformation.Output.ListWarningStatusInterpretation[dss.WarningStatus].Explanation;
+            dss.WarningMessage = dssModelInformation.Output.ListWarningStatusInterpretation[dss.WarningStatus].RecommendedAction;
         }
     }
 }
