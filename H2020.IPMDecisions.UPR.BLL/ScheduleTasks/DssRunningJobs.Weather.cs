@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using H2020.IPMDecisions.UPR.BLL.Helpers;
 using H2020.IPMDecisions.UPR.Core.Entities;
@@ -95,10 +96,13 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             if (!responseWeather.IsSuccessStatusCode)
             {
                 var responseText = await responseWeather.Content.ReadAsStringAsync();
-                //Great hack to work with Euroweather until is fixed
-                if (responseText.Contains("This is the first time this"))
+                // Amalgamation service error
+                Regex regex = new Regex(@".{30}\d{3}.{42}[:]",
+                RegexOptions.IgnoreCase | RegexOptions.IgnorePatternWhitespace);
+                if (regex.IsMatch(responseText))
                 {
-                    result.ResponseWeather = @"This is the first time this season that weather data has been requested for this location. Please allow 2 hours of initial processing time.";
+                    responseText = regex.Replace(responseText, "", 1);
+                    result.ResponseWeather = responseText.Trim();
                     return result;
                 }
                 result.ResponseWeather = string.Format("{0} - {1}", responseWeather.ReasonPhrase.ToString(), responseText);
