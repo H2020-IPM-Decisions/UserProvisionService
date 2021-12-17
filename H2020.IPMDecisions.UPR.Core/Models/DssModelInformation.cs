@@ -27,6 +27,8 @@ namespace H2020.IPMDecisions.UPR.Core.Models
         [JsonProperty("valid_spatial")]
         public DssModelValidSpatial ValidSpatial { get; set; }
         public IEnumerable<DssModelAuthors> Authors { get; set; }
+        [JsonProperty("platform_validated")]
+        public bool PlatformValidated { get; set; }
     }
 
     public class DssDescription
@@ -56,13 +58,20 @@ namespace H2020.IPMDecisions.UPR.Core.Models
     public class DssModelSchemaOutput
     {
         [JsonProperty("warning_status_interpretation")]
-        public string WarningStatusInterpretation { get; set; }
+        public List<DssWarningStatusInterpretation> ListWarningStatusInterpretation { get; set; }
         [JsonProperty("result_parameters")]
         public IEnumerable<OutputResultParameter> ResultParameters { get; set; }
         [JsonProperty("chart_heading")]
         public string ChartHeading { get; set; }
         [JsonProperty("chart_groups")]
         public IEnumerable<OutputChartGroup> ChartGroups { get; set; }
+    }
+
+    public class DssWarningStatusInterpretation
+    {
+        public string Explanation { get; set; }
+        [JsonProperty("recommended_action")]
+        public string RecommendedAction { get; set; }
     }
 
     public class OutputChartGroup

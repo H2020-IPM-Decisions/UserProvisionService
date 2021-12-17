@@ -146,6 +146,13 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 IsValid = false,
                 WarningStatus = 0
             };
+
+            if (dss is null)
+            {
+                var errorMessage = "Error running the DSS - System not ready.";
+                CreateDssRunErrorResult(dssResult, errorMessage, DssOutputMessageTypeEnum.Error);
+                return dssResult;
+            }
             try
             {
                 DssModelInformation dssInformation = await GetDssInformationFromMicroservice(dss);
@@ -215,22 +222,42 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
         private static void AddUserParametersToDss(string userDssParameters, JObject inputSchemaAsJson)
         {
             JObject userInputJsonObject = JObject.Parse(userDssParameters.ToString());
-            JEnumerable<JToken> userInputConfigParameters = new JEnumerable<JToken>();
-
-            var listOfPotentialDssParameters = new string[] { "configparameters", "dssparameters" };
-            if (listOfPotentialDssParameters.Contains(userInputJsonObject.First.Path.ToString().ToLower()))
+            var pathsList = AddUserDssParametersPaths(userInputJsonObject);
+            foreach (var userParameterPath in pathsList)
             {
-                userInputConfigParameters = userInputJsonObject.First.Children();
-            }
-            foreach (var property in userInputConfigParameters.Children())
-            {
-                var token = inputSchemaAsJson.SelectToken(property.Path);
+                var token = inputSchemaAsJson.SelectToken(userParameterPath);
+                var userToken = userInputJsonObject.SelectToken(userParameterPath);
                 if (token != null)
                 {
-                    token.Replace(userInputJsonObject.SelectToken(property.Path));
+                    token.Replace(userToken);
                     continue;
                 }
-                inputSchemaAsJson.Add(property.Path, userInputJsonObject.SelectToken(property.Path));
+                inputSchemaAsJson.Add(userParameterPath, userToken);
+            }
+        }
+
+        private static List<string> AddUserDssParametersPaths(JObject jsonObject)
+        {
+            List<string> pathsList = new List<string>();
+            foreach (var jsonChild in jsonObject.Children())
+            {
+                CheckIfJTokenHasChildren(jsonChild, pathsList);
+            }
+            return pathsList;
+        }
+
+        private static void CheckIfJTokenHasChildren(JToken jsonChild, List<string> pathsList)
+        {
+            if (jsonChild.Children().Any())
+            {
+                foreach (var child in jsonChild.Children())
+                {
+                    CheckIfJTokenHasChildren(child, pathsList);
+                }
+            }
+            else
+            {
+                pathsList.Add(jsonChild.Path);
             }
         }
 
@@ -240,7 +267,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             var dssOutput = JsonConvert.DeserializeObject<DssModelOutputInformation>(responseAsText);
 
             // ToDo. Check valid responses when DSS do not run properly
-            if (responseDss.StatusCode.Equals(HttpStatusCode.InternalServerError))
+            if (!responseDss.IsSuccessStatusCode)
             {
                 if (!string.IsNullOrEmpty(dssOutput.Message))
                 {
@@ -308,10 +335,23 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
 
         private static void RemoveNotRequiredInputSchemaProperties(JSchema inputSchema)
         {
-            var notRequiredProperties = inputSchema.Properties.Keys.Where(k => !inputSchema.Required.Any(k2 => k2 == k));
+            RemoveNotRequiredOnJSchema(inputSchema);
+            foreach (var schemaProperty in inputSchema.Properties.Values)
+            {
+                RemoveNotRequiredOnJSchema(schemaProperty);
+            }
+        }
+
+        private static void RemoveNotRequiredOnJSchema(JSchema schema)
+        {
+            // Always remove weather data as the code gets the data later
+            if (schema.Properties.Keys.Any(k => k.ToLower() == "weatherdata"))
+                schema.Properties.Remove("weatherData");
+
+            var notRequiredProperties = schema.Properties.Keys.Where(k => !schema.Required.Any(k2 => k2 == k));
             foreach (var property in notRequiredProperties)
             {
-                inputSchema.Properties.Remove(property);
+                schema.Properties.Remove(property);
             }
         }
         #endregion

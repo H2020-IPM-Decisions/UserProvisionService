@@ -20,6 +20,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
     [Route("api/dss")]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [ServiceFilter(typeof(AddUserIdToContextFilter))]
+    [ServiceFilter(typeof(AddLanguageToContextFilter))]
     public class DssController : ControllerBase
     {
         private readonly IBusinessLogic businessLogic;

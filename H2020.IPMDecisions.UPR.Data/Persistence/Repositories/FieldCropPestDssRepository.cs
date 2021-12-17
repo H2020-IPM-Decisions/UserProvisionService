@@ -66,22 +66,32 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
             if (expression is null) return null;
 
             return await this
-            .context
-            .FieldCropPestDss
+                .context
+                .FieldCropPestDss
                 .Include(fcpd => fcpd.CropPestDss)
                 .Include(fcpd => fcpd.FieldCropPest)
                     .ThenInclude(fcp => fcp.FieldCrop)
                     .ThenInclude(fc => fc.Field)
                     .ThenInclude(fi => fi.Farm)
                     .ThenInclude(f => f.WeatherForecast)
-                 .Include(fcpd => fcpd.FieldCropPest)
+                .Include(fcpd => fcpd.FieldCropPest)
                     .ThenInclude(fcp => fcp.FieldCrop)
                     .ThenInclude(fc => fc.Field)
                     .ThenInclude(fi => fi.Farm)
                     .ThenInclude(f => f.WeatherHistorical)
                 .Include(fcpd => fcpd.FieldCropPest)
                     .ThenInclude(fcp => fcp.CropPest)
+                .Include(fcpd => fcpd.FieldCropPest)
+                    .ThenInclude(fcp => fcp.FieldCrop)
+                    .ThenInclude(fc => fc.Field)
+                    .ThenInclude(fi => fi.Farm)
+                    .ThenInclude(f => f.UserFarms)
                 .Include(fcpd => fcpd.FieldDssResults)
+                .Include(fcpd => fcpd.FieldCropPest)
+                    .ThenInclude(fcp => fcp.FieldCropPestDsses)
+                .Include(fcpd => fcpd.FieldCropPest)
+                    .ThenInclude(fcp => fcp.FieldCrop)
+                    .ThenInclude(fc => fc.FieldCropPests)
                 .Where(expression)
             .ToListAsync();
         }
@@ -153,15 +163,50 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
 
         public async Task<FieldCropPestDss> FindByConditionAsync(Expression<Func<FieldCropPestDss, bool>> expression)
         {
+            if (expression is null) return null;
+
             return await this.context
                .FieldCropPestDss
                .Where(expression)
                .FirstOrDefaultAsync();
         }
 
-        public Task<FieldCropPestDss> FindByConditionAsync(Expression<Func<FieldCropPestDss, bool>> expression, bool includeAssociatedData)
+        public async Task<FieldCropPestDss> FindByConditionAsync(Expression<Func<FieldCropPestDss, bool>> expression, bool includeAssociatedData)
         {
-            throw new NotImplementedException();
+            if (expression is null) return null;
+
+            if (!includeAssociatedData)
+            {
+                return await FindByConditionAsync(expression);
+            }
+            return await this.context
+                .FieldCropPestDss
+                .Include(fcpd => fcpd.CropPestDss)
+                .Include(fcpd => fcpd.FieldCropPest)
+                    .ThenInclude(fcp => fcp.FieldCrop)
+                    .ThenInclude(fc => fc.Field)
+                    .ThenInclude(fi => fi.Farm)
+                    .ThenInclude(f => f.WeatherForecast)
+                .Include(fcpd => fcpd.FieldCropPest)
+                    .ThenInclude(fcp => fcp.FieldCrop)
+                    .ThenInclude(fc => fc.Field)
+                    .ThenInclude(fi => fi.Farm)
+                    .ThenInclude(f => f.WeatherHistorical)
+                .Include(fcpd => fcpd.FieldCropPest)
+                    .ThenInclude(fcp => fcp.CropPest)
+                .Include(fcpd => fcpd.FieldCropPest)
+                    .ThenInclude(fcp => fcp.FieldCrop)
+                    .ThenInclude(fc => fc.Field)
+                    .ThenInclude(fi => fi.Farm)
+                    .ThenInclude(f => f.UserFarms)
+                .Include(fcpd => fcpd.FieldDssResults)
+                .Include(fcpd => fcpd.FieldCropPest)
+                    .ThenInclude(fcp => fcp.FieldCropPestDsses)
+                .Include(fcpd => fcpd.FieldCropPest)
+                    .ThenInclude(fcp => fcp.FieldCrop)
+                    .ThenInclude(fc => fc.FieldCropPests)
+                .Where(expression)
+                .FirstOrDefaultAsync();
         }
 
         public async Task<FieldCropPestDss> FindByIdAsync(Guid id)

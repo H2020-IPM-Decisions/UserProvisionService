@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using H2020.IPMDecisions.UPR.BLL.Helpers;
 using H2020.IPMDecisions.UPR.Core.Entities;
@@ -46,13 +47,26 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
         {
             if (dssInformation.Input.WeatherDataPeriodStart != null)
             {
-                var weatherStartDateJsonLocation = dssInformation.Input.WeatherDataPeriodStart.Value.ToString();
-                weatherToCall.WeatherTimeStart = DateTime.Parse(dssInputSchemaAsJson.SelectTokens(weatherStartDateJsonLocation).FirstOrDefault().ToString());
+                weatherToCall.WeatherTimeStart = ProcessWeatherDataPeriod(dssInformation.Input.WeatherDataPeriodStart, dssInputSchemaAsJson);
             }
             if (dssInformation.Input.WeatherDataPeriodEnd != null)
             {
-                var weatherEndDateJsonLocation = dssInformation.Input.WeatherDataPeriodEnd.Value.ToString();
-                weatherToCall.WeatherTimeEnd = DateTime.Parse(dssInputSchemaAsJson.SelectTokens(weatherEndDateJsonLocation).FirstOrDefault().ToString());
+                weatherToCall.WeatherTimeEnd = ProcessWeatherDataPeriod(dssInformation.Input.WeatherDataPeriodEnd, dssInputSchemaAsJson);
+            }
+        }
+
+        public static DateTime ProcessWeatherDataPeriod(WeatherDataPeriod weatherDataPeriod, JObject dssInputSchemaAsJson)
+        {
+            var weatherDateJson = weatherDataPeriod.Value.ToString();
+
+            if (weatherDataPeriod.DeterminedBy.ToLower() == "input_schema_property")
+            {
+                return DateTime.Parse(dssInputSchemaAsJson.SelectTokens(weatherDateJson).FirstOrDefault().ToString());
+            }
+            else // "fixed_date" as specified on //dss/rest/schema/dss
+            {
+                var value = JsonHelper.AddDefaultDatesToDssJsonInput(weatherDateJson);
+                return DateTime.Parse(value);
             }
         }
 
@@ -77,15 +91,18 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
 
             // Use only debug files for November Demo
             // var responseWeatherAsText = GetWeatherDataTestFile(weatherDataSource.Interval);
-            var responseWeather = await PrepareWeatherDataCall(farmLocationX, farmLocationY, weatherDataSource);            
+            var responseWeather = await PrepareWeatherDataCall(farmLocationX, farmLocationY, weatherDataSource);
             result.Continue = false;
             if (!responseWeather.IsSuccessStatusCode)
             {
                 var responseText = await responseWeather.Content.ReadAsStringAsync();
-                //Great hack to work with Euroweather until is fixed
-                if (responseText.Contains("This is the first time this"))
+                // Amalgamation service error
+                Regex regex = new Regex(@".{30}\d{3}.{42}[:]",
+                RegexOptions.IgnoreCase | RegexOptions.IgnorePatternWhitespace);
+                if (regex.IsMatch(responseText))
                 {
-                    result.ResponseWeather = @"This is the first time this season that weather data has been requested for this location. Please allow 2 hours of initial processing time.";
+                    responseText = regex.Replace(responseText, "", 1);
+                    result.ResponseWeather = responseText.Trim();
                     return result;
                 }
                 result.ResponseWeather = string.Format("{0} - {1}", responseWeather.ReasonPhrase.ToString(), responseText);

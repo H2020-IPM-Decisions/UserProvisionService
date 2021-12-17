@@ -251,16 +251,10 @@ namespace H2020.IPMDecisions.UPR.BLL
                                         .GetDssModelInputSchemaMicroservice(cropPestDss.DssId, cropPestDss.DssModelId);
             if (!string.IsNullOrEmpty(dssInputInformation))
             {
-                dssInputInformation = AddDefaultDates(dssInputInformation);
+                dssInputInformation = JsonHelper.AddDefaultDatesToDssJsonInput(dssInputInformation);
                 dssParameters = JsonSchemaToJson.ToJsonString(dssInputInformation, logger);
             }
             return dssParameters;
-        }
-
-        private static string AddDefaultDates(string dssInputInformation)
-        {
-            dssInputInformation = dssInputInformation.Replace("{CURRENT_YEAR}", DateTime.Today.Year.ToString());
-            return dssInputInformation;
         }
 
         private ShapedDataWithLinks ShapeFieldCropPestDssAsChildren(FieldCrop fieldCrop, Guid fieldCropPestId, FieldCropPestDssResourceParameter resourceParameter, bool includeLinks)

@@ -1,3 +1,5 @@
+using System;
+using System.Text.RegularExpressions;
 using Newtonsoft.Json.Linq;
 
 namespace H2020.IPMDecisions.UPR.BLL.Helpers
@@ -43,6 +45,24 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
                     return property.Path;
             }
             return "";
+        }
+
+        public static string AddDefaultDatesToDssJsonInput(string jsonAsString)
+        {
+
+            Regex currentYearRegex = new Regex(@"[{]+[\scurrent_year]+[}]+",
+               RegexOptions.IgnoreCase | RegexOptions.IgnorePatternWhitespace);
+            if (currentYearRegex.IsMatch(jsonAsString))
+            {
+                jsonAsString = currentYearRegex.Replace(jsonAsString, DateTime.Today.Year.ToString());
+            }
+            Regex currentYearWithExtraRegex = new Regex(@"[{]+[\scurrent_year+|\-\d]+[}]+",
+               RegexOptions.IgnoreCase | RegexOptions.IgnorePatternWhitespace);
+            if (currentYearWithExtraRegex.IsMatch(jsonAsString))
+            {
+                //ToDo +1 or -1 years
+            }
+            return jsonAsString;
         }
     }
 }
