@@ -267,7 +267,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             var dssOutput = JsonConvert.DeserializeObject<DssModelOutputInformation>(responseAsText);
 
             // ToDo. Check valid responses when DSS do not run properly
-            if (responseDss.StatusCode.Equals(HttpStatusCode.InternalServerError))
+            if (!responseDss.IsSuccessStatusCode)
             {
                 if (!string.IsNullOrEmpty(dssOutput.Message))
                 {
@@ -344,6 +344,10 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
 
         private static void RemoveNotRequiredOnJSchema(JSchema schema)
         {
+            // Always remove weather data as the code gets the data later
+            if (schema.Properties.Keys.Any(k => k.ToLower() == "weatherdata"))
+                schema.Properties.Remove("weatherData");
+
             var notRequiredProperties = schema.Properties.Keys.Where(k => !schema.Required.Any(k2 => k2 == k));
             foreach (var property in notRequiredProperties)
             {

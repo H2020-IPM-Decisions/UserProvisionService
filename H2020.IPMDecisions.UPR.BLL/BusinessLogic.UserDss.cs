@@ -120,7 +120,7 @@ namespace H2020.IPMDecisions.UPR.BLL
 
                     if (dssOnListMatchDatabaseRecord == null)
                     {
-                        dss.DssDescription = string.Format("DSS with ID {0} and version {1} do not exist on the DSS microservice.",
+                        dss.DssDescription = string.Format("DSS with ID '{0}' and version '{1}' do not exist on the DSS microservice.",
                         dss.DssId,
                         dss.DssVersion);
                     }
@@ -133,8 +133,9 @@ namespace H2020.IPMDecisions.UPR.BLL
 
                         if (dssModelInformation == null)
                         {
-                            dss.DssDescription = string.Format("The DSS with ID {0}, do not have any model with ID {1} and version {2} on the DSS microservice.",
+                            dss.DssDescription = string.Format("The DSS with ID '{0}' and version '{1}', do not have any model with ID '{2}' and version '{3}' on the DSS microservice.",
                                 dss.DssId,
+                                dss.DssVersion,
                                 dss.DssModelId,
                                 dss.DssModelVersion);
                             continue;
