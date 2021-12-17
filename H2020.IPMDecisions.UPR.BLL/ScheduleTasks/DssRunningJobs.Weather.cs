@@ -65,7 +65,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             }
             else // "fixed_date" as specified on //dss/rest/schema/dss
             {
-                var value = weatherDateJson.Replace("{CURRENT_YEAR}", DateTime.Today.Year.ToString());
+                var value = JsonHelper.AddDefaultDatesToDssJsonInput(weatherDateJson);
                 return DateTime.Parse(value);
             }
         }

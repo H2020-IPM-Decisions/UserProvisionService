@@ -1,3 +1,4 @@
+using System;
 using Newtonsoft.Json.Linq;
 
 namespace H2020.IPMDecisions.UPR.BLL.Helpers
@@ -43,6 +44,13 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
                     return property.Path;
             }
             return "";
+        }
+
+        public static string AddDefaultDatesToDssJsonInput(string jsonAsString)
+        {
+            jsonAsString = jsonAsString.Replace("{CURRENT_YEAR}", DateTime.Today.Year.ToString());
+            //ToDo +1 or -1 years
+            return jsonAsString;
         }
     }
 }
