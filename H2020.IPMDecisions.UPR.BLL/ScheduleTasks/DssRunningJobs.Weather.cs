@@ -55,19 +55,15 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
         }
 
         private static void AddWeatherDates(DssModelInformation dssInformation, JObject dssInputSchemaAsJson, WeatherSchemaForHttp weatherToCall)
-        {            
+        {
+            var currentYear = DssDataHelper.GetCurrentYearForDssDefaultDates(dssInformation);
             if (dssInformation.Input.WeatherDataPeriodEnd != null)
             {
-                weatherToCall.WeatherTimeEnd = ProcessWeatherDataPeriod(dssInformation.Input.WeatherDataPeriodEnd, dssInputSchemaAsJson);
-
-                if (DateTime.Today > weatherToCall.WeatherTimeEnd)
-                {
-                    weatherToCall.WeatherTimeEnd = weatherToCall.WeatherTimeEnd.AddYears(1);
-                }
+                weatherToCall.WeatherTimeEnd = ProcessWeatherDataPeriod(dssInformation.Input.WeatherDataPeriodEnd, dssInputSchemaAsJson, currentYear);
             }
             if (dssInformation.Input.WeatherDataPeriodStart != null)
             {
-                weatherToCall.WeatherTimeStart = ProcessWeatherDataPeriod(dssInformation.Input.WeatherDataPeriodStart, dssInputSchemaAsJson);
+                weatherToCall.WeatherTimeStart = ProcessWeatherDataPeriod(dssInformation.Input.WeatherDataPeriodStart, dssInputSchemaAsJson, currentYear);
                 if (weatherToCall.WeatherTimeStart > DateTime.Today)
                 {
                     throw new InvalidDataException(
@@ -77,7 +73,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             }
         }
 
-        public static DateTime ProcessWeatherDataPeriod(WeatherDataPeriod weatherDataPeriod, JObject dssInputSchemaAsJson)
+        public static DateTime ProcessWeatherDataPeriod(WeatherDataPeriod weatherDataPeriod, JObject dssInputSchemaAsJson, int currentYear = -1)
         {
             var weatherDateJson = weatherDataPeriod.Value.ToString();
 
@@ -87,7 +83,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             }
             else // "fixed_date" as specified on //dss/rest/schema/dss
             {
-                var value = JsonHelper.AddDefaultDatesToDssJsonInput(weatherDateJson);
+                var value = DssDataHelper.AddDefaultDatesToDssJsonInput(weatherDateJson, currentYear);
                 return DateTime.Parse(value);
             }
         }
