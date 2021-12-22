@@ -253,7 +253,8 @@ namespace H2020.IPMDecisions.UPR.BLL
             {
                 var dssModelInformation = await internalCommunicationProvider
                                         .GetDssModelInformationFromDssMicroservice(cropPestDss.DssId, cropPestDss.DssModelId);
-                var currentYear = DssDataHelper.GetCurrentYearForDssDefaultDates(dssModelInformation);
+                var inputAsJsonObject = JsonSchemaToJson.ToJsonObject(dssModelInformation.Execution.InputSchema, logger);
+                var currentYear = DssDataHelper.GetCurrentYearForDssDefaultDates(dssModelInformation, inputAsJsonObject);
                 dssInputInformation = DssDataHelper.AddDefaultDatesToDssJsonInput(dssInputInformation, currentYear);
                 dssParameters = JsonSchemaToJson.ToJsonString(dssInputInformation, logger);
             }
