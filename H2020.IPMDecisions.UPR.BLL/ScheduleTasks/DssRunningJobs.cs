@@ -133,7 +133,6 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             finally
             {
                 httpClient.Dispose();
-
             }
         }
 
@@ -192,7 +191,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
 
                 if (dssInformation.Input.WeatherParameters != null)
                 {
-                    GetWeatherDataResult responseWeather = await PrepareWeatherData(dss, dssInformation, inputAsJsonObject);
+                    WeatherDataResult responseWeather = await PrepareWeatherData(dss, dssInformation, inputAsJsonObject);
                     if (!responseWeather.Continue)
                     {
                         var errorMessage = string.Format("Error with Weather Data -  {0}", responseWeather.ResponseWeather.ToString());

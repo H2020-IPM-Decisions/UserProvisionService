@@ -16,67 +16,70 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
 {
     public partial class DssRunningJobs
     {
-        private async Task<GetWeatherDataResult> PrepareWeatherData(FieldCropPestDss dss, DssModelInformation dssInformation, JObject dssInputSchemaAsJson)
+        private async Task<WeatherDataResult> PrepareWeatherData(FieldCropPestDss dss, DssModelInformation dssInformation, JObject dssInputSchemaAsJson)
         {
-            var listOfPreferredWeatherDataSources = new List<WeatherSchemaForHttp>();
-            var farm = dss.FieldCropPest.FieldCrop.Field.Farm;
-            if (farm.WeatherForecast != null)
+            try
             {
-                var weatherInformation = await this.internalCommunicationProvider
-                       .GetWeatherProviderInformationFromWeatherMicroservice(farm.WeatherForecast.WeatherId);
+                var listOfPreferredWeatherDataSources = new List<WeatherSchemaForHttp>();
+                var farm = dss.FieldCropPest.FieldCrop.Field.Farm;
+                var currentYear = DssDataHelper.GetCurrentYearForDssDefaultDates(dssInformation, dssInputSchemaAsJson);
+                if (farm.WeatherForecast != null)
+                {
+                    var weatherInformation = await this.internalCommunicationProvider
+                           .GetWeatherProviderInformationFromWeatherMicroservice(farm.WeatherForecast.WeatherId);
 
-                var weatherToCall = this.mapper.Map<WeatherSchemaForHttp>(weatherInformation);
-                weatherToCall.IsForecast = true;
-                AddWeatherDates(dssInformation, dssInputSchemaAsJson, weatherToCall);
-                listOfPreferredWeatherDataSources.Add(weatherToCall);
+                    var weatherToCall = this.mapper.Map<WeatherSchemaForHttp>(weatherInformation);
+                    weatherToCall.IsForecast = true;
+                    AddWeatherDates(dssInformation, dssInputSchemaAsJson, weatherToCall, currentYear);
+                    listOfPreferredWeatherDataSources.Add(weatherToCall);
+                }
+                if (farm.WeatherHistorical != null)
+                {
+                    var weatherInformation = await this.internalCommunicationProvider
+                           .GetWeatherProviderInformationFromWeatherMicroservice(farm.WeatherHistorical.WeatherId);
+
+                    var weatherToCall = this.mapper.Map<WeatherSchemaForHttp>(weatherInformation);
+                    AddWeatherDates(dssInformation, dssInputSchemaAsJson, weatherToCall, currentYear);
+                    listOfPreferredWeatherDataSources.Add(weatherToCall);
+                }
+
+                return await GetWeatherData(farm.Location.X.ToString(), farm.Location.Y.ToString(), listOfPreferredWeatherDataSources, dssInformation.Input);
             }
-            if (farm.WeatherHistorical != null)
+            catch (Exception ex)
             {
-                var weatherInformation = await this.internalCommunicationProvider
-                       .GetWeatherProviderInformationFromWeatherMicroservice(farm.WeatherHistorical.WeatherId);
-
-                var weatherToCall = this.mapper.Map<WeatherSchemaForHttp>(weatherInformation);
-                AddWeatherDates(dssInformation, dssInputSchemaAsJson, weatherToCall);
-                listOfPreferredWeatherDataSources.Add(weatherToCall);
+                return new WeatherDataResult()
+                {
+                    Continue = false,
+                    ResponseWeather = ex.Message.ToString()
+                };
             }
-
-            return await GetWeatherData(farm.Location.X.ToString(), farm.Location.Y.ToString(), listOfPreferredWeatherDataSources, dssInformation.Input);
         }
 
-        private static void AddWeatherDates(DssModelInformation dssInformation, JObject dssInputSchemaAsJson, WeatherSchemaForHttp weatherToCall)
+        private static void AddWeatherDates(DssModelInformation dssInformation, JObject dssInputSchemaAsJson, WeatherSchemaForHttp weatherToCall, int currentYear = -1)
         {
-            if (dssInformation.Input.WeatherDataPeriodStart != null)
-            {
-                weatherToCall.WeatherTimeStart = ProcessWeatherDataPeriod(dssInformation.Input.WeatherDataPeriodStart, dssInputSchemaAsJson);
-            }
             if (dssInformation.Input.WeatherDataPeriodEnd != null)
             {
-                weatherToCall.WeatherTimeEnd = ProcessWeatherDataPeriod(dssInformation.Input.WeatherDataPeriodEnd, dssInputSchemaAsJson);
+                weatherToCall.WeatherTimeEnd = DssDataHelper.ProcessWeatherDataPeriod(dssInformation.Input.WeatherDataPeriodEnd, dssInputSchemaAsJson, currentYear);
+            }
+            if (dssInformation.Input.WeatherDataPeriodStart != null)
+            {
+                weatherToCall.WeatherTimeStart = DssDataHelper.ProcessWeatherDataPeriod(dssInformation.Input.WeatherDataPeriodStart, dssInputSchemaAsJson, currentYear);
+                if (weatherToCall.WeatherTimeStart > DateTime.Today)
+                {
+                    throw new InvalidDataException(
+                        string.Format("Weather data is not currently available for next season, please try again after {0}",
+                        weatherToCall.WeatherTimeStart.ToShortDateString()));
+                }
             }
         }
 
-        public static DateTime ProcessWeatherDataPeriod(WeatherDataPeriod weatherDataPeriod, JObject dssInputSchemaAsJson)
-        {
-            var weatherDateJson = weatherDataPeriod.Value.ToString();
-
-            if (weatherDataPeriod.DeterminedBy.ToLower() == "input_schema_property")
-            {
-                return DateTime.Parse(dssInputSchemaAsJson.SelectTokens(weatherDateJson).FirstOrDefault().ToString());
-            }
-            else // "fixed_date" as specified on //dss/rest/schema/dss
-            {
-                var value = JsonHelper.AddDefaultDatesToDssJsonInput(weatherDateJson);
-                return DateTime.Parse(value);
-            }
-        }
-
-        public async Task<GetWeatherDataResult> GetWeatherData(
+        public async Task<WeatherDataResult> GetWeatherData(
             string farmLocationX,
             string farmLocationY,
             List<WeatherSchemaForHttp> listWeatherDataSource,
             DssModelSchemaInput dssWeatherInput)
         {
-            var result = new GetWeatherDataResult();
+            var result = new WeatherDataResult();
             if (listWeatherDataSource.Count < 1)
             {
                 result.ResponseWeather = "No Weather Data Sources or Weather Stations associated to the farm";
