@@ -161,8 +161,15 @@ namespace H2020.IPMDecisions.UPR.BLL
                 var dss = await this.dataService.FieldCropPestDsses.FindByIdAsync(id);
                 if (dss == null) return GenericResponseBuilder.Success();
 
-                var dssUserId = dss.FieldCropPest.FieldCrop.Field.Farm.UserFarms.FirstOrDefault().UserId;
-                if (userId != dssUserId) return GenericResponseBuilder.Success();
+                if (!dss.FieldCropPest.FieldCrop.Field.Farm.UserFarms.Any(u => u.UserId == userId))
+                {
+                    return GenericResponseBuilder.Success();
+                }
+
+                if (dss.FieldCropPest.FieldCrop.Field.Farm.UserFarms.Count > 1)
+                {
+                    // ToDo: Ask for requirements, only farm owners can delete data??
+                }
 
                 // If last FieldCropPestDss and last FieldCropPest delete field
                 if (dss.FieldCropPest.FieldCropPestDsses.Count() == 1
@@ -177,7 +184,6 @@ namespace H2020.IPMDecisions.UPR.BLL
                 {
                     var fieldCropPest = dss.FieldCropPest;
                     this.dataService.FieldCropPests.Delete(fieldCropPest);
-
                 }
                 // If more than one FieldCropPestDss, delete just FieldCropPestDss
                 else
@@ -185,7 +191,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                     this.dataService.FieldCropPestDsses.Delete(dss);
                 }
 
-                await this.dataService.CompleteAsync();
+                // await this.dataService.CompleteAsync();
                 return GenericResponseBuilder.Success();
             }
             catch (Exception ex)

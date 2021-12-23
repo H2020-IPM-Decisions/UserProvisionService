@@ -132,6 +132,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
                 .Farm
                 .Where(expression)
                 .Include(f => f.UserFarms)
+                    .ThenInclude(fu => fu.UserFarmType)
                 .Include(f => f.Fields)
                     .ThenInclude(fi => fi.FieldCrop)
                         .ThenInclude(fc => fc.FieldCropPests)
