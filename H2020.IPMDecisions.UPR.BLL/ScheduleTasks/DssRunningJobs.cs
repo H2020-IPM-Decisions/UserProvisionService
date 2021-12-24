@@ -172,24 +172,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 // Check required properties with Json Schema, remove not required
                 DssDataHelper.RemoveNotRequiredInputSchemaProperties(inputSchema);
 
-                var inputAsJsonObject = JsonSchemaToJson.ToJsonObject(dssInformation.Execution.InputSchema, logger);
-                
-                // ToDo Improve logic and extract method. This is PoC
-                // Remove not required from input to avoid sending null information
-                var toRemove = new List<string>();
-                foreach (var property in inputAsJsonObject.Properties())
-                {
-                    if (!inputSchema.Required.Contains(property.Name))
-                    {
-                        toRemove.Add(property.Name);
-                    }
-                }
-                foreach (var item in toRemove)
-                {
-                    inputAsJsonObject.Remove(item);
-                }
-                // End ToDo
-
+                var inputAsJsonObject = JsonSchemaToJson.ToJsonObject(inputSchema.ToString(), logger);
                 // Add user parameters
                 if (!string.IsNullOrEmpty(dss.DssParameters))
                 {
