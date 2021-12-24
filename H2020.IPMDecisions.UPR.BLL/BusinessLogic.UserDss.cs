@@ -191,7 +191,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                     this.dataService.FieldCropPestDsses.Delete(dss);
                 }
 
-                // await this.dataService.CompleteAsync();
+                await this.dataService.CompleteAsync();
                 return GenericResponseBuilder.Success();
             }
             catch (Exception ex)
