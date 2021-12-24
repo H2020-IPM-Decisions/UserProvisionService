@@ -13,6 +13,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Schema;
 
 namespace H2020.IPMDecisions.UPR.BLL.Providers
 {
@@ -94,20 +95,20 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
             }
         }
 
-        public async Task<string> GetDssModelInputSchemaMicroservice(string dssId, string modelId)
+        public async Task<JSchema> GetDssModelInputSchemaMicroservice(string dssId, string modelId)
         {
             try
             {
                 var cacheKey = string.Format("dssInputSchema_{0}_{1}", dssId.ToLower(), modelId.ToLower());
-                if (!memoryCache.TryGetValue(cacheKey, out string dssInputSchema))
+                if (!memoryCache.TryGetValue(cacheKey, out JSchema dssInputSchema))
                 {
                     var dssEndPoint = config["MicroserviceInternalCommunication:DssMicroservice"];
                     var response = await httpClient.GetAsync(string.Format("{0}rest/model/{1}/{2}/input_schema/ui_form", dssEndPoint, dssId, modelId));
 
                     if (!response.IsSuccessStatusCode) return null;
 
-                    dssInputSchema = await response.Content.ReadAsStringAsync();
-
+                    var responseAsString = await response.Content.ReadAsStringAsync();
+                    dssInputSchema = JSchema.Parse(responseAsString);
                     memoryCache.Set(cacheKey, dssInputSchema, MemoryCacheHelper.CreateMemoryCacheEntryOptions(7));
                 }
                 return dssInputSchema;

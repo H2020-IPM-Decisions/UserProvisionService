@@ -168,17 +168,33 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 }
                 if (dssInformation.Execution.Type.ToLower() != "onthefly") return null;
 
-                var inputAsJsonObject = JsonSchemaToJson.ToJsonObject(dssInformation.Execution.InputSchema, logger);
                 var inputSchema = JsonSchemaToJson.StringToJsonSchema(dssInformation.Execution.InputSchema, logger);
+                // Check required properties with Json Schema, remove not required
+                DssDataHelper.RemoveNotRequiredInputSchemaProperties(inputSchema);
+
+                var inputAsJsonObject = JsonSchemaToJson.ToJsonObject(dssInformation.Execution.InputSchema, logger);
+                
+                // ToDo Improve logic and extract method. This is PoC
+                // Remove not required from input to avoid sending null information
+                var toRemove = new List<string>();
+                foreach (var property in inputAsJsonObject.Properties())
+                {
+                    if (!inputSchema.Required.Contains(property.Name))
+                    {
+                        toRemove.Add(property.Name);
+                    }
+                }
+                foreach (var item in toRemove)
+                {
+                    inputAsJsonObject.Remove(item);
+                }
+                // End ToDo
 
                 // Add user parameters
                 if (!string.IsNullOrEmpty(dss.DssParameters))
                 {
                     AddUserParametersToDss(dss.DssParameters, inputAsJsonObject);
                 }
-
-                // Check required properties with Json Schema, remove not required
-                RemoveNotRequiredInputSchemaProperties(inputSchema);
 
                 IList<string> validationErrormessages;
                 bool isJsonObjectvalid = inputAsJsonObject.IsValid(inputSchema, out validationErrormessages);
@@ -329,28 +345,6 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             else
             {
                 dssResult.DssFullResult = JObject.Parse("{\"message\": \"Message error from DSS do not follow IPM Decisions standards, so unfortunately we can not provide more information.\"}").ToString();
-            }
-        }
-
-        private static void RemoveNotRequiredInputSchemaProperties(JSchema inputSchema)
-        {
-            RemoveNotRequiredOnJSchema(inputSchema);
-            foreach (var schemaProperty in inputSchema.Properties.Values)
-            {
-                RemoveNotRequiredOnJSchema(schemaProperty);
-            }
-        }
-
-        private static void RemoveNotRequiredOnJSchema(JSchema schema)
-        {
-            // Always remove weather data as the code gets the data later
-            if (schema.Properties.Keys.Any(k => k.ToLower() == "weatherdata"))
-                schema.Properties.Remove("weatherData");
-
-            var notRequiredProperties = schema.Properties.Keys.Where(k => !schema.Required.Any(k2 => k2 == k));
-            foreach (var property in notRequiredProperties)
-            {
-                schema.Properties.Remove(property);
             }
         }
         #endregion
