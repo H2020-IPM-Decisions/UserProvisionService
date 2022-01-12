@@ -36,7 +36,6 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
                 var weatherEndDate = ProcessWeatherDataPeriod(dssInputInformation.Input.WeatherDataPeriodEnd, dssInputSchemaAsJson);
                 currentYear = weatherEndDate.Year;
                 if (DateTime.Today > weatherEndDate) currentYear += 1;
-                return currentYear;
             }
             return currentYear;
         }
