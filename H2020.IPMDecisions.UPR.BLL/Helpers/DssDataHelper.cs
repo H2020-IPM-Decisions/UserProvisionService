@@ -70,8 +70,12 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
         private static void RemoveNotRequiredOnJSchema(JSchema schema)
         {
             // Always remove weather data as the code gets the data later
-            if (schema.Properties.Keys.Any(k => k.ToLower() == "weatherdata"))
-                schema.Properties.Remove("weatherData");
+            var weatherDataKey = schema.Properties.Keys.Where(k => k.ToLower() == "weatherdata").FirstOrDefault();
+            if (!string.IsNullOrEmpty(weatherDataKey))
+            {
+                schema.Properties.Remove(weatherDataKey);
+                schema.Required.Remove(weatherDataKey);
+            }
 
             var notRequiredProperties = schema.Properties.Keys.Where(k => !schema.Required.Any(k2 => k2 == k));
             foreach (var property in notRequiredProperties)
