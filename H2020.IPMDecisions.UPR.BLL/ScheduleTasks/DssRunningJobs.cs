@@ -299,10 +299,11 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
 
             if (dssOutput.LocationResult != null)
             {
-                var warningStatuses = dssOutput.LocationResult.FirstOrDefault().WarningStatus;
+                var warningStatuses = dssOutput.LocationResult.FirstOrDefault().WarningStatus;                
                 //Take last 7 days of Data
                 var maxDaysOutput = 7;
                 dssResult.WarningStatus = warningStatuses.TakeLast(maxDaysOutput).Max();
+                if (dssResult.WarningStatus == null) dssResult.WarningStatus = 0;
             }
             dssResult.DssFullResult = responseAsText;
             dssResult.IsValid = true;
