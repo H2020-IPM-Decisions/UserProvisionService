@@ -88,7 +88,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             }
 
             //ToDo - Ask what to do when multiple weather data sources associated to a farm. At the moment use only one
-            var weatherDataSource = listWeatherDataSource.FirstOrDefault();          
+            var weatherDataSource = listWeatherDataSource.FirstOrDefault();
 
             // Use only debug files for November Demo
             var responseWeatherAsText = GetWeatherDataTestFile(dssWeatherInput, weatherDataSource);
@@ -147,48 +147,59 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 var fileAsString = "";
                 using (Stream stream = assembly.GetManifestResourceStream(resourceName))
                 using (StreamReader reader = new StreamReader(stream))
-                {
                     fileAsString = reader.ReadToEnd();
-                }
+
                 var weatherData = JsonConvert.DeserializeObject<WeatherDataResponseSchema>(fileAsString);
+                var intervalStartDates = (weatherDataSource.WeatherTimeStart - weatherData.TimeStart);
+                var intervalStartEndDates = (weatherDataSource.WeatherTimeEnd - weatherDataSource.WeatherTimeStart);
 
-
+                var startIndex = 0;
+                var lengthBetweenIndex = 0;
                 if (weatherInterval == 86400)
                 {
-                    var startIndex = 0;
                     if (!(weatherDataSource.WeatherTimeStart < weatherData.TimeStart))
-                    {
-                        // Starts from the weather data
-                        startIndex = (int)(weatherDataSource.WeatherTimeStart - weatherData.TimeStart).Days;
-                    }
-                    var lengthBetweenIndex = (int)(weatherDataSource.WeatherTimeEnd - weatherDataSource.WeatherTimeStart).Days + 1;
-                    weatherData.LocationWeatherDataResult.FirstOrDefault().Data =
-                        weatherData.LocationWeatherDataResult.FirstOrDefault().Data.Skip(startIndex).Take(lengthBetweenIndex).ToList();
-                    weatherData.LocationWeatherDataResult.FirstOrDefault().Length = weatherData.LocationWeatherDataResult.FirstOrDefault().Data.Count();
+                        startIndex = (int)intervalStartDates.TotalDays;
+                    lengthBetweenIndex = (int)intervalStartEndDates.TotalDays + 1;
                 }
                 else
                 {
-
+                    if (!(weatherDataSource.WeatherTimeStart < weatherData.TimeStart))
+                        startIndex = (int)intervalStartDates.TotalHours;
+                    lengthBetweenIndex = (int)intervalStartEndDates.TotalHours + 24;
                 }
+                var weatherDataResult = weatherData.LocationWeatherDataResult.FirstOrDefault();
+
+                weatherData.LocationWeatherDataResult.FirstOrDefault().Data =
+                    weatherDataResult.Data.Skip(startIndex).Take(lengthBetweenIndex).ToList();
+
+                weatherData.LocationWeatherDataResult.FirstOrDefault().Length = weatherDataResult.Data.Count();
                 weatherData.TimeStart = weatherDataSource.WeatherTimeStart.ToUniversalTime();
                 weatherData.TimeEnd = weatherDataSource.WeatherTimeEnd.ToUniversalTime();
 
-                // Change WeatherParameters from 1001 to 1002                
-                // var weatherReplaced = dssWeatherInput.WeatherParameters.Select(p => p.ParameterCode.ToString().Replace("1001","1002"));
-                // var weatherReplaced = new List<string>();
-                // weatherReplaced.Add("1002");
-                // weatherReplaced.Add("1112");
+                // Change WeatherParameters from 1001 to 1002 as we need to use this parameter
+                var weatherReplaced = dssWeatherInput.WeatherParameters.Select(p => p.ParameterCode.ToString().Replace("1001","1002"));
 
-                // // First get WeatherParameters and Index
-                // var matching = weatherData
-                //     .WeatherParameters
-                //     .Select((v, i) => new { Index = i, Value = v })
-                //     .Where(t => weatherReplaced
-                //         .Any(w => w.ToString() == t.Value.ToString()))
-                //     .Select(p => p.Index);
+                var listIndexToRemove = new List<int>();
+                foreach (var (item, index) in weatherData.WeatherParameters.Select((value, i) => (value, i)))
+                {
+                    if (!weatherReplaced.Any(w => w.ToString() == item.ToString()))
+                    {
+                        listIndexToRemove.Add(index);
+                    }
+                }
 
-                // Remove not matching from weatherParameters, LocationWeatherData.Amalgamation, data, qc and reduce width
-
+                List<int> sortedListIndexToRemove = listIndexToRemove.OrderByDescending(i => i).ToList();
+                foreach (var index in sortedListIndexToRemove)
+                {
+                    weatherData.WeatherParameters.RemoveAt(index);
+                    weatherData.LocationWeatherDataResult.FirstOrDefault().Amalgamation.RemoveAt(index);
+                    weatherData.LocationWeatherDataResult.FirstOrDefault().Qc.RemoveAt(index);
+                    foreach (var dataItem in weatherData.LocationWeatherDataResult.FirstOrDefault().Data)
+                    {
+                        dataItem.RemoveAt(index);
+                    }
+                }
+                weatherData.LocationWeatherDataResult.FirstOrDefault().Width = weatherData.WeatherParameters.Count();
                 return JsonConvert.SerializeObject(weatherData);
             }
             catch (Exception ex)
