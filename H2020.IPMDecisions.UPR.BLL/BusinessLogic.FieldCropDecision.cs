@@ -247,16 +247,20 @@ namespace H2020.IPMDecisions.UPR.BLL
         // ToDo Ask for languages
         private async Task<string> AddDefaultDssParameters(CropPestDss cropPestDss, string dssParameters)
         {
-            var dssInputInformation = await internalCommunicationProvider
+            var dssInputUISchema = await internalCommunicationProvider
                                         .GetDssModelInputSchemaMicroservice(cropPestDss.DssId, cropPestDss.DssModelId);
-            if (!string.IsNullOrEmpty(dssInputInformation))
+            if (dssInputUISchema != null)
             {
                 var dssModelInformation = await internalCommunicationProvider
                                         .GetDssModelInformationFromDssMicroservice(cropPestDss.DssId, cropPestDss.DssModelId);
+
                 var inputAsJsonObject = JsonSchemaToJson.ToJsonObject(dssModelInformation.Execution.InputSchema, logger);
                 var currentYear = DssDataHelper.GetCurrentYearForDssDefaultDates(dssModelInformation, inputAsJsonObject);
-                dssInputInformation = DssDataHelper.AddDefaultDatesToDssJsonInput(dssInputInformation, currentYear);
-                dssParameters = JsonSchemaToJson.ToJsonString(dssInputInformation, logger);
+
+                DssDataHelper.RemoveNotRequiredInputSchemaProperties(dssInputUISchema);
+                dssParameters = JsonSchemaToJson.ToJsonString(dssInputUISchema.ToString(), logger);
+                dssParameters = DssDataHelper.AddDefaultDatesToDssJsonInput(dssParameters, currentYear);
+
             }
             return dssParameters;
         }

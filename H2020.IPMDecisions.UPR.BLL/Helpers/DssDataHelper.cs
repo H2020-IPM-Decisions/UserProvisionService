@@ -3,6 +3,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using H2020.IPMDecisions.UPR.Core.Models;
 using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Schema;
 
 namespace H2020.IPMDecisions.UPR.BLL.Helpers
 {
@@ -35,9 +36,8 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
                 var weatherEndDate = ProcessWeatherDataPeriod(dssInputInformation.Input.WeatherDataPeriodEnd, dssInputSchemaAsJson);
                 currentYear = weatherEndDate.Year;
                 if (DateTime.Today > weatherEndDate) currentYear += 1;
-                return currentYear;
             }
-            return currentYear;  
+            return currentYear;
         }
 
         public static DateTime ProcessWeatherDataPeriod(WeatherDataPeriod weatherDataPeriod, JObject dssInputSchemaAsJson, int currentYear = -1)
@@ -55,6 +55,32 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
             else // "fixed_date" as specified on //dss/rest/schema/dss
             {
                 return DateTime.Parse(DssDataHelper.AddDefaultDatesToDssJsonInput(weatherDateJson, currentYear));
+            }
+        }
+
+        public static void RemoveNotRequiredInputSchemaProperties(JSchema inputSchema)
+        {
+            RemoveNotRequiredOnJSchema(inputSchema);
+            foreach (var schemaProperty in inputSchema.Properties.Values)
+            {
+                RemoveNotRequiredOnJSchema(schemaProperty);
+            }
+        }
+
+        private static void RemoveNotRequiredOnJSchema(JSchema schema)
+        {
+            // Always remove weather data as the code gets the data later
+            var weatherDataKey = schema.Properties.Keys.Where(k => k.ToLower() == "weatherdata").FirstOrDefault();
+            if (!string.IsNullOrEmpty(weatherDataKey))
+            {
+                schema.Properties.Remove(weatherDataKey);
+                schema.Required.Remove(weatherDataKey);
+            }
+
+            var notRequiredProperties = schema.Properties.Keys.Where(k => !schema.Required.Any(k2 => k2 == k));
+            foreach (var property in notRequiredProperties)
+            {
+                schema.Properties.Remove(property);
             }
         }
     }

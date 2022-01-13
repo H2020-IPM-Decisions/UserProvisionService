@@ -10,6 +10,7 @@ using H2020.IPMDecisions.UPR.BLL.Helpers;
 using H2020.IPMDecisions.UPR.Core.Entities;
 using H2020.IPMDecisions.UPR.Core.Models;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
@@ -89,29 +90,29 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             //ToDo - Ask what to do when multiple weather data sources associated to a farm. At the moment use only one
             var weatherDataSource = listWeatherDataSource.FirstOrDefault();
 
-            PrepareWeatherDssParameters(dssWeatherInput, weatherDataSource);
-            weatherDataSource.Interval = dssWeatherInput.WeatherParameters.FirstOrDefault().Interval;
-
             // Use only debug files for November Demo
-            // var responseWeatherAsText = GetWeatherDataTestFile(weatherDataSource.Interval);
-            var responseWeather = await PrepareWeatherDataCall(farmLocationX, farmLocationY, weatherDataSource);
-            result.Continue = false;
-            if (!responseWeather.IsSuccessStatusCode)
-            {
-                var responseText = await responseWeather.Content.ReadAsStringAsync();
-                // Amalgamation service error
-                Regex regex = new Regex(@".{30}\d{3}.{42}[:]",
-                RegexOptions.IgnoreCase | RegexOptions.IgnorePatternWhitespace);
-                if (regex.IsMatch(responseText))
-                {
-                    responseText = regex.Replace(responseText, "", 1);
-                    result.ResponseWeather = responseText.Trim();
-                    return result;
-                }
-                result.ResponseWeather = string.Format("{0} - {1}", responseWeather.ReasonPhrase.ToString(), responseText);
-                return result;
-            }
-            var responseWeatherAsText = await responseWeather.Content.ReadAsStringAsync();
+            var responseWeatherAsText = GetWeatherDataTestFile(dssWeatherInput, weatherDataSource);
+
+            // PrepareWeatherDssParameters(dssWeatherInput, weatherDataSource);
+            // weatherDataSource.Interval = dssWeatherInput.WeatherParameters.FirstOrDefault().Interval;
+            // var responseWeather = await PrepareWeatherDataCall(farmLocationX, farmLocationY, weatherDataSource);
+            // result.Continue = false;
+            // if (!responseWeather.IsSuccessStatusCode)
+            // {
+            //     var responseText = await responseWeather.Content.ReadAsStringAsync();
+            //     // Amalgamation service error
+            //     Regex regex = new Regex(@".{30}\d{3}.{42}[:]",
+            //     RegexOptions.IgnoreCase | RegexOptions.IgnorePatternWhitespace);
+            //     if (regex.IsMatch(responseText))
+            //     {
+            //         responseText = regex.Replace(responseText, "", 1);
+            //         result.ResponseWeather = responseText.Trim();
+            //         return result;
+            //     }
+            //     result.ResponseWeather = string.Format("{0} - {1}", responseWeather.ReasonPhrase.ToString(), responseText);
+            //     return result;
+            // }
+            // var responseWeatherAsText = await responseWeather.Content.ReadAsStringAsync();
 
             if (!DataParseHelper.IsValidJson(responseWeatherAsText))
             {
@@ -129,28 +130,77 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             return result;
         }
 
-        private string GetWeatherDataTestFile(int interval)
+        private string GetWeatherDataTestFile(DssModelSchemaInput dssWeatherInput, WeatherSchemaForHttp weatherDataSource)
         {
             try
             {
                 var assembly = Assembly.GetExecutingAssembly();
-                var fileName = "IPMDecision_DemoWeather";
-                if (interval == 86400)
+                var fileName = "IPMDecision_FullSeasonWeather";
+                var fileNameInterval = "_Hourly.json";
+                var weatherInterval = dssWeatherInput.WeatherParameters.FirstOrDefault().Interval;
+                if (weatherInterval == 86400)
+                    fileNameInterval = "_Daily.json";
+                fileName = fileName + fileNameInterval;
+
+                var resourceName = string.Format("H2020.IPMDecisions.UPR.BLL.Files.{0}", fileName);
+
+                var fileAsString = "";
+                using (Stream stream = assembly.GetManifestResourceStream(resourceName))
+                using (StreamReader reader = new StreamReader(stream))
+                    fileAsString = reader.ReadToEnd();
+
+                var weatherData = JsonConvert.DeserializeObject<WeatherDataResponseSchema>(fileAsString);
+                var intervalStartDates = (weatherDataSource.WeatherTimeStart - weatherData.TimeStart);
+                var intervalStartEndDates = (weatherDataSource.WeatherTimeEnd - weatherDataSource.WeatherTimeStart);
+
+                var startIndex = 0;
+                var lengthBetweenIndex = 0;
+                if (weatherInterval == 86400)
                 {
-                    fileName = fileName + "_Daily.json";
+                    if (!(weatherDataSource.WeatherTimeStart < weatherData.TimeStart))
+                        startIndex = (int)intervalStartDates.TotalDays;
+                    lengthBetweenIndex = (int)intervalStartEndDates.TotalDays + 1;
                 }
                 else
                 {
-                    fileName = fileName + "_Hourly.json";
-
+                    if (!(weatherDataSource.WeatherTimeStart < weatherData.TimeStart))
+                        startIndex = (int)intervalStartDates.TotalHours;
+                    lengthBetweenIndex = (int)intervalStartEndDates.TotalHours + 24;
                 }
-                var resourceName = string.Format("H2020.IPMDecisions.UPR.BLL.Files.{0}", fileName);
+                var weatherDataResult = weatherData.LocationWeatherDataResult.FirstOrDefault();
 
-                using (Stream stream = assembly.GetManifestResourceStream(resourceName))
-                using (StreamReader reader = new StreamReader(stream))
+                weatherData.LocationWeatherDataResult.FirstOrDefault().Data =
+                    weatherDataResult.Data.Skip(startIndex).Take(lengthBetweenIndex).ToList();
+
+                weatherData.LocationWeatherDataResult.FirstOrDefault().Length = weatherDataResult.Data.Count();
+                weatherData.TimeStart = weatherDataSource.WeatherTimeStart.ToUniversalTime();
+                weatherData.TimeEnd = weatherDataSource.WeatherTimeEnd.ToUniversalTime();
+
+                // Change WeatherParameters from 1001 to 1002 as we need to use this parameter
+                var weatherReplaced = dssWeatherInput.WeatherParameters.Select(p => p.ParameterCode.ToString().Replace("1001","1002"));
+
+                var listIndexToRemove = new List<int>();
+                foreach (var (item, index) in weatherData.WeatherParameters.Select((value, i) => (value, i)))
                 {
-                    return reader.ReadToEnd();
+                    if (!weatherReplaced.Any(w => w.ToString() == item.ToString()))
+                    {
+                        listIndexToRemove.Add(index);
+                    }
                 }
+
+                List<int> sortedListIndexToRemove = listIndexToRemove.OrderByDescending(i => i).ToList();
+                foreach (var index in sortedListIndexToRemove)
+                {
+                    weatherData.WeatherParameters.RemoveAt(index);
+                    weatherData.LocationWeatherDataResult.FirstOrDefault().Amalgamation.RemoveAt(index);
+                    weatherData.LocationWeatherDataResult.FirstOrDefault().Qc.RemoveAt(index);
+                    foreach (var dataItem in weatherData.LocationWeatherDataResult.FirstOrDefault().Data)
+                    {
+                        dataItem.RemoveAt(index);
+                    }
+                }
+                weatherData.LocationWeatherDataResult.FirstOrDefault().Width = weatherData.WeatherParameters.Count();
+                return JsonConvert.SerializeObject(weatherData);
             }
             catch (Exception ex)
             {

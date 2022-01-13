@@ -25,6 +25,12 @@ namespace H2020.IPMDecisions.UPR.BLL
                 var farm = httpContext.Items["farm"] as Farm;
                 if (farm == null) return GenericResponseBuilder.Success();
 
+                var userId = Guid.Parse(httpContext.Items["userId"].ToString());
+                if (!farm.UserFarms.Any(uf => uf.UserId == userId & uf.UserFarmType.Id == UserFarmTypeEnum.Owner))
+                {
+                    return GenericResponseBuilder.NoSuccess("You are not the owner of this farm, so process can not be completed.");
+                };
+
                 this.dataService.Farms.Delete(farm);
                 await this.dataService.CompleteAsync();
 
