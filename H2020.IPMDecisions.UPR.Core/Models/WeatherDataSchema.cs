@@ -5,7 +5,7 @@ using Newtonsoft.Json;
 
 namespace H2020.IPMDecisions.UPR.Core.Models
 {
-    // This class matches the schema definition of /api/wx/rest/schema/weatherdata
+    // This class matches the schema definition of /api/wx/apidocs/json_WeatherDataSource.html
     public class WeatherDataSchema
     {
         public string Id { get; set; }
