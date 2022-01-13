@@ -10,6 +10,7 @@ using H2020.IPMDecisions.UPR.BLL.Helpers;
 using H2020.IPMDecisions.UPR.Core.Entities;
 using H2020.IPMDecisions.UPR.Core.Models;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
@@ -87,13 +88,13 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             }
 
             //ToDo - Ask what to do when multiple weather data sources associated to a farm. At the moment use only one
-            var weatherDataSource = listWeatherDataSource.FirstOrDefault();
-
-            PrepareWeatherDssParameters(dssWeatherInput, weatherDataSource);
-            weatherDataSource.Interval = dssWeatherInput.WeatherParameters.FirstOrDefault().Interval;
+            var weatherDataSource = listWeatherDataSource.FirstOrDefault();          
 
             // Use only debug files for November Demo
-            var responseWeatherAsText = GetWeatherDataTestFile(weatherDataSource);
+            var responseWeatherAsText = GetWeatherDataTestFile(dssWeatherInput, weatherDataSource);
+
+            // PrepareWeatherDssParameters(dssWeatherInput, weatherDataSource);
+            // weatherDataSource.Interval = dssWeatherInput.WeatherParameters.FirstOrDefault().Interval;
             // var responseWeather = await PrepareWeatherDataCall(farmLocationX, farmLocationY, weatherDataSource);
             // result.Continue = false;
             // if (!responseWeather.IsSuccessStatusCode)
@@ -129,28 +130,66 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             return result;
         }
 
-        private string GetWeatherDataTestFile(WeatherSchemaForHttp weatherDataSource)
+        private string GetWeatherDataTestFile(DssModelSchemaInput dssWeatherInput, WeatherSchemaForHttp weatherDataSource)
         {
             try
             {
                 var assembly = Assembly.GetExecutingAssembly();
                 var fileName = "IPMDecision_FullSeasonWeather";
-                if (weatherDataSource.Interval == 86400)
-                {
-                    fileName = fileName + "_Daily.json";
-                }
-                else
-                {
-                    fileName = fileName + "_Hourly.json";
+                var fileNameInterval = "_Hourly.json";
+                var weatherInterval = dssWeatherInput.WeatherParameters.FirstOrDefault().Interval;
+                if (weatherInterval == 86400)
+                    fileNameInterval = "_Daily.json";
+                fileName = fileName + fileNameInterval;
 
-                }
                 var resourceName = string.Format("H2020.IPMDecisions.UPR.BLL.Files.{0}", fileName);
 
+                var fileAsString = "";
                 using (Stream stream = assembly.GetManifestResourceStream(resourceName))
                 using (StreamReader reader = new StreamReader(stream))
                 {
-                    return reader.ReadToEnd();
+                    fileAsString = reader.ReadToEnd();
                 }
+                var weatherData = JsonConvert.DeserializeObject<WeatherDataResponseSchema>(fileAsString);
+
+
+                if (weatherInterval == 86400)
+                {
+                    var startIndex = 0;
+                    if (!(weatherDataSource.WeatherTimeStart < weatherData.TimeStart))
+                    {
+                        // Starts from the weather data
+                        startIndex = (int)(weatherDataSource.WeatherTimeStart - weatherData.TimeStart).Days;
+                    }
+                    var lengthBetweenIndex = (int)(weatherDataSource.WeatherTimeEnd - weatherDataSource.WeatherTimeStart).Days + 1;
+                    weatherData.LocationWeatherDataResult.FirstOrDefault().Data =
+                        weatherData.LocationWeatherDataResult.FirstOrDefault().Data.Skip(startIndex).Take(lengthBetweenIndex).ToList();
+                    weatherData.LocationWeatherDataResult.FirstOrDefault().Length = weatherData.LocationWeatherDataResult.FirstOrDefault().Data.Count();
+                }
+                else
+                {
+
+                }
+                weatherData.TimeStart = weatherDataSource.WeatherTimeStart.ToUniversalTime();
+                weatherData.TimeEnd = weatherDataSource.WeatherTimeEnd.ToUniversalTime();
+
+                // Change WeatherParameters from 1001 to 1002                
+                // var weatherReplaced = dssWeatherInput.WeatherParameters.Select(p => p.ParameterCode.ToString().Replace("1001","1002"));
+                // var weatherReplaced = new List<string>();
+                // weatherReplaced.Add("1002");
+                // weatherReplaced.Add("1112");
+
+                // // First get WeatherParameters and Index
+                // var matching = weatherData
+                //     .WeatherParameters
+                //     .Select((v, i) => new { Index = i, Value = v })
+                //     .Where(t => weatherReplaced
+                //         .Any(w => w.ToString() == t.Value.ToString()))
+                //     .Select(p => p.Index);
+
+                // Remove not matching from weatherParameters, LocationWeatherData.Amalgamation, data, qc and reduce width
+
+                return JsonConvert.SerializeObject(weatherData);
             }
             catch (Exception ex)
             {
