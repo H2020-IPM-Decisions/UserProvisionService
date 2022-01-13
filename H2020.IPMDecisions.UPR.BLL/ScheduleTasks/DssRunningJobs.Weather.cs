@@ -93,25 +93,25 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             weatherDataSource.Interval = dssWeatherInput.WeatherParameters.FirstOrDefault().Interval;
 
             // Use only debug files for November Demo
-            // var responseWeatherAsText = GetWeatherDataTestFile(weatherDataSource.Interval);
-            var responseWeather = await PrepareWeatherDataCall(farmLocationX, farmLocationY, weatherDataSource);
-            result.Continue = false;
-            if (!responseWeather.IsSuccessStatusCode)
-            {
-                var responseText = await responseWeather.Content.ReadAsStringAsync();
-                // Amalgamation service error
-                Regex regex = new Regex(@".{30}\d{3}.{42}[:]",
-                RegexOptions.IgnoreCase | RegexOptions.IgnorePatternWhitespace);
-                if (regex.IsMatch(responseText))
-                {
-                    responseText = regex.Replace(responseText, "", 1);
-                    result.ResponseWeather = responseText.Trim();
-                    return result;
-                }
-                result.ResponseWeather = string.Format("{0} - {1}", responseWeather.ReasonPhrase.ToString(), responseText);
-                return result;
-            }
-            var responseWeatherAsText = await responseWeather.Content.ReadAsStringAsync();
+            var responseWeatherAsText = GetWeatherDataTestFile(weatherDataSource);
+            // var responseWeather = await PrepareWeatherDataCall(farmLocationX, farmLocationY, weatherDataSource);
+            // result.Continue = false;
+            // if (!responseWeather.IsSuccessStatusCode)
+            // {
+            //     var responseText = await responseWeather.Content.ReadAsStringAsync();
+            //     // Amalgamation service error
+            //     Regex regex = new Regex(@".{30}\d{3}.{42}[:]",
+            //     RegexOptions.IgnoreCase | RegexOptions.IgnorePatternWhitespace);
+            //     if (regex.IsMatch(responseText))
+            //     {
+            //         responseText = regex.Replace(responseText, "", 1);
+            //         result.ResponseWeather = responseText.Trim();
+            //         return result;
+            //     }
+            //     result.ResponseWeather = string.Format("{0} - {1}", responseWeather.ReasonPhrase.ToString(), responseText);
+            //     return result;
+            // }
+            // var responseWeatherAsText = await responseWeather.Content.ReadAsStringAsync();
 
             if (!DataParseHelper.IsValidJson(responseWeatherAsText))
             {
@@ -129,13 +129,13 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             return result;
         }
 
-        private string GetWeatherDataTestFile(int interval)
+        private string GetWeatherDataTestFile(WeatherSchemaForHttp weatherDataSource)
         {
             try
             {
                 var assembly = Assembly.GetExecutingAssembly();
-                var fileName = "IPMDecision_DemoWeather";
-                if (interval == 86400)
+                var fileName = "IPMDecision_FullSeasonWeather";
+                if (weatherDataSource.Interval == 86400)
                 {
                     fileName = fileName + "_Daily.json";
                 }
