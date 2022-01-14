@@ -286,7 +286,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                                 nestedObject.Add(nestedPropertyPath, childObject);
                                 existingToken = inputSchemaAsJson.SelectToken(childObject.Path);
                                 nestedObject = childObject;
-                            }                           
+                            }
                         }
                     }
                 }
@@ -321,52 +321,61 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
 
         private static async Task ProcessDssResult(FieldDssResult dssResult, HttpResponseMessage responseDss)
         {
-            var responseAsText = await responseDss.Content.ReadAsStringAsync();
-            var dssOutput = JsonConvert.DeserializeObject<DssModelOutputInformation>(responseAsText);
-
-            // ToDo. Check valid responses when DSS do not run properly
-            if (!responseDss.IsSuccessStatusCode)
+            try
             {
+                var responseAsText = await responseDss.Content.ReadAsStringAsync();
+                var dssOutput = JsonConvert.DeserializeObject<DssModelOutputInformation>(responseAsText);
+                // ToDo. Check valid responses when DSS do not run properly
+                if (!responseDss.IsSuccessStatusCode)
+                {
+                    if (!string.IsNullOrEmpty(dssOutput.Message))
+                    {
+                        if (dssOutput.MessageType == null)
+                        {
+                            dssResult.ResultMessageType = (int)DssOutputMessageTypeEnum.Error;
+                        }
+                        else
+                        {
+                            dssResult.ResultMessageType = dssOutput.MessageType;
+                        }
+                        dssResult.ResultMessage = dssOutput.Message;
+                        dssResult.DssFullResult = responseAsText;
+                        dssResult.IsValid = false;
+                        return;
+                    }
+
+                    var errorMessage = responseAsText.ToString();
+                    CreateDssRunErrorResult(dssResult, errorMessage, DssOutputMessageTypeEnum.Error);
+                    return;
+                }
+
                 if (!string.IsNullOrEmpty(dssOutput.Message))
                 {
-                    if (dssOutput.MessageType == null)
-                    {
-                        dssResult.ResultMessageType = (int)DssOutputMessageTypeEnum.Error;
-                    }
-                    else
-                    {
-                        dssResult.ResultMessageType = dssOutput.MessageType;
-                    }
+                    dssResult.ResultMessageType = dssOutput.MessageType;
                     dssResult.ResultMessage = dssOutput.Message;
                     dssResult.DssFullResult = responseAsText;
                     dssResult.IsValid = false;
                     return;
                 }
 
-                var errorMessage = responseAsText.ToString();
-                CreateDssRunErrorResult(dssResult, errorMessage, DssOutputMessageTypeEnum.Error);
-                return;
-            }
-
-            if (!string.IsNullOrEmpty(dssOutput.Message))
-            {
-                dssResult.ResultMessageType = dssOutput.MessageType;
-                dssResult.ResultMessage = dssOutput.Message;
+                if (dssOutput.LocationResult != null)
+                {
+                    var warningStatuses = dssOutput.LocationResult.FirstOrDefault().WarningStatus;
+                    //Take last 7 days of Data
+                    var maxDaysOutput = 7;
+                    dssResult.WarningStatus = warningStatuses.TakeLast(maxDaysOutput).Max();
+                    if (dssResult.WarningStatus == null) dssResult.WarningStatus = 0;
+                }
                 dssResult.DssFullResult = responseAsText;
+                dssResult.IsValid = true;
+            }
+            catch (Exception ex)
+            {
+                dssResult.ResultMessageType = (int)DssOutputMessageTypeEnum.Error;
                 dssResult.IsValid = false;
+                CreateDssRunErrorResult(dssResult, ex.Message, DssOutputMessageTypeEnum.Error);
                 return;
             }
-
-            if (dssOutput.LocationResult != null)
-            {
-                var warningStatuses = dssOutput.LocationResult.FirstOrDefault().WarningStatus;
-                //Take last 7 days of Data
-                var maxDaysOutput = 7;
-                dssResult.WarningStatus = warningStatuses.TakeLast(maxDaysOutput).Max();
-                if (dssResult.WarningStatus == null) dssResult.WarningStatus = 0;
-            }
-            dssResult.DssFullResult = responseAsText;
-            dssResult.IsValid = true;
         }
         #endregion
 
