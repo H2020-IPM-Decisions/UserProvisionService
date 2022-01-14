@@ -221,6 +221,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
         {
             JObject userInputJsonObject = JObject.Parse(userDssParameters.ToString());
             var pathsList = AddUserDssParametersPaths(userInputJsonObject);
+
             foreach (var userParameterPath in pathsList)
             {
                 var token = inputSchemaAsJson.SelectToken(userParameterPath);
@@ -230,7 +231,66 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                     token.Replace(userToken);
                     continue;
                 }
+                AddNewTokenToJObject(inputSchemaAsJson, userParameterPath, userToken);
+            }
+        }
+
+        private static void AddNewTokenToJObject(JObject inputSchemaAsJson, string userParameterPath, JToken userToken)
+        {
+            // check if nested path
+            var pathList = userParameterPath.Split(".");
+            if (pathList.Count() == 1)
+            {
                 inputSchemaAsJson.Add(userParameterPath, userToken);
+                return;
+            }
+
+            JToken existingToken = null;
+            var nestedObject = new JObject();
+            bool isLastPartOfPath = false;
+            int pathIndex = 1;
+            foreach (var nestedPropertyPath in pathList)
+            {
+                if (pathIndex == pathList.Count()) isLastPartOfPath = true;
+
+                if (inputSchemaAsJson.ContainsKey(nestedPropertyPath))
+                {
+                    existingToken = inputSchemaAsJson.SelectToken(nestedPropertyPath);
+                }
+                else
+                {
+                    if (existingToken == null)
+                    {
+                        inputSchemaAsJson.Add(nestedPropertyPath, nestedObject);
+                        existingToken = inputSchemaAsJson.SelectToken(nestedObject.Path);
+                    }
+                    else
+                    {
+                        if (isLastPartOfPath)
+                        {
+                            var newProperty = new JProperty(nestedPropertyPath, userToken);
+                            if (existingToken.Children().Any())
+                                existingToken.Children().FirstOrDefault().AddAfterSelf(newProperty);
+                            else
+                                nestedObject.Add(newProperty);
+                        }
+                        else
+                        {
+                            if (existingToken.SelectToken(nestedPropertyPath) != null)
+                            {
+                                existingToken = existingToken.SelectToken(nestedPropertyPath);
+                            }
+                            else
+                            {
+                                var childObject = new JObject();
+                                nestedObject.Add(nestedPropertyPath, childObject);
+                                existingToken = inputSchemaAsJson.SelectToken(childObject.Path);
+                                nestedObject = childObject;
+                            }                           
+                        }
+                    }
+                }
+                pathIndex++;
             }
         }
 
@@ -299,7 +359,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
 
             if (dssOutput.LocationResult != null)
             {
-                var warningStatuses = dssOutput.LocationResult.FirstOrDefault().WarningStatus;                
+                var warningStatuses = dssOutput.LocationResult.FirstOrDefault().WarningStatus;
                 //Take last 7 days of Data
                 var maxDaysOutput = 7;
                 dssResult.WarningStatus = warningStatuses.TakeLast(maxDaysOutput).Max();
