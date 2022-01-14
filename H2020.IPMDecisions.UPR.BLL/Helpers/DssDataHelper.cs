@@ -45,8 +45,12 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
             var weatherDateJson = weatherDataPeriod.Value.ToString();
             if (weatherDataPeriod.DeterminedBy.ToLower() == "input_schema_property")
             {
-                DateTime dateValue;
-                string dateString = dssInputSchemaAsJson.SelectTokens(weatherDateJson).FirstOrDefault().ToString();
+                var token = dssInputSchemaAsJson.SelectTokens(weatherDateJson).FirstOrDefault();
+                if (token == null)
+                    throw new NullReferenceException(string.Format("{0} is not defined on the DSS parameters, please add parameter.", weatherDateJson));
+
+                string dateString = token.ToString();
+                DateTime dateValue; 
                 if (DateTime.TryParse(dateString, out dateValue))
                     return dateValue;
                 else
