@@ -158,13 +158,13 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 if (weatherInterval == 86400)
                 {
                     if (!(weatherDataSource.WeatherTimeStart < weatherData.TimeStart))
-                        startIndex = (int)intervalStartDates.TotalDays;
+                        startIndex = (int)intervalStartDates.TotalDays - 1;
                     lengthBetweenIndex = (int)intervalStartEndDates.TotalDays + 1;
                 }
                 else
                 {
                     if (!(weatherDataSource.WeatherTimeStart < weatherData.TimeStart))
-                        startIndex = (int)intervalStartDates.TotalHours;
+                        startIndex = (int)intervalStartDates.TotalHours - 24;
                     lengthBetweenIndex = (int)intervalStartEndDates.TotalHours + 24;
                 }
                 var weatherDataResult = weatherData.LocationWeatherDataResult.FirstOrDefault();
@@ -173,7 +173,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                     weatherDataResult.Data.Skip(startIndex).Take(lengthBetweenIndex).ToList();
 
                 weatherData.LocationWeatherDataResult.FirstOrDefault().Length = weatherDataResult.Data.Count();
-                weatherData.TimeStart = weatherDataSource.WeatherTimeStart.ToUniversalTime();
+                weatherData.TimeStart = weatherDataSource.WeatherTimeStart.ToUniversalTime().AddDays(-1);
                 weatherData.TimeEnd = weatherDataSource.WeatherTimeEnd.ToUniversalTime();
 
                 // Change WeatherParameters from 1001 to 1002 as we need to use this parameter
