@@ -174,6 +174,11 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
 
                 weatherData.LocationWeatherDataResult.FirstOrDefault().Length = weatherDataResult.Data.Count();
                 weatherData.TimeStart = weatherDataSource.WeatherTimeStart.ToUniversalTime().AddDays(-1);
+                // End date can not be more than the current end date of the file
+                if (weatherDataSource.WeatherTimeEnd > weatherData.TimeEnd)
+                {
+                    weatherDataSource.WeatherTimeEnd = weatherData.TimeEnd;
+                }
                 weatherData.TimeEnd = weatherDataSource.WeatherTimeEnd.ToUniversalTime();
 
                 // Change WeatherParameters from 1001 to 1002 as we need to use this parameter
