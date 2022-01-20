@@ -58,7 +58,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
                     var responseAsText = await response.Content.ReadAsStringAsync();
                     dssModelInformation = JsonConvert.DeserializeObject<DssModelInformation>(responseAsText);
 
-                    memoryCache.Set(cacheKey, dssModelInformation, MemoryCacheHelper.CreateMemoryCacheEntryOptions(7));
+                    memoryCache.Set(cacheKey, dssModelInformation, MemoryCacheHelper.CreateMemoryCacheEntryOptions(1));
                 }
                 return dssModelInformation;
             }
@@ -84,7 +84,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
 
                     var responseAsText = await response.Content.ReadAsStringAsync();
                     listOfDss = JsonConvert.DeserializeObject<IEnumerable<DssInformation>>(responseAsText);
-                    memoryCache.Set(cacheKey, listOfDss, MemoryCacheHelper.CreateMemoryCacheEntryOptions(7));
+                    memoryCache.Set(cacheKey, listOfDss, MemoryCacheHelper.CreateMemoryCacheEntryOptions(1));
                 }
                 return listOfDss;
             }
@@ -109,7 +109,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
 
                     var responseAsString = await response.Content.ReadAsStringAsync();
                     dssInputSchema = JSchema.Parse(responseAsString);
-                    memoryCache.Set(cacheKey, dssInputSchema, MemoryCacheHelper.CreateMemoryCacheEntryOptions(7));
+                    memoryCache.Set(cacheKey, dssInputSchema, MemoryCacheHelper.CreateMemoryCacheEntryOptions(1));
                 }
                 return dssInputSchema;
             }
@@ -275,7 +275,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
 
                     var responseAsText = await response.Content.ReadAsStringAsync();
                     weatherSchema = JsonConvert.DeserializeObject<WeatherDataSchema>(responseAsText);
-                    memoryCache.Set(cacheKey, weatherSchema, MemoryCacheHelper.CreateMemoryCacheEntryOptions(7));
+                    memoryCache.Set(cacheKey, weatherSchema, MemoryCacheHelper.CreateMemoryCacheEntryOptions(1));
                 }
                 return weatherSchema;
             }
