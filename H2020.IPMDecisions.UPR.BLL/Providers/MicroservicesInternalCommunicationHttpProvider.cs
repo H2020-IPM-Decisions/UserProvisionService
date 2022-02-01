@@ -217,7 +217,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
             }
         }
 
-        public async Task<HttpResponseMessage> GetWeatherUsingAmalgamationService(string endPointUrl, string endPointQueryString)
+        public async Task<HttpResponseMessage> GetWeatherUsingAmalgamationProxyService(string endPointUrl, string endPointQueryString)
         {
             try
             {
@@ -227,7 +227,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
                     var wxEndPoint = config["MicroserviceInternalCommunication:WeatherMicroservice"];
                     var endPointUrlEncoded = HttpUtility.UrlEncode(endPointUrl);
                     var endPointQueryStringEncoded = HttpUtility.UrlEncode(endPointQueryString);
-                    weatherResponse = await httpClient.GetAsync(string.Format("{0}rest/amalgamation/amalgamate/?endpointURL={1}&endpointQueryStr={2}", wxEndPoint, endPointUrlEncoded, endPointQueryStringEncoded));
+                    weatherResponse = await httpClient.GetAsync(string.Format("{0}rest/amalgamation/amalgamate/proxy/?endpointURL={1}&endpointQueryStr={2}", wxEndPoint, endPointUrlEncoded, endPointQueryStringEncoded));
                     if (weatherResponse.IsSuccessStatusCode)
                         memoryCache.Set(cacheKey, weatherResponse, MemoryCacheHelper.CreateMemoryCacheEntryOptions(1));
                 }
@@ -283,6 +283,27 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
             {
                 logger.LogError(string.Format("Error in Internal Communication - GetWeatherProviderInformationFromWeatherMicroservice. {0}", ex.Message));
                 return null;
+            }
+        }
+
+        public async Task<HttpResponseMessage> GetWeatherUsingAmalgamationService(string endPointQueryString)
+        {
+            try
+            {
+                var cacheKey = string.Format("weather_{0}", endPointQueryString.ToLower());
+                if (!memoryCache.TryGetValue(cacheKey, out HttpResponseMessage weatherResponse))
+                {
+                    var wxEndPoint = config["MicroserviceInternalCommunication:WeatherMicroservice"];
+                    weatherResponse = await httpClient.GetAsync(string.Format("{0}rest/amalgamation/amalgamate?{1}", wxEndPoint, endPointQueryString));
+                    if (weatherResponse.IsSuccessStatusCode)
+                        memoryCache.Set(cacheKey, weatherResponse, MemoryCacheHelper.CreateMemoryCacheEntryOptions(1));
+                }
+                return weatherResponse;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(string.Format("Error in Internal Communication - GetWeatherUsingAmalgamationService. {0}", ex.Message));
+                return new HttpResponseMessage(HttpStatusCode.BadRequest);
             }
         }
         #endregion

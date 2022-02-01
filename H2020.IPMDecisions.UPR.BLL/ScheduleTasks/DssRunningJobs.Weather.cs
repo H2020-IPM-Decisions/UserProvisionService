@@ -91,28 +91,28 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             var weatherDataSource = listWeatherDataSource.FirstOrDefault();
 
             // Use only debug files for November Demo
-            var responseWeatherAsText = GetWeatherDataTestFile(dssWeatherInput, weatherDataSource);
+            // var responseWeatherAsText = GetWeatherDataTestFile(dssWeatherInput, weatherDataSource);
 
-            // PrepareWeatherDssParameters(dssWeatherInput, weatherDataSource);
-            // weatherDataSource.Interval = dssWeatherInput.WeatherParameters.FirstOrDefault().Interval;
-            // var responseWeather = await PrepareWeatherDataCall(farmLocationX, farmLocationY, weatherDataSource);
-            // result.Continue = false;
-            // if (!responseWeather.IsSuccessStatusCode)
-            // {
-            //     var responseText = await responseWeather.Content.ReadAsStringAsync();
-            //     // Amalgamation service error
-            //     Regex regex = new Regex(@".{30}\d{3}.{42}[:]",
-            //     RegexOptions.IgnoreCase | RegexOptions.IgnorePatternWhitespace);
-            //     if (regex.IsMatch(responseText))
-            //     {
-            //         responseText = regex.Replace(responseText, "", 1);
-            //         result.ResponseWeather = responseText.Trim();
-            //         return result;
-            //     }
-            //     result.ResponseWeather = string.Format("{0} - {1}", responseWeather.ReasonPhrase.ToString(), responseText);
-            //     return result;
-            // }
-            // var responseWeatherAsText = await responseWeather.Content.ReadAsStringAsync();
+            PrepareWeatherDssParameters(dssWeatherInput, weatherDataSource);
+            weatherDataSource.Interval = dssWeatherInput.WeatherParameters.FirstOrDefault().Interval;
+            var responseWeather = await PrepareWeatherDataCall(farmLocationX, farmLocationY, weatherDataSource);
+            result.Continue = false;
+            if (!responseWeather.IsSuccessStatusCode)
+            {
+                var responseText = await responseWeather.Content.ReadAsStringAsync();
+                // Amalgamation service error
+                Regex regex = new Regex(@".{30}\d{3}.{42}[:]",
+                RegexOptions.IgnoreCase | RegexOptions.IgnorePatternWhitespace);
+                if (regex.IsMatch(responseText))
+                {
+                    responseText = regex.Replace(responseText, "", 1);
+                    result.ResponseWeather = responseText.Trim();
+                    return result;
+                }
+                result.ResponseWeather = string.Format("{0} - {1}", responseWeather.ReasonPhrase.ToString(), responseText);
+                return result;
+            }
+            var responseWeatherAsText = await responseWeather.Content.ReadAsStringAsync();
 
             if (!DataParseHelper.IsValidJson(responseWeatherAsText))
             {
@@ -182,7 +182,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 weatherData.TimeEnd = weatherDataSource.WeatherTimeEnd.ToUniversalTime();
 
                 // Change WeatherParameters from 1001 to 1002 as we need to use this parameter
-                var weatherReplaced = dssWeatherInput.WeatherParameters.Select(p => p.ParameterCode.ToString().Replace("1001","1002"));
+                var weatherReplaced = dssWeatherInput.WeatherParameters.Select(p => p.ParameterCode.ToString().Replace("1001", "1002"));
 
                 var listIndexToRemove = new List<int>();
                 foreach (var (item, index) in weatherData.WeatherParameters.Select((value, i) => (value, i)))
@@ -217,23 +217,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
         private static void PrepareWeatherDssParameters(DssModelSchemaInput dssWeatherInput, WeatherSchemaForHttp weatherDataSource)
         {
             List<string> parameterCodes = dssWeatherInput.WeatherParameters.Select(s => s.ParameterCode.ToString()).ToList();
-            var matching = weatherDataSource
-                .WeatherParameters
-                .Where(w =>
-                    parameterCodes
-                    .Any(p => p.ToString() == w.ToString()))
-            .ToList();
-
-            if (matching.Count() == 0)
-            {
-                // Use default Weather Service parameters
-                weatherDataSource.WeatherDssParameters = string.Join(",", weatherDataSource.WeatherParameters);
-            }
-            else
-            {
-                // Only use the ones needed by the DSS
-                weatherDataSource.WeatherDssParameters = string.Join(",", matching);
-            }
+            weatherDataSource.WeatherDssParameters = string.Join(",", parameterCodes);
         }
 
         public async Task<bool> ValidateWeatherDataSchema(string weatherDataSchema)
@@ -254,7 +238,8 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
         public async Task<HttpResponseMessage> PrepareWeatherDataCall(
             string farmLocationX,
             string farmLocationY,
-            WeatherSchemaForHttp weatherDataSource)
+            WeatherSchemaForHttp weatherDataSource,
+            bool useProxy = false)
         {
             var weatherStringParametersUrl = string.Format("longitude={0}&latitude={1}&interval={2}&timeStart={3}&timeEnd={4}&ignoreErrors=true",
                 farmLocationX,
@@ -273,9 +258,16 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             //     weatherUrl = string.Format("{0}&weatherStationId={1}",
             //         weatherUrl, weatherDataSource.StationId.ToString());
             // }
-            return await
+            if (useProxy)
+            {
+                return await
                     internalCommunicationProvider
-                    .GetWeatherUsingAmalgamationService(weatherDataSource.Url, weatherStringParametersUrl);
+                    .GetWeatherUsingAmalgamationProxyService(weatherDataSource.Url, weatherStringParametersUrl);
+            }
+            return await
+                internalCommunicationProvider
+                .GetWeatherUsingAmalgamationService(weatherStringParametersUrl);
+
         }
     }
 }
