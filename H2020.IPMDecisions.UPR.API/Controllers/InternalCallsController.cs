@@ -39,7 +39,6 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
             return BadRequest(new { message = response.ErrorMessage });
         }
 
-        [Consumes(MediaTypeNames.Application.Json)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [HttpDelete("userprofile/{userId:guid}", Name = "api.internal.delete.profile")]
@@ -51,6 +50,17 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
             if (response.IsSuccessful)
                 return Ok();
             return BadRequest(new { message = response.ErrorMessage });
+        }
+
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [HttpPost("hasDss/{userId:guid}", Name = "api.internal.get.dss")]
+        // GET: api/internalcall/hasDss
+        public IActionResult GET(
+            [FromRoute] Guid userId)
+        {
+            // ToDo
+            return Ok();
         }
     }
 }
