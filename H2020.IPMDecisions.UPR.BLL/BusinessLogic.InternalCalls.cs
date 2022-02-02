@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using H2020.IPMDecisions.UPR.Core.Dtos;
 using H2020.IPMDecisions.UPR.Core.Entities;
@@ -32,7 +33,26 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
         }
 
-
+        public async Task<bool> UserHasAnyDss(Guid userId)
+        {
+            try
+            {
+                return await this.dataService
+                    .FieldCropPestDsses
+                    .HasAny(f => 
+                        f.FieldCropPest
+                            .FieldCrop
+                            .Field
+                            .Farm
+                            .UserFarms
+                            .Any(fa => fa.UserId == userId));
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(string.Format("Error in BLL - UserHasAnyDss. {0}", ex.Message), ex);
+                return false;
+            }
+        }
         #region Helpers
 
         #endregion
