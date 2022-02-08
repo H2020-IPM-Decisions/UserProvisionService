@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using H2020.IPMDecisions.UPR.Core.Models;
@@ -40,26 +41,37 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
             return currentYear;
         }
 
-        public static DateTime ProcessWeatherDataPeriod(WeatherDataPeriod weatherDataPeriod, JObject dssInputSchemaAsJson, int currentYear = -1)
+        public static DateTime ProcessWeatherDataPeriod(IEnumerable<WeatherDataPeriod> weatherDatePeriodList, JObject dssInputSchemaAsJson, int currentYear = -1)
         {
-            var weatherDateJson = weatherDataPeriod.Value.ToString();
-            if (weatherDataPeriod.DeterminedBy.ToLower() == "input_schema_property")
+            foreach (var weatherDate in weatherDatePeriodList)
             {
-                var token = dssInputSchemaAsJson.SelectTokens(weatherDateJson).FirstOrDefault();
-                if (token == null)
-                    throw new NullReferenceException(string.Format("{0} is not defined on the DSS parameters, please add parameter.", weatherDateJson));
+                var weatherDateJson = weatherDate.Value.ToString();
+                if (weatherDate.DeterminedBy.ToLower() == "input_schema_property")
+                {
+                    var token = dssInputSchemaAsJson.SelectTokens(weatherDateJson).FirstOrDefault();
+                    if (token == null)
+                        continue;
 
-                string dateString = token.ToString();
-                DateTime dateValue; 
-                if (DateTime.TryParse(dateString, out dateValue))
-                    return dateValue;
-                else
-                    return DateTime.Parse(DssDataHelper.AddDefaultDatesToDssJsonInput(dateString));
+                    string dateString = token.ToString();
+                    DateTime dateValue;
+                    if (DateTime.TryParse(dateString, out dateValue))
+                        return dateValue;
+                    else
+                        return DateTime.Parse(DssDataHelper.AddDefaultDatesToDssJsonInput(dateString));
+                }
+                else // "fixed_date" as specified on //dss/rest/schema/dss
+                {
+                    return DateTime.Parse(DssDataHelper.AddDefaultDatesToDssJsonInput(weatherDateJson, currentYear));
+                }
             }
-            else // "fixed_date" as specified on //dss/rest/schema/dss
-            {
-                return DateTime.Parse(DssDataHelper.AddDefaultDatesToDssJsonInput(weatherDateJson, currentYear));
-            }
+            // If we reach this point means that no valid weather data on schema
+            var lastWeatherValue = weatherDatePeriodList.LastOrDefault();
+            if (lastWeatherValue != null)
+                throw new NullReferenceException(string.Format("{0} is not defined on the DSS parameters, please add parameter.",
+                    weatherDatePeriodList.LastOrDefault().Value.ToString()));
+
+            // ToDo Can this happen?
+            throw new NullReferenceException("No valid parameters on schema to create weather data, please add parameters.");
         }
 
         public static void RemoveNotRequiredInputSchemaProperties(JSchema inputSchema)

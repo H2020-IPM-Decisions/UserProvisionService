@@ -108,9 +108,9 @@ namespace H2020.IPMDecisions.UPR.Core.Models
         [JsonProperty("field_observation")]
         public DssSchemaFieldObservation FieldObservation { get; set; }
         [JsonProperty("weather_data_period_start")]
-        public WeatherDataPeriod WeatherDataPeriodStart { get; set; }
+        public IEnumerable<WeatherDataPeriod> WeatherDataPeriodStart { get; set; }
         [JsonProperty("weather_data_period_end")]
-        public WeatherDataPeriod WeatherDataPeriodEnd { get; set; }
+        public IEnumerable<WeatherDataPeriod> WeatherDataPeriodEnd { get; set; }
     }
 
     public class DssSchemaFieldObservation
