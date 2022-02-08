@@ -8,6 +8,7 @@ using H2020.IPMDecisions.UPR.Core.Entities;
 using H2020.IPMDecisions.UPR.Core.Models;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace H2020.IPMDecisions.UPR.BLL
 {
@@ -83,24 +84,57 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
         }
 
-        public async Task<GenericResponse<DssParametersDto>> GetFieldCropPestDssParametersById(Guid id, Guid userId)
+        public async Task<GenericResponse<string>> GetFieldCropPestDssParametersById(Guid id, Guid userId)
         {
             try
             {
                 var dss = await this.dataService.FieldCropPestDsses.FindByIdAsync(id);
-                if (dss == null) return GenericResponseBuilder.NotFound<DssParametersDto>();
+                if (dss == null) return GenericResponseBuilder.NotFound<string>();
 
                 var dssUserId = dss.FieldCropPest.FieldCrop.Field.Farm.UserFarms.FirstOrDefault().UserId;
-                if (userId != dssUserId) return GenericResponseBuilder.NotFound<DssParametersDto>();
+                if (userId != dssUserId) return GenericResponseBuilder.NotFound<string>();
 
-                DssParametersDto dataToReturn = this.mapper.Map<DssParametersDto>(dss);
-                return GenericResponseBuilder.Success<DssParametersDto>(dataToReturn);
+                var dssInputUISchema = await internalCommunicationProvider
+                                       .GetDssModelInputSchemaMicroservice(dss.CropPestDss.DssId, dss.CropPestDss.DssModelId);
+                JObject input = null;
+                if (dssInputUISchema != null)
+                {
+                    // ToDo Move all this logic to DssDataHelper as method
+
+                    input = JObject.Parse(dssInputUISchema.ToString());
+                    var pathsListDssInput = DssDataHelper.CreateJsonPaths(input);
+
+                    JObject userParametersAsJsonObject = JObject.Parse(dss.DssParameters.ToString());
+                    var pathsListDssParameters = DssDataHelper.CreateJsonPaths(userParametersAsJsonObject);
+
+                    foreach (var userParameterPath in pathsListDssParameters)
+                    {
+                        var pathName = userParameterPath.Split(".").LastOrDefault();
+                        var tokensPathFromInput = pathsListDssInput.Where(s => s.Contains(pathName));
+
+                        var hasDefaultProperty = tokensPathFromInput.Where(s => s.Contains("default")).FirstOrDefault();
+
+                        if (hasDefaultProperty == null)
+                        {
+                            // create property
+                        }
+
+                        var token = input.SelectToken(hasDefaultProperty);
+                        var userToken = userParametersAsJsonObject.SelectToken(userParameterPath);
+                        if (token != null)
+                        {
+                            token.Replace(userToken);
+                            continue;
+                        }
+                    }
+                }
+                return GenericResponseBuilder.Success<string>(input.ToString());
             }
             catch (Exception ex)
             {
                 logger.LogError(string.Format("Error in BLL - GetFieldCropPestDssParametersById. {0}", ex.Message), ex);
                 String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
-                return GenericResponseBuilder.NoSuccess<DssParametersDto>(null, $"{ex.Message} InnerException: {innerMessage}");
+                return GenericResponseBuilder.NoSuccess<string>(null, $"{ex.Message} InnerException: {innerMessage}");
             }
         }
 
