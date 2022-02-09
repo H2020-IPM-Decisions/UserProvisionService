@@ -100,21 +100,19 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
             }
         }
 
-        public static void AddUserParametersToDss(string userDssParameters, JObject inputSchemaAsJson)
+        public static void AddUserDssParametersToDssInput(JObject userDssParametersJObject, JObject inputSchemaAsJObject)
         {
-            JObject userInputJsonObject = JObject.Parse(userDssParameters.ToString());
-            var pathsList = CreateJsonPaths(userInputJsonObject);
-
+            var pathsList = CreateJsonPaths(userDssParametersJObject);
             foreach (var userParameterPath in pathsList)
             {
-                var token = inputSchemaAsJson.SelectToken(userParameterPath);
-                var userToken = userInputJsonObject.SelectToken(userParameterPath);
+                var token = inputSchemaAsJObject.SelectToken(userParameterPath);
+                var userToken = userDssParametersJObject.SelectToken(userParameterPath);
                 if (token != null)
                 {
                     token.Replace(userToken);
                     continue;
                 }
-                AddNewTokenToJObject(inputSchemaAsJson, userParameterPath, userToken);
+                AddNewTokenToJObject(inputSchemaAsJObject, userParameterPath, userToken);
             }
         }
 

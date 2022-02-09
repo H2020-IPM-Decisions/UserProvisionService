@@ -176,7 +176,8 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 // Add user parameters
                 if (!string.IsNullOrEmpty(dss.DssParameters))
                 {
-                    DssDataHelper.AddUserParametersToDss(dss.DssParameters, inputAsJsonObject);
+                    JObject dssParametersAsJsonObject = JObject.Parse(dss.DssParameters.ToString());
+                    DssDataHelper.AddUserDssParametersToDssInput(dssParametersAsJsonObject, inputAsJsonObject);
                 }
 
                 IList<string> validationErrormessages;
