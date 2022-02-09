@@ -116,7 +116,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
             }
         }
 
-        public static List<string> CreateJsonPaths(JObject jsonObject)
+        private static List<string> CreateJsonPaths(JObject jsonObject)
         {
             List<string> pathsList = new List<string>();
             foreach (var jsonChild in jsonObject.Children())
@@ -141,7 +141,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
             }
         }
 
-        public static void AddNewTokenToJObject(JObject inputSchemaAsJson, string userParameterPath, JToken userToken)
+        private static void AddNewTokenToJObject(JObject inputSchemaAsJson, string userParameterPath, JToken userToken)
         {
             // check if nested path
             var pathList = userParameterPath.Split(".");
@@ -159,7 +159,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
             {
                 if (pathIndex == pathList.Count()) isLastPartOfPath = true;
 
-                if (inputSchemaAsJson.ContainsKey(nestedPropertyPath))
+                if (inputSchemaAsJson.ContainsKey(nestedPropertyPath) & existingToken == null)
                 {
                     existingToken = inputSchemaAsJson.SelectToken(nestedPropertyPath);
                 }
@@ -198,6 +198,46 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
                 }
                 pathIndex++;
             }
+        }
+
+        public static JObject AddDefaultDssParametersToInputSchema(JObject inputAsJsonObject, JObject userParametersAsJsonObject)
+        {
+            var pathsListDssInputSchema = DssDataHelper.CreateJsonPaths(inputAsJsonObject);
+            var pathsListDssParameters = DssDataHelper.CreateJsonPaths(userParametersAsJsonObject);
+
+            foreach (var userParameterPath in pathsListDssParameters)
+            {
+                var tokenFromDssParameter = userParametersAsJsonObject.SelectToken(userParameterPath);
+
+                var pathPropertyName = userParameterPath.Split(".").LastOrDefault();
+                var tokensPathFromInput = pathsListDssInputSchema.Where(s => s.Contains(pathPropertyName));
+                if (tokensPathFromInput.Count() == 0)
+                {
+                    // Is not part of the UI schema, do not add value
+                    continue;
+                }
+                var hasDefaultProperty = tokensPathFromInput.Any(s => s.Contains("default"));
+                if (!hasDefaultProperty)
+                {
+                    var firstPartOfTheTokenList = tokensPathFromInput.FirstOrDefault();
+                    var stringToReplace = firstPartOfTheTokenList.Split(".").LastOrDefault();   
+                    var newDefaultPath = firstPartOfTheTokenList.Replace(stringToReplace,"default");
+                    
+                    AddNewTokenToJObject(inputAsJsonObject, newDefaultPath, tokenFromDssParameter);
+                    pathsListDssInputSchema.Add(newDefaultPath);
+                }
+
+                var defaultPropertyPath = pathsListDssInputSchema.Where(s => s.Contains(pathPropertyName) & s.Contains("default")).FirstOrDefault();
+                if (defaultPropertyPath == null) continue;
+
+                var token = inputAsJsonObject.SelectToken(defaultPropertyPath);
+                if (token != null)
+                {
+                    token.Replace(tokenFromDssParameter);
+                    continue;
+                }
+            }
+            return inputAsJsonObject;
         }
     }
 }

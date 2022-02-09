@@ -96,39 +96,14 @@ namespace H2020.IPMDecisions.UPR.BLL
 
                 var dssInputUISchema = await internalCommunicationProvider
                                        .GetDssModelInputSchemaMicroservice(dss.CropPestDss.DssId, dss.CropPestDss.DssModelId);
-                JObject input = null;
+                JObject inputAsJsonObject = null;
                 if (dssInputUISchema != null)
                 {
-                    // ToDo Move all this logic to DssDataHelper as method
-
-                    input = JObject.Parse(dssInputUISchema.ToString());
-                    var pathsListDssInput = DssDataHelper.CreateJsonPaths(input);
-
+                    inputAsJsonObject = JObject.Parse(dssInputUISchema.ToString());
                     JObject userParametersAsJsonObject = JObject.Parse(dss.DssParameters.ToString());
-                    var pathsListDssParameters = DssDataHelper.CreateJsonPaths(userParametersAsJsonObject);
-
-                    foreach (var userParameterPath in pathsListDssParameters)
-                    {
-                        var pathName = userParameterPath.Split(".").LastOrDefault();
-                        var tokensPathFromInput = pathsListDssInput.Where(s => s.Contains(pathName));
-
-                        var hasDefaultProperty = tokensPathFromInput.Where(s => s.Contains("default")).FirstOrDefault();
-
-                        if (hasDefaultProperty == null)
-                        {
-                            // create property
-                        }
-
-                        var token = input.SelectToken(hasDefaultProperty);
-                        var userToken = userParametersAsJsonObject.SelectToken(userParameterPath);
-                        if (token != null)
-                        {
-                            token.Replace(userToken);
-                            continue;
-                        }
-                    }
+                    DssDataHelper.AddDefaultDssParametersToInputSchema(inputAsJsonObject, userParametersAsJsonObject);       
                 }
-                return GenericResponseBuilder.Success<string>(input.ToString());
+                return GenericResponseBuilder.Success<string>(inputAsJsonObject.ToString());
             }
             catch (Exception ex)
             {
