@@ -253,6 +253,7 @@ namespace H2020.IPMDecisions.APG.API.Extensions
         internal static void ConfigureCaching(this IServiceCollection services)
         {
             services.AddMemoryCache();
+            services.AddDistributedMemoryCache();
         }
 
         internal static IEnumerable<string> Audiences(string audiences)

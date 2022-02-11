@@ -3,6 +3,8 @@ using AutoMapper;
 using H2020.IPMDecisions.APG.API.Extensions;
 using H2020.IPMDecisions.UPR.API.Filters;
 using H2020.IPMDecisions.UPR.BLL;
+using H2020.IPMDecisions.UPR.BLL.Helpers;
+using H2020.IPMDecisions.UPR.BLL.Providers;
 using H2020.IPMDecisions.UPR.BLL.ScheduleTasks;
 using H2020.IPMDecisions.UPR.Core.Profiles;
 using H2020.IPMDecisions.UPR.Core.Services;
@@ -57,6 +59,8 @@ namespace H2020.IPMDecisions.UPR.API
             services.AddSingleton<LocationMiddleware>();
             services.AddScoped<IDataService, DataService>();
             services.AddScoped<IHangfireQueueJobs, HangfireQueueJobs>();
+            services.AddSingleton<IJsonStringLocalizer, JsonStringLocalizer>();
+            services.AddSingleton<IJsonStringLocalizerProvider, JsonStringLocalizerProvider>();
             services.AddScoped<IBusinessLogic, BusinessLogic>();
 
             services.AddScoped<UserAccessingOwnDataActionFilter>();
