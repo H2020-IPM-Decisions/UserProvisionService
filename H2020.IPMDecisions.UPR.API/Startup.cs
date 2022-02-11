@@ -65,7 +65,6 @@ namespace H2020.IPMDecisions.UPR.API
 
             services.AddScoped<UserAccessingOwnDataActionFilter>();
             services.AddScoped<AddUserIdToContextFilter>();
-            services.AddScoped<AddLanguageToContextFilter>();
             services.AddScoped<FarmBelongsToUserActionFilter>();
             services.AddScoped<FieldBelongsToUserActionFilter>();
 
