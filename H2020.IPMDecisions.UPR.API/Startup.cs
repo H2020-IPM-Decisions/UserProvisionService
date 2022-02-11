@@ -54,6 +54,7 @@ namespace H2020.IPMDecisions.UPR.API
             services.AddAutoMapper(typeof(MainProfile));
 
             services.ConfigureLogger(Configuration);
+            services.AddSingleton<LocationMiddleware>();
             services.AddScoped<IDataService, DataService>();
             services.AddScoped<IHangfireQueueJobs, HangfireQueueJobs>();
             services.AddScoped<IBusinessLogic, BusinessLogic>();
@@ -111,6 +112,7 @@ namespace H2020.IPMDecisions.UPR.API
             app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();
+            app.UseMiddleware<LocationMiddleware>();
 
             var apiBasePath = Configuration["MicroserviceInternalCommunication:UserProvisionMicroservice"];
             app.UseSwagger(c =>
