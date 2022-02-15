@@ -21,7 +21,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                       out MediaTypeHeaderValue parsedMediaType))
                     return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, "Wrong media type.");
 
-                if (listOfFarmDssDto.Count() == 0) return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, "Data missing on payload");
+                if (listOfFarmDssDto.Count() == 0) return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, this.jsonStringLocalizer["shared.missing_payload"].ToString());
 
                 var farm = httpContext.Items["farm"] as Farm;
                 var listOfNewFieldCropPestDss = new List<FieldCropPestDss>();
