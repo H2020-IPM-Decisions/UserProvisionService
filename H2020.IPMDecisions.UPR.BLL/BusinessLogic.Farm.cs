@@ -28,7 +28,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                 var userId = Guid.Parse(httpContext.Items["userId"].ToString());
                 if (!farm.UserFarms.Any(uf => uf.UserId == userId & uf.UserFarmType.Id == UserFarmTypeEnum.Owner))
                 {
-                    return GenericResponseBuilder.NoSuccess("You are not the owner of this farm, so process can not be completed.");
+                    return GenericResponseBuilder.NoSuccess(this.jsonStringLocalizer["farm.owner_error"].ToString());
                 };
 
                 this.dataService.Farms.Delete(farm);

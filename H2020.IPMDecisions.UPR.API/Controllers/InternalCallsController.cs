@@ -54,13 +54,15 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
 
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [HttpPost("hasDss/{userId:guid}", Name = "api.internal.get.dss")]
+        [HttpGet("hasDss/{userId:guid}", Name = "api.internal.get.dss")]
         // GET: api/internalcall/hasDss
-        public IActionResult GET(
+        public async Task<IActionResult> GET(
             [FromRoute] Guid userId)
         {
-            // ToDo
-            return Ok();
+            bool response = await businessLogic.UserHasAnyDss(userId);
+            if (response)
+                return Ok();
+            return BadRequest();
         }
     }
 }

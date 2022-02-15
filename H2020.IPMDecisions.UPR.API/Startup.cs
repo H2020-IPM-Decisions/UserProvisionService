@@ -3,6 +3,8 @@ using AutoMapper;
 using H2020.IPMDecisions.APG.API.Extensions;
 using H2020.IPMDecisions.UPR.API.Filters;
 using H2020.IPMDecisions.UPR.BLL;
+using H2020.IPMDecisions.UPR.BLL.Helpers;
+using H2020.IPMDecisions.UPR.BLL.Providers;
 using H2020.IPMDecisions.UPR.BLL.ScheduleTasks;
 using H2020.IPMDecisions.UPR.Core.Profiles;
 using H2020.IPMDecisions.UPR.Core.Services;
@@ -54,13 +56,15 @@ namespace H2020.IPMDecisions.UPR.API
             services.AddAutoMapper(typeof(MainProfile));
 
             services.ConfigureLogger(Configuration);
+            services.AddSingleton<LocationMiddleware>();
             services.AddScoped<IDataService, DataService>();
             services.AddScoped<IHangfireQueueJobs, HangfireQueueJobs>();
+            services.AddSingleton<IJsonStringLocalizer, JsonStringLocalizer>();
+            services.AddSingleton<IJsonStringLocalizerProvider, JsonStringLocalizerProvider>();
             services.AddScoped<IBusinessLogic, BusinessLogic>();
 
             services.AddScoped<UserAccessingOwnDataActionFilter>();
             services.AddScoped<AddUserIdToContextFilter>();
-            services.AddScoped<AddLanguageToContextFilter>();
             services.AddScoped<FarmBelongsToUserActionFilter>();
             services.AddScoped<FieldBelongsToUserActionFilter>();
 
@@ -111,6 +115,7 @@ namespace H2020.IPMDecisions.UPR.API
             app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();
+            app.UseMiddleware<LocationMiddleware>();
 
             var apiBasePath = Configuration["MicroserviceInternalCommunication:UserProvisionMicroservice"];
             app.UseSwagger(c =>

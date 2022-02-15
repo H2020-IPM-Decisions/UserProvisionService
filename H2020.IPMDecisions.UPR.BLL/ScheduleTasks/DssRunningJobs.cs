@@ -176,7 +176,8 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 // Add user parameters
                 if (!string.IsNullOrEmpty(dss.DssParameters))
                 {
-                    AddUserParametersToDss(dss.DssParameters, inputAsJsonObject);
+                    JObject dssParametersAsJsonObject = JObject.Parse(dss.DssParameters.ToString());
+                    DssDataHelper.AddUserDssParametersToDssInput(dssParametersAsJsonObject, inputAsJsonObject);
                 }
 
                 IList<string> validationErrormessages;
@@ -214,108 +215,6 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 var errorMessage = "Error running the DSS - " + ex.Message.ToString();
                 CreateDssRunErrorResult(dssResult, errorMessage, DssOutputMessageTypeEnum.Error);
                 return dssResult;
-            }
-        }
-
-        private static void AddUserParametersToDss(string userDssParameters, JObject inputSchemaAsJson)
-        {
-            JObject userInputJsonObject = JObject.Parse(userDssParameters.ToString());
-            var pathsList = AddUserDssParametersPaths(userInputJsonObject);
-
-            foreach (var userParameterPath in pathsList)
-            {
-                var token = inputSchemaAsJson.SelectToken(userParameterPath);
-                var userToken = userInputJsonObject.SelectToken(userParameterPath);
-                if (token != null)
-                {
-                    token.Replace(userToken);
-                    continue;
-                }
-                AddNewTokenToJObject(inputSchemaAsJson, userParameterPath, userToken);
-            }
-        }
-
-        private static void AddNewTokenToJObject(JObject inputSchemaAsJson, string userParameterPath, JToken userToken)
-        {
-            // check if nested path
-            var pathList = userParameterPath.Split(".");
-            if (pathList.Count() == 1)
-            {
-                inputSchemaAsJson.Add(userParameterPath, userToken);
-                return;
-            }
-
-            JToken existingToken = null;
-            var nestedObject = new JObject();
-            bool isLastPartOfPath = false;
-            int pathIndex = 1;
-            foreach (var nestedPropertyPath in pathList)
-            {
-                if (pathIndex == pathList.Count()) isLastPartOfPath = true;
-
-                if (inputSchemaAsJson.ContainsKey(nestedPropertyPath))
-                {
-                    existingToken = inputSchemaAsJson.SelectToken(nestedPropertyPath);
-                }
-                else
-                {
-                    if (existingToken == null)
-                    {
-                        inputSchemaAsJson.Add(nestedPropertyPath, nestedObject);
-                        existingToken = inputSchemaAsJson.SelectToken(nestedObject.Path);
-                    }
-                    else
-                    {
-                        if (isLastPartOfPath)
-                        {
-                            var newProperty = new JProperty(nestedPropertyPath, userToken);
-                            if (existingToken.Children().Any())
-                                existingToken.Children().FirstOrDefault().AddAfterSelf(newProperty);
-                            else
-                                nestedObject.Add(newProperty);
-                        }
-                        else
-                        {
-                            if (existingToken.SelectToken(nestedPropertyPath) != null)
-                            {
-                                existingToken = existingToken.SelectToken(nestedPropertyPath);
-                            }
-                            else
-                            {
-                                var childObject = new JObject();
-                                nestedObject.Add(nestedPropertyPath, childObject);
-                                existingToken = inputSchemaAsJson.SelectToken(childObject.Path);
-                                nestedObject = childObject;
-                            }
-                        }
-                    }
-                }
-                pathIndex++;
-            }
-        }
-
-        private static List<string> AddUserDssParametersPaths(JObject jsonObject)
-        {
-            List<string> pathsList = new List<string>();
-            foreach (var jsonChild in jsonObject.Children())
-            {
-                CheckIfJTokenHasChildren(jsonChild, pathsList);
-            }
-            return pathsList;
-        }
-
-        private static void CheckIfJTokenHasChildren(JToken jsonChild, List<string> pathsList)
-        {
-            if (jsonChild.Children().Any())
-            {
-                foreach (var child in jsonChild.Children())
-                {
-                    CheckIfJTokenHasChildren(child, pathsList);
-                }
-            }
-            else
-            {
-                pathsList.Add(jsonChild.Path);
             }
         }
 

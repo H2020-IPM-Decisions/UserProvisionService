@@ -22,6 +22,7 @@ namespace H2020.IPMDecisions.UPR.BLL
         private readonly IMicroservicesInternalCommunicationHttpProvider internalCommunicationProvider;
         private readonly IDataProtectionProvider dataProtectionProvider;
         private readonly IHangfireQueueJobs queueJobs;
+        private readonly IJsonStringLocalizer jsonStringLocalizer;
         private EncryptionHelper _encryption;
 
         public BusinessLogic(
@@ -33,7 +34,8 @@ namespace H2020.IPMDecisions.UPR.BLL
             ILogger<BusinessLogic> logger,
             IMicroservicesInternalCommunicationHttpProvider internalCommunicationProvider,
             IDataProtectionProvider dataProtectionProvider,
-            IHangfireQueueJobs queueJobs
+            IHangfireQueueJobs queueJobs,
+            IJsonStringLocalizer jsonStringLocalizer
             )
         {
             this.mapper = mapper
@@ -54,6 +56,8 @@ namespace H2020.IPMDecisions.UPR.BLL
                 ?? throw new ArgumentNullException(nameof(dataProtectionProvider));
             this.queueJobs = queueJobs
                 ?? throw new ArgumentNullException(nameof(queueJobs));
+            this.jsonStringLocalizer = jsonStringLocalizer
+                ?? throw new ArgumentNullException(nameof(jsonStringLocalizer));
             _encryption = new EncryptionHelper(dataProtectionProvider);
         }
     }

@@ -16,5 +16,6 @@ namespace H2020.IPMDecisions.UPR.Data.Core.Repositories
         Task DeleteDssResultsByCondition(Expression<Func<FieldDssResult, bool>> expression);
         void AddDssResult(FieldCropPestDss entity, FieldDssResult dssResult);
         int GetCount(Expression<Func<FieldCropPestDss, bool>> expression);
+        Task<bool> HasAny(Expression<Func<FieldCropPestDss, bool>> expression);
     }
 }

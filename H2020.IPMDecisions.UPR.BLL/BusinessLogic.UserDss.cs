@@ -8,6 +8,7 @@ using H2020.IPMDecisions.UPR.Core.Entities;
 using H2020.IPMDecisions.UPR.Core.Models;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace H2020.IPMDecisions.UPR.BLL
 {
@@ -83,24 +84,32 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
         }
 
-        public async Task<GenericResponse<DssParametersDto>> GetFieldCropPestDssParametersById(Guid id, Guid userId)
+        public async Task<GenericResponse<string>> GetFieldCropPestDssParametersById(Guid id, Guid userId)
         {
             try
             {
                 var dss = await this.dataService.FieldCropPestDsses.FindByIdAsync(id);
-                if (dss == null) return GenericResponseBuilder.NotFound<DssParametersDto>();
+                if (dss == null) return GenericResponseBuilder.NotFound<string>();
 
                 var dssUserId = dss.FieldCropPest.FieldCrop.Field.Farm.UserFarms.FirstOrDefault().UserId;
-                if (userId != dssUserId) return GenericResponseBuilder.NotFound<DssParametersDto>();
+                if (userId != dssUserId) return GenericResponseBuilder.NotFound<string>();
 
-                DssParametersDto dataToReturn = this.mapper.Map<DssParametersDto>(dss);
-                return GenericResponseBuilder.Success<DssParametersDto>(dataToReturn);
+                var dssInputUISchema = await internalCommunicationProvider
+                                       .GetDssModelInputSchemaMicroservice(dss.CropPestDss.DssId, dss.CropPestDss.DssModelId);
+                JObject inputAsJsonObject = null;
+                if (dssInputUISchema != null)
+                {
+                    inputAsJsonObject = JObject.Parse(dssInputUISchema.ToString());
+                    JObject userParametersAsJsonObject = JObject.Parse(dss.DssParameters.ToString());
+                    DssDataHelper.AddDefaultDssParametersToInputSchema(inputAsJsonObject, userParametersAsJsonObject);       
+                }
+                return GenericResponseBuilder.Success<string>(inputAsJsonObject.ToString());
             }
             catch (Exception ex)
             {
                 logger.LogError(string.Format("Error in BLL - GetFieldCropPestDssParametersById. {0}", ex.Message), ex);
                 String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
-                return GenericResponseBuilder.NoSuccess<DssParametersDto>(null, $"{ex.Message} InnerException: {innerMessage}");
+                return GenericResponseBuilder.NoSuccess<string>(null, $"{ex.Message} InnerException: {innerMessage}");
             }
         }
 

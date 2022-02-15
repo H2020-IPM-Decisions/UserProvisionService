@@ -256,5 +256,14 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
         {
             this.context.Update(entity);
         }
+
+        public async Task<bool> HasAny(Expression<Func<FieldCropPestDss, bool>> expression)
+        {
+            if (expression is null) return false;
+
+            return await context
+                .FieldCropPestDss
+                .AnyAsync(expression);
+        }
     }
 }
