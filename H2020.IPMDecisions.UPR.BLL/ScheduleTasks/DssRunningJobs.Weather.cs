@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -44,7 +45,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                     listOfPreferredWeatherDataSources.Add(weatherToCall);
                 }
 
-                return await GetWeatherData(farm.Location.X.ToString(), farm.Location.Y.ToString(), listOfPreferredWeatherDataSources, dssInformation.Input);
+                return await GetWeatherData(farm.Location.X, farm.Location.Y, listOfPreferredWeatherDataSources, dssInformation.Input);
             }
             catch (Exception ex)
             {
@@ -75,8 +76,8 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
         }
 
         public async Task<WeatherDataResult> GetWeatherData(
-            string farmLocationX,
-            string farmLocationY,
+            double farmLocationX,
+            double farmLocationY,
             List<WeatherSchemaForHttp> listWeatherDataSource,
             DssModelSchemaInput dssWeatherInput)
         {
@@ -236,14 +237,14 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
         }
 
         public async Task<HttpResponseMessage> PrepareWeatherDataCall(
-            string farmLocationX,
-            string farmLocationY,
+            double farmLocationX,
+            double farmLocationY,
             WeatherSchemaForHttp weatherDataSource,
             bool useProxy = false)
         {
             var weatherStringParametersUrl = string.Format("longitude={0}&latitude={1}&interval={2}&timeStart={3}&timeEnd={4}&ignoreErrors=true",
-                farmLocationX,
-                farmLocationY,
+                farmLocationX.ToString("G", CultureInfo.InvariantCulture),
+                farmLocationY.ToString("G", CultureInfo.InvariantCulture),
                 weatherDataSource.Interval.ToString(),
                 weatherDataSource.WeatherTimeStart.ToString("yyyy-MM-dd"),
                 weatherDataSource.WeatherTimeEnd.ToString("yyyy-MM-dd"));
