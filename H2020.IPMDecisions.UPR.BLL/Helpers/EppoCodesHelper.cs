@@ -44,12 +44,11 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
                 .FirstOrDefault();
         }
 
-        public static IDictionary<string, string> DoLanguageFilter(string languageFilter, IDictionary<string, string> eppoCode)
+        public static IDictionary<string, string> DoLanguageFilter(string languageFilter, IDictionary<string, string> eppoCodeLanguages)
         {
             if (!string.IsNullOrEmpty(languageFilter))
-                return FilterEppoCodeLanguage(languageFilter, eppoCode);
-
-            return eppoCode;
+                return FilterEppoCodeLanguage(languageFilter, eppoCodeLanguages);
+            return eppoCodeLanguages;
         }
 
         private static IDictionary<string, string> FilterEppoCodeLanguage(string languageFilter, IDictionary<string, string> eppoCode)
@@ -60,6 +59,16 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
                 || e.Key.ToLower() == "en"
                 || e.Key.ToLower() == languageFilter.ToLower())
                 .ToDictionary(e => e.Key, e => e.Value);
+        }
+
+        internal static IDictionary<string, string> NoLanguagesAvailable(string languageFilter, string eppoCode)
+        {
+            Dictionary<string, string> languages = new Dictionary<string, string>();
+            languages.Add("la", eppoCode);
+            languages.Add("en", eppoCode);
+            if (!string.IsNullOrEmpty(languageFilter) & languageFilter.ToLower() != "en")
+                languages.Add(languageFilter, eppoCode);
+            return languages;
         }
     }
 }

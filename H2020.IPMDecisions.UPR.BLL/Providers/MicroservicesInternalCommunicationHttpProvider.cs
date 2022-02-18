@@ -119,6 +119,32 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
                 return null;
             }
         }
+
+        public async Task<List<string>> GetListOfEppoCodesFromDssMicroservice(string eppoCodeType)
+        {
+            try
+            {
+                var cacheKey = string.Format("eppoCodes_{0}", eppoCodeType.ToLower());
+                if (!memoryCache.TryGetValue(cacheKey, out List<string> listOfEppoCodes))
+                {
+                    var dssEndPoint = config["MicroserviceInternalCommunication:DssMicroservice"];
+                    var response = await httpClient.GetAsync(string.Format("{0}rest/{1}", dssEndPoint, eppoCodeType));
+
+                    if (!response.IsSuccessStatusCode) return null;
+
+                    var responseAsText = await response.Content.ReadAsStringAsync();
+                    listOfEppoCodes = JsonConvert.DeserializeObject<List<string>>(responseAsText);
+
+                    memoryCache.Set(cacheKey, listOfEppoCodes, MemoryCacheHelper.CreateMemoryCacheEntryOptions(1));
+                }
+                return listOfEppoCodes;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(string.Format("Error in Internal Communication - GetListOfEppoCodesFromDssMicroservice. {0}", ex.Message));
+                return null;
+            }
+        }
         #endregion
 
         #region Weather Microservice calls
