@@ -42,7 +42,11 @@
       "pending_change_error": "You can not update a pending request. Please use the 'reply' end point to accept/decline request."
     },
     "weather": {
-      "missing_service": "Weather service with ID '{0}' do not exist on weather microservice."
+      "missing_service": "Weather service with ID '{0}' do not exist on weather microservice.",
+      "next_season":"Weather data is not currently available for next season, please try again after {0}",
+      "missing_weather_service" : "No Weather Data Sources or Weather Stations associated to the farm",
+      "no_json_format" : "Weather data received in not in a JSON format.",
+      "validation_error" : "Weather data received failed the Weather validation schema. This might be because the weather data source selected do not accept weather parameters required by the DSS: {0}"
     },
     "dss_process": {
       "dss_information": "Error getting DSS information from microservice.",
