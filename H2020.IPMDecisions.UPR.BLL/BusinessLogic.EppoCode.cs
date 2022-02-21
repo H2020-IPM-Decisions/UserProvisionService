@@ -140,7 +140,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                 if (eppoCodeFromFullList != null)
                     eppoCodeDto.Languages = EppoCodesHelper.DoLanguageFilter(languageFilter, eppoCodeFromFullList);
                 else
-                    eppoCodeDto.Languages = EppoCodesHelper.NoLanguagesAvailable(languageFilter, eppoCode);
+                    eppoCodeDto.Languages = EppoCodesHelper.NoLanguagesAvailable(eppoCode);
 
                 eppoCodeType.EppoCodesDto.Add(eppoCodeDto);
             }
