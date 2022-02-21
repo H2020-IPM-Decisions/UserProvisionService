@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using H2020.IPMDecisions.UPR.BLL.Helpers;
 using H2020.IPMDecisions.UPR.Core.Dtos;
@@ -22,7 +23,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                 List<EppoCodeTypeDto> dataToReturn = new List<EppoCodeTypeDto>();
                 foreach (var type in eppoCodesTypes)
                 {
-                    EppoCodeTypeDto eppoCodeType = await EppoCodeToEppoCodeTypeDto(type);
+                    EppoCodeTypeDto eppoCodeType = await EppoCodeToEppoCodeTypeDto(type, languageFilter: Thread.CurrentThread.CurrentCulture.Name);
                     dataToReturn.Add(eppoCodeType);
                 }
                 return GenericResponseBuilder.Success<List<EppoCodeTypeDto>>(dataToReturn);
@@ -58,7 +59,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                 if (eppoCodeTypeFiltered.Count == 0) return GenericResponseBuilder.NotFound<EppoCodeTypeDto>();
 
                 var type = eppoCodeTypeFiltered.FirstOrDefault();
-                EppoCodeTypeDto dataToReturn = await EppoCodeToEppoCodeTypeDto(type, eppoCode);
+                EppoCodeTypeDto dataToReturn = await EppoCodeToEppoCodeTypeDto(type, eppoCode, Thread.CurrentThread.CurrentCulture.Name);
                 if (dataToReturn == null) return GenericResponseBuilder.NotFound<EppoCodeTypeDto>();
                 return GenericResponseBuilder.Success<EppoCodeTypeDto>(dataToReturn);
             }
@@ -78,7 +79,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                 this.dataService.EppoCodes.Create(eppoCodeAsEntity);
                 await this.dataService.CompleteAsync();
 
-                EppoCodeTypeDto dataToReturn = await EppoCodeToEppoCodeTypeDto(eppoCodeAsEntity);
+                EppoCodeTypeDto dataToReturn = await EppoCodeToEppoCodeTypeDto(eppoCodeAsEntity, languageFilter: Thread.CurrentThread.CurrentCulture.Name);
                 return GenericResponseBuilder.Success<EppoCodeTypeDto>(dataToReturn);
             }
             catch (Exception ex)

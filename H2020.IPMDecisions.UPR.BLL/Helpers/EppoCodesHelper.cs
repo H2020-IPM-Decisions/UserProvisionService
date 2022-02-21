@@ -53,21 +53,17 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
 
         private static IDictionary<string, string> FilterEppoCodeLanguage(string languageFilter, IDictionary<string, string> eppoCode)
         {
-            // default languages english (en) and latin (la)
+            // default language: latin (la)            
             return eppoCode
                 .Where(e => e.Key == "la"
-                || e.Key.ToLower() == "en"
                 || e.Key.ToLower() == languageFilter.ToLower())
                 .ToDictionary(e => e.Key, e => e.Value);
         }
 
         internal static IDictionary<string, string> NoLanguagesAvailable(string languageFilter, string eppoCode)
         {
-            Dictionary<string, string> languages = new Dictionary<string, string>();
+            var languages = new Dictionary<string, string>();
             languages.Add("la", eppoCode);
-            languages.Add("en", eppoCode);
-            if (!string.IsNullOrEmpty(languageFilter) & languageFilter.ToLower() != "en")
-                languages.Add(languageFilter, eppoCode);
             return languages;
         }
     }

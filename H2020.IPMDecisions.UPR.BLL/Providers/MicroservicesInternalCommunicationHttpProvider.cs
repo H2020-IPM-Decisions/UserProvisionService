@@ -258,7 +258,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
                     if (weatherResponse.IsSuccessStatusCode)
                         memoryCache.Set(cacheKey, weatherResponse, MemoryCacheHelper.CreateMemoryCacheEntryOptions(1));
                     else
-                        logger.LogError(string.Format("Weather call error. URL called: {0}", url));
+                        logger.LogError(string.Format("Weather call error. URL called: {0}. Error returned: {1}", url, await weatherResponse.Content.ReadAsStringAsync()));
                 }
                 return weatherResponse;
             }
@@ -328,7 +328,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
                     if (weatherResponse.IsSuccessStatusCode)
                         memoryCache.Set(cacheKey, weatherResponse, MemoryCacheHelper.CreateMemoryCacheEntryOptions(1));
                     else
-                        logger.LogError(string.Format("Weather call error. URL called: {0}", endPointQueryString));
+                        logger.LogError(string.Format("Weather call error. URL called: {0}. Error returned: {1}", url, await weatherResponse.Content.ReadAsStringAsync()));
                 }
                 return weatherResponse;
             }
