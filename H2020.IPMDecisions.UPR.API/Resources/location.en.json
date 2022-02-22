@@ -21,11 +21,11 @@
       "model_missing_metadata": "The DSS with ID '{0}' and version '{1}', do not have any model with ID '{2}' and version '{3}' on the DSS microservice."
     },
     "dss_metadata": {
-      "description_other": "Other",
-      "description_created": "Created by",
-      "description_age": "Age",
-      "description_assumptions": "Assumptions",
-      "description_peer": "Peer review"
+      "description_other": "{0}Other: {1}",
+      "description_created": "{0}Created by: {1}",
+      "description_age": "{0}Age: {1}",
+      "description_assumptions": "Assumptions: {1}",
+      "description_peer": "{0}Peer review: {1}"
     },
     "data_share": {
       "request_error": "Request do not belong to the user.",
@@ -40,7 +40,8 @@
       "wrong_method": "The method is for accepting or declining requests.",
       "no_farms_error": "User do not have any farms in the system.",
       "farms_ownership_error": "Farms do not belong to the user.",
-      "pending_change_error": "You can not update a pending request. Please use the 'reply' end point to accept/decline request."
+      "pending_change_error": "You can not update a pending request. Please use the 'reply' end point to accept/decline request.",
+      "back_to_pending": "You can not change a request back to pending."
     },
     "weather": {
       "missing_service": "Weather service with ID '{0}' do not exist on weather microservice.",
