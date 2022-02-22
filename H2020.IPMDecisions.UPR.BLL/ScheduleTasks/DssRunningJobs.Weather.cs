@@ -57,7 +57,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             }
         }
 
-        private static void AddWeatherDates(DssModelInformation dssInformation, JObject dssInputSchemaAsJson, WeatherSchemaForHttp weatherToCall, int currentYear = -1)
+        private void AddWeatherDates(DssModelInformation dssInformation, JObject dssInputSchemaAsJson, WeatherSchemaForHttp weatherToCall, int currentYear = -1)
         {
             if (dssInformation.Input.WeatherDataPeriodEnd != null)
             {
@@ -69,8 +69,8 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 if (weatherToCall.WeatherTimeStart > DateTime.Today)
                 {
                     throw new InvalidDataException(
-                        string.Format("Weather data is not currently available for next season, please try again after {0}",
-                        weatherToCall.WeatherTimeStart.ToShortDateString()));
+                        this.jsonStringLocalizer["weather.next_season",
+                        weatherToCall.WeatherTimeStart.ToShortDateString()].ToString());
                 }
             }
         }
@@ -84,7 +84,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             var result = new WeatherDataResult();
             if (listWeatherDataSource.Count < 1)
             {
-                result.ResponseWeather = "No Weather Data Sources or Weather Stations associated to the farm";
+                result.ResponseWeather = this.jsonStringLocalizer["weather.missing_weather_service"].ToString();
                 return result;
             }
 
@@ -117,13 +117,13 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
 
             if (!DataParseHelper.IsValidJson(responseWeatherAsText))
             {
-                result.ResponseWeather = "Weather data received in not in a JSON format.";
+                result.ResponseWeather = this.jsonStringLocalizer["weather.no_json_format"].ToString();
                 return result;
             };
 
             if (!await ValidateWeatherDataSchema(responseWeatherAsText))
             {
-                result.ResponseWeather = string.Format("Weather data received failed the Weather validation schema. This might be because the weather data source selected do not accept weather parameters required by the DSS: {0}", weatherDataSource.WeatherDssParameters.ToString());
+                result.ResponseWeather = this.jsonStringLocalizer["weather.validation_error", weatherDataSource.WeatherDssParameters.ToString()].ToString();
                 return result;
             };
             result.Continue = true;

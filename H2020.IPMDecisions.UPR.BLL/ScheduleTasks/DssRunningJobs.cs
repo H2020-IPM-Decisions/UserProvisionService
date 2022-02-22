@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
@@ -36,13 +35,15 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
         private readonly ILogger<DssRunningJobs> logger;
         private readonly IDataProtectionProvider dataProtectionProvider;
         private readonly IMapper mapper;
+        private readonly IJsonStringLocalizer jsonStringLocalizer;
         private EncryptionHelper _encryption;
         public DssRunningJobs(
             IDataService dataService,
             IMicroservicesInternalCommunicationHttpProvider internalCommunicationProvider,
             ILogger<DssRunningJobs> logger,
             IDataProtectionProvider dataProtectionProvider,
-            IMapper mapper)
+            IMapper mapper,
+            IJsonStringLocalizer jsonStringLocalizer)
         {
             this.dataService = dataService
                 ?? throw new ArgumentNullException(nameof(dataService));
@@ -54,6 +55,8 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
              ?? throw new ArgumentNullException(nameof(dataProtectionProvider));
             this.mapper = mapper
                 ?? throw new ArgumentNullException(nameof(mapper));
+            this.jsonStringLocalizer = jsonStringLocalizer
+                ?? throw new ArgumentNullException(nameof(jsonStringLocalizer));
             _encryption = new EncryptionHelper(dataProtectionProvider);
         }
 
@@ -148,7 +151,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
 
             if (dss is null)
             {
-                var errorMessage = "Error running the DSS - System not ready.";
+                var errorMessage = this.jsonStringLocalizer["dss_process.system_ready_error"].ToString();
                 CreateDssRunErrorResult(dssResult, errorMessage, DssOutputMessageTypeEnum.Error);
                 return dssResult;
             }
@@ -157,13 +160,13 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 DssModelInformation dssInformation = await GetDssInformationFromMicroservice(dss);
                 if (dssInformation == null)
                 {
-                    CreateDssRunErrorResult(dssResult, "Error getting DSS information from microservice.", DssOutputMessageTypeEnum.Error);
+                    CreateDssRunErrorResult(dssResult, this.jsonStringLocalizer["dss_process.dss_information"].ToString(), DssOutputMessageTypeEnum.Error);
                     return dssResult;
                 };
 
                 if (string.IsNullOrEmpty(dssInformation.Execution.EndPoint))
                 {
-                    CreateDssRunErrorResult(dssResult, "End point not available to run DSS.", DssOutputMessageTypeEnum.Error);
+                    CreateDssRunErrorResult(dssResult, this.jsonStringLocalizer["dss_process.dss_no_endpoint"].ToString(), DssOutputMessageTypeEnum.Error);
                     return dssResult;
                 }
                 if (dssInformation.Execution.Type.ToLower() != "onthefly") return null;
@@ -194,7 +197,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                     WeatherDataResult responseWeather = await PrepareWeatherData(dss, dssInformation, inputAsJsonObject);
                     if (!responseWeather.Continue)
                     {
-                        var errorMessage = string.Format("Error with Weather Data -  {0}", responseWeather.ResponseWeather.ToString());
+                        var errorMessage = this.jsonStringLocalizer["dss_process.weather_data_error", responseWeather.ResponseWeather.ToString()].ToString();
                         CreateDssRunErrorResult(dssResult, errorMessage, DssOutputMessageTypeEnum.Error);
                         return dssResult;
                     }
@@ -212,13 +215,13 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             catch (Exception ex)
             {
                 logger.LogError(string.Format("Error running DSS. Id: {0}, Parameters {1}. Error: {2}", dss.Id.ToString(), dss.DssParameters, ex.Message));
-                var errorMessage = "Error running the DSS - " + ex.Message.ToString();
+                var errorMessage = this.jsonStringLocalizer["dss_process.dss_error", ex.Message.ToString()].ToString();
                 CreateDssRunErrorResult(dssResult, errorMessage, DssOutputMessageTypeEnum.Error);
                 return dssResult;
             }
         }
 
-        private static async Task ProcessDssResult(FieldDssResult dssResult, HttpResponseMessage responseDss)
+        private async Task ProcessDssResult(FieldDssResult dssResult, HttpResponseMessage responseDss)
         {
             try
             {
@@ -286,7 +289,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 .GetDssModelInformationFromDssMicroservice(dss.CropPestDss.DssId, dss.CropPestDss.DssModelId);
         }
 
-        private static void CreateDssRunErrorResult(FieldDssResult dssResult, string errorMessage, DssOutputMessageTypeEnum errorType)
+        private void CreateDssRunErrorResult(FieldDssResult dssResult, string errorMessage, DssOutputMessageTypeEnum errorType)
         {
             dssResult.ResultMessageType = (int)errorType;
             dssResult.ResultMessage = errorMessage.ToString();
@@ -296,7 +299,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             }
             else
             {
-                dssResult.DssFullResult = JObject.Parse("{\"message\": \"Message error from DSS do not follow IPM Decisions standards, so unfortunately we can not provide more information.\"}").ToString();
+                dssResult.DssFullResult = JObject.Parse("{\"message\": \"" + this.jsonStringLocalizer["dss_process.dss_format_error"].ToString() + "\"}").ToString();
             }
         }
         #endregion
