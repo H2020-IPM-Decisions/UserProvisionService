@@ -123,7 +123,7 @@ namespace H2020.IPMDecisions.UPR.BLL
             try
             {
                 if (!propertyMappingService.ValidMappingExistsFor<DataShareRequestDto, DataSharingRequest>(resourceParameter.OrderBy))
-                    return GenericResponseBuilder.NoSuccess<ShapedDataWithLinks>(null, "Wrong OrderBy entered");
+                    return GenericResponseBuilder.NoSuccess<ShapedDataWithLinks>(null, this.jsonStringLocalizer["shared.wrong_order_by"].ToString());
 
                 var userProfile = await GetUserProfileByUserId(userId);
                 if (userProfile.Result == null)

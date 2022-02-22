@@ -19,7 +19,7 @@ namespace H2020.IPMDecisions.UPR.BLL
             {
                 if (!MediaTypeHeaderValue.TryParse(mediaType,
                       out MediaTypeHeaderValue parsedMediaType))
-                    return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, "Wrong media type.");
+                    return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, this.jsonStringLocalizer["shared.wrong_media_type"].ToString());
 
                 if (listOfFarmDssDto.Count() == 0) return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, this.jsonStringLocalizer["shared.missing_payload"].ToString());
 
@@ -47,9 +47,8 @@ namespace H2020.IPMDecisions.UPR.BLL
                     {
                         if (fieldAsEntity.FieldCrop.CropEppoCode.ToUpper() != cropGroup.Key.CropEppoCode.ToUpper())
                         {
-                            listOfErrorsToReturn.Add(string.Format("Field with ID {0} only accepts '{1}' crop EPPO code",
-                                                    fieldAsEntity.Id,
-                                                    fieldAsEntity.FieldCrop.CropEppoCode));
+                            listOfErrorsToReturn.Add(this.jsonStringLocalizer["dss.field_eppo_code", fieldAsEntity.Id,
+                                                    fieldAsEntity.FieldCrop.CropEppoCode].ToString());
                             continue;
                         }
                         fieldCrop = fieldAsEntity.FieldCrop;
@@ -115,7 +114,7 @@ namespace H2020.IPMDecisions.UPR.BLL
             {
                 if (!MediaTypeHeaderValue.TryParse(mediaType,
                        out MediaTypeHeaderValue parsedMediaType))
-                    return GenericResponseBuilder.NoSuccess<FieldCropPestDssDto>(null, "Wrong media type.");
+                    return GenericResponseBuilder.NoSuccess<FieldCropPestDssDto>(null, this.jsonStringLocalizer["shared.wrong_media_type"].ToString());
 
                 var farm = httpContext.Items["farm"] as Farm;
                 var fieldAsEntity = farm.Fields.FirstOrDefault(fi => fi.Id == farmDssDto.FieldId);

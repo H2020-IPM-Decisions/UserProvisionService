@@ -19,7 +19,7 @@ namespace H2020.IPMDecisions.UPR.BLL
             {
                 if (!MediaTypeHeaderValue.TryParse(mediaType,
                        out MediaTypeHeaderValue parsedMediaType))
-                    return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, "Wrong media type.");
+                    return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, this.jsonStringLocalizer["shared.wrong_media_type"].ToString());
 
                 var currentUserProfileExists = await GetUserProfileByUserId(userId);
                 if (currentUserProfileExists.Result != null)
@@ -137,7 +137,7 @@ namespace H2020.IPMDecisions.UPR.BLL
             {
                 if (!MediaTypeHeaderValue.TryParse(mediaType,
                        out MediaTypeHeaderValue parsedMediaType))
-                    return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, "Wrong media type");
+                    return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, this.jsonStringLocalizer["shared.wrong_media_type"].ToString());
 
                 if (!propertyCheckerService.TypeHasProperties<UserProfileDto>(fields))
                     return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, "Wrong fields entered");

@@ -50,12 +50,12 @@ namespace H2020.IPMDecisions.UPR.BLL
             {
                 if (!MediaTypeHeaderValue.TryParse(mediaType,
                        out MediaTypeHeaderValue parsedMediaType))
-                    return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, "Wrong media type.");
+                    return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, this.jsonStringLocalizer["shared.wrong_media_type"].ToString());
 
                 var userProfile = await GetUserProfileByUserId(userId);
                 if (userProfile.Result == null)
                 {
-                    return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, "Please create a `User Profile` first.");
+                    return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, this.jsonStringLocalizer["shared.missing_user_profile"].ToString());
                 }
 
                 var farmAsEntity = this.mapper.Map<Farm>(farmForCreationDto);
@@ -67,13 +67,13 @@ namespace H2020.IPMDecisions.UPR.BLL
 
                 var defaultIdWeatherForecast = AdminValuesEnum.WeatherForecastService;
                 var weatherForecastDefaultValue = await this.dataService.AdminVariables.FindByIdAsync(defaultIdWeatherForecast);
-                if (weatherForecastDefaultValue == null) throw new ApplicationException("Database do not contain default weather forecast value.");
+                if (weatherForecastDefaultValue == null) throw new ApplicationException(this.jsonStringLocalizer["shared.missing_default_forecast"].ToString());
                 var weatherForecast = await EnsureWeatherForecastExists(weatherForecastDefaultValue.Value);
                 farmAsEntity.WeatherForecast = weatherForecast;
 
                 var defaultIdWeatherhistorical = AdminValuesEnum.WeatherHistoricalService;
                 var weatherHistoricalDefaultValue = await this.dataService.AdminVariables.FindByIdAsync(defaultIdWeatherhistorical);
-                if (weatherHistoricalDefaultValue == null) throw new ApplicationException("Database do not contain default weather historical value.");
+                if (weatherHistoricalDefaultValue == null) throw new ApplicationException(this.jsonStringLocalizer["shared.missing_default_historical"].ToString());
                 var weatherHistorical = await EnsureWeatherHistoricalExists(weatherHistoricalDefaultValue.Value);
                 farmAsEntity.WeatherHistorical = weatherHistorical;
 
@@ -169,7 +169,7 @@ namespace H2020.IPMDecisions.UPR.BLL
             {
                 if (!MediaTypeHeaderValue.TryParse(mediaType,
                        out MediaTypeHeaderValue parsedMediaType))
-                    return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, "Wrong media type.");
+                    return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, this.jsonStringLocalizer["shared.wrong_media_type"].ToString());
 
                 if (!propertyCheckerService.TypeHasProperties<FarmWithChildrenDto>(resourceParameter.Fields, false))
                     return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, "Wrong fields entered");
@@ -221,13 +221,13 @@ namespace H2020.IPMDecisions.UPR.BLL
             {
                 if (!MediaTypeHeaderValue.TryParse(mediaType,
                        out MediaTypeHeaderValue parsedMediaType))
-                    return GenericResponseBuilder.NoSuccess<ShapedDataWithLinks>(null, "Wrong media type.");
+                    return GenericResponseBuilder.NoSuccess<ShapedDataWithLinks>(null, this.jsonStringLocalizer["shared.wrong_media_type"].ToString());
 
                 if (!propertyCheckerService.TypeHasProperties<FarmWithChildrenDto>(resourceParameter.Fields, true))
-                    return GenericResponseBuilder.NoSuccess<ShapedDataWithLinks>(null, "Wrong fields entered or missing 'id' field");
+                    return GenericResponseBuilder.NoSuccess<ShapedDataWithLinks>(null, this.jsonStringLocalizer["shared.wrong_fields"].ToString());
 
                 if (!propertyMappingService.ValidMappingExistsFor<FarmDto, Farm>(resourceParameter.OrderBy))
-                    return GenericResponseBuilder.NoSuccess<ShapedDataWithLinks>(null, "Wrong OrderBy entered");
+                    return GenericResponseBuilder.NoSuccess<ShapedDataWithLinks>(null, this.jsonStringLocalizer["shared.wrong_order_by"].ToString());
 
                 var includeLinks = parsedMediaType.SubTypeWithoutSuffix
                     .EndsWith("hateoas", StringComparison.InvariantCultureIgnoreCase);

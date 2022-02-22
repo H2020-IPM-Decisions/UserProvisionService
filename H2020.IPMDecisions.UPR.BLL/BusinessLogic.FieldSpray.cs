@@ -79,7 +79,7 @@ namespace H2020.IPMDecisions.UPR.BLL
             {
                 if (!MediaTypeHeaderValue.TryParse(mediaType,
                         out MediaTypeHeaderValue parsedMediaType))
-                    return GenericResponseBuilder.NoSuccess<FieldSprayApplicationDto>(null, "Wrong media type.");
+                    return GenericResponseBuilder.NoSuccess<FieldSprayApplicationDto>(null, this.jsonStringLocalizer["shared.wrong_media_type"].ToString());
 
                 var field = httpContext.Items["field"] as Field;
                 var sprayAsEntity = field
@@ -110,10 +110,10 @@ namespace H2020.IPMDecisions.UPR.BLL
             {
                 if (!MediaTypeHeaderValue.TryParse(mediaType,
                       out MediaTypeHeaderValue parsedMediaType))
-                    return GenericResponseBuilder.NoSuccess<ShapedDataWithLinks>(null, "Wrong media type.");
+                    return GenericResponseBuilder.NoSuccess<ShapedDataWithLinks>(null, this.jsonStringLocalizer["shared.wrong_media_type"].ToString());
 
                 if (!propertyCheckerService.TypeHasProperties<FieldSprayApplicationDto>(resourceParameter.Fields, true))
-                    return GenericResponseBuilder.NoSuccess<ShapedDataWithLinks>(null, "Wrong fields entered or missing 'id' field");
+                    return GenericResponseBuilder.NoSuccess<ShapedDataWithLinks>(null, this.jsonStringLocalizer["shared.wrong_fields"].ToString());
 
                 var dataAsEntities = await this
                     .dataService
