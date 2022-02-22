@@ -14,6 +14,7 @@
     "dss": {
       "field_eppo_code": "Field with ID {0} only accepts '{1}' crop EPPO code",
       "duplicated": "Duplicated combination of Crop ({0}), Pest ({1}), DSS ({2}), Model ({3}) & DSS Model version ({4}) on a field.",
+      "existing_combination" : "Field already has crop ({0}), pest ({1}), and DSS ({2}) combination.",
       "warnings": "Please fix the following error(s) before saving:",
       "warning_header": "One or more crop, pest & DSS combinations already exists. Please check response body for more information.",
       "dss_missing_metadata": "DSS with ID '{0}' and version '{1}' do not exist on the DSS microservice.",

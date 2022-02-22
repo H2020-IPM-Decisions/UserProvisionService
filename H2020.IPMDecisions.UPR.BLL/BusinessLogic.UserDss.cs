@@ -101,7 +101,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                 {
                     inputAsJsonObject = JObject.Parse(dssInputUISchema.ToString());
                     JObject userParametersAsJsonObject = JObject.Parse(dss.DssParameters.ToString());
-                    DssDataHelper.AddDefaultDssParametersToInputSchema(inputAsJsonObject, userParametersAsJsonObject);       
+                    DssDataHelper.AddDefaultDssParametersToInputSchema(inputAsJsonObject, userParametersAsJsonObject);
                 }
                 return GenericResponseBuilder.Success<string>(inputAsJsonObject.ToString());
             }
@@ -129,9 +129,9 @@ namespace H2020.IPMDecisions.UPR.BLL
 
                     if (dssOnListMatchDatabaseRecord == null)
                     {
-                        dss.DssDescription = string.Format("DSS with ID '{0}' and version '{1}' do not exist on the DSS microservice.",
+                        dss.DssDescription = this.jsonStringLocalizer["dss.dss_missing_metadata",
                         dss.DssId,
-                        dss.DssVersion);
+                        dss.DssVersion].ToString();
                     }
                     else
                     {
@@ -142,11 +142,11 @@ namespace H2020.IPMDecisions.UPR.BLL
 
                         if (dssModelInformation == null)
                         {
-                            dss.DssDescription = string.Format("The DSS with ID '{0}' and version '{1}', do not have any model with ID '{2}' and version '{3}' on the DSS microservice.",
+                            dss.DssDescription = this.jsonStringLocalizer["dss.model_missing_metadata",
                                 dss.DssId,
                                 dss.DssVersion,
                                 dss.DssModelId,
-                                dss.DssModelVersion);
+                                dss.DssModelVersion].ToString();
                             continue;
                         }
                         dss.DssDescription = CreateDssDescription(dssModelInformation.Description);
