@@ -16,6 +16,9 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Configurations
             builder.Property(f => f.Name)
                 .IsRequired();
 
+            builder.Property(f => f.Location)
+                .HasColumnType("geometry (point)");
+
             builder.HasOne<FieldCrop>(f => f.FieldCrop)
                 .WithOne(fc => fc.Field)
                 .HasForeignKey<FieldCrop>(f => f.FieldId)
