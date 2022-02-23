@@ -17,7 +17,7 @@ namespace H2020.IPMDecisions.UPR.Tests.UnitTests
 {
     public class UserProfilesTests
     {
-        [Fact]
+        [Fact(Skip = "Not Longer needed")]
         public async void AddNewUserProfile_WrongMediaType_ShouldReturnGenericResponseNoSuccess()
         {
             // Arrange
