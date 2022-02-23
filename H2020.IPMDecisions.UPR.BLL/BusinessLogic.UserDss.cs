@@ -51,7 +51,7 @@ namespace H2020.IPMDecisions.UPR.BLL
 
                 if (dss.CropPestDss.DssExecutionType.ToLower() == "onthefly")
                 {
-                    var jobId = this.queueJobs.AddDssOnOnTheFlyQueue(id);
+                    var jobId = this.queueJobs.AddDssOnTheFlyQueue(id);
                 }
                 return GenericResponseBuilder.Success();
             }

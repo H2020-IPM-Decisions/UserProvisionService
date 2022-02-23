@@ -54,7 +54,7 @@ namespace H2020.IPMDecisions.UPR.BLL
 
                 if (cropPestDssForCreationDto.DssExecutionType.ToLower() == "onthefly")
                 {
-                    var jobId = this.queueJobs.AddDssOnOnTheFlyQueue(newFieldCropPestDss.Id);
+                    var jobId = this.queueJobs.AddDssOnTheFlyQueue(newFieldCropPestDss.Id);
                     return GenericResponseBuilder.Accepted<IDictionary<string, object>>(fieldCropPestToReturn);
                 }
 

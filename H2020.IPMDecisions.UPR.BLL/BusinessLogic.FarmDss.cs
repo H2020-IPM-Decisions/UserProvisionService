@@ -93,7 +93,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                     var fieldCropPestDssToReturn = this.mapper.Map<FieldCropPestDssDto>(item);
                     if (item.CropPestDss.DssExecutionType.ToLower() == "onthefly")
                     {
-                        var jobId = this.queueJobs.AddDssOnOnTheFlyQueue(item.Id);
+                        var jobId = this.queueJobs.AddDssOnTheFlyQueue(item.Id);
                     }
                     listToReturn.Add(fieldCropPestDssToReturn);
                 }
@@ -158,7 +158,7 @@ namespace H2020.IPMDecisions.UPR.BLL
 
                 if (farmDssDto.DssExecutionType.ToLower() == "onthefly")
                 {
-                    var jobId = this.queueJobs.AddDssOnOnTheFlyQueue(newFieldCropPestDss.Id);
+                    var jobId = this.queueJobs.AddDssOnTheFlyQueue(newFieldCropPestDss.Id);
                     return GenericResponseBuilder.Accepted<FieldCropPestDssDto>(fieldCropPestDssToReturn);
                 }
                 return GenericResponseBuilder.Success<FieldCropPestDssDto>(fieldCropPestDssToReturn);
