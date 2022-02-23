@@ -70,7 +70,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 {
                     throw new InvalidDataException(
                         this.jsonStringLocalizer["weather.next_season",
-                        weatherToCall.WeatherTimeStart.ToShortDateString()].ToString());
+                        weatherToCall.WeatherTimeStart.ToString("dd/MM/yyyy")].ToString());
                 }
             }
         }

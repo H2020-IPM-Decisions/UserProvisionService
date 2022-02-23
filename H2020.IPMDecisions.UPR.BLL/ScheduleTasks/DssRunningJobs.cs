@@ -36,14 +36,17 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
         private readonly IDataProtectionProvider dataProtectionProvider;
         private readonly IMapper mapper;
         private readonly IJsonStringLocalizer jsonStringLocalizer;
-        private EncryptionHelper _encryption;
+        private readonly IHangfireQueueJobs queueJobs;
+        private readonly EncryptionHelper _encryption;
+
         public DssRunningJobs(
             IDataService dataService,
             IMicroservicesInternalCommunicationHttpProvider internalCommunicationProvider,
             ILogger<DssRunningJobs> logger,
             IDataProtectionProvider dataProtectionProvider,
             IMapper mapper,
-            IJsonStringLocalizer jsonStringLocalizer)
+            IJsonStringLocalizer jsonStringLocalizer,
+            IHangfireQueueJobs queueJobs)
         {
             this.dataService = dataService
                 ?? throw new ArgumentNullException(nameof(dataService));
@@ -57,6 +60,8 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 ?? throw new ArgumentNullException(nameof(mapper));
             this.jsonStringLocalizer = jsonStringLocalizer
                 ?? throw new ArgumentNullException(nameof(jsonStringLocalizer));
+            this.queueJobs = queueJobs
+                ?? throw new ArgumentNullException(nameof(queueJobs));
             _encryption = new EncryptionHelper(dataProtectionProvider);
         }
 
@@ -197,6 +202,10 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                     WeatherDataResult responseWeather = await PrepareWeatherData(dss, dssInformation, inputAsJsonObject);
                     if (!responseWeather.Continue)
                     {
+                        if (responseWeather.ResponseWeather.ToString().Contains("This is the first time this season that weather"))
+                        {
+                            this.queueJobs.ScheduleDssOnTheFlyQueue(dss.Id, 121);
+                        }
                         var errorMessage = this.jsonStringLocalizer["dss_process.weather_data_error", responseWeather.ResponseWeather.ToString()].ToString();
                         CreateDssRunErrorResult(dssResult, errorMessage, DssOutputMessageTypeEnum.Error);
                         return dssResult;

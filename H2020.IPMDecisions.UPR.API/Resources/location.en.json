@@ -45,7 +45,7 @@
     },
     "weather": {
       "missing_service": "Weather service with ID '{0}' do not exist on the weather microservice.",
-      "next_season":"DSS default start date to collect weather data is {0}. Please wait until this date or change the DSS parameters.",
+      "next_season":"DSS default start date to get and use weather data is {0}. Please wait until this date or change the DSS parameters to start using earlier weather data.",
       "missing_weather_service" : "No Weather Data Sources or Weather Stations associated to the farm",
       "no_json_format" : "Weather data received in not in a JSON format.",
       "validation_error" : "Weather data received failed the IPM Decisions Weather validation schema. This might be because the weather data source selected do not accept weather parameters required by the DSS: {0}"
