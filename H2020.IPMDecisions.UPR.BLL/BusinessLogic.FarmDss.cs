@@ -19,9 +19,9 @@ namespace H2020.IPMDecisions.UPR.BLL
             {
                 if (!MediaTypeHeaderValue.TryParse(mediaType,
                       out MediaTypeHeaderValue parsedMediaType))
-                    return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, "Wrong media type.");
+                    return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, this.jsonStringLocalizer["shared.wrong_media_type"].ToString());
 
-                if (listOfFarmDssDto.Count() == 0) return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, "Data missing on payload");
+                if (listOfFarmDssDto.Count() == 0) return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, this.jsonStringLocalizer["shared.missing_payload"].ToString());
 
                 var farm = httpContext.Items["farm"] as Farm;
                 var listOfNewFieldCropPestDss = new List<FieldCropPestDss>();
@@ -47,9 +47,8 @@ namespace H2020.IPMDecisions.UPR.BLL
                     {
                         if (fieldAsEntity.FieldCrop.CropEppoCode.ToUpper() != cropGroup.Key.CropEppoCode.ToUpper())
                         {
-                            listOfErrorsToReturn.Add(string.Format("Field with ID {0} only accepts '{1}' crop EPPO code",
-                                                    fieldAsEntity.Id,
-                                                    fieldAsEntity.FieldCrop.CropEppoCode));
+                            listOfErrorsToReturn.Add(this.jsonStringLocalizer["dss.field_eppo_code", fieldAsEntity.Id,
+                                                    fieldAsEntity.FieldCrop.CropEppoCode].ToString());
                             continue;
                         }
                         fieldCrop = fieldAsEntity.FieldCrop;
@@ -67,23 +66,24 @@ namespace H2020.IPMDecisions.UPR.BLL
                         if (newFieldCropPestDss != null)
                             listOfNewFieldCropPestDss.Add(newFieldCropPestDss);
                         else
-                            listOfErrorsToReturn.Add(string.Format("Duplicated combination of Crop ({0}), Pest ({1}), DSS ({2}), Model ({3}) & DSS Model version ({4}) on a field.",
-                                farmForcreation.CropEppoCode, farmForcreation.PestEppoCode,
+                            listOfErrorsToReturn.Add(this.jsonStringLocalizer["dss.duplicated",
+                                farmForcreation.CropEppoCode,
+                                farmForcreation.PestEppoCode,
                                 farmForcreation.DssId, farmForcreation.DssModelId,
-                                farmForcreation.DssModelVersion));
+                                farmForcreation.DssModelVersion].ToString());
                     }
                 }
                 var dataToReturn = new Dictionary<string, object>();
                 if (listOfErrorsToReturn.Count > 0)
                 {
                     dataToReturn.Add("warnings", listOfErrorsToReturn);
-                    var warningsAsString = "Please fix the following error(s) before saving:";
+                    var warningsAsString = this.jsonStringLocalizer["dss.warnings"].ToString();
                     foreach (var error in listOfErrorsToReturn)
                     {
                         warningsAsString = string.Format("{0} {1};", warningsAsString, error);
                     }
                     httpContext.Response.Headers.Add("Warning", "Warning");
-                    httpContext.Response.Headers.Add("warn-text", "One or more crop, pest & DSS combinations already exists. Please check response body for more information.");
+                    httpContext.Response.Headers.Add("warn-text", this.jsonStringLocalizer["dss.warning_header"].ToString());
                     return GenericResponseBuilder.Duplicated<IDictionary<string, object>>(warningsAsString, dataToReturn);
                 }
 
@@ -93,7 +93,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                     var fieldCropPestDssToReturn = this.mapper.Map<FieldCropPestDssDto>(item);
                     if (item.CropPestDss.DssExecutionType.ToLower() == "onthefly")
                     {
-                        var jobId = this.queueJobs.AddDssOnOnTheFlyQueue(item.Id);
+                        var jobId = this.queueJobs.AddDssOnTheFlyQueue(item.Id);
                     }
                     listToReturn.Add(fieldCropPestDssToReturn);
                 }
@@ -115,7 +115,7 @@ namespace H2020.IPMDecisions.UPR.BLL
             {
                 if (!MediaTypeHeaderValue.TryParse(mediaType,
                        out MediaTypeHeaderValue parsedMediaType))
-                    return GenericResponseBuilder.NoSuccess<FieldCropPestDssDto>(null, "Wrong media type.");
+                    return GenericResponseBuilder.NoSuccess<FieldCropPestDssDto>(null, this.jsonStringLocalizer["shared.wrong_media_type"].ToString());
 
                 var farm = httpContext.Items["farm"] as Farm;
                 var fieldAsEntity = farm.Fields.FirstOrDefault(fi => fi.Id == farmDssDto.FieldId);
@@ -133,7 +133,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                     if (fieldCropPestExists == null)
                     {
                         if (fieldAsEntity.FieldCrop.CropEppoCode.ToUpper() != farmDssDto.CropEppoCode.ToUpper())
-                            return GenericResponseBuilder.Duplicated<FieldCropPestDssDto>(string.Format("Field only accepts '{0}' crop EPPO code", fieldAsEntity.FieldCrop.CropEppoCode));
+                            return GenericResponseBuilder.Duplicated<FieldCropPestDssDto>(this.jsonStringLocalizer["dss.field_eppo_code", fieldAsEntity.FieldCrop.CropEppoCode].ToString());
 
                         fieldCropPestExists = await AddCropPestToField(farmDssDto, fieldAsEntity);
                     }
@@ -142,11 +142,10 @@ namespace H2020.IPMDecisions.UPR.BLL
                         bool duplicatedCropPestDssRecord = HasCropPestDssCombination(fieldAsEntity, fieldCropPestExists.Id, farmDssDto.DssId, farmDssDto.DssModelId, farmDssDto.DssModelVersion);
 
                         if (duplicatedCropPestDssRecord)
-                            return GenericResponseBuilder.Duplicated<FieldCropPestDssDto>(string
-                                .Format("Field already has crop ({0}), pest ({1}), and DSS ({2}) combination.",
+                            return GenericResponseBuilder.Duplicated<FieldCropPestDssDto>(this.jsonStringLocalizer["dss.existing_combination",
                                 farmDssDto.CropEppoCode,
                                 farmDssDto.PestEppoCode,
-                                farmDssDto.DssModelName));
+                                farmDssDto.DssModelName].ToString());
                     }
                 }
                 var cropPestDss = this.mapper.Map<CropPestDss>(farmDssDto);
@@ -159,7 +158,7 @@ namespace H2020.IPMDecisions.UPR.BLL
 
                 if (farmDssDto.DssExecutionType.ToLower() == "onthefly")
                 {
-                    var jobId = this.queueJobs.AddDssOnOnTheFlyQueue(newFieldCropPestDss.Id);
+                    var jobId = this.queueJobs.AddDssOnTheFlyQueue(newFieldCropPestDss.Id);
                     return GenericResponseBuilder.Accepted<FieldCropPestDssDto>(fieldCropPestDssToReturn);
                 }
                 return GenericResponseBuilder.Success<FieldCropPestDssDto>(fieldCropPestDssToReturn);

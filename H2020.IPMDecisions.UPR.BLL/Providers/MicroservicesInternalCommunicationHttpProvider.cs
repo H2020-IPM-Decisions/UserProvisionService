@@ -119,6 +119,32 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
                 return null;
             }
         }
+
+        public async Task<List<string>> GetListOfEppoCodesFromDssMicroservice(string eppoCodeType)
+        {
+            try
+            {
+                var cacheKey = string.Format("eppoCodes_{0}", eppoCodeType.ToLower());
+                if (!memoryCache.TryGetValue(cacheKey, out List<string> listOfEppoCodes))
+                {
+                    var dssEndPoint = config["MicroserviceInternalCommunication:DssMicroservice"];
+                    var response = await httpClient.GetAsync(string.Format("{0}rest/{1}", dssEndPoint, eppoCodeType));
+
+                    if (!response.IsSuccessStatusCode) return null;
+
+                    var responseAsText = await response.Content.ReadAsStringAsync();
+                    listOfEppoCodes = JsonConvert.DeserializeObject<List<string>>(responseAsText);
+
+                    memoryCache.Set(cacheKey, listOfEppoCodes, MemoryCacheHelper.CreateMemoryCacheEntryOptions(1));
+                }
+                return listOfEppoCodes;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(string.Format("Error in Internal Communication - GetListOfEppoCodesFromDssMicroservice. {0}", ex.Message));
+                return null;
+            }
+        }
         #endregion
 
         #region Weather Microservice calls
@@ -227,9 +253,12 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
                     var wxEndPoint = config["MicroserviceInternalCommunication:WeatherMicroservice"];
                     var endPointUrlEncoded = HttpUtility.UrlEncode(endPointUrl);
                     var endPointQueryStringEncoded = HttpUtility.UrlEncode(endPointQueryString);
-                    weatherResponse = await httpClient.GetAsync(string.Format("{0}rest/amalgamation/amalgamate/proxy/?endpointURL={1}&endpointQueryStr={2}", wxEndPoint, endPointUrlEncoded, endPointQueryStringEncoded));
+                    var url = string.Format("{0}rest/amalgamation/amalgamate/proxy/?endpointURL={1}&endpointQueryStr={2}", wxEndPoint, endPointUrlEncoded, endPointQueryStringEncoded);
+                    weatherResponse = await httpClient.GetAsync(url);
                     if (weatherResponse.IsSuccessStatusCode)
                         memoryCache.Set(cacheKey, weatherResponse, MemoryCacheHelper.CreateMemoryCacheEntryOptions(1));
+                    else
+                        logger.LogError(string.Format("Weather call error. URL called: {0}. Error returned: {1}", url, await weatherResponse.Content.ReadAsStringAsync()));
                 }
                 return weatherResponse;
             }
@@ -294,9 +323,12 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
                 if (!memoryCache.TryGetValue(cacheKey, out HttpResponseMessage weatherResponse))
                 {
                     var wxEndPoint = config["MicroserviceInternalCommunication:WeatherMicroservice"];
-                    weatherResponse = await httpClient.GetAsync(string.Format("{0}rest/amalgamation/amalgamate?{1}", wxEndPoint, endPointQueryString));
+                    var url = string.Format("{0}rest/amalgamation/amalgamate?{1}", wxEndPoint, endPointQueryString);
+                    weatherResponse = await httpClient.GetAsync(url);
                     if (weatherResponse.IsSuccessStatusCode)
                         memoryCache.Set(cacheKey, weatherResponse, MemoryCacheHelper.CreateMemoryCacheEntryOptions(1));
+                    else
+                        logger.LogError(string.Format("Weather call error. URL called: {0}. Error returned: {1}", url, await weatherResponse.Content.ReadAsStringAsync()));
                 }
                 return weatherResponse;
             }

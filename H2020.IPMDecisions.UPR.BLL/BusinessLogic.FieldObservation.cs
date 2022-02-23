@@ -78,7 +78,7 @@ namespace H2020.IPMDecisions.UPR.BLL
             {
                 if (!MediaTypeHeaderValue.TryParse(mediaType,
                         out MediaTypeHeaderValue parsedMediaType))
-                    return GenericResponseBuilder.NoSuccess<FieldObservationDto>(null, "Wrong media type.");
+                    return GenericResponseBuilder.NoSuccess<FieldObservationDto>(null, this.jsonStringLocalizer["shared.wrong_media_type"].ToString());
 
                 if (!propertyCheckerService.TypeHasProperties<FieldObservationDto>(fields, false))
                     return GenericResponseBuilder.NoSuccess<FieldObservationDto>(null, "Wrong fields entered");
@@ -111,13 +111,13 @@ namespace H2020.IPMDecisions.UPR.BLL
             {
                 if (!MediaTypeHeaderValue.TryParse(mediaType,
                       out MediaTypeHeaderValue parsedMediaType))
-                    return GenericResponseBuilder.NoSuccess<ShapedDataWithLinks>(null, "Wrong media type.");
+                    return GenericResponseBuilder.NoSuccess<ShapedDataWithLinks>(null, this.jsonStringLocalizer["shared.wrong_media_type"].ToString());
 
                 if (!propertyCheckerService.TypeHasProperties<FieldObservationDto>(resourceParameter.Fields, true))
-                    return GenericResponseBuilder.NoSuccess<ShapedDataWithLinks>(null, "Wrong fields entered or missing 'id' field");
+                    return GenericResponseBuilder.NoSuccess<ShapedDataWithLinks>(null, this.jsonStringLocalizer["shared.wrong_fields"].ToString());
 
                 if (!propertyMappingService.ValidMappingExistsFor<FieldObservationDto, FieldObservation>(resourceParameter.OrderBy))
-                    return GenericResponseBuilder.NoSuccess<ShapedDataWithLinks>(null, "Wrong OrderBy entered");
+                    return GenericResponseBuilder.NoSuccess<ShapedDataWithLinks>(null, this.jsonStringLocalizer["shared.wrong_order_by"].ToString());
 
                 var observationsAsEntities = await this
                     .dataService

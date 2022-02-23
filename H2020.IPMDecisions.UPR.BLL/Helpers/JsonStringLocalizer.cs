@@ -37,7 +37,6 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
             }
         }
 
-
         private string GetLocalizedString(string key)
         {
             string relativeFilePath = $"Resources/location.{Thread.CurrentThread.CurrentCulture.Name}.json";

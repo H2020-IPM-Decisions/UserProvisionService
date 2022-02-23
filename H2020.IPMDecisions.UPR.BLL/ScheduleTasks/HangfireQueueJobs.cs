@@ -6,7 +6,8 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
 {
     public interface IHangfireQueueJobs
     {
-        string AddDssOnOnTheFlyQueue(Guid id);
+        string AddDssOnTheFlyQueue(Guid id);
+        string ScheduleDssOnTheFlyQueue(Guid id, int hours);
     }
 
     public class HangfireQueueJobs : IHangfireQueueJobs
@@ -20,10 +21,16 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 ?? throw new ArgumentNullException(nameof(dataService));
         }
 
-        public string AddDssOnOnTheFlyQueue(Guid id)
+        public string AddDssOnTheFlyQueue(Guid id)
         {
             return BackgroundJob.Enqueue<DssRunningJobs>(
                job => job.QueueOnTheFlyDss(JobCancellationToken.Null, id));
+        }
+
+        public string ScheduleDssOnTheFlyQueue(Guid id, int minutes)
+        {
+            return BackgroundJob.Schedule<DssRunningJobs>(
+                job => job.QueueOnTheFlyDss(JobCancellationToken.Null, id), TimeSpan.FromMinutes(minutes));
         }
     }
 }

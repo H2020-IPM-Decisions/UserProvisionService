@@ -27,7 +27,7 @@ namespace H2020.IPMDecisions.UPR.BLL
 
                 if (requestsAsEntity == null)
                 {
-                    return GenericResponseBuilder.NoSuccess("Request do not belong to the user.");
+                    return GenericResponseBuilder.NoSuccess(this.jsonStringLocalizer["data_share.request_error"].ToString());
                 }
 
                 var advisorUserFarmsToDelete = await GetListOfFarmsSharedAsync(requestsAsEntity.Requestee.UserFarms, requestsAsEntity.RequesterId);
@@ -53,24 +53,24 @@ namespace H2020.IPMDecisions.UPR.BLL
                 var farmerUserId = await this.internalCommunicationProvider.GetUserIdFromIdpMicroservice(dataShareRequestDto.Email.ToString());
                 if (string.IsNullOrEmpty(farmerUserId))
                 {
-                    return GenericResponseBuilder.NoSuccess<bool>(false, "User requested not in the system.");
+                    return GenericResponseBuilder.NoSuccess<bool>(false, this.jsonStringLocalizer["data_share.user_not_registered"].ToString());
                 }
 
                 var farmerProfile = await GetUserProfileByUserId(Guid.Parse(farmerUserId));
                 if (farmerProfile.Result == null)
                 {
-                    return GenericResponseBuilder.NoSuccess<bool>(false, "User requested do not have a profile in the system.");
+                    return GenericResponseBuilder.NoSuccess<bool>(false, this.jsonStringLocalizer["data_share.user_without_profile"].ToString());
                 }
 
                 if (Guid.Parse(farmerUserId) == userId)
                 {
-                    return GenericResponseBuilder.NoSuccess<bool>(false, "User can not request its own data.");
+                    return GenericResponseBuilder.NoSuccess<bool>(false, this.jsonStringLocalizer["data_share.own_request_error"].ToString());
                 }
 
                 var advisorProfile = await GetUserProfileByUserId(userId);
                 if (advisorProfile.Result == null)
                 {
-                    return GenericResponseBuilder.NoSuccess<bool>(false, "User requesting data share do not have a profile in the system.");
+                    return GenericResponseBuilder.NoSuccess<bool>(false, this.jsonStringLocalizer["data_share.user_requesting_no_profile"].ToString());
                 }
 
                 var requestExists = await this.dataService.DataShareRequests.FindByConditionAsync(
@@ -80,11 +80,11 @@ namespace H2020.IPMDecisions.UPR.BLL
                 if (requestExists != null
                     && requestExists.RequestStatus.Description.Equals(RequestStatusEnum.Declined.ToString()))
                 {
-                    return GenericResponseBuilder.NoSuccess<bool>(false, "The user has declined access to the data.");
+                    return GenericResponseBuilder.NoSuccess<bool>(false, this.jsonStringLocalizer["data_share.declined_request"].ToString());
                 }
                 else if (requestExists != null)
                 {
-                    return GenericResponseBuilder.NoSuccess<bool>(false, "You have already requested data to this user.");
+                    return GenericResponseBuilder.NoSuccess<bool>(false, this.jsonStringLocalizer["data_share.existing_request"].ToString());
                 }
 
                 await this.dataService.DataShareRequests.Create(
@@ -105,7 +105,7 @@ namespace H2020.IPMDecisions.UPR.BLL
 
                 if (!emailSent)
                 {
-                    return GenericResponseBuilder.NoSuccess<bool>(false, "Request created but error sending email.");
+                    return GenericResponseBuilder.NoSuccess<bool>(false, this.jsonStringLocalizer["data_share.email_error"].ToString());
                 }
 
                 return GenericResponseBuilder.Success<bool>(true);
@@ -123,11 +123,11 @@ namespace H2020.IPMDecisions.UPR.BLL
             try
             {
                 if (!propertyMappingService.ValidMappingExistsFor<DataShareRequestDto, DataSharingRequest>(resourceParameter.OrderBy))
-                    return GenericResponseBuilder.NoSuccess<ShapedDataWithLinks>(null, "Wrong OrderBy entered");
+                    return GenericResponseBuilder.NoSuccess<ShapedDataWithLinks>(null, this.jsonStringLocalizer["shared.wrong_order_by"].ToString());
 
                 var userProfile = await GetUserProfileByUserId(userId);
                 if (userProfile.Result == null)
-                    return GenericResponseBuilder.NoSuccess<ShapedDataWithLinks>(null, "Please create an `User Profile` first.");
+                    return GenericResponseBuilder.NoSuccess<ShapedDataWithLinks>(null, this.jsonStringLocalizer["shared.missing_user_profile"].ToString());
 
                 var requestsAsEntities = await this
                     .dataService
@@ -171,16 +171,16 @@ namespace H2020.IPMDecisions.UPR.BLL
                 if (!(dataShareRequestDto.Reply.Equals(RequestStatusEnum.Accepted.ToString(), StringComparison.OrdinalIgnoreCase)
                     || dataShareRequestDto.Reply.Equals(RequestStatusEnum.Declined.ToString(), StringComparison.OrdinalIgnoreCase)))
                 {
-                    return GenericResponseBuilder.NoSuccess<bool>(false, "The method is for accepting or declining requests.");
+                    return GenericResponseBuilder.NoSuccess<bool>(false, this.jsonStringLocalizer["data_share.wrong_method"].ToString());
                 }
                 var farmerProfile = await GetUserProfileByUserId(userId, true);
                 if (farmerProfile.Result == null)
                 {
-                    return GenericResponseBuilder.NoSuccess<bool>(false, "User do not have a profile in the system.");
+                    return GenericResponseBuilder.NoSuccess<bool>(false, this.jsonStringLocalizer["data_share.user_without_profile"].ToString());
                 }
                 if (farmerProfile.Result.UserFarms == null || farmerProfile.Result.UserFarms.Count() == 0)
                 {
-                    return GenericResponseBuilder.NoSuccess<bool>(false, "User do not have any farms in the system.");
+                    return GenericResponseBuilder.NoSuccess<bool>(false, this.jsonStringLocalizer["data_share.no_farms_error"].ToString());
                 }
 
                 var requestExists = await this.dataService.DataShareRequests.FindByConditionAsync(
@@ -189,7 +189,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                        && (d.RequestStatus.Description.Equals(RequestStatusEnum.Pending.ToString())), true);
                 if (requestExists == null)
                 {
-                    return GenericResponseBuilder.NoSuccess<bool>(false, "Request do not exist in the system or already accepted/declined.");
+                    return GenericResponseBuilder.NoSuccess<bool>(false, this.jsonStringLocalizer["data_share.not_existing_request"].ToString());
                 }
 
                 var statusFromDb = await this
@@ -225,13 +225,13 @@ namespace H2020.IPMDecisions.UPR.BLL
 
                 if (farmsThatBelongToUser.Count() == 0)
                 {
-                    return GenericResponseBuilder.NoSuccess<bool>(false, "Farms do not belong to the user.");
+                    return GenericResponseBuilder.NoSuccess<bool>(false, this.jsonStringLocalizer["data_share.farms_ownership_error"].ToString());
                 }
 
                 var advisorProfile = await this.dataService.UserProfiles.FindByIdAsync(dataShareRequestDto.RequesterId);
                 if (advisorProfile == null)
                 {
-                    return GenericResponseBuilder.NoSuccess<bool>(false, "User do not have a profile in the system.");
+                    return GenericResponseBuilder.NoSuccess<bool>(false, this.jsonStringLocalizer["data_share.user_without_profile"].ToString());
                 }
 
                 foreach (var farm in farmsThatBelongToUser)
@@ -264,17 +264,17 @@ namespace H2020.IPMDecisions.UPR.BLL
                     RequestStatusEnum.Pending.ToString(),
                     StringComparison.OrdinalIgnoreCase)))
                 {
-                    return GenericResponseBuilder.NoSuccess("You can not change a request back to pending.");
+                    return GenericResponseBuilder.NoSuccess(this.jsonStringLocalizer["data_share.back_to_pending"].ToString());
                 }
 
                 var farmerProfile = await GetUserProfileByUserId(userId, true);
                 if (farmerProfile.Result == null)
                 {
-                    return GenericResponseBuilder.NoSuccess<bool>(false, "User do not have a profile in the system.");
+                    return GenericResponseBuilder.NoSuccess<bool>(false, this.jsonStringLocalizer["data_share.user_without_profile"].ToString());
                 }
                 if (farmerProfile.Result.UserFarms == null || farmerProfile.Result.UserFarms.Count() == 0)
                 {
-                    return GenericResponseBuilder.NoSuccess<bool>(false, "User do not have any farms in the system.");
+                    return GenericResponseBuilder.NoSuccess<bool>(false, this.jsonStringLocalizer["data_share.no_farms_error"].ToString());
                 }
 
                 var requestExists = await this.dataService.DataShareRequests.FindByConditionAsync(
@@ -283,13 +283,13 @@ namespace H2020.IPMDecisions.UPR.BLL
 
                 if (requestExists == null)
                 {
-                    return GenericResponseBuilder.NoSuccess<bool>(false, "Request do not exist in the system.");
+                    return GenericResponseBuilder.NoSuccess<bool>(false, this.jsonStringLocalizer["data_share.not_existing_request"].ToString());
                 }
                 else if (requestExists.RequestStatus.Description.Equals(
                     RequestStatusEnum.Pending.ToString(),
                     StringComparison.OrdinalIgnoreCase))
                 {
-                    return GenericResponseBuilder.NoSuccess("You can not update a pending request. Please use the 'reply' end point to accept/decline request.");
+                    return GenericResponseBuilder.NoSuccess(this.jsonStringLocalizer["data_share.pending_change_error"].ToString());
                 }
 
                 if (dataShareRequestDto.Reply.Equals(
@@ -304,7 +304,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                     var advisorProfile = await this.dataService.UserProfiles.FindByIdAsync(dataShareRequestDto.RequesterId);
                     if (advisorProfile == null)
                     {
-                        return GenericResponseBuilder.NoSuccess<bool>(false, "User do not have a profile in the system.");
+                        return GenericResponseBuilder.NoSuccess<bool>(false, this.jsonStringLocalizer["data_share.user_without_profile"].ToString());
                     }
 
                     var farmsThatBelongToUser = requestExists
@@ -315,7 +315,7 @@ namespace H2020.IPMDecisions.UPR.BLL
 
                     if (farmsThatBelongToUser.Count() == 0)
                     {
-                        return GenericResponseBuilder.NoSuccess<bool>(false, "Farms do not belong to the user.");
+                        return GenericResponseBuilder.NoSuccess<bool>(false, this.jsonStringLocalizer["data_share.farms_ownership_error"].ToString());
                     }
 
                     foreach (var farm in farmsThatBelongToUser)

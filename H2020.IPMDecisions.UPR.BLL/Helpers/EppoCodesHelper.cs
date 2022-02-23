@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using H2020.IPMDecisions.UPR.Core.Entities;
 using H2020.IPMDecisions.UPR.Core.Models;
 using Newtonsoft.Json;
@@ -24,15 +25,14 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
         public static IDictionary<string, string> GetNameFromEppoCodeData(
             List<EppoCode> eppoCodesData,
             string eppoCodeType,
-            string eppoCodeFilter,
-            string languageFilter = "en")
+            string eppoCodeFilter)
         {
             var cropData = eppoCodesData.Where(e => e.Type == eppoCodeType).FirstOrDefault();
             if (cropData == null) return null;
             var eppoCodesOnType = JsonConvert.DeserializeObject<List<IDictionary<string, string>>>(cropData.Data);
             var selectedEppoCodeDto = FilterEppoCodesByEppoCode(eppoCodeFilter, eppoCodesOnType);
-            if (selectedEppoCodeDto == null) return null;
-            return DoLanguageFilter(languageFilter, selectedEppoCodeDto);
+            if (selectedEppoCodeDto == null) return NoLanguagesAvailable(eppoCodeFilter);
+            return DoLanguageFilter(Thread.CurrentThread.CurrentCulture.Name, selectedEppoCodeDto);
         }
 
         public static IDictionary<string, string> FilterEppoCodesByEppoCode(string eppoCodeFilter, List<IDictionary<string, string>> eppoCodesOnType)
@@ -44,22 +44,27 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
                 .FirstOrDefault();
         }
 
-        public static IDictionary<string, string> DoLanguageFilter(string languageFilter, IDictionary<string, string> eppoCode)
+        public static IDictionary<string, string> DoLanguageFilter(string languageFilter, IDictionary<string, string> eppoCodeLanguages)
         {
             if (!string.IsNullOrEmpty(languageFilter))
-                return FilterEppoCodeLanguage(languageFilter, eppoCode);
-
-            return eppoCode;
+                return FilterEppoCodeLanguage(languageFilter, eppoCodeLanguages);
+            return eppoCodeLanguages;
         }
 
         private static IDictionary<string, string> FilterEppoCodeLanguage(string languageFilter, IDictionary<string, string> eppoCode)
         {
-            // default languages english (en) and latin (la)
+            // default language: latin (la)            
             return eppoCode
                 .Where(e => e.Key == "la"
-                || e.Key.ToLower() == "en"
                 || e.Key.ToLower() == languageFilter.ToLower())
                 .ToDictionary(e => e.Key, e => e.Value);
+        }
+
+        internal static IDictionary<string, string> NoLanguagesAvailable(string eppoCode)
+        {
+            var languages = new Dictionary<string, string>();
+            languages.Add("la", eppoCode);
+            return languages;
         }
     }
 }

@@ -123,7 +123,7 @@ namespace H2020.IPMDecisions.UPR.BLL
             {
                 if (!MediaTypeHeaderValue.TryParse(mediaType,
                         out MediaTypeHeaderValue parsedMediaType))
-                    return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, "Wrong media type.");
+                    return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, this.jsonStringLocalizer["shared.wrong_media_type"].ToString());
 
                 var field = httpContext.Items["field"] as Field;
 
@@ -169,7 +169,7 @@ namespace H2020.IPMDecisions.UPR.BLL
             {
                 if (!MediaTypeHeaderValue.TryParse(mediaType,
                       out MediaTypeHeaderValue parsedMediaType))
-                    return GenericResponseBuilder.NoSuccess<ShapedDataWithLinks>(null, "Wrong media type.");
+                    return GenericResponseBuilder.NoSuccess<ShapedDataWithLinks>(null, this.jsonStringLocalizer["shared.wrong_media_type"].ToString());
 
                 var fieldCropPestAsEntities = await this
                     .dataService

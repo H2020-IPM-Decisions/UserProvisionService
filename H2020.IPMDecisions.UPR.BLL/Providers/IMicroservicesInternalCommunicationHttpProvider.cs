@@ -18,5 +18,6 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
         Task<HttpResponseMessage> GetWeatherUsingOwnService(string endPointUrl, string endPointParameters);
         Task<IEnumerable<DssInformation>> GetAllListOfDssFromDssMicroservice();
         Task<WeatherDataSchema> GetWeatherProviderInformationFromWeatherMicroservice(string weatherId);
+        Task<List<string>> GetListOfEppoCodesFromDssMicroservice(string eppoCodeType);
     }
 }
