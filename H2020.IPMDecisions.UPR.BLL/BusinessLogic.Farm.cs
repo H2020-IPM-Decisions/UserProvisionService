@@ -11,6 +11,7 @@ using Microsoft.Net.Http.Headers;
 using NetTopologySuite.Geometries;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -60,10 +61,8 @@ namespace H2020.IPMDecisions.UPR.BLL
 
                 var farmAsEntity = this.mapper.Map<Farm>(farmForCreationDto);
 
-                // Call Euroweather with Farm location to start getting Euroweather data from location
-#pragma warning disable 4014
-                StartEuroweatherDataCollectionProcess(farmAsEntity.Location);
-#pragma warning restore 4014
+                // Call Weather service with Farm location
+                AddAmalgamationDataCollectionProcessIntoQueue(farmAsEntity.Location);
 
                 var defaultIdWeatherForecast = AdminValuesEnum.WeatherForecastService;
                 var weatherForecastDefaultValue = await this.dataService.AdminVariables.FindByIdAsync(defaultIdWeatherForecast);
@@ -101,21 +100,19 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
         }
 
-        private async Task StartEuroweatherDataCollectionProcess(Point location)
+        private void AddAmalgamationDataCollectionProcessIntoQueue(Point location)
         {
             try
             {
-                var euroWeatherId = "net.ipmdecisions.dwd.euroweather";
-                var weatherInformation = await this.internalCommunicationProvider
-                      .GetWeatherProviderInformationFromWeatherMicroservice(euroWeatherId);
-                var parametersUrl = string.Format("longitude={0}&latitude={1}",
-                    location.X,
-                    location.Y);
+                var parametersUrl = string.Format("longitude={0}&latitude={1}&interval={2}&timeStart={3}&timeEnd={4}&parameters={5}&ignoreErrors=true",
+                    location.X.ToString("G", CultureInfo.InvariantCulture),
+                    location.Y.ToString("G", CultureInfo.InvariantCulture),
+                    "86400", // Default Interval
+                    DateTime.Today.AddDays(-1).ToString("yyyy-MM-dd"),
+                    DateTime.Today.ToString("yyyy-MM-dd"),
+                    "1002"); // Valid parameter
 
-                // Do not wait as is not important for the process
-#pragma warning disable 4014
-                this.internalCommunicationProvider.GetWeatherUsingOwnService(weatherInformation.EndPoint.AbsoluteUri, parametersUrl);
-#pragma warning restore 4014
+                this.queueJobs.AddFarmLocationToWeatherQueue(parametersUrl);
             }
             catch (Exception ex)
             {

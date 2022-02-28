@@ -123,6 +123,22 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             }
         }
 
+        [Queue("weather_queue")]
+        public async Task QueueWeatherToAmalgamationService(IJobCancellationToken token, string weatherStringParametersUrl)
+        {
+            try
+            {
+                token.ThrowIfCancellationRequested();
+                await
+                    internalCommunicationProvider
+                    .GetWeatherUsingAmalgamationService(weatherStringParametersUrl);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(string.Format("Error in BLL - Error executing Weather Queue. {0}", ex.Message));
+            }
+        }
+
         public async Task ExecuteDssOnQueue(Guid dssId)
         {
             try
