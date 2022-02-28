@@ -7,7 +7,8 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
     public interface IHangfireQueueJobs
     {
         string AddDssOnTheFlyQueue(Guid id);
-        string ScheduleDssOnTheFlyQueue(Guid id, int hours);
+        string ScheduleDssOnTheFlyQueue(Guid id, int minutes);
+        string AddFarmLocationToWeatherQueue(string weatherStringParametersUrl);
     }
 
     public class HangfireQueueJobs : IHangfireQueueJobs
@@ -31,6 +32,12 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
         {
             return BackgroundJob.Schedule<DssRunningJobs>(
                 job => job.QueueOnTheFlyDss(JobCancellationToken.Null, id), TimeSpan.FromMinutes(minutes));
+        }
+
+        public string AddFarmLocationToWeatherQueue(string weatherStringParametersUrl)
+        {
+            return BackgroundJob.Enqueue<DssRunningJobs>(
+               job => job.QueueWeatherToAmalgamationService(JobCancellationToken.Null, weatherStringParametersUrl));
         }
     }
 }
