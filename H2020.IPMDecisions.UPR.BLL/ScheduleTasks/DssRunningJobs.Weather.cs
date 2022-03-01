@@ -62,6 +62,10 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             if (dssInformation.Input.WeatherDataPeriodEnd != null)
             {
                 weatherToCall.WeatherTimeEnd = DssDataHelper.ProcessWeatherDataPeriod(dssInformation.Input.WeatherDataPeriodEnd, dssInputSchemaAsJson, currentYear);
+                if (weatherToCall.WeatherTimeEnd > DateTime.Today.AddDays(3))
+                {
+                    weatherToCall.WeatherTimeEnd = DateTime.Today.AddDays(3);
+                }
             }
             if (dssInformation.Input.WeatherDataPeriodStart != null)
             {
@@ -267,7 +271,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             }
             else
             {
-                weatherStringParametersUrl = string.Format("{0}&timeStart={0}&timeEnd={1}",
+                weatherStringParametersUrl = string.Format("{0}&timeStart={1}&timeEnd={2}",
                    weatherStringParametersUrl,
                    weatherDataSource.WeatherTimeStart.ToString(weatherFormat, CultureInfo.InvariantCulture),
                     weatherDataSource.WeatherTimeEnd.ToString(weatherFormat, CultureInfo.InvariantCulture));
