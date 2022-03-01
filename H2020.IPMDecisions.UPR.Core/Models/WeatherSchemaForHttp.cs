@@ -13,5 +13,6 @@ namespace H2020.IPMDecisions.UPR.Core.Models
         public DateTime WeatherTimeEnd { get; set; }
         public IEnumerable<string> WeatherParameters { get; set; }
         public string WeatherDssParameters { get; set; }
+        public string StationId { get; set; }
     }
 }

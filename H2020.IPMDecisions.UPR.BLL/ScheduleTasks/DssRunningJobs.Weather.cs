@@ -242,23 +242,47 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             WeatherSchemaForHttp weatherDataSource,
             bool useProxy = false)
         {
-            var weatherStringParametersUrl = string.Format("longitude={0}&latitude={1}&interval={2}&timeStart={3}&timeEnd={4}&ignoreErrors=true",
+            var weatherStringParametersUrl = string.Format("longitude={0}&latitude={1}&interval={2}&ignoreErrors=true",
                 farmLocationX.ToString("G", CultureInfo.InvariantCulture),
                 farmLocationY.ToString("G", CultureInfo.InvariantCulture),
-                weatherDataSource.Interval.ToString(),
-                weatherDataSource.WeatherTimeStart.ToString("yyyy-MM-dd"),
-                weatherDataSource.WeatherTimeEnd.ToString("yyyy-MM-dd"));
+                weatherDataSource.Interval.ToString());
+
+            // ToDo this is for testing purposes as WX data needed from 2021;
+            var weatherFormat = "yyyy-MM-dd";
+            if (weatherDataSource.WeatherId.ToLower() == "no.nibio.lmt")
+            {
+                weatherDataSource.StationId = "41";
+                useProxy = true;
+
+                weatherDataSource.WeatherTimeStart = new DateTime(2021, 4, 1);
+                var startWeatherDate = weatherDataSource.WeatherTimeStart.ToString(weatherFormat, CultureInfo.InvariantCulture);
+                startWeatherDate = string.Format("{0}T00:00:00%2B02:00", startWeatherDate);
+                var endWeatherDate = weatherDataSource.WeatherTimeEnd.ToString(weatherFormat, CultureInfo.InvariantCulture);
+                endWeatherDate = string.Format("{0}T00:00:00%2B02:00", endWeatherDate);
+
+                weatherStringParametersUrl = string.Format("{0}&timeStart={1}&timeEnd={2}",
+                    weatherStringParametersUrl,
+                    startWeatherDate,
+                    endWeatherDate);
+            }
+            else
+            {
+                weatherStringParametersUrl = string.Format("{0}&timeStart={0}&timeEnd={1}",
+                   weatherStringParametersUrl,
+                   weatherDataSource.WeatherTimeStart.ToString(weatherFormat, CultureInfo.InvariantCulture),
+                    weatherDataSource.WeatherTimeEnd.ToString(weatherFormat, CultureInfo.InvariantCulture));
+            }
 
             if (!string.IsNullOrEmpty(weatherDataSource.WeatherDssParameters))
             {
                 weatherStringParametersUrl = string.Format("{0}&parameters={1}",
                     weatherStringParametersUrl, weatherDataSource.WeatherDssParameters);
             }
-            // if (!string.IsNullOrEmpty(weatherDataSource.StationId))
-            // {
-            //     weatherUrl = string.Format("{0}&weatherStationId={1}",
-            //         weatherUrl, weatherDataSource.StationId.ToString());
-            // }
+            if (!string.IsNullOrEmpty(weatherDataSource.StationId))
+            {
+                weatherStringParametersUrl = string.Format("{0}&weatherStationId={1}",
+                    weatherStringParametersUrl, weatherDataSource.StationId.ToString());
+            }
             if (useProxy)
             {
                 return await
