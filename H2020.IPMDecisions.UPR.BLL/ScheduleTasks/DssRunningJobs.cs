@@ -255,6 +255,11 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 // ToDo. Check valid responses when DSS do not run properly
                 if (!responseDss.IsSuccessStatusCode)
                 {
+                    logger.Log(LogLevel.Error, string.Format("Error doing running this DSS: {0} with this payload: {1}. Response was: {2}",
+                    responseDss.RequestMessage.RequestUri.ToString(),
+                    await responseDss.RequestMessage.Content.ReadAsStringAsync(),
+                    responseAsText));
+
                     if (!string.IsNullOrEmpty(dssOutput.Message))
                     {
                         if (dssOutput.MessageType == null)
