@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
 using H2020.IPMDecisions.UPR.Core.Models;
@@ -54,12 +55,14 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
 
                     string dateString = token.ToString();
                     DateTime dateValue;
-                    if (DateTime.TryParse(dateString, out dateValue))
-                        return dateValue;
-                    else
-                        return DateTime.Parse(DssDataHelper.AddDefaultDatesToDssJsonInput(dateString));
+                    if (!DateTime.TryParse(dateString, CultureInfo.InvariantCulture, DateTimeStyles.None, out dateValue))
+                        dateValue = DateTime.Parse(DssDataHelper.AddDefaultDatesToDssJsonInput(dateString));
+
+                    // This exception is for the SEPTORIAHU model
+                    if (token.Path.ToLower().Contains("dategs31")) return dateValue.AddDays(-1);
+                    return dateValue;
                 }
-                else // "fixed_date" as specified on //dss/rest/schema/dss
+                else // "fixed_date" as specified on /dss/rest/schema/dss
                 {
                     return DateTime.Parse(DssDataHelper.AddDefaultDatesToDssJsonInput(weatherDateJson, currentYear));
                 }
@@ -220,9 +223,9 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
                 if (!hasDefaultProperty)
                 {
                     var firstPartOfTheTokenList = tokensPathFromInput.FirstOrDefault();
-                    var stringToReplace = firstPartOfTheTokenList.Split(".").LastOrDefault();   
-                    var newDefaultPath = firstPartOfTheTokenList.Replace(stringToReplace,"default");
-                    
+                    var stringToReplace = firstPartOfTheTokenList.Split(".").LastOrDefault();
+                    var newDefaultPath = firstPartOfTheTokenList.Replace(stringToReplace, "default");
+
                     AddNewTokenToJObject(inputAsJsonObject, newDefaultPath, tokenFromDssParameter);
                     pathsListDssInputSchema.Add(newDefaultPath);
                 }

@@ -246,8 +246,8 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 farmLocationX.ToString("G", CultureInfo.InvariantCulture),
                 farmLocationY.ToString("G", CultureInfo.InvariantCulture),
                 weatherDataSource.Interval.ToString(),
-                weatherDataSource.WeatherTimeStart.ToString("yyyy-MM-dd"),
-                weatherDataSource.WeatherTimeEnd.ToString("yyyy-MM-dd"));
+                weatherDataSource.WeatherTimeStart.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
+                weatherDataSource.WeatherTimeEnd.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));
 
             if (!string.IsNullOrEmpty(weatherDataSource.WeatherDssParameters))
             {
