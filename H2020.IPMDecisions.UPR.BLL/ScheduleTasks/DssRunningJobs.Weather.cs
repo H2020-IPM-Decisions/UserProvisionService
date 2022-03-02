@@ -62,9 +62,9 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             if (dssInformation.Input.WeatherDataPeriodEnd != null)
             {
                 weatherToCall.WeatherTimeEnd = DssDataHelper.ProcessWeatherDataPeriod(dssInformation.Input.WeatherDataPeriodEnd, dssInputSchemaAsJson, currentYear);
-                if (weatherToCall.WeatherTimeEnd > DateTime.Today.AddDays(3))
+                if (weatherToCall.WeatherTimeEnd > DateTime.Today.AddDays(8))
                 {
-                    weatherToCall.WeatherTimeEnd = DateTime.Today.AddDays(3);
+                    weatherToCall.WeatherTimeEnd = DateTime.Today.AddDays(8);
                 }
             }
             if (dssInformation.Input.WeatherDataPeriodStart != null)
