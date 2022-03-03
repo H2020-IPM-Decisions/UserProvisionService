@@ -62,14 +62,22 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             if (dssInformation.Input.WeatherDataPeriodEnd != null)
             {
                 weatherToCall.WeatherTimeEnd = DssDataHelper.ProcessWeatherDataPeriod(dssInformation.Input.WeatherDataPeriodEnd, dssInputSchemaAsJson, currentYear);
-                if (weatherToCall.WeatherTimeEnd > DateTime.Today.AddDays(3))
+                if (weatherToCall.WeatherTimeEnd < DateTime.Today.AddDays(15))
                 {
-                    weatherToCall.WeatherTimeEnd = DateTime.Today.AddDays(3);
+                    // ToDo - Waiting for requirements
+                    // Send a message to the user about DSS not longer running or change parameters 
+                    // depending type of date: Fixed or Parameters
+                }
+                // Forecast weather max 8 days
+                if (weatherToCall.WeatherTimeEnd > DateTime.Today.AddDays(8))
+                {
+                    weatherToCall.WeatherTimeEnd = DateTime.Today.AddDays(8);
                 }
             }
             if (dssInformation.Input.WeatherDataPeriodStart != null)
             {
                 weatherToCall.WeatherTimeStart = DssDataHelper.ProcessWeatherDataPeriod(dssInformation.Input.WeatherDataPeriodStart, dssInputSchemaAsJson, currentYear);
+                // ToDo -- Ask if send message DSS not running until X Date if parameter type is fixed date
                 if (weatherToCall.WeatherTimeStart > DateTime.Today)
                 {
                     throw new InvalidDataException(
