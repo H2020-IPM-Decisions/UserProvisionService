@@ -260,7 +260,6 @@ namespace H2020.IPMDecisions.UPR.BLL
                 DssDataHelper.RemoveNotRequiredInputSchemaProperties(dssInputUISchema);
                 dssParameters = JsonSchemaToJson.ToJsonString(dssInputUISchema.ToString(), logger);
                 dssParameters = DssDataHelper.AddDefaultDatesToDssJsonInput(dssParameters, currentYear);
-
             }
             return dssParameters;
         }
