@@ -109,7 +109,8 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
 
                     var responseAsString = await response.Content.ReadAsStringAsync();
                     dssInputSchema = JSchema.Parse(responseAsString);
-                    memoryCache.Set(cacheKey, dssInputSchema, MemoryCacheHelper.CreateMemoryCacheEntryOptions(1));
+                    var dssInputSchemaCached = JSchema.Parse(responseAsString);
+                    memoryCache.Set(cacheKey, dssInputSchemaCached, MemoryCacheHelper.CreateMemoryCacheEntryOptions(1));
                 }
                 return dssInputSchema;
             }
