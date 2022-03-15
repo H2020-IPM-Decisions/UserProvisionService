@@ -141,6 +141,27 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
             return NoContent();
         }
 
+        /// <summary>Use this endpoint to get and specific status of a task.
+        /// <para>The DSS must belong to the user</para>
+        /// </summary>
+        [ProducesResponseType(typeof(DssTaskStatusDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [Produces(MediaTypeNames.Application.Json)]
+        [HttpGet("{dssId:guid}/task/", Name = "api.dss.task.byId")]
+        // GET: api/1/task/5
+        public async Task<IActionResult> Get(
+            [FromRoute] Guid dssId,
+            [FromQuery] string id)
+        {
+            var userId = Guid.Parse(HttpContext.Items["userId"].ToString());
+            var response = await this.businessLogic.GetTaskStatusById(dssId, id, userId);
+            if (!response.IsSuccessful)
+                return response.RequestResult;
+
+            return Ok(response.Result);
+        }
+
         // <summary>Requests permitted on this URL</summary>
         [ProducesResponseType(StatusCodes.Status200OK)]
         [HttpOptions]

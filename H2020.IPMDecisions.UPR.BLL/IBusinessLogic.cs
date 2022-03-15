@@ -129,5 +129,9 @@ namespace H2020.IPMDecisions.UPR.BLL
         #region Comparision DSS
         Task<GenericResponse<IEnumerable<FieldDssResultDetailedDto>>> CompareDssByIds(List<Guid> ids, Guid userId);
         #endregion
+
+        #region DSS Result Task
+        Task<GenericResponse<DssTaskStatusDto>> GetTaskStatusById(Guid dssId, string taskId, Guid userId);
+        #endregion
     }
 }

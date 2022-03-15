@@ -82,7 +82,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                     {
                         warningsAsString = string.Format("{0} {1};", warningsAsString, error);
                     }
-                    httpContext.Response.Headers.Add("Warning", "Warning");
+                    httpContext.Response.Headers.Add("warning", "Warning");
                     httpContext.Response.Headers.Add("warn-text", this.jsonStringLocalizer["dss.warning_header"].ToString());
                     return GenericResponseBuilder.Duplicated<IDictionary<string, object>>(warningsAsString, dataToReturn);
                 }
@@ -94,6 +94,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                     if (item.CropPestDss.DssExecutionType.ToLower() == "onthefly")
                     {
                         var jobId = this.queueJobs.AddDssOnTheFlyQueue(item.Id);
+                        fieldCropPestDssToReturn.DssTask.Id = jobId;
                     }
                     listToReturn.Add(fieldCropPestDssToReturn);
                 }
@@ -159,6 +160,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                 if (farmDssDto.DssExecutionType.ToLower() == "onthefly")
                 {
                     var jobId = this.queueJobs.AddDssOnTheFlyQueue(newFieldCropPestDss.Id);
+                    fieldCropPestDssToReturn.DssTask.Id = jobId;
                     return GenericResponseBuilder.Accepted<FieldCropPestDssDto>(fieldCropPestDssToReturn);
                 }
                 return GenericResponseBuilder.Success<FieldCropPestDssDto>(fieldCropPestDssToReturn);

@@ -220,7 +220,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                     {
                         if (responseWeather.ResponseWeather.ToString().Contains("This is the first time this season that weather"))
                         {
-                            this.queueJobs.ScheduleDssOnTheFlyQueue(dss.Id, 121);
+                            var jobscheduleId = this.queueJobs.ScheduleDssOnTheFlyQueue(dss.Id, 121);
                         }
                         var errorMessage = this.jsonStringLocalizer["dss_process.weather_data_error", responseWeather.ResponseWeather.ToString()].ToString();
                         CreateDssRunErrorResult(dssResult, errorMessage, DssOutputMessageTypeEnum.Error);
