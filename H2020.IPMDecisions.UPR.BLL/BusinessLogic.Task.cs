@@ -5,6 +5,7 @@ using System;
 using Microsoft.Extensions.Logging;
 using H2020.IPMDecisions.UPR.Core.Models;
 using System.Linq;
+using Hangfire.Storage.Monitoring;
 
 namespace H2020.IPMDecisions.UPR.BLL
 {
@@ -27,17 +28,8 @@ namespace H2020.IPMDecisions.UPR.BLL
 
                 if (jobDetail == null) return GenericResponseBuilder.Unauthorized<DssTaskStatusDto>();
                 if (Guid.Parse(jobDetail.Job.Args[1].ToString()) != dssId) return GenericResponseBuilder.Unauthorized<DssTaskStatusDto>();
-
-                var lastStatus = jobDetail.History.FirstOrDefault();
-
-                var dataToReturn = this.mapper.Map<DssTaskStatusDto>(lastStatus);
-                dataToReturn.DssId = dssId;
-                dataToReturn.Id = taskId;
-                if (dataToReturn.JobStatus.ToLower() == "scheduled")
-                {
-                    dataToReturn.ScheduleTime = new DateTime(1970, 1, 1, 0, 0, 0)
-                        .AddMilliseconds(Convert.ToDouble(lastStatus.Data["EnqueueAt"])).ToLocalTime();
-                }
+                
+                DssTaskStatusDto dataToReturn = CreateDssStatusFromJobDetail(dssId, taskId, jobDetail);
                 return GenericResponseBuilder.Success<DssTaskStatusDto>(dataToReturn);
             }
             catch (Exception ex)
@@ -46,6 +38,22 @@ namespace H2020.IPMDecisions.UPR.BLL
                 String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
                 return GenericResponseBuilder.NoSuccess<DssTaskStatusDto>(null, $"{ex.Message} InnerException: {innerMessage}");
             }
+        }
+
+        private DssTaskStatusDto CreateDssStatusFromJobDetail(Guid dssId, string taskId, JobDetailsDto jobDetail)
+        {
+            var lastStatus = jobDetail.History.FirstOrDefault();
+
+            var dataToReturn = this.mapper.Map<DssTaskStatusDto>(lastStatus);
+            dataToReturn.DssId = dssId;
+            dataToReturn.Id = taskId;
+            if (dataToReturn.JobStatus.ToLower() == "scheduled")
+            {
+                dataToReturn.ScheduleTime = new DateTime(1970, 1, 1, 0, 0, 0)
+                    .AddMilliseconds(Convert.ToDouble(lastStatus.Data["EnqueueAt"])).ToLocalTime();
+            }
+
+            return dataToReturn;
         }
     }
 }
