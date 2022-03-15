@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-using System.Linq;
 using H2020.IPMDecisions.UPR.Core.Dtos;
 using H2020.IPMDecisions.UPR.Core.Entities;
 using NetTopologySuite.Geometries;
