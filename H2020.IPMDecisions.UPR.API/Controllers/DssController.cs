@@ -148,14 +148,34 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [Produces(MediaTypeNames.Application.Json)]
-        [HttpGet("{dssId:guid}/task/", Name = "api.dss.task.byId")]
-        // GET: api/1/task/5
+        [HttpGet("{dssId:guid}/task", Name = "api.dss.task.byId")]
+        // GET: api/1/task/?id=5
         public async Task<IActionResult> Get(
             [FromRoute] Guid dssId,
             [FromQuery] string id)
         {
             var userId = Guid.Parse(HttpContext.Items["userId"].ToString());
             var response = await this.businessLogic.GetTaskStatusById(dssId, id, userId);
+            if (!response.IsSuccessful)
+                return response.RequestResult;
+
+            return Ok(response.Result);
+        }
+
+        /// <summary>Use this endpoint to get and specific status of a task.
+        /// <para>The DSS must belong to the user</para>
+        /// </summary>
+        [ProducesResponseType(typeof(DssTaskStatusDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [Produces(MediaTypeNames.Application.Json)]
+        [HttpGet("{dssId:guid}/task/latest", Name = "api.dss.task.latest")]
+        // GET: api/1/task/5
+        public async Task<IActionResult> GetLatesTask(
+            [FromRoute] Guid dssId)
+        {
+            var userId = Guid.Parse(HttpContext.Items["userId"].ToString());
+            var response = await this.businessLogic.GetLatestTaskStatusByDssId(dssId, userId);
             if (!response.IsSuccessful)
                 return response.RequestResult;
 
