@@ -88,16 +88,18 @@ namespace H2020.IPMDecisions.UPR.BLL
                 }
 
                 await this.dataService.CompleteAsync();
-                foreach (var item in listOfNewFieldCropPestDss)
+                foreach (var newDss in listOfNewFieldCropPestDss)
                 {
-                    var fieldCropPestDssToReturn = this.mapper.Map<FieldCropPestDssDto>(item);
-                    if (item.CropPestDss.DssExecutionType.ToLower() == "onthefly")
+                    var fieldCropPestDssToReturn = this.mapper.Map<FieldCropPestDssDto>(newDss);
+                    if (newDss.CropPestDss.DssExecutionType.ToLower() == "onthefly")
                     {
-                        var jobId = this.queueJobs.AddDssOnTheFlyQueue(item.Id);
+                        var jobId = this.queueJobs.AddDssOnTheFlyQueue(newDss.Id);
                         fieldCropPestDssToReturn.DssTask.Id = jobId;
+                        newDss.LastJobId = jobId;
                     }
                     listToReturn.Add(fieldCropPestDssToReturn);
                 }
+                await this.dataService.CompleteAsync();
                 dataToReturn.Add("value", listToReturn);
 
                 return GenericResponseBuilder.Success<IDictionary<string, object>>(dataToReturn);
@@ -161,6 +163,9 @@ namespace H2020.IPMDecisions.UPR.BLL
                 {
                     var jobId = this.queueJobs.AddDssOnTheFlyQueue(newFieldCropPestDss.Id);
                     fieldCropPestDssToReturn.DssTask.Id = jobId;
+                    newFieldCropPestDss.LastJobId = jobId;
+                    await this.dataService.CompleteAsync();
+
                     return GenericResponseBuilder.Accepted<FieldCropPestDssDto>(fieldCropPestDssToReturn);
                 }
                 return GenericResponseBuilder.Success<FieldCropPestDssDto>(fieldCropPestDssToReturn);

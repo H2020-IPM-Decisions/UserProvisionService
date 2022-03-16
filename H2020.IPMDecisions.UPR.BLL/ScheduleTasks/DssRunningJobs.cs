@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
 using H2020.IPMDecisions.UPR.BLL.Helpers;
@@ -97,7 +98,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
 
                 foreach (var dss in listOfDss)
                 {
-                    BackgroundJob.Enqueue<DssRunningJobs>(
+                    dss.LastJobId = BackgroundJob.Enqueue<DssRunningJobs>(
                         job => job.QueueOnTheFlyDss(JobCancellationToken.Null, dss.Id));
 
                     // UnComment while debuggin 
@@ -105,7 +106,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                     // if (dssResult == null) continue;
                     // this.dataService.FieldCropPestDsses.AddDssResult(dss, dssResult);
                 }
-                // await this.dataService.CompleteAsync();
+                await this.dataService.CompleteAsync();
             }
         }
 
@@ -221,6 +222,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                         if (responseWeather.ResponseWeather.ToString().Contains("This is the first time this season that weather"))
                         {
                             var jobscheduleId = this.queueJobs.ScheduleDssOnTheFlyQueue(dss.Id, 121);
+                            dss.LastJobId = jobscheduleId;
                         }
                         var errorMessage = this.jsonStringLocalizer["dss_process.weather_data_error", responseWeather.ResponseWeather.ToString()].ToString();
                         CreateDssRunErrorResult(dssResult, errorMessage, DssOutputMessageTypeEnum.Error);
