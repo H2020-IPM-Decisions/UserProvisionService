@@ -5,7 +5,7 @@
 -- Dumped from database version 12.7
 -- Dumped by pg_dump version 12.7
 
--- Started on 2022-02-23 15:43:01 UTC
+-- Started on 2022-03-16 12:02:59 UTC
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -151,7 +151,7 @@ CREATE TABLE public."Field" (
     "Name" text NOT NULL,
     "FarmId" uuid NOT NULL,
     "SowingDate" timestamp without time zone,
-    "Location" public.geometry
+    "Location" public.geometry(Point)
 );
 
 
@@ -189,7 +189,8 @@ CREATE TABLE public."FieldCropPestDss" (
     "FieldCropPestId" uuid NOT NULL,
     "CropPestDssId" uuid NOT NULL,
     "DssParameters" jsonb,
-    "ObservationRequired" boolean DEFAULT false NOT NULL
+    "ObservationRequired" boolean DEFAULT false NOT NULL,
+    "LastJobId" text
 );
 
 
@@ -1209,7 +1210,7 @@ ALTER TABLE ONLY public."UserProfile"
     ADD CONSTRAINT "FK_User_UserAddress" FOREIGN KEY ("UserAddressId") REFERENCES public."UserAddress"("Id") ON DELETE CASCADE;
 
 
--- Completed on 2022-02-23 15:43:01 UTC
+-- Completed on 2022-03-16 12:03:00 UTC
 
 --
 -- PostgreSQL database dump complete
