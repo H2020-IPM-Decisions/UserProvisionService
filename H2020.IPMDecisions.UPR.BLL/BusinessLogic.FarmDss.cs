@@ -187,8 +187,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                     .Any(fcpd =>
                         fcpd.FieldCropPestId == fieldCropPestId
                         & fcpd.CropPestDss.DssId == dssId
-                        & fcpd.CropPestDss.DssModelId == dssModelId
-                        & fcpd.CropPestDss.DssModelVersion == dssModelVersion));
+                        & fcpd.CropPestDss.DssModelId == dssModelId));
         }
 
         private static FieldCropPest CheckIfFieldHasCropPestCombination(Field field, string cropEppoCode, string pestEppoCode)

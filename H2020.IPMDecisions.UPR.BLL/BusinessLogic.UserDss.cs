@@ -128,8 +128,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                 if (listOfDss != null && listOfDss.Count() != 0)
                 {
                     var dssOnListMatchDatabaseRecord = listOfDss
-                        .Where(d => d.Id == dss.DssId
-                            & d.Version == dss.DssVersion)
+                        .Where(d => d.Id == dss.DssId)
                         .FirstOrDefault();
 
                     if (dssOnListMatchDatabaseRecord == null)
@@ -142,7 +141,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                     {
                         var dssModelInformation = dssOnListMatchDatabaseRecord
                                                 .DssModelInformation
-                                                .Where(dm => dm.Id == dss.DssModelId && dm.Version == dss.DssModelVersion)
+                                                .Where(dm => dm.Id == dss.DssModelId)
                                                 .FirstOrDefault();
 
                         if (dssModelInformation == null)
