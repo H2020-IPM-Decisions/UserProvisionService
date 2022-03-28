@@ -108,8 +108,10 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
                     if (!response.IsSuccessStatusCode) return null;
 
                     var responseAsString = await response.Content.ReadAsStringAsync();
-                    dssInputSchema = JSchema.Parse(responseAsString);
-                    var dssInputSchemaCached = JSchema.Parse(responseAsString);
+                    JSchemaUrlResolver resolver = new JSchemaUrlResolver();
+                    dssInputSchema = JSchema.Parse(responseAsString, resolver);
+                    // Dss for caching as the previous one will have some properties removed.
+                    var dssInputSchemaCached = JSchema.Parse(responseAsString, resolver);
                     memoryCache.Set(cacheKey, dssInputSchemaCached, MemoryCacheHelper.CreateMemoryCacheEntryOptions(1));
                 }
                 return dssInputSchema;

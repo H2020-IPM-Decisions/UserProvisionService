@@ -23,6 +23,7 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
                 .ForMember(dest => dest.FarmId, opt => opt.MapFrom(src => src.FieldCropPest.FieldCrop.Field.FarmId))
                 .ForMember(dest => dest.FarmName, opt => opt.MapFrom(src => src.FieldCropPest.FieldCrop.Field.Farm.Name))
                 .ForMember(dest => dest.FieldId, opt => opt.MapFrom(src => src.FieldCropPest.FieldCrop.Field.Id))
+                .ForPath(dest => dest.DssTaskStatusDto.Id, opt => opt.MapFrom(src => src.LastJobId))
                 .ForMember(dest => dest.IsValid,
                     opt => opt.MapFrom(src => src.FieldDssResults.OrderByDescending(r => r.CreationDate).FirstOrDefault().IsValid))
                 .ForMember(dest => dest.CreationDate,
@@ -35,7 +36,8 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
                     opt => opt.MapFrom(src => src.FieldDssResults.OrderByDescending(r => r.CreationDate).FirstOrDefault().ResultMessageType))
                 .ForMember(dest => dest.ResultMessage,
                     opt => opt.MapFrom(src => src.FieldDssResults.OrderByDescending(r => r.CreationDate).FirstOrDefault().ResultMessage))
-                .AfterMap((src, dest) =>                {
+                .AfterMap((src, dest) =>
+                {
                     if (src.CropPestDss.DssExecutionType.ToLower() == "link") dest.IsValid = true;
                 });
 
@@ -74,6 +76,7 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
 
             // Models to Dtos
             CreateMap<DssResultDatabaseView, FieldDssResultDto>()
+                .ForPath(dest => dest.DssTaskStatusDto.Id, opt => opt.MapFrom(src => src.LastJobId))
                 .AfterMap((src, dest) =>
                 {
                     if (src.DssExecutionType.ToLower() == "link") dest.IsValid = true;

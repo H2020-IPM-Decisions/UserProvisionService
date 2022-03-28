@@ -6,6 +6,7 @@ using H2020.IPMDecisions.UPR.BLL.Helpers;
 using H2020.IPMDecisions.UPR.Core.Dtos;
 using H2020.IPMDecisions.UPR.Core.Entities;
 using H2020.IPMDecisions.UPR.Core.Models;
+using Hangfire;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -52,6 +53,8 @@ namespace H2020.IPMDecisions.UPR.BLL
                 if (dss.CropPestDss.DssExecutionType.ToLower() == "onthefly")
                 {
                     var jobId = this.queueJobs.AddDssOnTheFlyQueue(id);
+                    dss.LastJobId = jobId;
+                    await this.dataService.CompleteAsync();
                 }
                 return GenericResponseBuilder.Success();
             }
@@ -118,13 +121,14 @@ namespace H2020.IPMDecisions.UPR.BLL
         {
             var listOfDss = await this.internalCommunicationProvider.GetAllListOfDssFromDssMicroservice();
             var eppoCodesData = await this.dataService.EppoCodes.GetEppoCodesAsync();
+            var monitoringApi = JobStorage.Current.GetMonitoringApi();
+
             foreach (var dss in dssResultsToReturn)
             {
                 if (listOfDss != null && listOfDss.Count() != 0)
                 {
                     var dssOnListMatchDatabaseRecord = listOfDss
-                        .Where(d => d.Id == dss.DssId
-                            & d.Version == dss.DssVersion)
+                        .Where(d => d.Id == dss.DssId)
                         .FirstOrDefault();
 
                     if (dssOnListMatchDatabaseRecord == null)
@@ -137,7 +141,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                     {
                         var dssModelInformation = dssOnListMatchDatabaseRecord
                                                 .DssModelInformation
-                                                .Where(dm => dm.Id == dss.DssModelId && dm.Version == dss.DssModelVersion)
+                                                .Where(dm => dm.Id == dss.DssModelId)
                                                 .FirstOrDefault();
 
                         if (dssModelInformation == null)
@@ -160,6 +164,13 @@ namespace H2020.IPMDecisions.UPR.BLL
                 var eppoCodeLanguages = EppoCodesHelper.GetCropPestEppoCodesNames(eppoCodesData, dss.CropEppoCode, dss.PestEppoCode);
                 dss.CropLanguages = eppoCodeLanguages.CropLanguages;
                 dss.PestLanguages = eppoCodeLanguages.PestLanguages;
+
+                if (string.IsNullOrEmpty(dss.DssTaskStatusDto.Id)) continue;
+                var jobDetail = monitoringApi.JobDetails(dss.DssTaskStatusDto.Id);
+                if (jobDetail != null)
+                {
+                    dss.DssTaskStatusDto = CreateDssStatusFromJobDetail(dss.Id, dss.DssTaskStatusDto.Id, jobDetail);
+                }
             }
         }
 

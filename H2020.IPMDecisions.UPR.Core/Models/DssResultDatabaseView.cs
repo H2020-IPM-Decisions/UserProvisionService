@@ -25,5 +25,6 @@ namespace H2020.IPMDecisions.UPR.Core.Models
         public bool? IsValid { get; set; }
         public int? ResultMessageType { get; set; }
         public string ResultMessage { get; set; }
+        public string LastJobId { get; set; }
     }
 }

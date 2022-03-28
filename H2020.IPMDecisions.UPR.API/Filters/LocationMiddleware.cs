@@ -15,6 +15,7 @@ namespace H2020.IPMDecisions.UPR.API.Filters
             {
                 var language = context.Request.Headers["Accept-Language"].FirstOrDefault();
                 if (string.IsNullOrEmpty(language)) language = "en";
+                if (language.Split(";").Count() > 1) language = "en";
 
                 context.Items.Add("language", language);
                 var culture = new CultureInfo(language);
