@@ -153,7 +153,8 @@ namespace H2020.IPMDecisions.UPR.BLL
                                 dss.DssModelVersion].ToString();
                             continue;
                         }
-                        dss.DssDescription = CreateDssDescription(dssModelInformation.Description);
+                        dss.DssDescription = CreateDssDescription(dssModelInformation.Description);//
+                        dss.ValidatedSpatialCountries = dssModelInformation.ValidSpatial.Countries;
                         if (dssModelInformation.Output != null)
                         {
                             AddWarningMessages(dss, dssModelInformation);
@@ -326,12 +327,14 @@ namespace H2020.IPMDecisions.UPR.BLL
             return dssFullOutputAsObject;
         }
 
+        // This can be implemented by AutoMapper
         private static void AddDssBasicData(FieldDssResultDetailedDto dataToReturn, DssModelInformation dssInformation)
         {
             dataToReturn.DssTypeOfDecision = dssInformation.TypeOfDecision;
             dataToReturn.DssTypeOfOutput = dssInformation.TypeOfOutput;
             dataToReturn.DssDescription = CreateDssDescription(dssInformation.Description);
             dataToReturn.DssEndPoint = dssInformation.DescriptionUrl;
+            dataToReturn.ValidatedSpatialCountries = dssInformation.ValidSpatial.Countries;
 
             // DSS type link do not have this section
             if (dssInformation.Output != null)
