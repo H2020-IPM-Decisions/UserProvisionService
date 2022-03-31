@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using H2020.IPMDecisions.UPR.BLL.Helpers;
 using H2020.IPMDecisions.UPR.Core.Dtos;
 using H2020.IPMDecisions.UPR.Core.Entities;
@@ -27,7 +28,7 @@ namespace H2020.IPMDecisions.UPR.BLL
 
                 fieldCropToReturn.CropLanguages = EppoCodesHelper.GetNameFromEppoCodeData(eppoCodes, "crop", fieldCropToReturn.CropEppoCode);
                 var fieldCropPestResourceParameter = this.mapper.Map<FieldCropPestResourceParameter>(resourceParameter);
-                fieldCropToReturn.FieldCropPestDto = ShapeFieldCropPestAsChildren(field.FieldCrop, fieldCropPestResourceParameter, includeLinks, eppoCodes, fieldCropToReturn.CropLanguages);
+                fieldCropToReturn.FieldCropPestDto = ShapeFieldCropPestAsChildren(field.FieldCrop, fieldCropPestResourceParameter, includeLinks, eppoCodes, fieldCropToReturn.CropLanguages).Result;
 
                 return fieldCropToReturn;
             }
@@ -38,7 +39,7 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
         }
 
-        private ShapedDataWithLinks ShapeFieldCropPestAsChildren(
+        private async Task<ShapedDataWithLinks> ShapeFieldCropPestAsChildren(
             FieldCrop fieldCrop,
             FieldCropPestResourceParameter resourceParameter,
             bool includeLinks,
@@ -72,6 +73,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                 var shapedChildrenToReturn = shapedChildrenAsDto
                     .ShapeData(resourceParameter.Fields) as IEnumerable<IDictionary<string, object>>;
 
+                var listOfDssWithInformation = await this.internalCommunicationProvider.GetAllListOfDssFromDssMicroservice();
                 foreach (var shapedChildren in shapedChildrenToReturn)
                 {
                     var fieldCropPestId = Guid.Parse(shapedChildren["Id"].ToString());
@@ -86,7 +88,7 @@ namespace H2020.IPMDecisions.UPR.BLL
 
                     var fieldCropPestDssResourceParameter = this.mapper.Map<FieldCropPestDssResourceParameter>(resourceParameter);
                     shapedChildren.Add("FieldCropPestDssDto", ShapeFieldCropPestDssAsChildren(
-                                                    fieldCrop, fieldCropPestId, fieldCropPestDssResourceParameter, includeLinks));
+                                                    fieldCrop, fieldCropPestId, fieldCropPestDssResourceParameter, includeLinks, listOfDssWithInformation));
                 }
 
                 return new ShapedDataWithLinks()

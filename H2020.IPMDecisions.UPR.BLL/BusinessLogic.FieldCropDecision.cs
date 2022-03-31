@@ -264,7 +264,11 @@ namespace H2020.IPMDecisions.UPR.BLL
             return dssParameters;
         }
 
-        private ShapedDataWithLinks ShapeFieldCropPestDssAsChildren(FieldCrop fieldCrop, Guid fieldCropPestId, FieldCropPestDssResourceParameter resourceParameter, bool includeLinks)
+        private ShapedDataWithLinks ShapeFieldCropPestDssAsChildren(FieldCrop fieldCrop,
+        Guid fieldCropPestId,
+        FieldCropPestDssResourceParameter resourceParameter,
+        bool includeLinks,
+        IEnumerable<DssInformation> listOfDssWithInformation)
         {
             try
             {
@@ -285,8 +289,20 @@ namespace H2020.IPMDecisions.UPR.BLL
 
                 var dataAsDto = this.mapper
                     .Map<IEnumerable<FieldCropPestDssDto>>(childrenAsPaged);
-                var shapedChildrenToReturn = dataAsDto.ShapeData(resourceParameter.Fields);
 
+                foreach (var fieldCropPestDto in dataAsDto)
+                {
+                    var dssOnListMatchDatabaseRecord = listOfDssWithInformation
+                        .Where(d => d.Id == fieldCropPestDto.CropPestDssDto.DssId)
+                        .FirstOrDefault()
+                        .DssModelInformation
+                        .Where(dm => dm.Id == fieldCropPestDto.CropPestDssDto.DssModelId)
+                        .FirstOrDefault();
+                    if (dssOnListMatchDatabaseRecord != null)
+                        fieldCropPestDto.CropPestDssDto.ValidatedSpatialCountries = dssOnListMatchDatabaseRecord.ValidSpatial.Countries;
+                }
+
+                var shapedChildrenToReturn = dataAsDto.ShapeData(resourceParameter.Fields);
                 var shapedChildrenToReturnWithLinks = shapedChildrenToReturn.Select(fieldCropPestDss =>
                 {
                     var fieldcropPestDssAsDictionary = fieldCropPestDss as IDictionary<string, object>;

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace H2020.IPMDecisions.UPR.Core.Dtos
 {
@@ -13,5 +14,6 @@ namespace H2020.IPMDecisions.UPR.Core.Dtos
         public string DssModelVersion { get; set; }
         public string DssExecutionType { get; set; }
         public string DssEndPoint { get; set; }
+        public IEnumerable<string> ValidatedSpatialCountries { get; set; }
     }
 }
