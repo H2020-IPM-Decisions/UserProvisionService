@@ -64,11 +64,11 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         [Produces(MediaTypeNames.Application.Json)]
         [HttpGet("{id:guid}", Name = "api.dss.get.byid")]
         // GET: api/dss/1
-        public async Task<IActionResult> GetById([FromRoute] Guid id)
+        public async Task<IActionResult> GetById([FromRoute] Guid id, [FromQuery] int days = 7)
         {
             var userId = Guid.Parse(HttpContext.Items["userId"].ToString());
 
-            var response = await businessLogic.GetFieldCropPestDssById(id, userId);
+            var response = await businessLogic.GetFieldCropPestDssById(id, userId, days);
             if (!response.IsSuccessful)
                 return response.RequestResult;
 

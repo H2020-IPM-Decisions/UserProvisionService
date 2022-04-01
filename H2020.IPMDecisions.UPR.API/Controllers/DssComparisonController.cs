@@ -44,11 +44,11 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         [HttpGet(Name = "api.dsscomparison.get.ids")]
         [HttpHead]
         // GET: api/dsscomparison?dssids=id1&dssids=id2
-        public async Task<IActionResult> Get([FromQuery] List<Guid> dssIds)
+        public async Task<IActionResult> Get([FromQuery] List<Guid> dssIds, int days = 7)
         {
             var userId = Guid.Parse(HttpContext.Items["userId"].ToString());
 
-            var response = await businessLogic.CompareDssByIds(dssIds, userId);
+            var response = await businessLogic.CompareDssByIds(dssIds, userId, days);
             if (!response.IsSuccessful)
                 return response.RequestResult;
 

@@ -101,7 +101,7 @@ namespace H2020.IPMDecisions.UPR.BLL
         #endregion
 
         #region User DSS
-        Task<GenericResponse<FieldDssResultDetailedDto>> GetFieldCropPestDssById(Guid id, Guid userId);
+        Task<GenericResponse<FieldDssResultDetailedDto>> GetFieldCropPestDssById(Guid id, Guid userId, int daysDataToReturn = 7);
         Task<GenericResponse<string>> GetFieldCropPestDssParametersById(Guid id, Guid userId);
         Task<GenericResponse> UpdateFieldCropPestDssById(Guid id, Guid userId, FieldCropPestDssForUpdateDto fieldCropPestDssForUpdateDto);
         Task<GenericResponse> DeleteDss(Guid id, Guid userId);
@@ -127,7 +127,7 @@ namespace H2020.IPMDecisions.UPR.BLL
         #endregion
 
         #region Comparision DSS
-        Task<GenericResponse<IEnumerable<FieldDssResultDetailedDto>>> CompareDssByIds(List<Guid> ids, Guid userId);
+        Task<GenericResponse<IEnumerable<FieldDssResultDetailedDto>>> CompareDssByIds(List<Guid> ids, Guid userId, int daysDataToReturn = 7);
         #endregion
 
         #region DSS Result Task

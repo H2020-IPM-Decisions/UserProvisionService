@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using H2020.IPMDecisions.UPR.BLL.Helpers;
@@ -15,7 +16,7 @@ namespace H2020.IPMDecisions.UPR.BLL
 {
     public partial class BusinessLogic : IBusinessLogic
     {
-        public async Task<GenericResponse<FieldDssResultDetailedDto>> GetFieldCropPestDssById(Guid id, Guid userId)
+        public async Task<GenericResponse<FieldDssResultDetailedDto>> GetFieldCropPestDssById(Guid id, Guid userId, int daysDataToReturn = 7)
         {
             try
             {
@@ -25,7 +26,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                 var dssUserId = dss.FieldCropPest.FieldCrop.Field.Farm.UserFarms.FirstOrDefault().UserId;
                 if (userId != dssUserId) return GenericResponseBuilder.NotFound<FieldDssResultDetailedDto>();
 
-                FieldDssResultDetailedDto dataToReturn = await CreateDetailedResultToReturn(dss);
+                FieldDssResultDetailedDto dataToReturn = await CreateDetailedResultToReturn(dss, daysDataToReturn);
                 return GenericResponseBuilder.Success<FieldDssResultDetailedDto>(dataToReturn);
             }
             catch (Exception ex)
@@ -129,35 +130,26 @@ namespace H2020.IPMDecisions.UPR.BLL
                 {
                     var dssOnListMatchDatabaseRecord = listOfDss
                         .Where(d => d.Id == dss.DssId)
-                        .FirstOrDefault();
+                        .FirstOrDefault()
+                        .DssModelInformation
+                        .Where(dm => dm.Id == dss.DssModelId)
+                         .FirstOrDefault();
 
                     if (dssOnListMatchDatabaseRecord == null)
                     {
-                        dss.DssDescription = this.jsonStringLocalizer["dss.dss_missing_metadata",
-                        dss.DssId,
-                        dss.DssVersion].ToString();
+                        dss.DssDescription = this.jsonStringLocalizer["dss.model_missing_metadata",
+                            dss.DssId,
+                            dss.DssVersion,
+                            dss.DssModelId,
+                            dss.DssModelVersion].ToString();
                     }
                     else
                     {
-                        var dssModelInformation = dssOnListMatchDatabaseRecord
-                                                .DssModelInformation
-                                                .Where(dm => dm.Id == dss.DssModelId)
-                                                .FirstOrDefault();
-
-                        if (dssModelInformation == null)
+                        dss.DssDescription = CreateDssDescription(dssOnListMatchDatabaseRecord.Description);
+                        dss.ValidatedSpatialCountries = dssOnListMatchDatabaseRecord.ValidSpatial.Countries;
+                        if (dssOnListMatchDatabaseRecord.Output != null)
                         {
-                            dss.DssDescription = this.jsonStringLocalizer["dss.model_missing_metadata",
-                                dss.DssId,
-                                dss.DssVersion,
-                                dss.DssModelId,
-                                dss.DssModelVersion].ToString();
-                            continue;
-                        }
-                        dss.DssDescription = CreateDssDescription(dssModelInformation.Description);//
-                        dss.ValidatedSpatialCountries = dssModelInformation.ValidSpatial.Countries;
-                        if (dssModelInformation.Output != null)
-                        {
-                            AddWarningMessages(dss, dssModelInformation);
+                            AddWarningMessages(dss, dssOnListMatchDatabaseRecord);
                         }
                     }
                 }
@@ -224,7 +216,7 @@ namespace H2020.IPMDecisions.UPR.BLL
         }
 
         // ToDo Ask for DSS languages
-        private async Task<FieldDssResultDetailedDto> CreateDetailedResultToReturn(FieldCropPestDss dss)
+        private async Task<FieldDssResultDetailedDto> CreateDetailedResultToReturn(FieldCropPestDss dss, int daysDataToReturn = 7)
         {
             var dataToReturn = this.mapper.Map<FieldDssResultDetailedDto>(dss);
             var dssInformation = await internalCommunicationProvider
@@ -238,7 +230,8 @@ namespace H2020.IPMDecisions.UPR.BLL
             DssModelOutputInformation dssFullOutputAsObject = AddDssFullResultData(dataToReturn);
 
             var locationResultData = dssFullOutputAsObject.LocationResult.FirstOrDefault();
-            IEnumerable<List<double?>> dataLastDays = SelectDssLastResultsData(dataToReturn, locationResultData);
+            int maxDaysOutput = int.Parse(this.config["AppConfiguration:MaxDaysAllowedForDssOutputData"]);
+            IEnumerable<List<double?>> dataLastDays = SelectDssLastResultsData(dataToReturn, locationResultData, daysDataToReturn, maxDaysOutput);
             List<string> labels = CreateResultParametersLabels(dataToReturn.OutputTimeEnd, dataLastDays.Count());
             dataToReturn.WarningStatusLabels = labels;
 
@@ -304,15 +297,17 @@ namespace H2020.IPMDecisions.UPR.BLL
         private static IEnumerable<List<double?>> SelectDssLastResultsData(
             FieldDssResultDetailedDto dataToReturn,
             LocationResultDssOutput locationResultData,
-            int maxDaysOutput = 7)
+            int daysOutput,
+            int maxDaysOutput = 30)
         {
             IEnumerable<List<double?>> dataLastSevenDays = new List<List<double?>>();
+            if (daysOutput > maxDaysOutput) daysOutput = maxDaysOutput;
 
             if (locationResultData != null)
             {
-                dataLastSevenDays = locationResultData.Data.TakeLast(maxDaysOutput);
+                dataLastSevenDays = locationResultData.Data.TakeLast(daysOutput);
                 dataToReturn.ResultParametersLength = dataLastSevenDays.Count();
-                dataToReturn.WarningStatusPerDay = locationResultData.WarningStatus.TakeLast(maxDaysOutput).ToList();
+                dataToReturn.WarningStatusPerDay = locationResultData.WarningStatus.TakeLast(daysOutput).ToList();
             };
             return dataLastSevenDays;
         }
@@ -347,13 +342,13 @@ namespace H2020.IPMDecisions.UPR.BLL
         {
             if (outputTimeEnd is null) return null;
 
-            var isADate = DateTime.TryParse(outputTimeEnd, out DateTime dateTime);
+            var isADate = DateTime.TryParse(outputTimeEnd, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime dateTime);
             if (!isADate) return null;
 
             var labelsList = new List<string>();
             for (int i = days - 1; i >= 0; i--)
             {
-                labelsList.Add(dateTime.AddDays(-i).ToShortDateString());
+                labelsList.Add(dateTime.AddDays(-i).ToString("dd/MM/yyyy"));
             }
             return labelsList;
         }
