@@ -244,7 +244,6 @@ namespace H2020.IPMDecisions.UPR.BLL
             return newFieldCropPestDss;
         }
 
-        // ToDo Ask for languages
         private async Task<string> AddDefaultDssParameters(CropPestDss cropPestDss, string dssParameters)
         {
             var dssInputUISchema = await internalCommunicationProvider

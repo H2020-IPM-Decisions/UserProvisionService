@@ -78,6 +78,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                 {
                     await AddExtraInformationToDss(dssResultsToReturn);
                 }
+                // ToDo
                 // Get now all the DSS link related to the farms
                 // Get farm Ids from dssResults
                 // get coordinates from Farms
@@ -128,7 +129,6 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
         }
 
-        // ToDo Ask for DSS languages
         private async Task AddExtraInformationToDss(IEnumerable<FieldDssResultDto> dssResultsToReturn)
         {
             var listOfDss = await this.internalCommunicationProvider.GetAllListOfDssFromDssMicroservice();
@@ -226,7 +226,6 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
         }
 
-        // ToDo Ask for DSS languages
         private async Task<FieldDssResultDetailedDto> CreateDetailedResultToReturn(FieldCropPestDss dss, int daysDataToReturn = 7)
         {
             var dataToReturn = this.mapper.Map<FieldDssResultDetailedDto>(dss);

@@ -43,7 +43,6 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
         }
 
         #region DSS Microservice calls
-        // ToDo Ask for DSS languages
         public async Task<DssModelInformation> GetDssModelInformationFromDssMicroservice(string dssId, string modelId)
         {
             try
