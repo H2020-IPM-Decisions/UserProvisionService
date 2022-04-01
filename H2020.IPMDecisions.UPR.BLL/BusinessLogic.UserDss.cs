@@ -300,16 +300,16 @@ namespace H2020.IPMDecisions.UPR.BLL
             int daysOutput,
             int maxDaysOutput = 30)
         {
-            IEnumerable<List<double?>> dataLastSevenDays = new List<List<double?>>();
+            IEnumerable<List<double?>> dataLastDays = new List<List<double?>>();
             if (daysOutput > maxDaysOutput) daysOutput = maxDaysOutput;
 
             if (locationResultData != null)
             {
-                dataLastSevenDays = locationResultData.Data.TakeLast(daysOutput);
-                dataToReturn.ResultParametersLength = dataLastSevenDays.Count();
+                dataLastDays = locationResultData.Data.TakeLast(daysOutput);
+                dataToReturn.ResultParametersLength = dataLastDays.Count();
                 dataToReturn.WarningStatusPerDay = locationResultData.WarningStatus.TakeLast(daysOutput).ToList();
             };
-            return dataLastSevenDays;
+            return dataLastDays;
         }
 
         private static DssModelOutputInformation AddDssFullResultData(FieldDssResultDetailedDto dataToReturn)
@@ -348,7 +348,7 @@ namespace H2020.IPMDecisions.UPR.BLL
             var labelsList = new List<string>();
             for (int i = days - 1; i >= 0; i--)
             {
-                labelsList.Add(dateTime.AddDays(-i).ToString("dd/MM/yyyy"));
+                labelsList.Add(dateTime.AddDays(-i).ToString("dd/MM/yyyy", DateTimeFormatInfo.InvariantInfo));
             }
             return labelsList;
         }
