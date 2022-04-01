@@ -34,7 +34,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         /// </summary>
         /// <remarks>The user will be identified using the UserId on the authentification JWT.
         /// </remarks>
-        [ProducesResponseType(typeof(IEnumerable<FieldDssResultDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(UserDssResultsDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [Produces(MediaTypeNames.Application.Json)]
