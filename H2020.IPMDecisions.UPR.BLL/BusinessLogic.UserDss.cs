@@ -11,6 +11,7 @@ using Hangfire;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using static H2020.IPMDecisions.UPR.Core.Models.GeoJson;
 
 namespace H2020.IPMDecisions.UPR.BLL
 {
@@ -88,21 +89,30 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
         }
 
-        public Task<GenericResponse<IEnumerable<LinkDssDto>>> GetAllLinkDss(Guid userId)
+        public async Task<GenericResponse<IEnumerable<LinkDssDto>>> GetAllLinkDss(Guid userId)
         {
-            // var dataToReturn = new UserDssResultsDto()
-            // {
-            //     UserFieldDssResultDto = dssResultsToReturn
-            // };
-            // // ToDo - Get now all the DSS link related to the farms
-            // // Get farm Ids from dssResults
-            // var farmIds = dssResults.Select(f => f.FarmId).Distinct().ToList();
-            // // get coordinates from Farms
-            // var coordinates = await this.dataService.Farms.GetLocationsByIdsAsync(farmIds);
-            // // call DSS location endpoint
-            // // create list of link DSS
-            // // filter and remove duplicates
-            throw new NotImplementedException();
+            try
+            {
+                var farmsFromUser = await this.dataService.Farms.FindAllByConditionAsync(f => f.UserFarms.Any(uf => uf.UserId == userId & (uf.Authorised)));
+                if (farmsFromUser.Count() == 0) return GenericResponseBuilder.Success<IEnumerable<LinkDssDto>>(null);
+                // // get coordinates from Farms
+
+                var farmGeoJson = CreateFarmLocationGeoJson(farmsFromUser);
+                // // call DSS location endpoint
+
+                // // create list of link DSS
+
+                // // filter and remove duplicates
+
+                return GenericResponseBuilder.Success<IEnumerable<LinkDssDto>>(null);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(string.Format("Error in BLL - GetAllLinkDss. {0}", ex.Message), ex);
+                String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
+                return GenericResponseBuilder.NoSuccess<IEnumerable<LinkDssDto>>(null, $"{ex.Message} InnerException: {innerMessage}");
+            }
+
         }
 
         public async Task<GenericResponse<string>> GetFieldCropPestDssParametersById(Guid id, Guid userId)
@@ -393,6 +403,28 @@ namespace H2020.IPMDecisions.UPR.BLL
         {
             dss.WarningStatusRepresentation = dssModelInformation.Output.ListWarningStatusInterpretation[dss.WarningStatus].Explanation;
             dss.WarningMessage = dssModelInformation.Output.ListWarningStatusInterpretation[dss.WarningStatus].RecommendedAction;
+        }
+
+        private static GeoJsonFeatureCollection CreateFarmLocationGeoJson(IEnumerable<Farm> farmsFromUser)
+        {
+            var geoJson = new GeoJsonFeatureCollection();
+            foreach (var farm in farmsFromUser)
+            {
+                var coordinates = new List<double>(){
+                    farm.Location.Coordinate.X,
+                    farm.Location.Coordinate.Y
+                };
+                var geometry = new GeoJsonGeometry()
+                {
+                    Coordinates = coordinates
+                };
+                var feature = new GeoJsonFeature()
+                {
+                    Geometry = geometry
+                };
+                geoJson.Features.Add(feature);
+            }
+            return geoJson;
         }
     }
 }
