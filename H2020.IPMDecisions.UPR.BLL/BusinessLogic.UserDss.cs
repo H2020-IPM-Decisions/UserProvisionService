@@ -11,7 +11,6 @@ using Hangfire;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using static H2020.IPMDecisions.UPR.Core.Models.GeoJson;
 
 namespace H2020.IPMDecisions.UPR.BLL
 {
@@ -95,15 +94,11 @@ namespace H2020.IPMDecisions.UPR.BLL
             {
                 var farmsFromUser = await this.dataService.Farms.FindAllByConditionAsync(f => f.UserFarms.Any(uf => uf.UserId == userId & (uf.Authorised)));
                 if (farmsFromUser.Count() == 0) return GenericResponseBuilder.Success<IEnumerable<LinkDssDto>>(null);
-                // // get coordinates from Farms
 
                 var farmGeoJson = CreateFarmLocationGeoJson(farmsFromUser);
-                // // call DSS location endpoint
+                var listDssOnLocation = await this.internalCommunicationProvider.GetListOfDssByLocationFromDssMicroservice(farmGeoJson);
 
                 // // create list of link DSS
-
-                // // filter and remove duplicates
-
                 return GenericResponseBuilder.Success<IEnumerable<LinkDssDto>>(null);
             }
             catch (Exception ex)
@@ -112,7 +107,6 @@ namespace H2020.IPMDecisions.UPR.BLL
                 String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
                 return GenericResponseBuilder.NoSuccess<IEnumerable<LinkDssDto>>(null, $"{ex.Message} InnerException: {innerMessage}");
             }
-
         }
 
         public async Task<GenericResponse<string>> GetFieldCropPestDssParametersById(Guid id, Guid userId)

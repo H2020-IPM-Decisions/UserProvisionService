@@ -153,6 +153,33 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
                 return null;
             }
         }
+
+        public async Task<IEnumerable<DssInformation>> GetListOfDssByLocationFromDssMicroservice(GeoJsonFeatureCollection geoJson)
+        {
+            try
+            {
+                var language = Thread.CurrentThread.CurrentCulture.Name;
+                var content = new StringContent(
+                    System.Text.Json.JsonSerializer.Serialize(geoJson),
+                    Encoding.UTF8,
+                    MediaTypeNames.Application.Json);
+                var dssEndPoint = config["MicroserviceInternalCommunication:DssMicroservice"];
+                var response = await httpClient.PostAsync(
+                    string.Format("{0}rest/dss/location?language={1}", dssEndPoint, language),
+                    content);
+
+                if (!response.IsSuccessStatusCode)
+                    return null;
+
+                var responseAsText = await response.Content.ReadAsStringAsync();
+                return JsonConvert.DeserializeObject<IEnumerable<DssInformation>>(responseAsText);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(string.Format("Error in Internal Communication - GetListOfDssByLocationFromDssMicroservice. {0}", ex.Message));
+                return null;
+            }
+        }
         #endregion
 
         #region Weather Microservice calls
