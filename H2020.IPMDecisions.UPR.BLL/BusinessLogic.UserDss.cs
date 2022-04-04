@@ -88,6 +88,23 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
         }
 
+        public Task<GenericResponse<IEnumerable<LinkDssDto>>> GetAllLinkDss(Guid userId)
+        {
+            // var dataToReturn = new UserDssResultsDto()
+            // {
+            //     UserFieldDssResultDto = dssResultsToReturn
+            // };
+            // // ToDo - Get now all the DSS link related to the farms
+            // // Get farm Ids from dssResults
+            // var farmIds = dssResults.Select(f => f.FarmId).Distinct().ToList();
+            // // get coordinates from Farms
+            // var coordinates = await this.dataService.Farms.GetLocationsByIdsAsync(farmIds);
+            // // call DSS location endpoint
+            // // create list of link DSS
+            // // filter and remove duplicates
+            throw new NotImplementedException();
+        }
+
         public async Task<GenericResponse<string>> GetFieldCropPestDssParametersById(Guid id, Guid userId)
         {
             try

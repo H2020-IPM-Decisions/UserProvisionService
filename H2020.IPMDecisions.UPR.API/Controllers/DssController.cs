@@ -182,6 +182,29 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
             return Ok(response.Result);
         }
 
+        /// <summary>
+        /// Use this request to get all the external DSS (link type) related to a user
+        /// </summary>
+        /// <remarks>The user will be identified using the UserId on the authentification JWT.
+        /// </remarks>
+        [ProducesResponseType(typeof(IEnumerable<LinkDssDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [Produces(MediaTypeNames.Application.Json)]
+        [HttpGet("links", Name = "api.dsslink.get.all")]
+        [HttpHead]
+        // GET: api/dss/links
+        public async Task<IActionResult> GetLink()
+        {
+            var userId = Guid.Parse(HttpContext.Items["userId"].ToString());
+
+            var response = await businessLogic.GetAllLinkDss(userId);
+            if (!response.IsSuccessful)
+                return BadRequest(new { message = response.ErrorMessage });
+
+            return Ok(response.Result);
+        }
+
         // <summary>Requests permitted on this URL</summary>
         [ProducesResponseType(StatusCodes.Status200OK)]
         [HttpOptions]
