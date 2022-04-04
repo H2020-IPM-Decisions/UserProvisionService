@@ -105,7 +105,7 @@ namespace H2020.IPMDecisions.UPR.BLL
         Task<GenericResponse<string>> GetFieldCropPestDssParametersById(Guid id, Guid userId);
         Task<GenericResponse> UpdateFieldCropPestDssById(Guid id, Guid userId, FieldCropPestDssForUpdateDto fieldCropPestDssForUpdateDto);
         Task<GenericResponse> DeleteDss(Guid id, Guid userId);
-        Task<GenericResponse<UserDssResultsDto>> GetAllDssResults(Guid userId);
+        Task<GenericResponse<IEnumerable<FieldDssResultDto>>> GetAllDssResults(Guid userId);
         #endregion
 
         #region DssResults

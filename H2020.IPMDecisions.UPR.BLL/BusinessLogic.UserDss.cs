@@ -67,7 +67,7 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
         }
 
-        public async Task<GenericResponse<UserDssResultsDto>> GetAllDssResults(Guid userId)
+        public async Task<GenericResponse<IEnumerable<FieldDssResultDto>>> GetAllDssResults(Guid userId)
         {
             try
             {
@@ -78,25 +78,13 @@ namespace H2020.IPMDecisions.UPR.BLL
                 {
                     await AddExtraInformationToDss(dssResultsToReturn);
                 }
-                // ToDo
-                // Get now all the DSS link related to the farms
-                // Get farm Ids from dssResults
-                // get coordinates from Farms
-                // call DSS location endpoint
-                // create list of link DSS
-                // filter and remove duplicates
-
-                var dataToReturn = new UserDssResultsDto()
-                {
-                    UserFieldDssResultDto = dssResultsToReturn
-                };
-                return GenericResponseBuilder.Success<UserDssResultsDto>(dataToReturn);
+                return GenericResponseBuilder.Success<IEnumerable<FieldDssResultDto>>(dssResultsToReturn);
             }
             catch (Exception ex)
             {
                 logger.LogError(string.Format("Error in BLL - GetAllUserFieldCropPestDss. {0}", ex.Message), ex);
                 String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
-                return GenericResponseBuilder.NoSuccess<UserDssResultsDto>(null, $"{ex.Message} InnerException: {innerMessage}");
+                return GenericResponseBuilder.NoSuccess<IEnumerable<FieldDssResultDto>>(null, $"{ex.Message} InnerException: {innerMessage}");
             }
         }
 
