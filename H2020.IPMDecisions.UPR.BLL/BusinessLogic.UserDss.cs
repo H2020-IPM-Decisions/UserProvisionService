@@ -92,14 +92,35 @@ namespace H2020.IPMDecisions.UPR.BLL
         {
             try
             {
+                IEnumerable<LinkDssDto> dataToRetun = new List<LinkDssDto>();
                 var farmsFromUser = await this.dataService.Farms.FindAllByConditionAsync(f => f.UserFarms.Any(uf => uf.UserId == userId & (uf.Authorised)));
-                if (farmsFromUser.Count() == 0) return GenericResponseBuilder.Success<IEnumerable<LinkDssDto>>(null);
+                if (farmsFromUser.Count() == 0) return GenericResponseBuilder.Success<IEnumerable<LinkDssDto>>(dataToRetun);
 
                 var farmGeoJson = CreateFarmLocationGeoJson(farmsFromUser);
                 var listDssOnLocation = await this.internalCommunicationProvider.GetListOfDssByLocationFromDssMicroservice(farmGeoJson);
 
-                // // create list of link DSS
-                return GenericResponseBuilder.Success<IEnumerable<LinkDssDto>>(null);
+                // Only DSS that have models with links and crops from farms
+                var farmCrops = farmsFromUser
+                    .SelectMany(f => f.Fields.Select(fi => fi.FieldCrop.CropEppoCode))
+                    .Distinct()
+                    .ToList();
+
+                var linkDssOnLocation = listDssOnLocation
+                    .SelectMany(d => d.DssModelInformation, (dss, model) => new DssInformationJoined { DssInformation = dss, DssModelInformation = model })
+                    .Where(linkDssFiltered => linkDssFiltered.DssModelInformation.Execution.Type.ToLower() == "link"
+                        & linkDssFiltered.DssModelInformation.Crops.Any(c => farmCrops.Contains(c)))
+                    .ToList();
+                if (linkDssOnLocation.Count() == 0) return GenericResponseBuilder.Success<IEnumerable<LinkDssDto>>(dataToRetun);
+
+                dataToRetun = this.mapper.Map<IEnumerable<LinkDssDto>>(linkDssOnLocation);
+                var eppoCodesData = await this.dataService.EppoCodes.GetEppoCodesAsync();
+                foreach (var dss in dataToRetun)
+                {
+                    var eppoCodeLanguages = EppoCodesHelper.GetCropPestEppoCodesNames(eppoCodesData, dss.CropEppoCode, dss.PestEppoCode);
+                    dss.CropLanguages = eppoCodeLanguages.CropLanguages;
+                    dss.PestLanguages = eppoCodeLanguages.PestLanguages;
+                }
+                return GenericResponseBuilder.Success<IEnumerable<LinkDssDto>>(dataToRetun);
             }
             catch (Exception ex)
             {

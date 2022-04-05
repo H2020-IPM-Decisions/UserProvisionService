@@ -43,7 +43,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         [Produces(MediaTypeNames.Application.Json)]
         [HttpGet(Name = "api.dsscomparison.get.ids")]
         [HttpHead]
-        // GET: api/dsscomparison?dssids=id1&dssids=id2
+        // GET: api/dsscomparison?dssids=id1&dssids=id2&days=3
         public async Task<IActionResult> Get([FromQuery] List<Guid> dssIds, int days = 7)
         {
             var userId = Guid.Parse(HttpContext.Items["userId"].ToString());

@@ -4,7 +4,6 @@ namespace H2020.IPMDecisions.UPR.Core.Dtos
 {
     public class LinkDssDto
     {
-        public string Name { get; set; }
         public string CropEppoCode { get; set; }
         public IDictionary<string, string> CropLanguages { get; set; }
         public string PestEppoCode { get; set; }

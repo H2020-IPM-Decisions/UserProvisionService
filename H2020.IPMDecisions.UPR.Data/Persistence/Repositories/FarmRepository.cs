@@ -47,6 +47,8 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
             return await this.context
                 .Farm
                 .Where(expression)
+                .Include(f => f.Fields)
+                    .ThenInclude(fi => fi.FieldCrop)
                 .ToListAsync<Farm>();
         }
 
