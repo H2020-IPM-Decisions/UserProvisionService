@@ -228,7 +228,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                             dss.LastJobId = jobscheduleId;
                         }
                         var errorMessage = this.jsonStringLocalizer["dss_process.weather_data_error", responseWeather.ResponseWeather.ToString()].ToString();
-                        CreateDssRunErrorResult(dssResult, errorMessage, DssOutputMessageTypeEnum.Error);
+                        CreateDssRunErrorResult(dssResult, errorMessage, responseWeather.ErrorType);
                         return dssResult;
                     }
                     inputAsJsonObject["weatherData"] = JObject.Parse(responseWeather.ResponseWeather.ToString());
@@ -323,10 +323,11 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 .GetDssModelInformationFromDssMicroservice(dss.CropPestDss.DssId, dss.CropPestDss.DssModelId);
         }
 
-        private void CreateDssRunErrorResult(FieldDssResult dssResult, string errorMessage, DssOutputMessageTypeEnum errorType)
+        private void CreateDssRunErrorResult(FieldDssResult dssResult, string errorMessage, DssOutputMessageTypeEnum errorType, bool addDssFullResult = true)
         {
             dssResult.ResultMessageType = (int)errorType;
             dssResult.ResultMessage = errorMessage.ToString();
+            if (!addDssFullResult) return;
             if (DataParseHelper.IsValidJson(("{\"message\": \"" + errorMessage + "\"}")))
             {
                 dssResult.DssFullResult = JObject.Parse("{\"message\": \"" + errorMessage + "\"}").ToString();
