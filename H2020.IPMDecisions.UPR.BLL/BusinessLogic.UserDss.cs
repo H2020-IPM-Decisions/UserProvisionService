@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using H2020.IPMDecisions.UPR.BLL.Helpers;
@@ -15,7 +16,7 @@ namespace H2020.IPMDecisions.UPR.BLL
 {
     public partial class BusinessLogic : IBusinessLogic
     {
-        public async Task<GenericResponse<FieldDssResultDetailedDto>> GetFieldCropPestDssById(Guid id, Guid userId)
+        public async Task<GenericResponse<FieldDssResultDetailedDto>> GetFieldCropPestDssById(Guid id, Guid userId, int daysDataToReturn = 7)
         {
             try
             {
@@ -25,7 +26,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                 var dssUserId = dss.FieldCropPest.FieldCrop.Field.Farm.UserFarms.FirstOrDefault().UserId;
                 if (userId != dssUserId) return GenericResponseBuilder.NotFound<FieldDssResultDetailedDto>();
 
-                FieldDssResultDetailedDto dataToReturn = await CreateDetailedResultToReturn(dss);
+                FieldDssResultDetailedDto dataToReturn = await CreateDetailedResultToReturn(dss, daysDataToReturn);
                 return GenericResponseBuilder.Success<FieldDssResultDetailedDto>(dataToReturn);
             }
             catch (Exception ex)
@@ -87,6 +88,48 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
         }
 
+        public async Task<GenericResponse<IEnumerable<LinkDssDto>>> GetAllLinkDss(Guid userId)
+        {
+            try
+            {
+                IEnumerable<LinkDssDto> dataToRetun = new List<LinkDssDto>();
+                var farmsFromUser = await this.dataService.Farms.FindAllByConditionAsync(f => f.UserFarms.Any(uf => uf.UserId == userId & (uf.Authorised)));
+                if (farmsFromUser.Count() == 0) return GenericResponseBuilder.Success<IEnumerable<LinkDssDto>>(dataToRetun);
+
+                var farmGeoJson = CreateFarmLocationGeoJson(farmsFromUser);
+                var listDssOnLocation = await this.internalCommunicationProvider.GetListOfDssByLocationFromDssMicroservice(farmGeoJson);
+
+                // Only DSS that have models with links and crops from farms
+                var farmCrops = farmsFromUser
+                    .SelectMany(f => f.Fields.Select(fi => fi.FieldCrop.CropEppoCode))
+                    .Distinct()
+                    .ToList();
+
+                var linkDssOnLocation = listDssOnLocation
+                    .SelectMany(d => d.DssModelInformation, (dss, model) => new DssInformationJoined { DssInformation = dss, DssModelInformation = model })
+                    .Where(linkDssFiltered => linkDssFiltered.DssModelInformation.Execution.Type.ToLower() == "link"
+                        & linkDssFiltered.DssModelInformation.Crops.Any(c => farmCrops.Contains(c)))
+                    .ToList();
+                if (linkDssOnLocation.Count() == 0) return GenericResponseBuilder.Success<IEnumerable<LinkDssDto>>(dataToRetun);
+
+                dataToRetun = this.mapper.Map<IEnumerable<LinkDssDto>>(linkDssOnLocation);
+                var eppoCodesData = await this.dataService.EppoCodes.GetEppoCodesAsync();
+                foreach (var dss in dataToRetun)
+                {
+                    var eppoCodeLanguages = EppoCodesHelper.GetCropPestEppoCodesNames(eppoCodesData, dss.CropEppoCode, dss.PestEppoCode);
+                    dss.CropLanguages = eppoCodeLanguages.CropLanguages;
+                    dss.PestLanguages = eppoCodeLanguages.PestLanguages;
+                }
+                return GenericResponseBuilder.Success<IEnumerable<LinkDssDto>>(dataToRetun);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(string.Format("Error in BLL - GetAllLinkDss. {0}", ex.Message), ex);
+                String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
+                return GenericResponseBuilder.NoSuccess<IEnumerable<LinkDssDto>>(null, $"{ex.Message} InnerException: {innerMessage}");
+            }
+        }
+
         public async Task<GenericResponse<string>> GetFieldCropPestDssParametersById(Guid id, Guid userId)
         {
             try
@@ -116,7 +159,6 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
         }
 
-        // ToDo Ask for DSS languages
         private async Task AddExtraInformationToDss(IEnumerable<FieldDssResultDto> dssResultsToReturn)
         {
             var listOfDss = await this.internalCommunicationProvider.GetAllListOfDssFromDssMicroservice();
@@ -129,34 +171,26 @@ namespace H2020.IPMDecisions.UPR.BLL
                 {
                     var dssOnListMatchDatabaseRecord = listOfDss
                         .Where(d => d.Id == dss.DssId)
-                        .FirstOrDefault();
+                        .FirstOrDefault()
+                        .DssModelInformation
+                        .Where(dm => dm.Id == dss.DssModelId)
+                         .FirstOrDefault();
 
                     if (dssOnListMatchDatabaseRecord == null)
                     {
-                        dss.DssDescription = this.jsonStringLocalizer["dss.dss_missing_metadata",
-                        dss.DssId,
-                        dss.DssVersion].ToString();
+                        dss.DssDescription = this.jsonStringLocalizer["dss.model_missing_metadata",
+                            dss.DssId,
+                            dss.DssVersion,
+                            dss.DssModelId,
+                            dss.DssModelVersion].ToString();
                     }
                     else
                     {
-                        var dssModelInformation = dssOnListMatchDatabaseRecord
-                                                .DssModelInformation
-                                                .Where(dm => dm.Id == dss.DssModelId)
-                                                .FirstOrDefault();
-
-                        if (dssModelInformation == null)
+                        dss.DssDescription = CreateDssDescription(dssOnListMatchDatabaseRecord.Description);
+                        dss.ValidatedSpatialCountries = dssOnListMatchDatabaseRecord.ValidSpatial.Countries;
+                        if (dssOnListMatchDatabaseRecord.Output != null)
                         {
-                            dss.DssDescription = this.jsonStringLocalizer["dss.model_missing_metadata",
-                                dss.DssId,
-                                dss.DssVersion,
-                                dss.DssModelId,
-                                dss.DssModelVersion].ToString();
-                            continue;
-                        }
-                        dss.DssDescription = CreateDssDescription(dssModelInformation.Description);
-                        if (dssModelInformation.Output != null)
-                        {
-                            AddWarningMessages(dss, dssModelInformation);
+                            AddWarningMessages(dss, dssOnListMatchDatabaseRecord);
                         }
                     }
                 }
@@ -222,8 +256,7 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
         }
 
-        // ToDo Ask for DSS languages
-        private async Task<FieldDssResultDetailedDto> CreateDetailedResultToReturn(FieldCropPestDss dss)
+        private async Task<FieldDssResultDetailedDto> CreateDetailedResultToReturn(FieldCropPestDss dss, int daysDataToReturn = 7)
         {
             var dataToReturn = this.mapper.Map<FieldDssResultDetailedDto>(dss);
             var dssInformation = await internalCommunicationProvider
@@ -237,7 +270,8 @@ namespace H2020.IPMDecisions.UPR.BLL
             DssModelOutputInformation dssFullOutputAsObject = AddDssFullResultData(dataToReturn);
 
             var locationResultData = dssFullOutputAsObject.LocationResult.FirstOrDefault();
-            IEnumerable<List<double?>> dataLastDays = SelectDssLastResultsData(dataToReturn, locationResultData);
+            int maxDaysOutput = int.Parse(this.config["AppConfiguration:MaxDaysAllowedForDssOutputData"]);
+            IEnumerable<List<double?>> dataLastDays = SelectDssLastResultsData(dataToReturn, locationResultData, daysDataToReturn, maxDaysOutput);
             List<string> labels = CreateResultParametersLabels(dataToReturn.OutputTimeEnd, dataLastDays.Count());
             dataToReturn.WarningStatusLabels = labels;
 
@@ -303,17 +337,19 @@ namespace H2020.IPMDecisions.UPR.BLL
         private static IEnumerable<List<double?>> SelectDssLastResultsData(
             FieldDssResultDetailedDto dataToReturn,
             LocationResultDssOutput locationResultData,
-            int maxDaysOutput = 7)
+            int daysOutput,
+            int maxDaysOutput = 30)
         {
-            IEnumerable<List<double?>> dataLastSevenDays = new List<List<double?>>();
+            IEnumerable<List<double?>> dataLastDays = new List<List<double?>>();
+            if (daysOutput > maxDaysOutput) daysOutput = maxDaysOutput;
 
             if (locationResultData != null)
             {
-                dataLastSevenDays = locationResultData.Data.TakeLast(maxDaysOutput);
-                dataToReturn.ResultParametersLength = dataLastSevenDays.Count();
-                dataToReturn.WarningStatusPerDay = locationResultData.WarningStatus.TakeLast(maxDaysOutput).ToList();
+                dataLastDays = locationResultData.Data.TakeLast(daysOutput);
+                dataToReturn.ResultParametersLength = dataLastDays.Count();
+                dataToReturn.WarningStatusPerDay = locationResultData.WarningStatus.TakeLast(daysOutput).ToList();
             };
-            return dataLastSevenDays;
+            return dataLastDays;
         }
 
         private static DssModelOutputInformation AddDssFullResultData(FieldDssResultDetailedDto dataToReturn)
@@ -326,12 +362,14 @@ namespace H2020.IPMDecisions.UPR.BLL
             return dssFullOutputAsObject;
         }
 
+        // This can be implemented by AutoMapper
         private static void AddDssBasicData(FieldDssResultDetailedDto dataToReturn, DssModelInformation dssInformation)
         {
             dataToReturn.DssTypeOfDecision = dssInformation.TypeOfDecision;
             dataToReturn.DssTypeOfOutput = dssInformation.TypeOfOutput;
             dataToReturn.DssDescription = CreateDssDescription(dssInformation.Description);
             dataToReturn.DssEndPoint = dssInformation.DescriptionUrl;
+            dataToReturn.ValidatedSpatialCountries = dssInformation.ValidSpatial.Countries;
 
             // DSS type link do not have this section
             if (dssInformation.Output != null)
@@ -344,13 +382,13 @@ namespace H2020.IPMDecisions.UPR.BLL
         {
             if (outputTimeEnd is null) return null;
 
-            var isADate = DateTime.TryParse(outputTimeEnd, out DateTime dateTime);
+            var isADate = DateTime.TryParse(outputTimeEnd, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime dateTime);
             if (!isADate) return null;
 
             var labelsList = new List<string>();
             for (int i = days - 1; i >= 0; i--)
             {
-                labelsList.Add(dateTime.AddDays(-i).ToShortDateString());
+                labelsList.Add(dateTime.AddDays(-i).ToString("dd/MM/yyyy", DateTimeFormatInfo.InvariantInfo));
             }
             return labelsList;
         }
@@ -380,6 +418,28 @@ namespace H2020.IPMDecisions.UPR.BLL
         {
             dss.WarningStatusRepresentation = dssModelInformation.Output.ListWarningStatusInterpretation[dss.WarningStatus].Explanation;
             dss.WarningMessage = dssModelInformation.Output.ListWarningStatusInterpretation[dss.WarningStatus].RecommendedAction;
+        }
+
+        private static GeoJsonFeatureCollection CreateFarmLocationGeoJson(IEnumerable<Farm> farmsFromUser)
+        {
+            var geoJson = new GeoJsonFeatureCollection();
+            foreach (var farm in farmsFromUser)
+            {
+                var coordinates = new List<double>(){
+                    farm.Location.Coordinate.X,
+                    farm.Location.Coordinate.Y
+                };
+                var geometry = new GeoJsonGeometry()
+                {
+                    Coordinates = coordinates
+                };
+                var feature = new GeoJsonFeature()
+                {
+                    Geometry = geometry
+                };
+                geoJson.Features.Add(feature);
+            }
+            return geoJson;
         }
     }
 }

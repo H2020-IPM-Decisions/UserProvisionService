@@ -10,7 +10,7 @@ namespace H2020.IPMDecisions.UPR.BLL
 {
     public partial class BusinessLogic : IBusinessLogic
     {
-        public async Task<GenericResponse<IEnumerable<FieldDssResultDetailedDto>>> CompareDssByIds(List<Guid> ids, Guid userId)
+        public async Task<GenericResponse<IEnumerable<FieldDssResultDetailedDto>>> CompareDssByIds(List<Guid> ids, Guid userId, int daysDataToReturn = 7)
         {
             try
             {
@@ -23,7 +23,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                 var dataToReturn = new List<FieldDssResultDetailedDto>();
                 foreach (var dss in listOfDss)
                 {
-                    dataToReturn.Add(await CreateDetailedResultToReturn(dss));
+                    dataToReturn.Add(await CreateDetailedResultToReturn(dss, daysDataToReturn));
                 }
                 return GenericResponseBuilder.Success<IEnumerable<FieldDssResultDetailedDto>>(dataToReturn);
             }

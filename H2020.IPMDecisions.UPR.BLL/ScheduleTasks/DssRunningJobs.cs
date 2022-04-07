@@ -98,14 +98,17 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
 
                 foreach (var dss in listOfDss)
                 {
-                    dss.LastJobId = BackgroundJob.Enqueue<DssRunningJobs>(
-                        job => job.QueueOnTheFlyDss(JobCancellationToken.Null, dss.Id));
-
-                    // UnComment while debuggin 
-                    // var dssResult = await RunOnTheFlyDss(dss);
-                    // if (dssResult == null) continue;
-                    // this.dataService.FieldCropPestDsses.AddDssResult(dss, dssResult);
+#if DEBUG
+                    // Call one by one to help debuggin
+                    var dssResult = await RunOnTheFlyDss(dss);
+                    if (dssResult == null) continue;
+                    this.dataService.FieldCropPestDsses.AddDssResult(dss, dssResult);
+#else
+                    // Schedule them to run every 3 seconds, to allow weather service to return data so doesn't get overload               
+                    dss.LastJobId = this.queueJobs.ScheduleDssOnTheFlyQueue(dss.Id, 0.05);
+#endif
                 }
+                // Save last job ids and DSS results if debugging...
                 await this.dataService.CompleteAsync();
             }
         }
@@ -314,7 +317,6 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
         #endregion
 
         #region helpers
-        // ToDo Ask for DSS languages
         private async Task<DssModelInformation> GetDssInformationFromMicroservice(FieldCropPestDss dss)
         {
             return await internalCommunicationProvider

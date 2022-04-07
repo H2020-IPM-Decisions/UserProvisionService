@@ -24,11 +24,14 @@ namespace H2020.IPMDecisions.UPR.Core.Dtos
         public string DssExecutionType { get; set; }
         public string DssFullResult { get; set; }
         public string DssDescription { get; set; }
+        public string DssPurpose { get; set; } = "ToDo - Remove this text string when metadata ready";
+        public string DssSource { get; set; }
         public string DssEndPoint { get; set; }
         public int WarningStatus { get; set; }
         public string WarningStatusRepresentation { get; set; }
         public string WarningMessage { get; set; }
         public int? ResultMessageType { get; set; }
         public string ResultMessage { get; set; }
+        public IEnumerable<string> ValidatedSpatialCountries { get; set; }
     }
 }

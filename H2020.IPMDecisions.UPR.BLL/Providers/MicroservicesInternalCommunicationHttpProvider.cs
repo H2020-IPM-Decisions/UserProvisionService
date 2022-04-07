@@ -4,6 +4,7 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Mime;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
 using H2020.IPMDecisions.UPR.BLL.Helpers;
@@ -42,16 +43,16 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
         }
 
         #region DSS Microservice calls
-        // ToDo Ask for DSS languages
         public async Task<DssModelInformation> GetDssModelInformationFromDssMicroservice(string dssId, string modelId)
         {
             try
             {
-                var cacheKey = string.Format("dssInformation_{0}_{1}", dssId.ToLower(), modelId.ToLower());
+                var language = Thread.CurrentThread.CurrentCulture.Name;
+                var cacheKey = string.Format("dssInformation_{0}_{1}_{2}", dssId.ToLower(), modelId.ToLower(), language);
                 if (!memoryCache.TryGetValue(cacheKey, out DssModelInformation dssModelInformation))
                 {
                     var dssEndPoint = config["MicroserviceInternalCommunication:DssMicroservice"];
-                    var response = await httpClient.GetAsync(string.Format("{0}rest/model/{1}/{2}", dssEndPoint, dssId, modelId));
+                    var response = await httpClient.GetAsync(string.Format("{0}rest/model/{1}/{2}?language={3}", dssEndPoint, dssId, modelId, language));
 
                     if (!response.IsSuccessStatusCode) return null;
 
@@ -73,11 +74,12 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
         {
             try
             {
-                var cacheKey = "listOfDss";
+                var language = Thread.CurrentThread.CurrentCulture.Name;
+                var cacheKey = string.Format("listOfDss_{0}", language);
                 if (!memoryCache.TryGetValue(cacheKey, out IEnumerable<DssInformation> listOfDss))
                 {
                     var dssEndPoint = config["MicroserviceInternalCommunication:DssMicroservice"];
-                    var response = await httpClient.GetAsync(string.Format("{0}rest/dss", dssEndPoint));
+                    var response = await httpClient.GetAsync(string.Format("{0}rest/dss?language={1}", dssEndPoint, language));
 
                     if (!response.IsSuccessStatusCode)
                         return null;
@@ -99,11 +101,13 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
         {
             try
             {
-                var cacheKey = string.Format("dssInputSchema_{0}_{1}", dssId.ToLower(), modelId.ToLower());
+                var language = Thread.CurrentThread.CurrentCulture.Name;
+                var cacheKey = string.Format("dssInputSchema_{0}_{1}_{2}", dssId.ToLower(), modelId.ToLower(), language);
                 if (!memoryCache.TryGetValue(cacheKey, out JSchema dssInputSchema))
                 {
                     var dssEndPoint = config["MicroserviceInternalCommunication:DssMicroservice"];
-                    var response = await httpClient.GetAsync(string.Format("{0}rest/model/{1}/{2}/input_schema/ui_form", dssEndPoint, dssId, modelId));
+                    var response = await httpClient.GetAsync(string.Format("{0}rest/model/{1}/{2}/input_schema/ui_form?language={3}",
+                        dssEndPoint, dssId, modelId, language));
 
                     if (!response.IsSuccessStatusCode) return null;
 
@@ -127,11 +131,12 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
         {
             try
             {
-                var cacheKey = string.Format("eppoCodes_{0}", eppoCodeType.ToLower());
+                var language = Thread.CurrentThread.CurrentCulture.Name;
+                var cacheKey = string.Format("eppoCodes_{0}_{1}", eppoCodeType.ToLower(), language);
                 if (!memoryCache.TryGetValue(cacheKey, out List<string> listOfEppoCodes))
                 {
                     var dssEndPoint = config["MicroserviceInternalCommunication:DssMicroservice"];
-                    var response = await httpClient.GetAsync(string.Format("{0}rest/{1}", dssEndPoint, eppoCodeType));
+                    var response = await httpClient.GetAsync(string.Format("{0}rest/{1}?language={2}", dssEndPoint, eppoCodeType, language));
 
                     if (!response.IsSuccessStatusCode) return null;
 
@@ -145,6 +150,33 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
             catch (Exception ex)
             {
                 logger.LogError(string.Format("Error in Internal Communication - GetListOfEppoCodesFromDssMicroservice. {0}", ex.Message));
+                return null;
+            }
+        }
+
+        public async Task<IEnumerable<DssInformation>> GetListOfDssByLocationFromDssMicroservice(GeoJsonFeatureCollection geoJson)
+        {
+            try
+            {
+                var language = Thread.CurrentThread.CurrentCulture.Name;
+                var content = new StringContent(
+                    System.Text.Json.JsonSerializer.Serialize(geoJson),
+                    Encoding.UTF8,
+                    MediaTypeNames.Application.Json);
+                var dssEndPoint = config["MicroserviceInternalCommunication:DssMicroservice"];
+                var response = await httpClient.PostAsync(
+                    string.Format("{0}rest/dss/location?language={1}", dssEndPoint, language),
+                    content);
+
+                if (!response.IsSuccessStatusCode)
+                    return null;
+
+                var responseAsText = await response.Content.ReadAsStringAsync();
+                return JsonConvert.DeserializeObject<IEnumerable<DssInformation>>(responseAsText);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(string.Format("Error in Internal Communication - GetListOfDssByLocationFromDssMicroservice. {0}", ex.Message));
                 return null;
             }
         }
@@ -193,6 +225,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
                 var jsonObject = new System.Json.JsonObject();
                 jsonObject.Add("dataRequesterName", requesterEmail);
                 jsonObject.Add("toAddress", toEmail);
+                jsonObject.Add("language", Thread.CurrentThread.CurrentCulture.Name);
                 var customContentType = config["MicroserviceInternalCommunication:ContentTypeHeader"];
 
                 var content = new StringContent(

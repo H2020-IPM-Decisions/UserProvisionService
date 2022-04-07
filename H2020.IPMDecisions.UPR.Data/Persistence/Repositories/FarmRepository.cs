@@ -42,6 +42,16 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
                 .ToListAsync<Farm>();
         }
 
+        public async Task<IEnumerable<Farm>> FindAllByConditionAsync(Expression<Func<Farm, bool>> expression)
+        {
+            return await this.context
+                .Farm
+                .Where(expression)
+                .Include(f => f.Fields)
+                    .ThenInclude(fi => fi.FieldCrop)
+                .ToListAsync<Farm>();
+        }
+
         public async Task<PagedList<Farm>> FindAllAsync(FarmResourceParameter resourceParameter)
         {
             if (resourceParameter is null)
