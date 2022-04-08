@@ -72,7 +72,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             try
             {
                 token.ThrowIfCancellationRequested();
-                Task.Run(() => RunAllDssOnDatabase(DateTime.Now)).Wait();
+                Task.Run(() => RunAllDssOnDatabase()).Wait();
             }
             catch (Exception ex)
             {
@@ -80,7 +80,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             }
         }
 
-        private async Task RunAllDssOnDatabase(DateTime now)
+        private async Task RunAllDssOnDatabase()
         {
             var count = this.dataService.FieldCropPestDsses.GetCount(f => f.CropPestDss.DssExecutionType.ToLower().Equals("onthefly"));
             if (count == 0) return;
@@ -98,15 +98,16 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
 
                 foreach (var dss in listOfDss)
                 {
-#if DEBUG
+                    // #if DEBUG
                     // Call one by one to help debuggin
-                    var dssResult = await RunOnTheFlyDss(dss);
-                    if (dssResult == null) continue;
-                    this.dataService.FieldCropPestDsses.AddDssResult(dss, dssResult);
-#else
-                    // Schedule them to run every 3 seconds, to allow weather service to return data so doesn't get overload               
-                    dss.LastJobId = this.queueJobs.ScheduleDssOnTheFlyQueue(dss.Id, 0.05);
-#endif
+                    // var dssResult = await RunOnTheFlyDss(dss);
+                    // if (dssResult == null) continue;
+                    // this.dataService.FieldCropPestDsses.AddDssResult(dss, dssResult);
+                    // #else
+                    // Add them to the queue every 10 seconds, to allow weather service to return data so doesn't get overload
+                    Thread.Sleep(7500);
+                    dss.LastJobId = this.queueJobs.ScheduleDssOnTheFlyQueue(dss.Id, 0.03);
+                    // #endif
                 }
                 // Save last job ids and DSS results if debugging...
                 await this.dataService.CompleteAsync();
@@ -228,7 +229,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                             dss.LastJobId = jobscheduleId;
                         }
                         var errorMessage = this.jsonStringLocalizer["dss_process.weather_data_error", responseWeather.ResponseWeather.ToString()].ToString();
-                        CreateDssRunErrorResult(dssResult, errorMessage, DssOutputMessageTypeEnum.Error);
+                        CreateDssRunErrorResult(dssResult, errorMessage, responseWeather.ErrorType);
                         return dssResult;
                     }
                     inputAsJsonObject["weatherData"] = JObject.Parse(responseWeather.ResponseWeather.ToString());
@@ -323,10 +324,11 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 .GetDssModelInformationFromDssMicroservice(dss.CropPestDss.DssId, dss.CropPestDss.DssModelId);
         }
 
-        private void CreateDssRunErrorResult(FieldDssResult dssResult, string errorMessage, DssOutputMessageTypeEnum errorType)
+        private void CreateDssRunErrorResult(FieldDssResult dssResult, string errorMessage, DssOutputMessageTypeEnum errorType, bool addDssFullResult = true)
         {
             dssResult.ResultMessageType = (int)errorType;
             dssResult.ResultMessage = errorMessage.ToString();
+            if (!addDssFullResult) return;
             if (DataParseHelper.IsValidJson(("{\"message\": \"" + errorMessage + "\"}")))
             {
                 dssResult.DssFullResult = JObject.Parse("{\"message\": \"" + errorMessage + "\"}").ToString();

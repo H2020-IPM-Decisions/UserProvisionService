@@ -116,7 +116,6 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
             catch (Exception ex)
             {
-
                 logger.LogError(string.Format("Error in BLL - StartEuroweatherDataCollectionProcess. {0}", ex.Message), ex);
                 String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
             }

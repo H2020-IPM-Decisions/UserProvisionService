@@ -9,6 +9,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using H2020.IPMDecisions.UPR.BLL.Helpers;
 using H2020.IPMDecisions.UPR.Core.Entities;
+using H2020.IPMDecisions.UPR.Core.Enums;
 using H2020.IPMDecisions.UPR.Core.Models;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -22,6 +23,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
         {
             try
             {
+                var result = new WeatherDataResult();
                 var listOfPreferredWeatherDataSources = new List<WeatherSchemaForHttp>();
                 var farm = dss.FieldCropPest.FieldCrop.Field.Farm;
                 var currentYear = DssDataHelper.GetCurrentYearForDssDefaultDates(dssInformation, dssInputSchemaAsJson);
@@ -32,7 +34,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
 
                     var weatherToCall = this.mapper.Map<WeatherSchemaForHttp>(weatherInformation);
                     weatherToCall.IsForecast = true;
-                    AddWeatherDates(dssInformation, dssInputSchemaAsJson, weatherToCall, currentYear);
+                    result = AddWeatherDates(dssInformation, dssInputSchemaAsJson, weatherToCall, currentYear);
                     listOfPreferredWeatherDataSources.Add(weatherToCall);
                 }
                 if (farm.WeatherHistorical != null)
@@ -41,9 +43,10 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                            .GetWeatherProviderInformationFromWeatherMicroservice(farm.WeatherHistorical.WeatherId);
 
                     var weatherToCall = this.mapper.Map<WeatherSchemaForHttp>(weatherInformation);
-                    AddWeatherDates(dssInformation, dssInputSchemaAsJson, weatherToCall, currentYear);
+                    result = AddWeatherDates(dssInformation, dssInputSchemaAsJson, weatherToCall, currentYear);
                     listOfPreferredWeatherDataSources.Add(weatherToCall);
                 }
+                if (result.Continue == false) return result;
 
                 return await GetWeatherData(farm.Location.X, farm.Location.Y, listOfPreferredWeatherDataSources, dssInformation.Input);
             }
@@ -52,13 +55,15 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 return new WeatherDataResult()
                 {
                     Continue = false,
-                    ResponseWeather = ex.Message.ToString()
+                    ResponseWeather = ex.Message.ToString(),
+                    ErrorType = DssOutputMessageTypeEnum.Error
                 };
             }
         }
 
-        private void AddWeatherDates(DssModelInformation dssInformation, JObject dssInputSchemaAsJson, WeatherSchemaForHttp weatherToCall, int currentYear = -1)
+        private WeatherDataResult AddWeatherDates(DssModelInformation dssInformation, JObject dssInputSchemaAsJson, WeatherSchemaForHttp weatherToCall, int currentYear = -1)
         {
+            var result = new WeatherDataResult() { Continue = true };
             if (dssInformation.Input.WeatherDataPeriodEnd != null)
             {
                 weatherToCall.WeatherTimeEnd = DssDataHelper.ProcessWeatherDataPeriod(dssInformation.Input.WeatherDataPeriodEnd, dssInputSchemaAsJson, currentYear);
@@ -80,11 +85,16 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 // ToDo -- Ask if send message DSS not running until X Date if parameter type is fixed date
                 if (weatherToCall.WeatherTimeStart > DateTime.Today)
                 {
-                    throw new InvalidDataException(
-                        this.jsonStringLocalizer["weather.next_season",
-                        weatherToCall.WeatherTimeStart.ToString("dd/MM/yyyy")].ToString());
+                    result = new WeatherDataResult()
+                    {
+                        Continue = false,
+                        ResponseWeather = this.jsonStringLocalizer["weather.next_season",
+                            weatherToCall.WeatherTimeStart.ToString("dd/MM/yyyy")].ToString(),
+                        ErrorType = DssOutputMessageTypeEnum.Warning
+                    };
                 }
             }
+            return result;
         }
 
         public async Task<WeatherDataResult> GetWeatherData(
