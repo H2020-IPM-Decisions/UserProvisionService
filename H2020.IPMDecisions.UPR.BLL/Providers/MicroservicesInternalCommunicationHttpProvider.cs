@@ -175,7 +175,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
                 if (!memoryCache.TryGetValue(cacheKey, out DssInformation dssInformation))
                 {
                     var dssEndPoint = config["MicroserviceInternalCommunication:DssMicroservice"];
-                    var response = await httpClient.GetAsync(string.Format("{0}rest/model/{1}?language={2}", dssEndPoint, dssId, language));
+                    var response = await httpClient.GetAsync(string.Format("{0}rest/dss/{1}?language={2}", dssEndPoint, dssId, language));
 
                     if (!response.IsSuccessStatusCode) return null;
 

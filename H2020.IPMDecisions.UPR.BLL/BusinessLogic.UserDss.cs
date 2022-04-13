@@ -171,12 +171,14 @@ namespace H2020.IPMDecisions.UPR.BLL
                 {
                     var dssOnListMatchDatabaseRecord = listOfDss
                         .Where(d => d.Id == dss.DssId)
-                        .FirstOrDefault()
-                        .DssModelInformation
-                        .Where(dm => dm.Id == dss.DssModelId)
-                         .FirstOrDefault();
+                        .FirstOrDefault();
 
-                    if (dssOnListMatchDatabaseRecord == null)
+                    var dssModelMatchDatabaseRecord = dssOnListMatchDatabaseRecord
+                      .DssModelInformation
+                      .Where(dm => dm.Id == dss.DssModelId)
+                       .FirstOrDefault();
+
+                    if (dssModelMatchDatabaseRecord == null)
                     {
                         dss.DssDescription = this.jsonStringLocalizer["dss.model_missing_metadata",
                             dss.DssId,
@@ -186,11 +188,15 @@ namespace H2020.IPMDecisions.UPR.BLL
                     }
                     else
                     {
-                        dss.DssDescription = dssOnListMatchDatabaseRecord.Description;
-                        dss.ValidatedSpatialCountries = dssOnListMatchDatabaseRecord.ValidSpatial.Countries;
-                        if (dssOnListMatchDatabaseRecord.Output != null)
+                        dss.DssSource = string.Format("{0}, {1}",
+                            dssOnListMatchDatabaseRecord.DssOrganization.Name,
+                            dssOnListMatchDatabaseRecord.DssOrganization.Country);
+                        dss.DssDescription = dssModelMatchDatabaseRecord.Description;
+                        dss.DssPurpose = dssModelMatchDatabaseRecord.Purpose;
+                        dss.ValidatedSpatialCountries = dssModelMatchDatabaseRecord.ValidSpatial.Countries;
+                        if (dssModelMatchDatabaseRecord.Output != null)
                         {
-                            AddWarningMessages(dss, dssOnListMatchDatabaseRecord);
+                            AddWarningMessages(dss, dssModelMatchDatabaseRecord);
                         }
                     }
                 }
@@ -260,10 +266,19 @@ namespace H2020.IPMDecisions.UPR.BLL
         {
             var dataToReturn = this.mapper.Map<FieldDssResultDetailedDto>(dss);
             var dssInformation = await internalCommunicationProvider
-                            .GetDssModelInformationFromDssMicroservice(dss.CropPestDss.DssId, dss.CropPestDss.DssModelId);
+                            .GetDssInformationFromDssMicroservice(dss.CropPestDss.DssId);
 
             if (dssInformation == null) return dataToReturn;
-            AddDssBasicData(dataToReturn, dssInformation);
+            dataToReturn.DssSource = string.Format("{0}, {1}",
+                            dssInformation.DssOrganization.Name,
+                            dssInformation.DssOrganization.Country);
+            dataToReturn.DssVersion = dssInformation.Version;
+
+            var dssModelInformation = dssInformation
+                .DssModelInformation
+                .FirstOrDefault(m => m.Id == dss.CropPestDss.DssModelId);
+            if (dssModelInformation == null) return dataToReturn;
+            AddDssBasicData(dataToReturn, dssModelInformation);
             await AddDssCropPestNames(dataToReturn);
 
             if (!dataToReturn.IsValid || dataToReturn.DssExecutionType.ToLower() == "link") return dataToReturn;
@@ -282,7 +297,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                 resultParameter.Labels = labels;
 
                 resultParameter.Code = parameterCode;
-                var parameterInformationFromDss = dssInformation
+                var parameterInformationFromDss = dssModelInformation
                         .Output
                         .ResultParameters
                         .Where(n => n.Id == parameterCode)
@@ -305,7 +320,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                 }
                 dataToReturn.ResultParameters.Add(resultParameter);
             }
-            foreach (var group in dssInformation.Output.ChartGroups)
+            foreach (var group in dssModelInformation.Output.ChartGroups)
             {
                 var chartGroupWithDataParameters = this.mapper.Map<ChartGroup>(group);
 
