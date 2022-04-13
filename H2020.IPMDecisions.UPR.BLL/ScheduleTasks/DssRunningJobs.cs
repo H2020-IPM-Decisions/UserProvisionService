@@ -223,16 +223,16 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                     WeatherDataResult responseWeather = await PrepareWeatherData(dss, dssInformation, inputAsJsonObject);
                     if (!responseWeather.Continue)
                     {
-                        if (responseWeather.ResponseWeather.ToString().Contains("This is the first time this season that weather"))
+                        if (responseWeather.ResponseWeatherAsString.ToString().Contains("This is the first time this season that weather"))
                         {
                             var jobscheduleId = this.queueJobs.ScheduleDssOnTheFlyQueue(dss.Id, 121);
                             dss.LastJobId = jobscheduleId;
                         }
-                        var errorMessage = this.jsonStringLocalizer["dss_process.weather_data_error", responseWeather.ResponseWeather.ToString()].ToString();
+                        var errorMessage = this.jsonStringLocalizer["dss_process.weather_data_error", responseWeather.ResponseWeatherAsString.ToString()].ToString();
                         CreateDssRunErrorResult(dssResult, errorMessage, responseWeather.ErrorType);
                         return dssResult;
                     }
-                    inputAsJsonObject["weatherData"] = JObject.Parse(responseWeather.ResponseWeather.ToString());
+                    inputAsJsonObject["weatherData"] = JObject.Parse(responseWeather.ResponseWeatherAsString.ToString());
                 }
 
                 var content = new StringContent(
