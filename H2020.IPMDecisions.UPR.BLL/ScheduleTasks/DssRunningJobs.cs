@@ -214,7 +214,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 if (!isJsonObjectvalid)
                 {
                     string errorMessageToReturn = string.Join(" ", validationErrormessages);
-                    CreateDssRunErrorResult(dssResult, errorMessageToReturn, DssOutputMessageTypeEnum.Info);
+                    CreateDssRunErrorResult(dssResult, errorMessageToReturn, DssOutputMessageTypeEnum.Error);
                     return dssResult;
                 }
 

@@ -20,5 +20,6 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
         Task<WeatherDataSchema> GetWeatherProviderInformationFromWeatherMicroservice(string weatherId);
         Task<List<string>> GetListOfEppoCodesFromDssMicroservice(string eppoCodeType);
         Task<IEnumerable<DssInformation>> GetListOfDssByLocationFromDssMicroservice(GeoJsonFeatureCollection geoJson);
+        Task<DssInformation> GetDssInformationFromDssMicroservice(string dssId);
     }
 }

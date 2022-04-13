@@ -48,20 +48,13 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
             try
             {
                 var language = Thread.CurrentThread.CurrentCulture.Name;
-                var cacheKey = string.Format("dssInformation_{0}_{1}_{2}", dssId.ToLower(), modelId.ToLower(), language);
-                if (!memoryCache.TryGetValue(cacheKey, out DssModelInformation dssModelInformation))
-                {
-                    var dssEndPoint = config["MicroserviceInternalCommunication:DssMicroservice"];
-                    var response = await httpClient.GetAsync(string.Format("{0}rest/model/{1}/{2}?language={3}", dssEndPoint, dssId, modelId, language));
+                var dssEndPoint = config["MicroserviceInternalCommunication:DssMicroservice"];
+                var response = await httpClient.GetAsync(string.Format("{0}rest/model/{1}/{2}?language={3}", dssEndPoint, dssId, modelId, language));
 
-                    if (!response.IsSuccessStatusCode) return null;
+                if (!response.IsSuccessStatusCode) return null;
 
-                    var responseAsText = await response.Content.ReadAsStringAsync();
-                    dssModelInformation = JsonConvert.DeserializeObject<DssModelInformation>(responseAsText);
-
-                    memoryCache.Set(cacheKey, dssModelInformation, MemoryCacheHelper.CreateMemoryCacheEntryOptions(1));
-                }
-                return dssModelInformation;
+                var responseAsText = await response.Content.ReadAsStringAsync();
+                return JsonConvert.DeserializeObject<DssModelInformation>(responseAsText);
             }
             catch (Exception ex)
             {
@@ -102,23 +95,15 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
             try
             {
                 var language = Thread.CurrentThread.CurrentCulture.Name;
-                var cacheKey = string.Format("dssInputSchema_{0}_{1}_{2}", dssId.ToLower(), modelId.ToLower(), language);
-                if (!memoryCache.TryGetValue(cacheKey, out JSchema dssInputSchema))
-                {
-                    var dssEndPoint = config["MicroserviceInternalCommunication:DssMicroservice"];
-                    var response = await httpClient.GetAsync(string.Format("{0}rest/model/{1}/{2}/input_schema/ui_form?language={3}",
-                        dssEndPoint, dssId, modelId, language));
 
-                    if (!response.IsSuccessStatusCode) return null;
+                var dssEndPoint = config["MicroserviceInternalCommunication:DssMicroservice"];
+                var response = await httpClient.GetAsync(string.Format("{0}rest/model/{1}/{2}/input_schema/ui_form?language={3}",
+                    dssEndPoint, dssId, modelId, language));
 
-                    var responseAsString = await response.Content.ReadAsStringAsync();
-                    JSchemaUrlResolver resolver = new JSchemaUrlResolver();
-                    dssInputSchema = JSchema.Parse(responseAsString, resolver);
-                    // Dss for caching as the previous one will have some properties removed.
-                    var dssInputSchemaCached = JSchema.Parse(responseAsString, resolver);
-                    memoryCache.Set(cacheKey, dssInputSchemaCached, MemoryCacheHelper.CreateMemoryCacheEntryOptions(1));
-                }
-                return dssInputSchema;
+                if (!response.IsSuccessStatusCode) return null;
+                var responseAsString = await response.Content.ReadAsStringAsync();
+                JSchemaUrlResolver resolver = new JSchemaUrlResolver();
+                return JSchema.Parse(responseAsString, resolver);
             }
             catch (Exception ex)
             {
@@ -177,6 +162,33 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
             catch (Exception ex)
             {
                 logger.LogError(string.Format("Error in Internal Communication - GetListOfDssByLocationFromDssMicroservice. {0}", ex.Message));
+                return null;
+            }
+        }
+
+        public async Task<DssInformation> GetDssInformationFromDssMicroservice(string dssId)
+        {
+            try
+            {
+                var language = Thread.CurrentThread.CurrentCulture.Name;
+                var cacheKey = string.Format("dssInformation_{0}_{1}", dssId.ToLower(), language);
+                if (!memoryCache.TryGetValue(cacheKey, out DssInformation dssInformation))
+                {
+                    var dssEndPoint = config["MicroserviceInternalCommunication:DssMicroservice"];
+                    var response = await httpClient.GetAsync(string.Format("{0}rest/model/{1}?language={2}", dssEndPoint, dssId, language));
+
+                    if (!response.IsSuccessStatusCode) return null;
+
+                    var responseAsText = await response.Content.ReadAsStringAsync();
+                    dssInformation = JsonConvert.DeserializeObject<DssInformation>(responseAsText);
+
+                    memoryCache.Set(cacheKey, dssInformation, MemoryCacheHelper.CreateMemoryCacheEntryOptions(1));
+                }
+                return dssInformation;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(string.Format("Error in Internal Communication - GetDssInformationFromDssMicroservice. {0}", ex.Message));
                 return null;
             }
         }
