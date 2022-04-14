@@ -55,18 +55,21 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
         {
             var eppoCodeLanguage = eppoCode
                 .Where(e => e.Key.ToLower() == languageFilter.ToLower());
-            if (eppoCodeLanguage.Count() != 0) return eppoCodeLanguage.ToDictionary(e => e.Key, e => e.Value);
-
+            if (eppoCodeLanguage.Count() != 0)
+            {
+                if (!string.IsNullOrEmpty(eppoCodeLanguage.FirstOrDefault().Value))
+                    return eppoCodeLanguage.ToDictionary(e => e.Key, e => e.Value);
+            }
             // default language: latin (la)
             eppoCodeLanguage = eppoCode
                 .Where(e => e.Key == "la");
             if (eppoCodeLanguage.Count() != 0) return eppoCodeLanguage.ToDictionary(e => e.Key, e => e.Value);
 
-            var eppoCodeFromDictionary =  eppoCode
+            var eppoCodeFromDictionary = eppoCode
                 .Where(e => e.Key == "EPPOCode")
                 .Select(e => e.Value)
                 .FirstOrDefault();
-            
+
             return NoLanguagesAvailable(eppoCodeFromDictionary);
         }
 
