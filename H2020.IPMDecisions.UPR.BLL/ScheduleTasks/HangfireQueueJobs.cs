@@ -8,6 +8,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
     {
         string AddDssOnTheFlyQueue(Guid id);
         string ScheduleDssOnTheFlyQueue(Guid id, double minutes);
+        string ScheduleDssOnTheFlyQueue(Guid id, int second);
         string AddFarmLocationToWeatherQueue(string weatherStringParametersUrl);
     }
 
@@ -32,6 +33,12 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
         {
             return BackgroundJob.Schedule<DssRunningJobs>(
                 job => job.QueueOnTheFlyDss(JobCancellationToken.Null, id), TimeSpan.FromMinutes(minutes));
+        }
+
+        public string ScheduleDssOnTheFlyQueue(Guid id, int seconds)
+        {
+            return BackgroundJob.Schedule<DssRunningJobs>(
+                job => job.QueueOnTheFlyDss(JobCancellationToken.Null, id), TimeSpan.FromSeconds(seconds));
         }
 
         public string AddFarmLocationToWeatherQueue(string weatherStringParametersUrl)
