@@ -46,6 +46,7 @@
     "weather": {
       "missing_service": "Weather service with ID '{0}' do not exist on the weather microservice.",
       "next_season":"DSS default start date to get and use weather data is {0}. Please wait until this date or change the DSS parameters to start using earlier weather data.",
+      "next_season_fixed": "DSS default start date to get and use weather data is {0}. Unfortunately this is a fixed date determinate by the DSS owner and can't be changed by the user, please wait until this date.",
       "missing_weather_service" : "No Weather Data Sources or Weather Stations associated to the farm",
       "no_json_format" : "Weather data received in not in a JSON format.",
       "validation_error" : "Weather data received failed the IPM Decisions Weather validation schema. This might be because the weather data source selected do not accept weather parameters required by the DSS: {0}"
@@ -54,7 +55,7 @@
       "dss_information": "Error getting DSS information from microservice.",
       "system_ready_error": "Error running the DSS - System not ready.",
       "dss_no_endpoint": "End point not available to run DSS.",
-      "weather_data_error": "Error with Weather Data - {0}",
+      "weather_data_error": "Problem getting weather information: {0}",
       "dss_error": "Error running the DSS - {0}",
       "dss_format_error": "Message error from DSS do not follow IPM Decisions standards, so unfortunately we can not provide more information."
     }

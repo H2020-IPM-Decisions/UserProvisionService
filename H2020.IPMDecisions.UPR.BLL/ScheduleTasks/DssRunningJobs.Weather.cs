@@ -55,7 +55,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 return new WeatherDataResult()
                 {
                     Continue = false,
-                    ResponseWeather = ex.Message.ToString(),
+                    ResponseWeatherAsString = ex.Message.ToString(),
                     ErrorType = DssOutputMessageTypeEnum.Error
                 };
             }
@@ -82,16 +82,20 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             if (dssInformation.Input.WeatherDataPeriodStart != null)
             {
                 weatherToCall.WeatherTimeStart = DssDataHelper.ProcessWeatherDataPeriod(dssInformation.Input.WeatherDataPeriodStart, dssInputSchemaAsJson, currentYear);
-                // ToDo -- Ask if send message DSS not running until X Date if parameter type is fixed date
                 if (weatherToCall.WeatherTimeStart > DateTime.Today)
                 {
-                    result = new WeatherDataResult()
+                    if (dssInformation.Input.WeatherDataPeriodStart.FirstOrDefault().DeterminedBy.ToLower() == "fixed_date")
                     {
-                        Continue = false,
-                        ResponseWeather = this.jsonStringLocalizer["weather.next_season",
-                            weatherToCall.WeatherTimeStart.ToString("dd/MM/yyyy")].ToString(),
-                        ErrorType = DssOutputMessageTypeEnum.Warning
-                    };
+                        result.ResponseWeatherAsString = this.jsonStringLocalizer["weather.next_season_fixed",
+                        weatherToCall.WeatherTimeStart.ToString("dd/MM/yyyy")].ToString();
+                    }
+                    else
+                    {
+                        result.ResponseWeatherAsString = this.jsonStringLocalizer["weather.next_season",
+                               weatherToCall.WeatherTimeStart.ToString("dd/MM/yyyy")].ToString();
+                    }
+                    result.Continue = false;
+                    result.ErrorType = DssOutputMessageTypeEnum.Warning;
                 }
             }
             return result;
@@ -106,7 +110,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             var result = new WeatherDataResult();
             if (listWeatherDataSource.Count < 1)
             {
-                result.ResponseWeather = this.jsonStringLocalizer["weather.missing_weather_service"].ToString();
+                result.ResponseWeatherAsString = this.jsonStringLocalizer["weather.missing_weather_service"].ToString();
                 return result;
             }
 
@@ -129,27 +133,34 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 if (regex.IsMatch(responseText))
                 {
                     responseText = regex.Replace(responseText, "", 1);
-                    result.ResponseWeather = responseText.Trim();
+                    result.ResponseWeatherAsString = responseText.Trim();
                     return result;
                 }
-                result.ResponseWeather = string.Format("{0} - {1}", responseWeather.ReasonPhrase.ToString(), responseText);
+                result.ResponseWeatherAsString = string.Format("{0} - {1}", responseWeather.ReasonPhrase.ToString(), responseText);
                 return result;
             }
             var responseWeatherAsText = await responseWeather.Content.ReadAsStringAsync();
 
             if (!DataParseHelper.IsValidJson(responseWeatherAsText))
             {
-                result.ResponseWeather = this.jsonStringLocalizer["weather.no_json_format"].ToString();
+                result.ResponseWeatherAsString = this.jsonStringLocalizer["weather.no_json_format"].ToString();
                 return result;
             };
 
             if (!await ValidateWeatherDataSchema(responseWeatherAsText))
             {
-                result.ResponseWeather = this.jsonStringLocalizer["weather.validation_error", weatherDataSource.WeatherDssParameters.ToString()].ToString();
+                result.ResponseWeatherAsString = this.jsonStringLocalizer["weather.validation_error", weatherDataSource.WeatherDssParameters.ToString()].ToString();
                 return result;
             };
             result.Continue = true;
-            result.ResponseWeather = responseWeatherAsText;
+
+            // ToDo Wait to Tor-Einar response about Java error on NIBIO/SEGES DSS
+            // result.ResponseWeather = JsonConvert.DeserializeObject<WeatherDataResponseSchema>(responseWeatherAsText);
+            // result.ResponseWeather.TimeStart = result.ResponseWeather.TimeStart.ToLocalTime();
+            // result.ResponseWeather.TimeEnd = result.ResponseWeather.TimeEnd.ToLocalTime();
+            // result.ResponseWeatherAsString = JsonConvert.SerializeObject(result.ResponseWeather);
+
+            result.ResponseWeatherAsString = responseWeatherAsText;
             return result;
         }
 

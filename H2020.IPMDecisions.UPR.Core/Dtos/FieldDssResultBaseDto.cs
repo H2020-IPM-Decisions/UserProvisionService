@@ -24,7 +24,7 @@ namespace H2020.IPMDecisions.UPR.Core.Dtos
         public string DssExecutionType { get; set; }
         public string DssFullResult { get; set; }
         public string DssDescription { get; set; }
-        public string DssPurpose { get; set; } = "ToDo - Remove this text string when metadata ready";
+        public string DssPurpose { get; set; }
         public string DssSource { get; set; }
         public string DssEndPoint { get; set; }
         public int WarningStatus { get; set; }
