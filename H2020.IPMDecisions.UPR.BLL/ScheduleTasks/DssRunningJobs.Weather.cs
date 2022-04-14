@@ -134,13 +134,17 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 {
                     responseText = regex.Replace(responseText, "", 1);
                     result.ResponseWeatherAsString = responseText.Trim();
+                    result.ErrorType = DssOutputMessageTypeEnum.Warning;
                     return result;
                 }
-                result.ResponseWeatherAsString = string.Format("{0} - {1}", responseWeather.ReasonPhrase.ToString(), responseText);
+                // Internal Error
+                result.ResponseWeatherAsString = this.jsonStringLocalizer["weather.internal_error"].ToString();
+                result.ErrorType = DssOutputMessageTypeEnum.Error;
+                result.ReSchedule = true;
                 return result;
             }
-            var responseWeatherAsText = await responseWeather.Content.ReadAsStringAsync();
 
+            var responseWeatherAsText = await responseWeather.Content.ReadAsStringAsync();
             if (!DataParseHelper.IsValidJson(responseWeatherAsText))
             {
                 result.ResponseWeatherAsString = this.jsonStringLocalizer["weather.no_json_format"].ToString();

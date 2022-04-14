@@ -106,7 +106,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                     // #else
                     // Add them to the queue every 10 seconds, to allow weather service to return data so doesn't get overload
                     Thread.Sleep(7500);
-                    dss.LastJobId = this.queueJobs.ScheduleDssOnTheFlyQueue(dss.Id, 0.03);
+                    dss.LastJobId = this.queueJobs.ScheduleDssOnTheFlyQueueSeconds(dss.Id, 3);
                     // #endif
                 }
                 // Save last job ids and DSS results if debugging...
@@ -226,6 +226,11 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                         if (responseWeather.ResponseWeatherAsString.ToString().Contains("This is the first time this season that weather"))
                         {
                             var jobscheduleId = this.queueJobs.ScheduleDssOnTheFlyQueue(dss.Id, 121);
+                            dss.LastJobId = jobscheduleId;
+                        }
+                        if (responseWeather.ReSchedule)
+                        {
+                            var jobscheduleId = this.queueJobs.ScheduleDssOnTheFlyQueue(dss.Id, 5);
                             dss.LastJobId = jobscheduleId;
                         }
                         var errorMessage = this.jsonStringLocalizer["dss_process.weather_data_error", responseWeather.ResponseWeatherAsString.ToString()].ToString();

@@ -1,0 +1,56 @@
+{
+    "data_share": {
+        "user_not_registered": "Gebruiker is niet geregistreerd in het systeem", 
+        "pending_change_error": "U kunt lopen verzoek niet updaten. Gebruik aub het 'antwoord' eindpunt om verzoek te accepteren/weigeren", 
+        "back_to_pending": "U kunt een verzoek niet veranderen naar lopend", 
+        "no_farms_error": "Gebruiker heeft geen bedrijf in het systeem", 
+        "existing_request": "U heeft al data gevraagd voor deze gebruiker", 
+        "request_error": "Vraag hoort niet bij de gebruiker", 
+        "email_error": "Verzoek gemaakt maar foutmelding bij verzenden email", 
+        "user_requesting_no_profile": "Gebruiker die vraagt data te delen heeft geen profiel in het systeem", 
+        "not_existing_request": "Verzoek bestaat niet in het systeem of is reeds geaccepteerd/geweigerd", 
+        "own_request_error": "Gebruiker kan niet eigen data vragen", 
+        "user_without_profile": "Gebruiker heeft geen profiel in het systeem", 
+        "declined_request": "De gebruiker heeft toegang tot data geweigerd", 
+        "farms_ownership_error": "Bedrijven horen niet bij de gebruiker", 
+        "wrong_method": "De methode is voor acceptatie of weigeren van verzoeken"
+    }, 
+    "farm": {
+        "owner_error": "U bent niet de eigenaar van dit bedrijf, de bewerking kan niet worden uitgevoerd"
+    }, 
+    "dss": {
+        "existing_combination": "Perceel heeft al gewas ({0}), ziekte ({1}), and DSS ({2}) combinatie.", 
+        "warning_header": "Een of meer gewas, pest & DSS combinaties bestaan al. Controleer 'response body' voor meer informatie", 
+        "warnings": "Corrigeer de volgende fout(en) alvorens op te slaan", 
+        "model_missing_metadata": "De DSS met ID '{0}' en versie '{1}', hebben geen enkel model met ID '{2}' en versie '{3}' in de DSS microservice.", 
+        "field_eppo_code": "Perceel met ID '(0) accepteert alleen '(1) 'EPPO gewascode", 
+        "dss_missing_metadata": "DSS met ID '{0}' en versie '{1}' bestaan niet in de DSS microservice.", 
+        "duplicated": "Dubbele combinatie van Gewas ({0}), Ziekte ({1}), DSS ({2}), Model ({3}) & DSS Model versie ({4}) op een perceel."
+    }, 
+    "dss_process": {
+        "dss_format_error": "Foutbericht van DSS volgt niet IPM Decision standaard, helaas kunnen we geen verdere informatie geven", 
+        "dss_error": "Fout gebruik  DSS - {0}", 
+        "dss_information": "Fout ophalen DSS informatie van de microservice", 
+        "system_ready_error": "Fout gebruik van de DSS - Systeem niet gereed", 
+        "dss_no_endpoint": "Eindpunt niet beschikbaar om DSS te gebruiken", 
+        "weather_data_error": "Fout met Weerdata - {0}"
+    }, 
+    "weather": {
+        "validation_error": "Ontvangen weerdata konden niet gebruikt worden voor het IPM Decisions validatie schema. Dit kan veroorzaakt zijn omdat de geselecteerde bron van weersgegevens geen weerparameters accepteert die nodig zijn voor de DSS: {0}", 
+        "next_season_fixed": "", 
+        "missing_weather_service": "Geen Weersgegevens of Weerstation gekoppeld aan het bedrijf", 
+        "next_season": "De default start datum voor gebruik weerdata is  {0}. Aub wacht tot deze datum of verander de DSS parameters om te starten met eerdere weerdata", 
+        "internal_error": "", 
+        "missing_service": "Weer service met ID '{0}' bestaat niet in de weer microservice.", 
+        "no_json_format": "Weersgegevens ontvangen in een niet-JSON formaat"
+    }, 
+    "shared": {
+        "missing_payload": "Gegens ontbreken op 'payload'", 
+        "wrong_media_type": "Verkeerde media type voor dit verzoek", 
+        "missing_user_profile": "Creëer eerst een Gebruikersprofiel", 
+        "wrong_fields": "Verkeerde percelen ingevoerd of ontbrekend 'id' voor het gevraagde perceel", 
+        "wrong_order_by": "Verkeerde OrderBy ingevoerd bij het verzoek", 
+        "missing_default_forecast": "Database bevat geen default waarde voor de weersvoorspelling", 
+        "missing_default_historical": "Database bevat geen default voor historische weersgegevens"
+    }
+}
