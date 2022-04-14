@@ -8,5 +8,6 @@ namespace H2020.IPMDecisions.UPR.Core.Models
         public string ResponseWeatherAsString { get; set; }
         public WeatherDataResponseSchema ResponseWeather { get; set; }
         public DssOutputMessageTypeEnum ErrorType { get; set; }
+        public bool ReSchedule { get; set; } = false;
     }
 }
