@@ -1,0 +1,56 @@
+{
+    "data_share": {
+        "user_not_registered": "Uporabnik ni registriran v sistemu.", 
+        "pending_change_error": "Prošnje, ki čaka na obravnavo, ne morete posodobiti. Za sprejemanje/zavračanje prošnje uporabite gumb \"odgovori\".", 
+        "back_to_pending": "Prošnje ne morete spremeniti nazaj v čakajočo.", 
+        "no_farms_error": "Uporabnik nima nobene kmetije v sistemu.", 
+        "existing_request": "Za tega uporabnika ste že zaprosili za podatke.", 
+        "request_error": "Zahteva ne pripada uporabniku.", 
+        "email_error": "Prošnja je bila ustvarjena, vendar je prišlo do napake pri pošiljanju e-pošte.", 
+        "user_requesting_no_profile": "Uporabnik, ki zahteva souporabo podatkov, nima profila v sistemu.", 
+        "not_existing_request": "Prošnja ne obstaja v sistemu ali je že sprejeta/zavrnjena.", 
+        "own_request_error": "Uporabnik ne more zahtevati svojih podatkov.", 
+        "user_without_profile": "Uporabnik nima profila v sistemu.", 
+        "declined_request": "Uporabnik je zavrnil dostop do podatkov.", 
+        "farms_ownership_error": "Kmetije ne pripadajo uporabniku.", 
+        "wrong_method": "Metoda je namenjena sprejemanju ali zavračanju zahtev."
+    }, 
+    "farm": {
+        "owner_error": "Niste lastnik te kmetije, zato postopka ni mogoče dokončati."
+    }, 
+    "dss": {
+        "existing_combination": "Polje že ima kombinacijo kulturne rastline ({0}), škodljivega organizma ({1}) in DSS ({2}).", 
+        "warning_header": "Ena ali več kombinacij kulturne rastline, škodljivega organizma in DSS že obstaja. Za več informacij kontaktirajte odgovorno osebo. ", 
+        "warnings": "Pred shranjevanjem odpravite naslednjo(-e) napako(-e):", 
+        "model_missing_metadata": "DSS z ID '{0}' in različico '{1}' nima nobenega modela z ID '{2}' in različico '{3}'.", 
+        "field_eppo_code": "Polje z ID {0} sprejema samo '{1}' kodo EPPO za kulturno rastlino.", 
+        "dss_missing_metadata": "DSS z ID '{0}' in različico '{1}' ne obstaja.", 
+        "duplicated": "Podvojena je kombinacija kulturne rastline ({0}), škodljivega organizema ({1}), DSS ({2}), modela {3}) in njegove različice ({4}) na polju."
+    }, 
+    "dss_process": {
+        "dss_format_error": "Sporočilo DSS o napaki ne upošteva standardov IPM Decisions, zato žal ne moremo zagotoviti več informacij.", 
+        "dss_error": "Napaka pri izvajanju DSS - {0}", 
+        "dss_information": "Napaka pri pridobivanju informacij o DSS.", 
+        "system_ready_error": "Napaka pri zagonu DSS - sistem ni pripravljen.", 
+        "dss_no_endpoint": "Končna točka ni na voljo za zagon DSS.", 
+        "weather_data_error": "Napaka z vremenskimi podatki - {0}"
+    }, 
+    "weather": {
+        "validation_error": "Prejeti podatki o vremenu niso ustrezali shemi za potrjevanje vremena IPM Decisions. Vzrok je lahko v tem, da izbrani vir vremenskih podatkov ne sprejema vremenskih parametrov, ki jih zahteva DSS: {0}", 
+        "next_season_fixed": "", 
+        "missing_weather_service": "Za kmetijo ni primernih  vremenskih podatkov ali vremenskih postaj", 
+        "next_season": "Privzet začetni datum DSS za pridobivanje in uporabo vremenskih podatkov je {0}. Počakajte do tega datuma ali spremenite parametre DSS, da lahko začnete uporabljati vremenske podatke pred tem datumom.", 
+        "internal_error": "", 
+        "missing_service": "Vremenska storitev z ID '{0}' ne obstaja.", 
+        "no_json_format": "Prejeti podatki o vremenu niso v obliki JSON."
+    }, 
+    "shared": {
+        "missing_payload": "Manjkajo podatki za prenos.", 
+        "wrong_media_type": "Vnešena je napačna zahtevana vrsta medija.", 
+        "missing_user_profile": "Najprej ustvarite uporabniški profil.", 
+        "wrong_fields": "Vnešena so napačna zahtevana polja ali manjka zahtevana identifikacijska številka \"id\" polja.", 
+        "wrong_order_by": "Vnešen je napačen zahtevan kriterij za razvrščanje.", 
+        "missing_default_forecast": "Podatkovna zbirka ne vsebuje privzetega podatka o vremenski napovedi.", 
+        "missing_default_historical": "Podatkovna baza ne vsebuje privzetih arhivskih vremenskih podatkov."
+    }
+}
