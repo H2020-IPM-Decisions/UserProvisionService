@@ -141,7 +141,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 if ((int)responseWeather.StatusCode == 500)
                 {
                     result.ReSchedule = true;
-                    result.ResponseWeatherAsString = this.jsonStringLocalizer["weather.internal_error", "2"].ToString();
+                    result.ResponseWeatherAsString = this.jsonStringLocalizer["weather.internal_error", "10"].ToString();
                 }
                 else
                 {
