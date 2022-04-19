@@ -33,7 +33,7 @@
         "dss_information": "Fehler beim Abrufen von DSS-Informationen vom Microservice.", 
         "system_ready_error": "Fehler beim Ausführen des DSS - System nicht bereit.", 
         "dss_no_endpoint": "Endpunkt nicht verfügbar, um DSS auszuführen.", 
-        "weather_data_error": "Fehler mit den Wetterdaten - {0}"
+        "weather_data_error": "{0} - Fehler mit den Wetterdaten"
     }, 
     "weather": {
         "validation_error": "Die empfangenen Wetterdaten haben die IPM Decisions Wettervalidierung nicht erfüllt. Dies könnte daran liegen, dass die gewählte Wetterdatenquelle die vom DSS benötigten Wetterparameter nicht akzeptiert: {0}. ", 

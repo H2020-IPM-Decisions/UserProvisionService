@@ -210,10 +210,22 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 }
 
                 IList<string> validationErrormessages;
-                bool isJsonObjectvalid = inputAsJsonObject.IsValid(inputSchema, out validationErrormessages);
+                bool isJsonObjectvalid;
+                bool reSchedule;
+                ValidateJsonSchema(inputSchema, inputAsJsonObject, out validationErrormessages, out isJsonObjectvalid, out reSchedule);
                 if (!isJsonObjectvalid)
                 {
-                    string errorMessageToReturn = string.Join(" ", validationErrormessages);
+                    string errorMessageToReturn = "";
+                    if (reSchedule)
+                    {
+                        errorMessageToReturn = this.jsonStringLocalizer["dss_process.json_validation_error", 60].ToString();
+                        var jobscheduleId = this.queueJobs.ScheduleDssOnTheFlyQueue(dss.Id, 61);
+                        dss.LastJobId = jobscheduleId;
+                    }
+                    else
+                    {
+                        errorMessageToReturn = string.Join(" ", validationErrormessages);
+                    }
                     CreateDssRunErrorResult(dssResult, errorMessageToReturn, DssOutputMessageTypeEnum.Error);
                     return dssResult;
                 }
@@ -230,7 +242,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                         }
                         if (responseWeather.ReSchedule)
                         {
-                            var jobscheduleId = this.queueJobs.ScheduleDssOnTheFlyQueue(dss.Id, 5);
+                            var jobscheduleId = this.queueJobs.ScheduleDssOnTheFlyQueue(dss.Id, 10);
                             dss.LastJobId = jobscheduleId;
                         }
                         var errorMessage = this.jsonStringLocalizer["dss_process.weather_data_error", responseWeather.ResponseWeatherAsString.ToString()].ToString();
@@ -254,6 +266,22 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 var errorMessage = this.jsonStringLocalizer["dss_process.dss_error", ex.Message.ToString()].ToString();
                 CreateDssRunErrorResult(dssResult, errorMessage, DssOutputMessageTypeEnum.Error);
                 return dssResult;
+            }
+        }
+
+        private void ValidateJsonSchema(JSchema inputSchema, JObject inputAsJsonObject, out IList<string> validationErrormessages, out bool isJsonObjectvalid, out bool reSchedule)
+        {
+            try
+            {
+                reSchedule = false;
+                isJsonObjectvalid = inputAsJsonObject.IsValid(inputSchema, out validationErrormessages);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(string.Format("Error running DSS. Error: {0}", ex.Message));
+                isJsonObjectvalid = false;
+                reSchedule = true;
+                validationErrormessages = null;
             }
         }
 

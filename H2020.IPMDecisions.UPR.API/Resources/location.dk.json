@@ -33,7 +33,7 @@
         "dss_information": "Fejl ved hentning af DSS-oplysninger fra mikroservice.", 
         "system_ready_error": "Fejl ved kørsel af DSS - Systemet er ikke klar.", 
         "dss_no_endpoint": "Slutpunktet er ikke tilgængeligt til at køre DSS.", 
-        "weather_data_error": "Fejl med vejrdata - {0}"
+        "weather_data_error": "{0} - Fejl med vejrdata"
     }, 
     "weather": {
         "validation_error": "Modtagne vejrdata mislykkedes i IPM Decisions vejr-valideringsskemaet. Dette kan skyldes, at den valgte vejrdatakilde ikke accepterer vejrparametre, der kræves af DSS: {0}", 
