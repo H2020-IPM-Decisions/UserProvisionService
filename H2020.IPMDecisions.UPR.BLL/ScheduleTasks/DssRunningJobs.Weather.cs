@@ -138,9 +138,16 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                     return result;
                 }
                 // Internal Error
-                result.ResponseWeatherAsString = this.jsonStringLocalizer["weather.internal_error"].ToString();
+                if ((int)responseWeather.StatusCode == 500)
+                {
+                    result.ReSchedule = true;
+                    result.ResponseWeatherAsString = this.jsonStringLocalizer["weather.internal_error", "2"].ToString();
+                }
+                else
+                {
+                    result.ResponseWeatherAsString = responseText;
+                }
                 result.ErrorType = DssOutputMessageTypeEnum.Error;
-                result.ReSchedule = true;
                 return result;
             }
 
