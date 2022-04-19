@@ -33,7 +33,7 @@
     "dss_information": "Error getting DSS information from microservice.",
     "system_ready_error": "Error running the DSS - System not ready.",
     "dss_no_endpoint": "End point not available to run DSS.",
-    "weather_data_error": "Error with Weather Data - {0}"
+    "weather_data_error": "{0} - Error with Weather Data"
   },
   "weather": {
     "validation_error": "Weather data received failed the IPM Decisions Weather validation schema. This might be because the weather data source selected do not accept weather parameters required by the DSS: {0}",

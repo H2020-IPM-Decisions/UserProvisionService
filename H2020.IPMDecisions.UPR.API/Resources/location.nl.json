@@ -33,7 +33,7 @@
         "dss_information": "Fout ophalen DSS informatie van de microservice", 
         "system_ready_error": "Fout gebruik van de DSS - Systeem niet gereed", 
         "dss_no_endpoint": "Eindpunt niet beschikbaar om DSS te gebruiken", 
-        "weather_data_error": "Fout met Weerdata - {0}"
+        "weather_data_error": "{0} - Fout met Weerdata"
     }, 
     "weather": {
         "validation_error": "Ontvangen weerdata konden niet gebruikt worden voor het IPM Decisions validatie schema. Dit kan veroorzaakt zijn omdat de geselecteerde bron van weersgegevens geen weerparameters accepteert die nodig zijn voor de DSS: {0}", 
