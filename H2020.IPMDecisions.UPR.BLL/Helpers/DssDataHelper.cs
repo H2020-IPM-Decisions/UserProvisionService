@@ -49,6 +49,12 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
                 var weatherDateJson = weatherDate.Value.ToString();
                 if (weatherDate.DeterminedBy.ToLower() == "input_schema_property")
                 {
+                    // ToDo - Remove this fix for ADAS DSS when metadata updated...
+                    if (weatherDateJson.Contains("properties.optionalData"))
+                    {
+                        weatherDateJson = weatherDateJson.Replace("properties.", "");
+                    }
+
                     var token = dssInputSchemaAsJson.SelectTokens(weatherDateJson).FirstOrDefault();
                     if (token == null)
                         continue;
