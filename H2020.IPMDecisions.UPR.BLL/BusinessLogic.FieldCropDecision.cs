@@ -298,7 +298,10 @@ namespace H2020.IPMDecisions.UPR.BLL
                         .Where(dm => dm.Id == fieldCropPestDto.CropPestDssDto.DssModelId)
                         .FirstOrDefault();
                     if (dssOnListMatchDatabaseRecord != null)
+                    {
+                        fieldCropPestDto.CropPestDssDto.DssPurpose = dssOnListMatchDatabaseRecord.Purpose;
                         fieldCropPestDto.CropPestDssDto.ValidatedSpatialCountries = dssOnListMatchDatabaseRecord.ValidSpatial.Countries;
+                    }
                 }
 
                 var shapedChildrenToReturn = dataAsDto.ShapeData(resourceParameter.Fields);

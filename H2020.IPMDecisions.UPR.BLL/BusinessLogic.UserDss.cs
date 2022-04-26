@@ -11,6 +11,7 @@ using Hangfire;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Schema;
 
 namespace H2020.IPMDecisions.UPR.BLL
 {
@@ -46,6 +47,14 @@ namespace H2020.IPMDecisions.UPR.BLL
 
                 var dssUserId = dss.FieldCropPest.FieldCrop.Field.Farm.UserFarms.FirstOrDefault().UserId;
                 if (userId != dssUserId) return GenericResponseBuilder.NotFound<FieldCropPestDssDto>();
+
+                // Validate DSS parameters on server side
+                var validationErrormessages = await ValidateNewDssParameters(dss.CropPestDss, fieldCropPestDssForUpdateDto.DssParameters);
+                if (validationErrormessages.Count > 0)
+                {
+                    var errorMessageToReturn = string.Join(" ", validationErrormessages);
+                    return GenericResponseBuilder.NoSuccess(errorMessageToReturn);
+                }
 
                 this.mapper.Map(fieldCropPestDssForUpdateDto, dss);
                 this.dataService.FieldCropPestDsses.Update(dss);
@@ -434,6 +443,26 @@ namespace H2020.IPMDecisions.UPR.BLL
                 geoJson.Features.Add(feature);
             }
             return geoJson;
+        }
+
+        private async Task<IList<string>> ValidateNewDssParameters(CropPestDss cropPestDss, string newDssParameters)
+        {
+            try
+            {
+                var dssInputUISchema = await internalCommunicationProvider
+                                       .GetDssModelInputSchemaMicroservice(cropPestDss.DssId, cropPestDss.DssModelId);
+                DssDataHelper.RemoveNotRequiredInputSchemaProperties(dssInputUISchema);
+                JObject inputAsJsonObject = JObject.Parse(newDssParameters.ToString());
+                IList<string> validationErrormessages;
+                var isJsonObjectvalid = inputAsJsonObject.IsValid(dssInputUISchema, out validationErrormessages);
+                return validationErrormessages;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(string.Format("Error in BLL - ValidateNewDssParameters. {0}", ex.Message), ex);
+                String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
+                throw ex;
+            }
         }
     }
 }
