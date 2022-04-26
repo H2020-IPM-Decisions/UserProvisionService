@@ -33,7 +33,8 @@
         "dss_information": "DSS:n tietojen haussa mikropalvelussa tapahtui virhe.", 
         "system_ready_error": "DSS:n ajamisessa tapahtui virhe. DSS ei ole valmiina.", 
         "dss_no_endpoint": "DSS:n ajamiseen ei ole päätettä.", 
-        "weather_data_error": "{0} - Virhe säädatassa"
+        "weather_data_error": "Virhe säädatassa - {0}",
+        "json_validation_error":""
     }, 
     "weather": {
         "validation_error": "Saatu säätieto ei täytä IPM Decisionsin säädatan validointiskeemaa. Tämä voi johtua siitä, että säädatan lähde ei hyväksy DSS:n {0} lähettämiä parametreja.", 
