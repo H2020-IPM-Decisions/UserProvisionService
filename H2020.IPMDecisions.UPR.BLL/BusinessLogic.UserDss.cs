@@ -452,13 +452,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                 var dssInputUISchema = await internalCommunicationProvider
                                        .GetDssModelInputSchemaMicroservice(cropPestDss.DssId, cropPestDss.DssModelId);
                 DssDataHelper.RemoveNotRequiredInputSchemaProperties(dssInputUISchema);
-
-                var inputAsJsonObject = JsonSchemaToJson.ToJsonObject(dssInputUISchema.ToString(), logger);
-                if (!string.IsNullOrEmpty(newDssParameters))
-                {
-                    JObject dssParametersAsJsonObject = JObject.Parse(newDssParameters.ToString());
-                    DssDataHelper.AddUserDssParametersToDssInput(dssParametersAsJsonObject, inputAsJsonObject);
-                }
+                JObject inputAsJsonObject = JObject.Parse(newDssParameters.ToString());                
                 IList<string> validationErrormessages;
                 var isJsonObjectvalid = inputAsJsonObject.IsValid(dssInputUISchema, out validationErrormessages);
                 if (!isJsonObjectvalid)
