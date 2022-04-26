@@ -33,7 +33,8 @@
         "dss_information": "Napaka pri pridobivanju informacij o DSS.", 
         "system_ready_error": "Napaka pri zagonu DSS - sistem ni pripravljen.", 
         "dss_no_endpoint": "Končna točka ni na voljo za zagon DSS.", 
-        "weather_data_error": "{0} - Napaka z vremenskimi podatki"
+        "weather_data_error": "{0} - Napaka z vremenskimi podatki",
+        "json_validation_error":""
     }, 
     "weather": {
         "validation_error": "Prejeti podatki o vremenu niso ustrezali shemi za potrjevanje vremena IPM Decisions. Vzrok je lahko v tem, da izbrani vir vremenskih podatkov ne sprejema vremenskih parametrov, ki jih zahteva DSS: {0}", 

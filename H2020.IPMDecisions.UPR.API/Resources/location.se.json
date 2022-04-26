@@ -33,7 +33,8 @@
         "dss_information": "Det gick inte att hämta DSS-information från tjänsten.", 
         "system_ready_error": "Fel vid körning av DSS - Systemet är inte klart.", 
         "dss_no_endpoint": "Slutpunkten är inte tillgänglig för att köra DSS.", 
-        "weather_data_error": "{0} - Fel på väderdata"
+        "weather_data_error": "{0} - Fel på väderdata",
+        "json_validation_error":""
     }, 
     "weather": {
         "validation_error": "Mottagna väderdata kunde inte valideras av IPM Decisions plattformen. Detta kan bero på att den valda väderdatakällan inte accepterar väderparametrar som krävs av DSS: {0}", 
