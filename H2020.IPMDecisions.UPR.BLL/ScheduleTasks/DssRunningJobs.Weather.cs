@@ -163,16 +163,80 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 result.ResponseWeatherAsString = this.jsonStringLocalizer["weather.validation_error", weatherDataSource.WeatherDssParameters.ToString()].ToString();
                 return result;
             };
+
+            responseWeatherAsText = ReorderWeatherParameters(weatherDataSource.WeatherDssParameters, responseWeatherAsText);
+
             result.Continue = true;
-
-            // ToDo Wait to Tor-Einar response about Java error on NIBIO/SEGES DSS
-            // result.ResponseWeather = JsonConvert.DeserializeObject<WeatherDataResponseSchema>(responseWeatherAsText);
-            // result.ResponseWeather.TimeStart = result.ResponseWeather.TimeStart.ToLocalTime();
-            // result.ResponseWeather.TimeEnd = result.ResponseWeather.TimeEnd.ToLocalTime();
-            // result.ResponseWeatherAsString = JsonConvert.SerializeObject(result.ResponseWeather);
-
             result.ResponseWeatherAsString = responseWeatherAsText;
             return result;
+        }
+
+        private static string ReorderWeatherParameters(string weatherParameterFromDss, string responseWeatherAsText)
+        {
+            try
+            {
+                var weatherDataAsObject = JsonConvert.DeserializeObject<WeatherDataResponseSchema>(responseWeatherAsText);
+                string weatherParametersFromObject = string.Join(",", weatherDataAsObject.WeatherParameters);
+                if (weatherParameterFromDss == weatherParametersFromObject) return responseWeatherAsText;
+
+                var dssParametersAsList = weatherParameterFromDss.Split(",").Select(x => Int32.Parse(x)).ToList();
+                Dictionary<int, int> newOldIndex = new Dictionary<int, int>();
+                for (int i = 0; i < dssParametersAsList.Count; i++)
+                {
+                    var oldIndex = weatherDataAsObject.WeatherParameters
+                        .FindIndex(p => p == dssParametersAsList[i]);
+                    newOldIndex.Add(i, oldIndex);
+                }
+                // Reorder here
+                // Refactor needed, extract methods
+                var newWeatherObject = new WeatherDataResponseSchema();
+                newWeatherObject.Interval = weatherDataAsObject.Interval;
+                newWeatherObject.TimeStart = weatherDataAsObject.TimeStart;
+                newWeatherObject.TimeEnd = weatherDataAsObject.TimeEnd;
+                newWeatherObject.WeatherParameters = weatherParameterFromDss.Split(",").Select(x => Int32.Parse(x)).ToList();
+                newWeatherObject.LocationWeatherDataResult = new List<LocationWeatherDataResult>();
+                for (int i = 0; i < weatherDataAsObject.LocationWeatherDataResult.Count; i++)
+                {
+                    var locationWeatherDataResult = new LocationWeatherDataResult();
+                    locationWeatherDataResult.Altitude = weatherDataAsObject.LocationWeatherDataResult[i].Altitude;
+                    locationWeatherDataResult.Latitude = weatherDataAsObject.LocationWeatherDataResult[i].Latitude;
+                    locationWeatherDataResult.Longitude = weatherDataAsObject.LocationWeatherDataResult[i].Longitude;
+                    locationWeatherDataResult.Length = weatherDataAsObject.LocationWeatherDataResult[i].Length;
+                    locationWeatherDataResult.Width = weatherDataAsObject.LocationWeatherDataResult[i].Width;
+
+                    List<int?> newQcList = new List<int?>();
+                    List<int?> newAmalgamationList = new List<int?>();
+
+                    foreach (var index in newOldIndex)
+                    {
+                        var oldIndex = index.Value;
+                        newQcList.Add(weatherDataAsObject.LocationWeatherDataResult[i].Qc[oldIndex]);
+                        newAmalgamationList.Add(weatherDataAsObject.LocationWeatherDataResult[i].Amalgamation[oldIndex]);
+                    }
+
+                    List<List<double?>> newDataList = new List<List<double?>>();
+                    foreach (var dataItem in weatherDataAsObject.LocationWeatherDataResult[i].Data)
+                    {
+                        var dataResult = new List<double?>();
+                        foreach (var index in newOldIndex)
+                        {
+                            var oldIndex = index.Value;
+                            dataResult.Add(dataItem[oldIndex]);
+                        }
+                        newDataList.Add(dataResult);
+                    }
+
+                    locationWeatherDataResult.Qc = newQcList;
+                    locationWeatherDataResult.Amalgamation = newAmalgamationList;
+                    locationWeatherDataResult.Data = newDataList;
+                    newWeatherObject.LocationWeatherDataResult.Add(locationWeatherDataResult);
+                }
+                return JsonConvert.SerializeObject(newWeatherObject);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
 
         private string GetWeatherDataTestFile(DssModelSchemaInput dssWeatherInput, WeatherSchemaForHttp weatherDataSource)
