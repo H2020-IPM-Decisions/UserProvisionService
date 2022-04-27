@@ -163,16 +163,22 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 result.ResponseWeatherAsString = this.jsonStringLocalizer["weather.validation_error", weatherDataSource.WeatherDssParameters.ToString()].ToString();
                 return result;
             };
+
+            responseWeatherAsText = ReorderWeatherParameters(weatherDataSource.WeatherDssParameters, responseWeatherAsText);
+
             result.Continue = true;
-
-            // ToDo Wait to Tor-Einar response about Java error on NIBIO/SEGES DSS
-            // result.ResponseWeather = JsonConvert.DeserializeObject<WeatherDataResponseSchema>(responseWeatherAsText);
-            // result.ResponseWeather.TimeStart = result.ResponseWeather.TimeStart.ToLocalTime();
-            // result.ResponseWeather.TimeEnd = result.ResponseWeather.TimeEnd.ToLocalTime();
-            // result.ResponseWeatherAsString = JsonConvert.SerializeObject(result.ResponseWeather);
-
             result.ResponseWeatherAsString = responseWeatherAsText;
             return result;
+        }
+
+        private static string ReorderWeatherParameters(string weatherParameterFromDss, string responseWeatherAsText)
+        {
+            var weatherDataAsObject = JsonConvert.DeserializeObject<WeatherDataResponseSchema>(responseWeatherAsText);
+            string weatherParametersFromObject = string.Join(",", weatherDataAsObject.WeatherParameters);
+            if (weatherParameterFromDss == weatherParametersFromObject) return responseWeatherAsText;
+
+            // Reorder here
+            return JsonConvert.SerializeObject(weatherDataAsObject);
         }
 
         private string GetWeatherDataTestFile(DssModelSchemaInput dssWeatherInput, WeatherSchemaForHttp weatherDataSource)
