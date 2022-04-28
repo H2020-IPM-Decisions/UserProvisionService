@@ -185,9 +185,11 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 {
                     var oldIndex = weatherDataAsObject.WeatherParameters
                         .FindIndex(p => p == dssParametersAsList[i]);
+                    if (oldIndex == -1) continue;
                     newOldIndex.Add(i, oldIndex);
                 }
                 // Reorder here
+                // Do not reader if only one parameter??
                 // Refactor needed, extract methods
                 var newWeatherObject = new WeatherDataResponseSchema();
                 newWeatherObject.Interval = weatherDataAsObject.Interval;
