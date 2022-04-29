@@ -298,7 +298,8 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                     responseDss.RequestMessage.RequestUri.ToString(),
                     await responseDss.RequestMessage.Content.ReadAsStringAsync(),
                     responseAsText));
-
+                    
+                    // DSS error follow schema output
                     if (!string.IsNullOrEmpty(dssOutput.Message))
                     {
                         if (dssOutput.MessageType == null)
@@ -315,6 +316,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                         return;
                     }
 
+                    // DSS do not follow DSS schema output...
                     var errorMessage = responseAsText.ToString();
                     CreateDssRunErrorResult(dssResult, errorMessage, DssOutputMessageTypeEnum.Error);
                     return;
@@ -322,11 +324,15 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
 
                 if (!string.IsNullOrEmpty(dssOutput.Message))
                 {
-                    dssResult.ResultMessageType = dssOutput.MessageType;
                     dssResult.ResultMessage = dssOutput.Message;
-                    dssResult.DssFullResult = responseAsText;
-                    dssResult.IsValid = false;
-                    return;
+                    if (dssOutput.MessageType == null)
+                    {
+                        dssResult.ResultMessageType = (int)DssOutputMessageTypeEnum.Info;
+                    }
+                    else
+                    {
+                        dssResult.ResultMessageType = dssOutput.MessageType;
+                    }
                 }
 
                 if (dssOutput.LocationResult != null)
@@ -336,9 +342,13 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                     var maxDaysOutput = 7;
                     dssResult.WarningStatus = warningStatuses.TakeLast(maxDaysOutput).Max();
                     if (dssResult.WarningStatus == null) dssResult.WarningStatus = 0;
+                    dssResult.IsValid = true;
+                }
+                else
+                {
+                    dssResult.IsValid = false;
                 }
                 dssResult.DssFullResult = responseAsText;
-                dssResult.IsValid = true;
             }
             catch (Exception ex)
             {
