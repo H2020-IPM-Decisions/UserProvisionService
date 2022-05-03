@@ -33,7 +33,7 @@
         "dss_information": "Fejl ved hentning af DSS-oplysninger fra mikroservice.", 
         "system_ready_error": "Fejl ved kørsel af DSS - Systemet er ikke klar.", 
         "dss_no_endpoint": "Slutpunktet er ikke tilgængeligt til at køre DSS.", 
-        "weather_data_error": "Fejl med vejrdata - {0}",
+        "weather_data_error": "{0} - Fejl med vejrdata",
         "json_validation_error":""
     }, 
     "weather": {

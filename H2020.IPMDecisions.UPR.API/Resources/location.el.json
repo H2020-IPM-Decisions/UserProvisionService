@@ -33,7 +33,7 @@
         "dss_information": "Σφάλμα λήψης πληροφοριών DSS από μικρουπηρεσία.", 
         "system_ready_error": "Σφάλμα εκτέλεσης του DSS - Το σύστημα δεν είναι έτοιμο.", 
         "dss_no_endpoint": "Το τελικό σημείο δεν είναι διαθέσιμο για την εκτέλεση του DSS.", 
-        "weather_data_error": "Σφάλμα με δεδομένα καιρού - {0}",
+        "weather_data_error": "{0} - Σφάλμα με δεδομένα καιρού",
         "json_validation_error":""
     }, 
     "weather": {

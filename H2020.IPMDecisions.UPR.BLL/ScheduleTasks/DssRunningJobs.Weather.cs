@@ -64,9 +64,11 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
         private WeatherDataResult AddWeatherDates(DssModelInformation dssInformation, JObject dssInputSchemaAsJson, WeatherSchemaForHttp weatherToCall, int currentYear = -1)
         {
             var result = new WeatherDataResult() { Continue = true };
+            DateTime originalWeatherEndDate = DateTime.Today.AddDays(-1);
             if (dssInformation.Input.WeatherDataPeriodEnd != null)
             {
                 weatherToCall.WeatherTimeEnd = DssDataHelper.ProcessWeatherDataPeriod(dssInformation.Input.WeatherDataPeriodEnd, dssInputSchemaAsJson, currentYear);
+                originalWeatherEndDate = weatherToCall.WeatherTimeEnd;
                 if (weatherToCall.WeatherTimeEnd < DateTime.Today.AddDays(15))
                 {
                     // ToDo - Waiting for requirements
@@ -87,7 +89,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                     if (dssInformation.Input.WeatherDataPeriodStart.FirstOrDefault().DeterminedBy.ToLower() == "fixed_date")
                     {
                         result.ResponseWeatherAsString = this.jsonStringLocalizer["weather.next_season_fixed",
-                        weatherToCall.WeatherTimeStart.ToString("dd/MM/yyyy")].ToString();
+                        weatherToCall.WeatherTimeStart.ToString("dd/MM"), originalWeatherEndDate.ToString("dd/MM")].ToString();
                     }
                     else
                     {
