@@ -37,9 +37,26 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
             {
                 var weatherEndDate = ProcessWeatherDataPeriod(dssInputInformation.Input.WeatherDataPeriodEnd, dssInputSchemaAsJson);
                 currentYear = weatherEndDate.Year;
-                if (DateTime.Today > weatherEndDate) currentYear += 1;
+
+                // Get start date, and check todays date if middle season
+                if (DateTime.Today > weatherEndDate)
+                {
+                    bool hasNewSeasonStarted = DatesInMiddleSeason(dssInputInformation.Input, weatherEndDate, dssInputSchemaAsJson);
+                    if (hasNewSeasonStarted) currentYear += 1;
+                }
             }
             return currentYear;
+        }
+
+        private static bool DatesInMiddleSeason(DssModelSchemaInput input, DateTime weatherEndDate, JObject dssInputSchemaAsJson)
+        {
+            if (input.WeatherDataPeriodStart != null)
+            {
+                var currentYear = weatherEndDate.Year;
+                var weatherStartDate = ProcessWeatherDataPeriod(input.WeatherDataPeriodStart, dssInputSchemaAsJson, currentYear);
+                if (weatherStartDate > DateTime.Today) return true;
+            }
+            return false;
         }
 
         public static DateTime ProcessWeatherDataPeriod(IEnumerable<WeatherDataPeriod> weatherDatePeriodList, JObject dssInputSchemaAsJson, int currentYear = -1)
