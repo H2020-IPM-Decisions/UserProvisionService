@@ -132,18 +132,18 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 // Amalgamation service error
                 Regex regex = new Regex(@".{30}\d{3}.{42}[:]",
                 RegexOptions.IgnoreCase | RegexOptions.IgnorePatternWhitespace);
-                if (regex.IsMatch(responseText))
+
+                if ((int)responseWeather.StatusCode == 500)
+                {
+                    result.ReSchedule = true;
+                    result.ResponseWeatherAsString = this.jsonStringLocalizer["weather.internal_error", "10"].ToString();
+                }
+                else if (regex.IsMatch(responseText))
                 {
                     responseText = regex.Replace(responseText, "", 1);
                     result.ResponseWeatherAsString = responseText.Trim();
                     result.ErrorType = DssOutputMessageTypeEnum.Warning;
                     return result;
-                }
-                // Internal Error
-                if ((int)responseWeather.StatusCode == 500)
-                {
-                    result.ReSchedule = true;
-                    result.ResponseWeatherAsString = this.jsonStringLocalizer["weather.internal_error", "10"].ToString();
                 }
                 else
                 {
