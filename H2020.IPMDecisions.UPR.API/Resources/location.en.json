@@ -38,7 +38,7 @@
   },
   "weather": {
     "validation_error": "Weather data received failed the IPM Decisions Weather validation schema. This might be because the weather data source selected do not accept weather parameters required by the DSS: {0}",
-    "next_season_fixed": "",
+    "next_season_fixed": "DSS default start date to get and use weather data is {0}. Unfortunately this is a fixed date determinate by the DSS owner and can't be changed by the user, please wait until this date.",
     "missing_weather_service": "No Weather Data Sources or Weather Stations associated to the farm",
     "next_season": "DSS default start date to get and use weather data is {0}. Please wait until this date or change the DSS parameters to start using earlier weather data.",
     "internal_error": "Weather service is busy and can't process your request. The platform will try again to get the weather data in 5 minutes. If the error persist, please contact us.",
