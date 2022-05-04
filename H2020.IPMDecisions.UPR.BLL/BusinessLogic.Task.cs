@@ -79,8 +79,6 @@ namespace H2020.IPMDecisions.UPR.BLL
             {
                 dataToReturn.ScheduleTime = new DateTime(1970, 1, 1, 0, 0, 0)
                     .AddMilliseconds(Convert.ToDouble(lastStatus.Data["EnqueueAt"])).ToLocalTime();
-
-                if ((dataToReturn.ScheduleTime - DateTime.Now).TotalMinutes > 5) dataToReturn.IsLongWait = true;
             }
 
             return dataToReturn;
