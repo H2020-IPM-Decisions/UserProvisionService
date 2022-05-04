@@ -44,12 +44,15 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
                 switch (property.Value.Type.ToString().ToLower())
                 {
                     case "integer":
-                    case "number":
                     case "boolean":
+                        json.Add(ProcessIntegerTypeProperty(property, logger));
+                        break;
+                    case "number":
                         json.Add(ProcessNumberTypeProperty(property, logger));
                         break;
                     case "string":
-                        json.Add(ProcessStandardTypeProperty(property, logger));
+                        var token = ProcessStandardTypeProperty(property, logger);
+                        if (token != null) json.Add(token);
                         break;
                     case "array":
                         json.Add(property.Key.ToString(), ProcessArrayProperty(property, logger));
@@ -85,8 +88,15 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
                 if (HasDefaultValue(property.Value))
                 {
                     return new JProperty(property.Key, property.Value.Default.ToString());
-                };
-                return new JProperty(property.Key, "");
+                }
+                else if (property.Value.Format.ToLower() == "date")
+                {
+                    return null;
+                }
+                else
+                {
+                    return new JProperty(property.Key, "");
+                }
             }
             catch (Exception ex)
             {
@@ -101,8 +111,25 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
             {
                 if (HasDefaultValue(property.Value))
                 {
-                    return new JProperty(property.Key, property.Value.Default);
-                };  
+                    return new JProperty(property.Key, (double)property.Value.Default);
+                };
+                return new JProperty(property.Key, null);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(string.Format("Error on ProcessStandardTypeProperty. {0}", ex.Message));
+                return null;
+            }
+        }
+
+        private static JProperty ProcessIntegerTypeProperty(KeyValuePair<string, JSchema> property, ILogger logger)
+        {
+            try
+            {
+                if (HasDefaultValue(property.Value))
+                {
+                    return new JProperty(property.Key, (int)property.Value.Default);
+                };
                 return new JProperty(property.Key, null);
             }
             catch (Exception ex)
