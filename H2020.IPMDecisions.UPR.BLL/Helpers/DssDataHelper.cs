@@ -120,10 +120,43 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
             }
 
             var notRequiredProperties = schema.Properties.Keys.Where(k => !schema.Required.Any(k2 => k2 == k));
+            // Check if has any value with a default, if so, do not delete
             foreach (var property in notRequiredProperties)
             {
-                schema.Properties.Remove(property);
+                var selectedProperty = schema.Properties.Where(p => p.Key == property).FirstOrDefault().Value;
+                // This shouldn't happen... but just in case
+                if (selectedProperty == null)
+                {
+                    continue;
+                }
+                var selectedPropertyValues = RemovePropertiesWithoutDefaultValueOnJSchema(selectedProperty);
+                if (selectedPropertyValues == null)
+                {
+                    schema.Properties.Remove(property);
+                }
             }
+        }
+
+        private static JSchema RemovePropertiesWithoutDefaultValueOnJSchema(JSchema schema)
+        {
+            // This shouldn't happen... but just in case
+            if (schema == null)
+            {
+                return schema;
+            }
+            if (schema.Type.ToString().ToLower() == "object")
+            {
+                var propertiesWithoutDefault = schema.Properties.Where(p => p.Value.Default == null);
+                foreach (var item in propertiesWithoutDefault)
+                {
+                    schema.Properties.Remove(item.Key);
+                }
+            }
+            else if (schema.Default == null)
+            {
+                schema = null;
+            }
+            return schema;
         }
 
         public static void AddUserDssParametersToDssInput(JObject userDssParametersJObject, JObject inputSchemaAsJObject)
