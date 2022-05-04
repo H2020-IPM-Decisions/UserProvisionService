@@ -1,0 +1,57 @@
+{
+    "data_share": {
+        "user_not_registered": "Vartotojas neregistruotas sistemoje.", 
+        "pending_change_error": "Negalite atnaujinti laukiančios užklausos. Norėdami priimti / atmesti užklausą, naudokite „Atsakymas“ pabaigos tašką (End point).", 
+        "back_to_pending": "Negalite pakeisti užklausos į laukiančią.", 
+        "no_farms_error": "Vartotojas sistemoje neturi jokių ūkių.", 
+        "existing_request": "Jūs jau paprašėte duomenų šiam vartotojui.", 
+        "request_error": "Prašymas nepriklauso vartotojui.", 
+        "email_error": "Užklausa sukurta, bet siunčiant el. laišką įvyko klaida.", 
+        "user_requesting_no_profile": "Vartotojas, prašantis dalytis duomenimis, neturi profilio sistemoje.", 
+        "not_existing_request": "Sistemoje užklausos nėra arba ji jau priimta / atmesta.", 
+        "own_request_error": "Vartotojas negali reikalauti savo duomenų.", 
+        "user_without_profile": "Vartotojas sistemoje neturi profilio.", 
+        "declined_request": "Vartotojas atsisakė prieigos prie duomenų.", 
+        "farms_ownership_error": "Ūkiai nepriklauso vartotojui.", 
+        "wrong_method": "Metodas skirtas užklausoms priimti arba atmesti."
+    }, 
+    "farm": {
+        "owner_error": "Jūs nesate šio ūkio savininkas, todėl procesas negali būti užbaigtas."
+    }, 
+    "dss": {
+        "existing_combination": "Lauke jau yra augalo ({0}), kenksmingojo organizmo({1}) ir SPS ({2}) kombinacija.", 
+        "warning_header": "Jau yra vienas ar daugiau augalų, kenksmingųjų organizmų ir SPS derinių. Norėdami gauti daugiau informacijos patikrinkite atsakymo turinį.", 
+        "warnings": "Prieš išsaugodami ištaisykite šią klaidą (-as):", 
+        "model_missing_metadata": "SPS su ID '{0}' ir versija '{1}' neturi jokio modelio su ID '{2}' ir versija '{3}' SPS mikropaslaugoje.", 
+        "field_eppo_code": "Laukas su ID {0} priima tik „{1}“ augalo EPPO kodą", 
+        "dss_missing_metadata": "SPS su ID „{0}“ ir versija „{1}“ SPS mikropaslaugoje neegzistuoja", 
+        "duplicated": "Pasikartojančių augalo ({0}), kenksmingojo organizmo ({1}), SPS ({2}), modelio ({3}) ir SPS modelio versijų ({4}) kombinacija lauke."
+    }, 
+    "dss_process": {
+        "dss_format_error": "Pranešimo klaida iš SPS neatitinka 'IKOK/IPM sprendimai' standartų, todėl, deja, negalime pateikti daugiau informacijos.", 
+        "dss_error": "Klaida paleidžiant SPS – {0}", 
+        "json_validation_error": "", 
+        "dss_information": "Klaida gaunant SPS informaciją iš mikroserviso.", 
+        "system_ready_error": "Klaida paleidžiant SPS – sistema neparengta.", 
+        "dss_no_endpoint": "Pabaigos taškas (End point)  neprieinamas, kad paleisti SPS", 
+        "weather_data_error": "Klaida naudojant orų duomenis – {0}"
+    }, 
+    "weather": {
+        "validation_error": "Gauti orų duomenys neatitiko' IKOK/IPM sprendimai'  orų patvirtinimo schemos. Taip gali būti todėl, kad pasirinktas orų duomenų šaltinis nepriima oro parametrų, kurių reikalauja SPS: {0}", 
+        "next_season_fixed": "", 
+        "missing_weather_service": "Nėra jokių su ūkiu susijusių orų duomenų šaltinių ar meteorologinių stočių", 
+        "next_season": "Numatytoji SPS pradžios data norint gauti ir naudoti orų duomenis yra {0}. Palaukite iki šios datos arba pakeiskite SSP parametrus, kad pradėtumėte naudoti ankstesnius orų duomenis.", 
+        "internal_error": "", 
+        "missing_service": "Orų paslaugos su ID '{0}' orų mikropaslaugoje neegzistuoja.", 
+        "no_json_format": "Orų duomenys gauti ne JSON formatu."
+    }, 
+    "shared": {
+        "missing_payload": "Trūksta apkrovos duomenų.", 
+        "wrong_media_type": "Užklausoje neteisingas medijos tipas ", 
+        "missing_user_profile": "Pirmiausia sukurkite „Vartotojo profilį“.", 
+        "wrong_fields": "Užklausoje įrašyti neteisingi laukai arba trūksta „ID\" lauko.", 
+        "wrong_order_by": "Neteisingas užsakymas įrašytas užklausoje.", 
+        "missing_default_forecast": "Duomenų bazėje nėra numatytosios orų prognozės reikšmės.", 
+        "missing_default_historical": "Duomenų bazėje nėra numatytosios orų istorijos reikšmės."
+    }
+}
