@@ -100,6 +100,14 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                     result.ErrorType = DssOutputMessageTypeEnum.Warning;
                 }
             }
+
+            if (weatherToCall.WeatherTimeStart > weatherToCall.WeatherTimeEnd)
+            {
+                result.ResponseWeatherAsString = this.jsonStringLocalizer["weather.start_end_date_problem",
+                        weatherToCall.WeatherTimeStart.ToString("dd/MM/yyyy"), originalWeatherEndDate.ToString("dd/MM/yyyy")].ToString();
+                result.Continue = false;
+                result.ErrorType = DssOutputMessageTypeEnum.Warning;
+            }
             return result;
         }
 
