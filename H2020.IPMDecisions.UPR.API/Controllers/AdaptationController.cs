@@ -51,28 +51,28 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
             return Ok(response.Result);
         }
 
-        // /// <summary>
-        // /// Use this request to update a DSS parameter
-        // /// </summary>
-        // /// <remarks>The user will be identified using the UserId on the authentification JWT.
-        // /// <para>The DSS must belong to the user</para>
-        // /// </remarks>
-        // [Consumes(MediaTypeNames.Application.Json)]
-        // [ProducesResponseType(StatusCodes.Status204NoContent)]
-        // [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        // [ProducesResponseType(StatusCodes.Status404NotFound)]
-        // [HttpPut("{id:guid}", Name = "api.dss.put.byid")]
-        // // PUT: api/dss/1
-        // public async Task<IActionResult> Put([FromRoute] Guid id, [FromBody] FieldCropPestDssForUpdateDto fieldCropPestDssForUpdateDto)
-        // {
-        //     var userId = Guid.Parse(HttpContext.Items["userId"].ToString());
+        /// <summary>
+        /// Use this request to run a DSS with temp data
+        /// </summary>
+        /// <remarks>The user will be identified using the UserId on the authentification JWT.
+        /// <para>The DSS must belong to the user</para>
+        /// </remarks>
+        [Consumes(MediaTypeNames.Application.Json)]
+        [ProducesResponseType(StatusCodes.Status202Accepted)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [HttpPost("{id:guid}", Name = "api.dss.post.byid")]
+        // POST: api/dss/1
+        public async Task<IActionResult> Post([FromRoute] Guid id, [FromBody] FieldCropPestDssForUpdateDto fieldCropPestDssForUpdateDto)
+        {
+            var userId = Guid.Parse(HttpContext.Items["userId"].ToString());
 
-        //     var response = await businessLogic.UpdateFieldCropPestDssById(id, userId, fieldCropPestDssForUpdateDto);
-        //     if (!response.IsSuccessful)
-        //         return response.RequestResult;
+            var response = await businessLogic.RunFieldCropPestDssById(id, userId, fieldCropPestDssForUpdateDto);
+            if (!response.IsSuccessful)
+                return response.RequestResult;
 
-        //     return NoContent();
-        // }
+            return NoContent();
+        }
 
         // /// <summary>Use this endpoint to get and specific status of a task.
         // /// <para>The DSS must belong to the user</para>

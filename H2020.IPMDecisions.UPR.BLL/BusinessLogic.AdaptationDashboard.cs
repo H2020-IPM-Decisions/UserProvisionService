@@ -34,5 +34,10 @@ namespace H2020.IPMDecisions.UPR.BLL
                 return GenericResponseBuilder.NoSuccess<AdaptationDashboardDto>(null, $"{ex.Message} InnerException: {innerMessage}");
             }
         }
+
+        public Task<GenericResponse> RunFieldCropPestDssById(Guid id, Guid userId, FieldCropPestDssForUpdateDto fieldCropPestDssForUpdateDto)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
