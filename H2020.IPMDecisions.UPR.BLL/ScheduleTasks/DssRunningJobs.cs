@@ -298,9 +298,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                     await responseDss.RequestMessage.Content.ReadAsStringAsync(),
                     responseAsText));
 
-                    dssResult.DssFullResult = JObject.Parse("{\"message\": \"" + this.jsonStringLocalizer["dss_process.dss_format_error"].ToString() + "\"}").ToString();
-                    dssResult.ResultMessage = responseAsText.ToString();
-                    dssResult.IsValid = false;
+                    CreateDssRunErrorResult(dssResult, responseAsText, DssOutputMessageTypeEnum.Error);
                     return;
                 };
                 var dssOutput = JsonConvert.DeserializeObject<DssModelOutputInformation>(responseAsText);
@@ -325,7 +323,6 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                         }
                         dssResult.ResultMessage = dssOutput.Message;
                         dssResult.DssFullResult = responseAsText;
-                        dssResult.IsValid = false;
                         return;
                     }
 
@@ -357,10 +354,6 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                     if (dssResult.WarningStatus == null) dssResult.WarningStatus = 0;
                     dssResult.IsValid = true;
                 }
-                else
-                {
-                    dssResult.IsValid = false;
-                }
                 dssResult.DssFullResult = responseAsText;
             }
             catch (Exception ex)
@@ -370,7 +363,6 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                     await responseDss.RequestMessage.Content.ReadAsStringAsync(),
                     await responseDss.Content.ReadAsStringAsync()));
                 dssResult.ResultMessageType = (int)DssOutputMessageTypeEnum.Error;
-                dssResult.IsValid = false;
                 CreateDssRunErrorResult(dssResult, ex.Message, DssOutputMessageTypeEnum.Error);
                 return;
             } 
