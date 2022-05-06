@@ -81,7 +81,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         /// <remarks>The user will be identified using the UserId on the authentification JWT.
         /// <para>The DSS must belong to the user</para>
         /// </remarks>
-        [ProducesResponseType(typeof(FieldDssResultDetailedDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [Produces(MediaTypeNames.Application.Json)]

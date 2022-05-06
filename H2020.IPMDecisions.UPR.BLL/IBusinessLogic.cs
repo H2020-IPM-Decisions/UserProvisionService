@@ -131,6 +131,10 @@ namespace H2020.IPMDecisions.UPR.BLL
         Task<GenericResponse<IEnumerable<FieldDssResultDetailedDto>>> CompareDssByIds(List<Guid> ids, Guid userId, int daysDataToReturn = 7);
         #endregion
 
+        #region Adaptation DSS
+        Task<GenericResponse<AdaptationDashboardDto>> GetAdaptationDataById(Guid id, Guid userId);
+        #endregion
+
         #region DSS Result Task
         Task<GenericResponse<DssTaskStatusDto>> GetTaskStatusById(Guid dssId, string taskId, Guid userId);
         Task<GenericResponse<DssTaskStatusDto>> GetLatestTaskStatusByDssId(Guid dssId, Guid userId);
