@@ -34,7 +34,8 @@
     "system_ready_error": "Error running the DSS - System not ready.",
     "dss_no_endpoint": "End point not available to run DSS.",
     "weather_data_error": "{0} - Error with Weather Data",
-    "json_validation_error": "A problem has occurred, the platform will try to re-run de DSS in {0} minutes"
+    "json_validation_error": "A problem has occurred, the platform will try to re-run de DSS in {0} minutes",
+    "not_on_the_fly": "The DSS can not run 'on-the-fly', so this process cannot be completed."
   },
   "weather": {
     "validation_error": "Weather data received failed the IPM Decisions Weather validation schema. This might be because the weather data source selected do not accept weather parameters required by the DSS: {0}",

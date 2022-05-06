@@ -134,7 +134,7 @@ namespace H2020.IPMDecisions.UPR.BLL
 
         #region Adaptation DSS
         Task<GenericResponse<AdaptationDashboardDto>> GetAdaptationDataById(Guid id, Guid userId, int daysDataToReturn = 7);
-        Task<GenericResponse> RunFieldCropPestDssById(Guid id, Guid userId, FieldCropPestDssForUpdateDto fieldCropPestDssForUpdateDto);
+        Task<GenericResponse<DssTaskStatusDto>> AddTaskToRunFieldCropPestDssById(Guid id, Guid userId, FieldCropPestDssForUpdateDto fieldCropPestDssForUpdateDto);
         #endregion
 
         #region DSS Result Task

@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using H2020.IPMDecisions.UPR.Core.Dtos;
 using H2020.IPMDecisions.UPR.Core.Models;
+using Hangfire;
 using Microsoft.Extensions.Logging;
 
 namespace H2020.IPMDecisions.UPR.BLL
@@ -35,9 +36,42 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
         }
 
-        public Task<GenericResponse> RunFieldCropPestDssById(Guid id, Guid userId, FieldCropPestDssForUpdateDto fieldCropPestDssForUpdateDto)
+        public async Task<GenericResponse<DssTaskStatusDto>> AddTaskToRunFieldCropPestDssById(Guid id, Guid userId, FieldCropPestDssForUpdateDto fieldCropPestDssForUpdateDto)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var dss = await this.dataService.FieldCropPestDsses.FindByIdAsync(id);
+                if (dss == null) return GenericResponseBuilder.NotFound<DssTaskStatusDto>();
+
+                var dssUserId = dss.FieldCropPest.FieldCrop.Field.Farm.UserFarms.FirstOrDefault().UserId;
+                if (userId != dssUserId) return GenericResponseBuilder.NotFound<DssTaskStatusDto>();
+
+                if (dss.CropPestDss.DssExecutionType.ToLower() != "onthefly")
+                {
+                    GenericResponseBuilder.NoSuccess<DssTaskStatusDto>(null, this.jsonStringLocalizer["dss_process.not_on_the_fly"].ToString());
+                }
+
+                // Validate DSS parameters on server side
+                var validationErrormessages = await ValidateNewDssParameters(dss.CropPestDss, fieldCropPestDssForUpdateDto.DssParameters);
+                if (validationErrormessages.Count > 0)
+                {
+                    var errorMessageToReturn = string.Join(" ", validationErrormessages);
+                    return GenericResponseBuilder.NoSuccess<DssTaskStatusDto>(null, errorMessageToReturn);
+                }
+
+                var jobId = "35";//this.queueJobs.AddDssOnTheFlyQueue(id);
+                var monitoringApi = JobStorage.Current.GetMonitoringApi();
+                var jobDetail = monitoringApi.JobDetails(jobId);
+                DssTaskStatusDto dataToReturn = CreateDssStatusFromJobDetail(id, jobId, jobDetail);
+
+                return GenericResponseBuilder.Success<DssTaskStatusDto>(dataToReturn);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(string.Format("Error in BLL - UpdateFieldCropPestDssById. {0}", ex.Message), ex);
+                String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
+                return GenericResponseBuilder.NoSuccess<DssTaskStatusDto>(null, $"{ex.Message} InnerException: {innerMessage}");
+            }
         }
     }
 }
