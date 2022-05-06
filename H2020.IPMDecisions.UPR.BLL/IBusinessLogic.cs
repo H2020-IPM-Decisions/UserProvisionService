@@ -133,7 +133,7 @@ namespace H2020.IPMDecisions.UPR.BLL
         #endregion
 
         #region Adaptation DSS
-        Task<GenericResponse<AdaptationDashboardDto>> GetAdaptationDataById(Guid id, Guid userId);
+        Task<GenericResponse<AdaptationDashboardDto>> GetAdaptationDataById(Guid id, Guid userId, int daysDataToReturn = 7);
         #endregion
 
         #region DSS Result Task

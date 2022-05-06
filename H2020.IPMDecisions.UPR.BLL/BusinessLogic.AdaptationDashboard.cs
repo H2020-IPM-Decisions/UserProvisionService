@@ -9,7 +9,7 @@ namespace H2020.IPMDecisions.UPR.BLL
 {
     public partial class BusinessLogic : IBusinessLogic
     {
-        public async Task<GenericResponse<AdaptationDashboardDto>> GetAdaptationDataById(Guid id, Guid userId)
+        public async Task<GenericResponse<AdaptationDashboardDto>> GetAdaptationDataById(Guid id, Guid userId, int daysDataToReturn = 7)
         {
             try
             {
@@ -22,7 +22,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                 var dataToReturn = new AdaptationDashboardDto()
                 {
                     DssOriginalParameters = await GenerateUserDssParameters(dss),
-                    DssOriginalResult = await CreateDetailedResultToReturn(dss)
+                    DssOriginalResult = await CreateDetailedResultToReturn(dss, daysDataToReturn)
                 };
 
                 return GenericResponseBuilder.Success<AdaptationDashboardDto>(dataToReturn);
