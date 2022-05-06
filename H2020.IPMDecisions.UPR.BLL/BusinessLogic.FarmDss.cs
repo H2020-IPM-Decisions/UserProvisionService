@@ -94,7 +94,16 @@ namespace H2020.IPMDecisions.UPR.BLL
                     var fieldCropPestDssToReturn = this.mapper.Map<FieldCropPestDssDto>(newDss);
                     if (newDss.CropPestDss.DssExecutionType.ToLower() == "onthefly")
                     {
-                        var jobId = this.queueJobs.ScheduleDssOnTheFlyQueueSeconds(newDss.Id, seconds);
+                        var jobId = "";
+                        if (seconds == 0)
+                        {
+                            jobId = this.queueJobs.AddDssOnTheFlyQueue(newDss.Id);
+
+                        }
+                        else
+                        {
+                            jobId = this.queueJobs.ScheduleDssOnTheFlyQueueSeconds(newDss.Id, seconds);
+                        }
                         fieldCropPestDssToReturn.DssTask.Id = jobId;
                         newDss.LastJobId = jobId;
                         seconds += 10;
