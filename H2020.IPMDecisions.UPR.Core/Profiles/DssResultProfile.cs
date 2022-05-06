@@ -83,6 +83,32 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
                 });
 
             CreateMap<OutputChartInfo, DssParameterChartInformation>();
+
+            CreateMap<DssInformation, FieldDssResultDto>()
+                .ForMember(dest => dest.DssSource, opt => opt.MapFrom(src =>
+                            string.Format("{0}, {1}",
+                                src.DssOrganization.Name,
+                                src.DssOrganization.Country)))
+                .ForMember(dest => dest.Id, opt => opt.Ignore());
+
+            CreateMap<DssModelInformation, FieldDssResultDto>()
+                .ForMember(dest => dest.DssDescription, opt => opt.MapFrom(src => src.Description))
+                .ForMember(dest => dest.DssPurpose, opt => opt.MapFrom(src => src.Purpose))
+                .ForMember(dest => dest.ValidatedSpatialCountries, opt => opt.MapFrom(src => src.ValidSpatial.Countries))
+                .ForMember(dest => dest.Id, opt => opt.Ignore());
+
+            CreateMap<DssModelInformation, CropPestDssDto>()
+               .ForMember(dest => dest.DssPurpose, opt => opt.MapFrom(src => src.Purpose))
+               .ForMember(dest => dest.ValidatedSpatialCountries, opt => opt.MapFrom(src => src.ValidSpatial.Countries))
+               .ForMember(dest => dest.Id, opt => opt.Ignore());
+
+            CreateMap<DssModelInformation, FieldDssResultDetailedDto>()
+               .ForMember(dest => dest.DssTypeOfDecision, opt => opt.MapFrom(src => src.TypeOfDecision))
+               .ForMember(dest => dest.DssTypeOfOutput, opt => opt.MapFrom(src => src.TypeOfOutput))
+               .ForMember(dest => dest.DssDescription, opt => opt.MapFrom(src => src.Description))
+               .ForMember(dest => dest.DssPurpose, opt => opt.MapFrom(src => src.Purpose))
+               .ForMember(dest => dest.ValidatedSpatialCountries, opt => opt.MapFrom(src => src.ValidSpatial.Countries))
+               .ForMember(dest => dest.Id, opt => opt.Ignore());
         }
     }
 }

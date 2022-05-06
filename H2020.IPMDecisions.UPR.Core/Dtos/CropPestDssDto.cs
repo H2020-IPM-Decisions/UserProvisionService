@@ -16,5 +16,6 @@ namespace H2020.IPMDecisions.UPR.Core.Dtos
         public string DssEndPoint { get; set; }
         public IEnumerable<string> ValidatedSpatialCountries { get; set; }
         public string DssPurpose { get; set; }
+        public IEnumerable<DssModelAuthorsDto> Authors { get; set; }
     }
 }

@@ -181,6 +181,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                     var dssOnListMatchDatabaseRecord = listOfDss
                         .Where(d => d.Id == dss.DssId)
                         .FirstOrDefault();
+                    if (dssOnListMatchDatabaseRecord == null) continue;
 
                     var dssModelMatchDatabaseRecord = dssOnListMatchDatabaseRecord
                       .DssModelInformation
@@ -197,12 +198,8 @@ namespace H2020.IPMDecisions.UPR.BLL
                     }
                     else
                     {
-                        dss.DssSource = string.Format("{0}, {1}",
-                            dssOnListMatchDatabaseRecord.DssOrganization.Name,
-                            dssOnListMatchDatabaseRecord.DssOrganization.Country);
-                        dss.DssDescription = dssModelMatchDatabaseRecord.Description;
-                        dss.DssPurpose = dssModelMatchDatabaseRecord.Purpose;
-                        dss.ValidatedSpatialCountries = dssModelMatchDatabaseRecord.ValidSpatial.Countries;
+                        this.mapper.Map(dssOnListMatchDatabaseRecord, dss);
+                        this.mapper.Map(dssModelMatchDatabaseRecord, dss);
                         if (dssModelMatchDatabaseRecord.Output != null)
                         {
                             AddWarningMessages(dss, dssModelMatchDatabaseRecord);
@@ -386,14 +383,9 @@ namespace H2020.IPMDecisions.UPR.BLL
             return dssFullOutputAsObject;
         }
 
-        // This can be implemented by AutoMapper
-        private static void AddDssBasicData(FieldDssResultDetailedDto dataToReturn, DssModelInformation dssInformation)
+        private void AddDssBasicData(FieldDssResultDetailedDto dataToReturn, DssModelInformation dssInformation)
         {
-            dataToReturn.DssTypeOfDecision = dssInformation.TypeOfDecision;
-            dataToReturn.DssTypeOfOutput = dssInformation.TypeOfOutput;
-            dataToReturn.DssDescription = dssInformation.Description;
-            dataToReturn.DssPurpose = dssInformation.Purpose;
-            dataToReturn.ValidatedSpatialCountries = dssInformation.ValidSpatial.Countries;
+            this.mapper.Map(dssInformation, dataToReturn);
 
             // DSS type link do not have this section
             if (dssInformation.Output != null)

@@ -18,6 +18,8 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
                 .ForMember(dest => dest.CropEppoCode, opt => opt.MapFrom(src => src.DssModelInformation.Crops.FirstOrDefault()))
                 .ForMember(dest => dest.PestEppoCode, opt => opt.MapFrom(src => src.DssModelInformation.Pests.FirstOrDefault()))
                 .ForMember(dest => dest.ValidatedSpatialCountries, opt => opt.MapFrom(src => src.DssModelInformation.ValidSpatial.Countries));
+
+            CreateMap<DssModelAuthors, DssModelAuthorsDto>();
         }
     }
 }
