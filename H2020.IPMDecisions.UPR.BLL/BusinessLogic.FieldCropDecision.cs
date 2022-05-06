@@ -299,8 +299,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                         .FirstOrDefault();
                     if (dssOnListMatchDatabaseRecord != null)
                     {
-                        fieldCropPestDto.CropPestDssDto.DssPurpose = dssOnListMatchDatabaseRecord.Purpose;
-                        fieldCropPestDto.CropPestDssDto.ValidatedSpatialCountries = dssOnListMatchDatabaseRecord.ValidSpatial.Countries;
+                        this.mapper.Map(dssOnListMatchDatabaseRecord, fieldCropPestDto.CropPestDssDto);
                     }
                 }
 
