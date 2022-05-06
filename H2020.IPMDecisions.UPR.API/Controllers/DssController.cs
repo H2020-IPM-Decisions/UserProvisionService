@@ -95,7 +95,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
             if (!response.IsSuccessful)
                 return response.RequestResult;
 
-            return Content(response.Result, MediaTypeNames.Application.Json);
+            return Ok(response.Result);
         }
 
         /// <summary>

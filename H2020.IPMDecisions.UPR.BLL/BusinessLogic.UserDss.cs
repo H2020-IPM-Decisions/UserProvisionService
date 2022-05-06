@@ -139,32 +139,24 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
         }
 
-        public async Task<GenericResponse<string>> GetFieldCropPestDssParametersById(Guid id, Guid userId)
+        public async Task<GenericResponse<JObject>> GetFieldCropPestDssParametersById(Guid id, Guid userId)
         {
             try
             {
                 var dss = await this.dataService.FieldCropPestDsses.FindByIdAsync(id);
-                if (dss == null) return GenericResponseBuilder.NotFound<string>();
+                if (dss == null) return GenericResponseBuilder.NotFound<JObject>();
 
                 var dssUserId = dss.FieldCropPest.FieldCrop.Field.Farm.UserFarms.FirstOrDefault().UserId;
-                if (userId != dssUserId) return GenericResponseBuilder.NotFound<string>();
+                if (userId != dssUserId) return GenericResponseBuilder.NotFound<JObject>();
 
-                var dssInputUISchema = await internalCommunicationProvider
-                                       .GetDssModelInputSchemaMicroservice(dss.CropPestDss.DssId, dss.CropPestDss.DssModelId);
-                JObject inputAsJsonObject = null;
-                if (dssInputUISchema != null)
-                {
-                    inputAsJsonObject = JObject.Parse(dssInputUISchema.ToString());
-                    JObject userParametersAsJsonObject = JObject.Parse(dss.DssParameters.ToString());
-                    DssDataHelper.AddDefaultDssParametersToInputSchema(inputAsJsonObject, userParametersAsJsonObject);
-                }
-                return GenericResponseBuilder.Success<string>(inputAsJsonObject.ToString());
+                var dataToRetun = await GenerateUserDssParameters(dss);
+                return GenericResponseBuilder.Success<JObject>(dataToRetun);
             }
             catch (Exception ex)
             {
                 logger.LogError(string.Format("Error in BLL - GetFieldCropPestDssParametersById. {0}", ex.Message), ex);
                 String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
-                return GenericResponseBuilder.NoSuccess<string>(null, $"{ex.Message} InnerException: {innerMessage}");
+                return GenericResponseBuilder.NoSuccess<JObject>(null, $"{ex.Message} InnerException: {innerMessage}");
             }
         }
 
@@ -455,6 +447,21 @@ namespace H2020.IPMDecisions.UPR.BLL
                 String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
                 throw ex;
             }
+        }
+
+        private async Task<JObject> GenerateUserDssParameters(FieldCropPestDss dss)
+        {
+            var dssInputUISchema = await internalCommunicationProvider
+                                                   .GetDssModelInputSchemaMicroservice(dss.CropPestDss.DssId, dss.CropPestDss.DssModelId);
+            JObject inputAsJsonObject = null;
+            if (dssInputUISchema != null)
+            {
+                inputAsJsonObject = JObject.Parse(dssInputUISchema.ToString());
+                JObject userParametersAsJsonObject = JObject.Parse(dss.DssParameters.ToString());
+                DssDataHelper.AddDefaultDssParametersToInputSchema(inputAsJsonObject, userParametersAsJsonObject);
+            }
+
+            return inputAsJsonObject;
         }
     }
 }

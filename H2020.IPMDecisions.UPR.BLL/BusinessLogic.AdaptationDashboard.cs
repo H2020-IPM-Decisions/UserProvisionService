@@ -1,11 +1,9 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using H2020.IPMDecisions.UPR.BLL.Helpers;
 using H2020.IPMDecisions.UPR.Core.Dtos;
 using H2020.IPMDecisions.UPR.Core.Models;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json.Linq;
 
 namespace H2020.IPMDecisions.UPR.BLL
 {
@@ -21,20 +19,12 @@ namespace H2020.IPMDecisions.UPR.BLL
                 var dssUserId = dss.FieldCropPest.FieldCrop.Field.Farm.UserFarms.FirstOrDefault().UserId;
                 if (userId != dssUserId) return GenericResponseBuilder.NotFound<AdaptationDashboardDto>();
 
-                var dssInputUISchema = await internalCommunicationProvider
-                                       .GetDssModelInputSchemaMicroservice(dss.CropPestDss.DssId, dss.CropPestDss.DssModelId);
-                JObject inputAsJsonObject = null;
-                if (dssInputUISchema != null)
-                {
-                    inputAsJsonObject = JObject.Parse(dssInputUISchema.ToString());
-                    JObject userParametersAsJsonObject = JObject.Parse(dss.DssParameters.ToString());
-                    DssDataHelper.AddDefaultDssParametersToInputSchema(inputAsJsonObject, userParametersAsJsonObject);
-                }
                 var dataToReturn = new AdaptationDashboardDto()
                 {
-                    DssOriginalParameters = inputAsJsonObject
-
+                    DssOriginalParameters = await GenerateUserDssParameters(dss),
+                    DssOriginalResult = await CreateDetailedResultToReturn(dss)
                 };
+
                 return GenericResponseBuilder.Success<AdaptationDashboardDto>(dataToReturn);
             }
             catch (Exception ex)
