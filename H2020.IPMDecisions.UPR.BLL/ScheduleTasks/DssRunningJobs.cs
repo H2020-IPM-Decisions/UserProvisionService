@@ -290,6 +290,17 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             try
             {
                 var responseAsText = await responseDss.Content.ReadAsStringAsync();
+                // check if response is JSON, if not, generic error
+                if (!DataParseHelper.IsValidJson(responseAsText))
+                {
+                    logger.Log(LogLevel.Error, string.Format("Error doing running this DSS: {0} with this payload: {1}. Response was: {2}",
+                    responseDss.RequestMessage.RequestUri.ToString(),
+                    await responseDss.RequestMessage.Content.ReadAsStringAsync(),
+                    responseAsText));
+
+                    CreateDssRunErrorResult(dssResult, responseAsText, DssOutputMessageTypeEnum.Error);
+                    return;
+                };
                 var dssOutput = JsonConvert.DeserializeObject<DssModelOutputInformation>(responseAsText);
                 // ToDo. Check valid responses when DSS do not run properly
                 if (!responseDss.IsSuccessStatusCode)
@@ -298,7 +309,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                     responseDss.RequestMessage.RequestUri.ToString(),
                     await responseDss.RequestMessage.Content.ReadAsStringAsync(),
                     responseAsText));
-                    
+
                     // DSS error follow schema output
                     if (!string.IsNullOrEmpty(dssOutput.Message))
                     {
@@ -312,7 +323,6 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                         }
                         dssResult.ResultMessage = dssOutput.Message;
                         dssResult.DssFullResult = responseAsText;
-                        dssResult.IsValid = false;
                         return;
                     }
 
@@ -344,19 +354,18 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                     if (dssResult.WarningStatus == null) dssResult.WarningStatus = 0;
                     dssResult.IsValid = true;
                 }
-                else
-                {
-                    dssResult.IsValid = false;
-                }
                 dssResult.DssFullResult = responseAsText;
             }
             catch (Exception ex)
             {
+                logger.Log(LogLevel.Error, string.Format("Error doing running this DSS: {0} with this payload: {1}. Response was: {2}",
+                    responseDss.RequestMessage.RequestUri.ToString(),
+                    await responseDss.RequestMessage.Content.ReadAsStringAsync(),
+                    await responseDss.Content.ReadAsStringAsync()));
                 dssResult.ResultMessageType = (int)DssOutputMessageTypeEnum.Error;
-                dssResult.IsValid = false;
                 CreateDssRunErrorResult(dssResult, ex.Message, DssOutputMessageTypeEnum.Error);
                 return;
-            }
+            } 
         }
         #endregion
 

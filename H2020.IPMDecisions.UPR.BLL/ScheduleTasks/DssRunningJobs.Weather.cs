@@ -99,14 +99,13 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                     result.Continue = false;
                     result.ErrorType = DssOutputMessageTypeEnum.Warning;
                 }
-            }
-
-            if (weatherToCall.WeatherTimeStart > weatherToCall.WeatherTimeEnd)
-            {
-                result.ResponseWeatherAsString = this.jsonStringLocalizer["weather.start_end_date_problem",
-                        weatherToCall.WeatherTimeStart.ToString("dd/MM/yyyy"), originalWeatherEndDate.ToString("dd/MM/yyyy")].ToString();
-                result.Continue = false;
-                result.ErrorType = DssOutputMessageTypeEnum.Warning;
+                else if (weatherToCall.WeatherTimeStart > weatherToCall.WeatherTimeEnd)
+                {
+                    result.ResponseWeatherAsString = this.jsonStringLocalizer["weather.start_end_date_problem",
+                                            weatherToCall.WeatherTimeStart.ToString("dd/MM/yyyy"), originalWeatherEndDate.ToString("dd/MM/yyyy")].ToString();
+                    result.Continue = false;
+                    result.ErrorType = DssOutputMessageTypeEnum.Warning;
+                }
             }
             return result;
         }
@@ -143,6 +142,13 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
 
                 if ((int)responseWeather.StatusCode == 500)
                 {
+                    if (regex.IsMatch(responseText))
+                    {
+                        responseText = regex.Replace(responseText, "", 1);
+                        result.ResponseWeatherAsString = responseText.Trim();
+                        result.ErrorType = DssOutputMessageTypeEnum.Warning;
+                        return result;
+                    }
                     result.ReSchedule = true;
                     result.ResponseWeatherAsString = this.jsonStringLocalizer["weather.internal_error", "10"].ToString();
                 }
