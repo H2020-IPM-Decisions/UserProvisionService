@@ -165,7 +165,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 }
                 else
                 {
-                    string jobId = context.BackgroundJob.Id;                    
+                    string jobId = context.BackgroundJob.Id;
                     var cacheKey = string.Format("InMemoryDssResult_{0}", jobId);
                     memoryCache.Set(cacheKey, dssResult, MemoryCacheHelper.CreateMemoryCacheEntryOptionsMinutes(5));
                 }

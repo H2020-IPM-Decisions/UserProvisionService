@@ -88,17 +88,17 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [Produces(MediaTypeNames.Application.Json)]
         [HttpGet("{dssId:guid}/task", Name = "api.adaptation.task.byId")]
-        // GET: api/1/task/?id=5
+        // GET: api/1/task?id=5
         public async Task<IActionResult> Get(
             [FromRoute] Guid dssId,
             [FromQuery] string id)
         {
             var userId = Guid.Parse(HttpContext.Items["userId"].ToString());
-            // var response = await this.businessLogic.GetTaskStatusById(dssId, id, userId);
-            // if (!response.IsSuccessful)
-            //     return response.RequestResult;
+            var response = await this.businessLogic.GetDssResultFromTaskById(dssId, id, userId);
+            if (!response.IsSuccessful)
+                return response.RequestResult;
 
-            return Ok();
+            return Ok(response.Result);
         }
 
         // <summary>Requests permitted on this URL</summary>

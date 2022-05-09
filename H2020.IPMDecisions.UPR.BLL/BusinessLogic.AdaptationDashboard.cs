@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using H2020.IPMDecisions.UPR.Core.Dtos;
+using H2020.IPMDecisions.UPR.Core.Entities;
 using H2020.IPMDecisions.UPR.Core.Models;
 using Hangfire;
 using Microsoft.Extensions.Logging;
@@ -72,6 +73,55 @@ namespace H2020.IPMDecisions.UPR.BLL
                 logger.LogError(string.Format("Error in BLL - UpdateFieldCropPestDssById. {0}", ex.Message), ex);
                 String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
                 return GenericResponseBuilder.NoSuccess<DssTaskStatusDto>(null, $"{ex.Message} InnerException: {innerMessage}");
+            }
+        }
+
+        public async Task<GenericResponse<AdaptationTaskDssResult>> GetDssResultFromTaskById(Guid dssId, string taskId, Guid userId)
+        {
+            try
+            {
+                var dss = await this.dataService.FieldCropPestDsses.FindByIdAsync(dssId);
+                if (dss == null) return GenericResponseBuilder.Unauthorized<AdaptationTaskDssResult>();
+
+                if (!dss.FieldCropPest.FieldCrop.Field.Farm.UserFarms.Any(u => u.UserId == userId))
+                {
+                    return GenericResponseBuilder.Unauthorized<AdaptationTaskDssResult>();
+                }
+
+                var monitoringApi = JobStorage.Current.GetMonitoringApi();
+                var jobDetail = monitoringApi.JobDetails(taskId);
+
+                if (jobDetail == null) return GenericResponseBuilder.Unauthorized<AdaptationTaskDssResult>();
+                if (Guid.Parse(jobDetail.Job.Args[1].ToString()) != dssId) return GenericResponseBuilder.Unauthorized<AdaptationTaskDssResult>();
+
+                DssTaskStatusDto taskStatus = CreateDssStatusFromJobDetail(dssId, taskId, jobDetail);
+                var dssResult = new FieldDssResultDetailedDto();
+                if (taskStatus.JobStatus.ToLower() == "succeeded")
+                {
+                    var cacheKey = string.Format("InMemoryDssResult_{0}", taskStatus.Id);
+                    if (memoryCache.TryGetValue(cacheKey, out object value))
+                    {
+                        var valueAsDssResult = (FieldDssResult)value;
+                        var newDss = dss;
+                        newDss.FieldDssResults.Clear();
+                        newDss.FieldDssResults.Add(valueAsDssResult);
+                        // ToDo change days
+                        dssResult = await CreateDetailedResultToReturn(newDss, 7);
+                    }
+                }
+                var dataTorReturn = new AdaptationTaskDssResult()
+                {
+                    DssTaskStatusDto = taskStatus,
+                    DssDetailedResult = dssResult
+                };
+
+                return GenericResponseBuilder.Success<AdaptationTaskDssResult>(dataTorReturn);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(string.Format("Error in BLL - GetTaskStatusById. {0}", ex.Message));
+                String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
+                return GenericResponseBuilder.NoSuccess<AdaptationTaskDssResult>(null, $"{ex.Message} InnerException: {innerMessage}");
             }
         }
     }
