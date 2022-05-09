@@ -60,7 +60,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                     return GenericResponseBuilder.NoSuccess<DssTaskStatusDto>(null, errorMessageToReturn);
                 }
 
-                var jobId = this.queueJobs.AddDssOnTheFlyQueue(id, true);
+                var jobId = this.queueJobs.RunDssOnMemory(id, fieldCropPestDssForUpdateDto.DssParameters);
                 var monitoringApi = JobStorage.Current.GetMonitoringApi();
                 var jobDetail = monitoringApi.JobDetails(jobId);
                 if (jobDetail == null) return GenericResponseBuilder.NotFound<DssTaskStatusDto>();
@@ -105,7 +105,6 @@ namespace H2020.IPMDecisions.UPR.BLL
                         var newDss = dss;
                         newDss.FieldDssResults.Clear();
                         newDss.FieldDssResults.Add(valueAsDssResult);
-                        // ToDo change days
                         dssResult = await CreateDetailedResultToReturn(newDss, daysDataToReturn);
                     }
                 }

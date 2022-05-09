@@ -26,7 +26,8 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
     public interface IDssRunningJobs
     {
         void ExecuteOnTheFlyDss(IJobCancellationToken token);
-        Task QueueOnTheFlyDss(IJobCancellationToken token, Guid dssId, PerformContext context, bool inMemory = false);
+        Task QueueOnTheFlyDss(IJobCancellationToken token, Guid dssId);
+        Task QueueOnMemoryDss(IJobCancellationToken token, Guid id, string dssParameters, PerformContext context);
     }
 
     public partial class DssRunningJobs : IDssRunningJobs
@@ -121,12 +122,26 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
         }
 
         [Queue("onthefly_queue")]
-        public async Task QueueOnTheFlyDss(IJobCancellationToken token, Guid id, PerformContext context, bool inMemory = false)
+        public async Task QueueOnTheFlyDss(IJobCancellationToken token, Guid id)
         {
             try
             {
                 token.ThrowIfCancellationRequested();
-                await ExecuteDssOnQueue(id, context, inMemory);
+                await ExecuteDssOnQueue(id);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(string.Format("Error in BLL - Error executing On the Fly DSS. {0}", ex.Message));
+            }
+        }
+
+        [Queue("onmemory_queue")]
+        public async Task QueueOnMemoryDss(IJobCancellationToken token, Guid id, string dssParameters, PerformContext context)
+        {
+            try
+            {
+                token.ThrowIfCancellationRequested();
+                await ExecuteOnMemoryDss(id, dssParameters, context);
             }
             catch (Exception ex)
             {
@@ -150,7 +165,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             }
         }
 
-        public async Task ExecuteDssOnQueue(Guid dssId, PerformContext context, bool inMemory = false)
+        public async Task ExecuteDssOnQueue(Guid dssId)
         {
             try
             {
@@ -158,17 +173,30 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 var dss = await this.dataService.FieldCropPestDsses.FindByIdAsync(dssId);
                 var dssResult = await RunOnTheFlyDss(dss);
                 if (dssResult == null) return;
-                if (!inMemory)
-                {
-                    this.dataService.FieldCropPestDsses.AddDssResult(dss, dssResult);
-                    await this.dataService.CompleteAsync();
-                }
-                else
-                {
-                    string jobId = context.BackgroundJob.Id;
-                    var cacheKey = string.Format("InMemoryDssResult_{0}", jobId);
-                    memoryCache.Set(cacheKey, dssResult, MemoryCacheHelper.CreateMemoryCacheEntryOptionsMinutes(5));
-                }
+                this.dataService.FieldCropPestDsses.AddDssResult(dss, dssResult);
+                await this.dataService.CompleteAsync();
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(string.Format("Error in BLL - ExecuteDssOnQueue. {0}", ex.Message));
+            }
+            finally
+            {
+                httpClient.Dispose();
+            }
+        }
+
+        private async Task ExecuteOnMemoryDss(Guid id, string dssParameters, PerformContext context)
+        {
+            try
+            {
+                httpClient = new HttpClient();
+                var dss = await this.dataService.FieldCropPestDsses.FindByIdAsync(id);
+                var dssResult = await RunOnTheFlyDss(dss, dssParameters);
+                if (dssResult == null) return;
+                string jobId = context.BackgroundJob.Id;
+                var cacheKey = string.Format("InMemoryDssResult_{0}", jobId);
+                memoryCache.Set(cacheKey, dssResult, MemoryCacheHelper.CreateMemoryCacheEntryOptionsMinutes(5));
             }
             catch (Exception ex)
             {
@@ -181,7 +209,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
         }
 
         #region DSS Common Stuff
-        public async Task<FieldDssResult> RunOnTheFlyDss(FieldCropPestDss dss)
+        public async Task<FieldDssResult> RunOnTheFlyDss(FieldCropPestDss dss, string onTheFlyDssParameters = "")
         {
             var dssResult = new FieldDssResult()
             {
@@ -217,8 +245,13 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 DssDataHelper.RemoveNotRequiredInputSchemaProperties(inputSchema);
 
                 var inputAsJsonObject = JsonSchemaToJson.ToJsonObject(inputSchema.ToString(), logger);
-                // Add user parameters
-                if (!string.IsNullOrEmpty(dss.DssParameters))
+                // Add user parameters or parameters on the fly
+                if (!string.IsNullOrEmpty(onTheFlyDssParameters))
+                {
+                    JObject dssParametersAsJsonObject = JObject.Parse(onTheFlyDssParameters.ToString());
+                    DssDataHelper.AddUserDssParametersToDssInput(dssParametersAsJsonObject, inputAsJsonObject);
+                }
+                else if (!string.IsNullOrEmpty(dss.DssParameters))
                 {
                     JObject dssParametersAsJsonObject = JObject.Parse(dss.DssParameters.ToString());
                     DssDataHelper.AddUserDssParametersToDssInput(dssParametersAsJsonObject, inputAsJsonObject);
