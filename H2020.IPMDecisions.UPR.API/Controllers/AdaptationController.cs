@@ -91,10 +91,11 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         // GET: api/1/task?id=5
         public async Task<IActionResult> Get(
             [FromRoute] Guid dssId,
-            [FromQuery] string id)
+            [FromQuery] string id,
+            int days = 7)
         {
             var userId = Guid.Parse(HttpContext.Items["userId"].ToString());
-            var response = await this.businessLogic.GetDssResultFromTaskById(dssId, id, userId);
+            var response = await this.businessLogic.GetDssResultFromTaskById(dssId, id, userId, days);
             if (!response.IsSuccessful)
                 return response.RequestResult;
 

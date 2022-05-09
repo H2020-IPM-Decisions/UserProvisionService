@@ -76,7 +76,7 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
         }
 
-        public async Task<GenericResponse<AdaptationTaskDssResult>> GetDssResultFromTaskById(Guid dssId, string taskId, Guid userId)
+        public async Task<GenericResponse<AdaptationTaskDssResult>> GetDssResultFromTaskById(Guid dssId, string taskId, Guid userId, int daysDataToReturn = 7)
         {
             try
             {
@@ -106,7 +106,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                         newDss.FieldDssResults.Clear();
                         newDss.FieldDssResults.Add(valueAsDssResult);
                         // ToDo change days
-                        dssResult = await CreateDetailedResultToReturn(newDss, 7);
+                        dssResult = await CreateDetailedResultToReturn(newDss, daysDataToReturn);
                     }
                 }
                 var dataTorReturn = new AdaptationTaskDssResult()
