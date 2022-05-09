@@ -79,7 +79,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
 
                     var responseAsText = await response.Content.ReadAsStringAsync();
                     listOfDss = JsonConvert.DeserializeObject<IEnumerable<DssInformation>>(responseAsText);
-                    memoryCache.Set(cacheKey, listOfDss, MemoryCacheHelper.CreateMemoryCacheEntryOptions(1));
+                    memoryCache.Set(cacheKey, listOfDss, MemoryCacheHelper.CreateMemoryCacheEntryOptionsDays(1));
                 }
                 return listOfDss;
             }
@@ -128,7 +128,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
                     var responseAsText = await response.Content.ReadAsStringAsync();
                     listOfEppoCodes = JsonConvert.DeserializeObject<List<string>>(responseAsText);
 
-                    memoryCache.Set(cacheKey, listOfEppoCodes, MemoryCacheHelper.CreateMemoryCacheEntryOptions(1));
+                    memoryCache.Set(cacheKey, listOfEppoCodes, MemoryCacheHelper.CreateMemoryCacheEntryOptionsDays(1));
                 }
                 return listOfEppoCodes;
             }
@@ -182,7 +182,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
                     var responseAsText = await response.Content.ReadAsStringAsync();
                     dssInformation = JsonConvert.DeserializeObject<DssInformation>(responseAsText);
 
-                    memoryCache.Set(cacheKey, dssInformation, MemoryCacheHelper.CreateMemoryCacheEntryOptions(1));
+                    memoryCache.Set(cacheKey, dssInformation, MemoryCacheHelper.CreateMemoryCacheEntryOptionsDays(1));
                 }
                 return dssInformation;
             }
@@ -219,7 +219,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
                         return null;
                     }
                     userId = await userIdResponse.Content.ReadAsStringAsync();
-                    memoryCache.Set(cacheKey, userId, MemoryCacheHelper.CreateMemoryCacheEntryOptions(15));
+                    memoryCache.Set(cacheKey, userId, MemoryCacheHelper.CreateMemoryCacheEntryOptionsDays(15));
                 }
                 return userId;
             }
@@ -304,7 +304,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
                     var url = string.Format("{0}rest/amalgamation/amalgamate/proxy/?endpointURL={1}&endpointQueryStr={2}", wxEndPoint, endPointUrlEncoded, endPointQueryStringEncoded);
                     weatherResponse = await httpClient.GetAsync(url);
                     if (weatherResponse.IsSuccessStatusCode)
-                        memoryCache.Set(cacheKey, weatherResponse, MemoryCacheHelper.CreateMemoryCacheEntryOptions(1));
+                        memoryCache.Set(cacheKey, weatherResponse, MemoryCacheHelper.CreateMemoryCacheEntryOptionsDays(1));
                     else
                         logger.LogError(string.Format("Weather call error. URL called: {0}. Error returned: {1}", url, await weatherResponse.Content.ReadAsStringAsync()));
                 }
@@ -326,7 +326,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
                 {
                     weatherResponse = await httpClient.GetAsync(string.Format("{0}?{1}", endPointUrl, endPointParameters));
                     if (weatherResponse.IsSuccessStatusCode)
-                        memoryCache.Set(cacheKey, weatherResponse, MemoryCacheHelper.CreateMemoryCacheEntryOptions(1));
+                        memoryCache.Set(cacheKey, weatherResponse, MemoryCacheHelper.CreateMemoryCacheEntryOptionsDays(1));
                 }
                 return weatherResponse;
             }
@@ -352,7 +352,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
 
                     var responseAsText = await response.Content.ReadAsStringAsync();
                     weatherSchema = JsonConvert.DeserializeObject<WeatherDataSchema>(responseAsText);
-                    memoryCache.Set(cacheKey, weatherSchema, MemoryCacheHelper.CreateMemoryCacheEntryOptions(1));
+                    memoryCache.Set(cacheKey, weatherSchema, MemoryCacheHelper.CreateMemoryCacheEntryOptionsDays(1));
                 }
                 return weatherSchema;
             }
@@ -374,7 +374,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
                     var url = string.Format("{0}rest/amalgamation/amalgamate?{1}", wxEndPoint, endPointQueryString);
                     weatherResponse = await httpClient.GetAsync(url);
                     if (weatherResponse.IsSuccessStatusCode)
-                        memoryCache.Set(cacheKey, weatherResponse, MemoryCacheHelper.CreateMemoryCacheEntryOptions(1));
+                        memoryCache.Set(cacheKey, weatherResponse, MemoryCacheHelper.CreateMemoryCacheEntryOptionsDays(1));
                     else
                         logger.LogError(string.Format("Weather call error. URL called: {0}. Error returned: {1}", url, await weatherResponse.Content.ReadAsStringAsync()));
                 }
