@@ -59,9 +59,10 @@ namespace H2020.IPMDecisions.UPR.BLL
                     return GenericResponseBuilder.NoSuccess<DssTaskStatusDto>(null, errorMessageToReturn);
                 }
 
-                var jobId = "35";//this.queueJobs.AddDssOnTheFlyQueue(id);
+                var jobId = this.queueJobs.AddDssOnTheFlyQueue(id, true);
                 var monitoringApi = JobStorage.Current.GetMonitoringApi();
                 var jobDetail = monitoringApi.JobDetails(jobId);
+                if (jobDetail == null) return GenericResponseBuilder.NotFound<DssTaskStatusDto>();
                 DssTaskStatusDto dataToReturn = CreateDssStatusFromJobDetail(id, jobId, jobDetail);
 
                 return GenericResponseBuilder.Success<DssTaskStatusDto>(dataToReturn);

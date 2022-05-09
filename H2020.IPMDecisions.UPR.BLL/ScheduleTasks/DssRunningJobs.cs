@@ -13,7 +13,9 @@ using H2020.IPMDecisions.UPR.Core.Enums;
 using H2020.IPMDecisions.UPR.Core.Models;
 using H2020.IPMDecisions.UPR.Data.Core;
 using Hangfire;
+using Hangfire.Server;
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -24,7 +26,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
     public interface IDssRunningJobs
     {
         void ExecuteOnTheFlyDss(IJobCancellationToken token);
-        Task QueueOnTheFlyDss(IJobCancellationToken token, Guid dssId);
+        Task QueueOnTheFlyDss(IJobCancellationToken token, Guid dssId, PerformContext context, bool inMemory = false);
     }
 
     public partial class DssRunningJobs : IDssRunningJobs
@@ -38,6 +40,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
         private readonly IMapper mapper;
         private readonly IJsonStringLocalizer jsonStringLocalizer;
         private readonly IHangfireQueueJobs queueJobs;
+        private readonly IMemoryCache memoryCache;
         private readonly EncryptionHelper _encryption;
 
         public DssRunningJobs(
@@ -47,7 +50,8 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             IDataProtectionProvider dataProtectionProvider,
             IMapper mapper,
             IJsonStringLocalizer jsonStringLocalizer,
-            IHangfireQueueJobs queueJobs)
+            IHangfireQueueJobs queueJobs,
+            IMemoryCache memoryCache)
         {
             this.dataService = dataService
                 ?? throw new ArgumentNullException(nameof(dataService));
@@ -63,6 +67,8 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 ?? throw new ArgumentNullException(nameof(jsonStringLocalizer));
             this.queueJobs = queueJobs
                 ?? throw new ArgumentNullException(nameof(queueJobs));
+            this.memoryCache = memoryCache
+                ?? throw new ArgumentNullException(nameof(memoryCache));
             _encryption = new EncryptionHelper(dataProtectionProvider);
         }
 
@@ -115,12 +121,12 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
         }
 
         [Queue("onthefly_queue")]
-        public async Task QueueOnTheFlyDss(IJobCancellationToken token, Guid id)
+        public async Task QueueOnTheFlyDss(IJobCancellationToken token, Guid id, PerformContext context, bool inMemory = false)
         {
             try
             {
                 token.ThrowIfCancellationRequested();
-                await ExecuteDssOnQueue(id);
+                await ExecuteDssOnQueue(id, context, inMemory);
             }
             catch (Exception ex)
             {
@@ -144,7 +150,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             }
         }
 
-        public async Task ExecuteDssOnQueue(Guid dssId)
+        public async Task ExecuteDssOnQueue(Guid dssId, PerformContext context, bool inMemory = false)
         {
             try
             {
@@ -152,8 +158,17 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 var dss = await this.dataService.FieldCropPestDsses.FindByIdAsync(dssId);
                 var dssResult = await RunOnTheFlyDss(dss);
                 if (dssResult == null) return;
-                this.dataService.FieldCropPestDsses.AddDssResult(dss, dssResult);
-                await this.dataService.CompleteAsync();
+                if (!inMemory)
+                {
+                    this.dataService.FieldCropPestDsses.AddDssResult(dss, dssResult);
+                    await this.dataService.CompleteAsync();
+                }
+                else
+                {
+                    string jobId = context.BackgroundJob.Id;                    
+                    var cacheKey = string.Format("InMemoryDssResult_{0}", jobId);
+                    memoryCache.Set(cacheKey, dssResult, MemoryCacheHelper.CreateMemoryCacheEntryOptionsMinutes(5));
+                }
             }
             catch (Exception ex)
             {
@@ -365,7 +380,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 dssResult.ResultMessageType = (int)DssOutputMessageTypeEnum.Error;
                 CreateDssRunErrorResult(dssResult, ex.Message, DssOutputMessageTypeEnum.Error);
                 return;
-            } 
+            }
         }
         #endregion
 

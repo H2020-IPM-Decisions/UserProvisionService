@@ -6,7 +6,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
 {
     public interface IHangfireQueueJobs
     {
-        string AddDssOnTheFlyQueue(Guid id);
+        string AddDssOnTheFlyQueue(Guid id, bool inMemory = false);
         string ScheduleDssOnTheFlyQueue(Guid id, double minutes);
         string ScheduleDssOnTheFlyQueueSeconds(Guid id, int second);
         string AddFarmLocationToWeatherQueue(string weatherStringParametersUrl);
@@ -23,22 +23,22 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 ?? throw new ArgumentNullException(nameof(dataService));
         }
 
-        public string AddDssOnTheFlyQueue(Guid id)
+        public string AddDssOnTheFlyQueue(Guid id, bool inMemory = false)
         {
             return BackgroundJob.Enqueue<DssRunningJobs>(
-               job => job.QueueOnTheFlyDss(JobCancellationToken.Null, id));
+               job => job.QueueOnTheFlyDss(JobCancellationToken.Null, id, null, inMemory));
         }
 
         public string ScheduleDssOnTheFlyQueue(Guid id, double minutes)
         {
             return BackgroundJob.Schedule<DssRunningJobs>(
-                job => job.QueueOnTheFlyDss(JobCancellationToken.Null, id), TimeSpan.FromMinutes(minutes));
+                job => job.QueueOnTheFlyDss(JobCancellationToken.Null, id, null, false), TimeSpan.FromMinutes(minutes));
         }
 
         public string ScheduleDssOnTheFlyQueueSeconds(Guid id, int seconds)
         {
             return BackgroundJob.Schedule<DssRunningJobs>(
-                job => job.QueueOnTheFlyDss(JobCancellationToken.Null, id), TimeSpan.FromSeconds(seconds));
+                job => job.QueueOnTheFlyDss(JobCancellationToken.Null, id, null, false), TimeSpan.FromSeconds(seconds));
         }
 
         public string AddFarmLocationToWeatherQueue(string weatherStringParametersUrl)
