@@ -10,6 +10,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
         string ScheduleDssOnTheFlyQueue(Guid id, double minutes);
         string ScheduleDssOnTheFlyQueueSeconds(Guid id, int second);
         string AddFarmLocationToWeatherQueue(string weatherStringParametersUrl);
+        string RunDssOnMemory(Guid id, string dssParameters);
     }
 
     public class HangfireQueueJobs : IHangfireQueueJobs
@@ -45,6 +46,12 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
         {
             return BackgroundJob.Enqueue<DssRunningJobs>(
                job => job.QueueWeatherToAmalgamationService(JobCancellationToken.Null, weatherStringParametersUrl));
+        }
+
+        public string RunDssOnMemory(Guid id, string dssParameters)
+        {
+            return BackgroundJob.Enqueue<DssRunningJobs>(
+               job => job.QueueOnMemoryDss(JobCancellationToken.Null, id, dssParameters, null));
         }
     }
 }

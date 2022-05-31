@@ -7,6 +7,7 @@ using H2020.IPMDecisions.UPR.Core.Services;
 using H2020.IPMDecisions.UPR.Data.Core;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
@@ -25,6 +26,7 @@ namespace H2020.IPMDecisions.UPR.BLL
         private readonly IHangfireQueueJobs queueJobs;
         private readonly IJsonStringLocalizer jsonStringLocalizer;
         private readonly IConfiguration config;
+        private readonly IMemoryCache memoryCache;
         private EncryptionHelper _encryption;
 
         public BusinessLogic(
@@ -38,8 +40,8 @@ namespace H2020.IPMDecisions.UPR.BLL
             IDataProtectionProvider dataProtectionProvider,
             IHangfireQueueJobs queueJobs,
             IJsonStringLocalizer jsonStringLocalizer,
-            IConfiguration config
-            )
+            IConfiguration config,
+            IMemoryCache memoryCache)
         {
             this.mapper = mapper
                 ?? throw new ArgumentNullException(nameof(mapper));
@@ -63,6 +65,8 @@ namespace H2020.IPMDecisions.UPR.BLL
                 ?? throw new ArgumentNullException(nameof(jsonStringLocalizer));
             this.config = config
                 ?? throw new ArgumentNullException(nameof(config));
+            this.memoryCache = memoryCache
+               ?? throw new ArgumentNullException(nameof(memoryCache));
             _encryption = new EncryptionHelper(dataProtectionProvider);
         }
     }

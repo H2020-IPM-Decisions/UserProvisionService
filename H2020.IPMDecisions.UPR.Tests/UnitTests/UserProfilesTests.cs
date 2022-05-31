@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Caching.Memory;
 using Moq;
 using Xunit;
 
@@ -33,6 +34,7 @@ namespace H2020.IPMDecisions.UPR.Tests.UnitTests
             Mock<IHangfireQueueJobs> mockHangfireQueueJobs = new Mock<IHangfireQueueJobs>();
             Mock<IJsonStringLocalizer> mockJsonStringLocalizer = new Mock<IJsonStringLocalizer>();
             Mock<IConfiguration> mockConfig = new Mock<IConfiguration>();
+            Mock<IMemoryCache> mockCache = new Mock<IMemoryCache>();
 
             var bll = new BusinessLogic(
                 mockMapper.Object,
@@ -45,7 +47,8 @@ namespace H2020.IPMDecisions.UPR.Tests.UnitTests
                 mockDataProtectionProvider.Object,
                 mockHangfireQueueJobs.Object,
                 mockJsonStringLocalizer.Object,
-                mockConfig.Object);
+                mockConfig.Object,
+                mockCache.Object);
 
             UserProfileForCreationDto user = new UserProfileForCreationDto();
             // Act

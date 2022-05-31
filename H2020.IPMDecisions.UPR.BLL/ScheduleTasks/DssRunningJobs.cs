@@ -13,7 +13,9 @@ using H2020.IPMDecisions.UPR.Core.Enums;
 using H2020.IPMDecisions.UPR.Core.Models;
 using H2020.IPMDecisions.UPR.Data.Core;
 using Hangfire;
+using Hangfire.Server;
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -25,6 +27,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
     {
         void ExecuteOnTheFlyDss(IJobCancellationToken token);
         Task QueueOnTheFlyDss(IJobCancellationToken token, Guid dssId);
+        Task QueueOnMemoryDss(IJobCancellationToken token, Guid id, string dssParameters, PerformContext context);
     }
 
     public partial class DssRunningJobs : IDssRunningJobs
@@ -38,6 +41,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
         private readonly IMapper mapper;
         private readonly IJsonStringLocalizer jsonStringLocalizer;
         private readonly IHangfireQueueJobs queueJobs;
+        private readonly IMemoryCache memoryCache;
         private readonly EncryptionHelper _encryption;
 
         public DssRunningJobs(
@@ -47,7 +51,8 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             IDataProtectionProvider dataProtectionProvider,
             IMapper mapper,
             IJsonStringLocalizer jsonStringLocalizer,
-            IHangfireQueueJobs queueJobs)
+            IHangfireQueueJobs queueJobs,
+            IMemoryCache memoryCache)
         {
             this.dataService = dataService
                 ?? throw new ArgumentNullException(nameof(dataService));
@@ -63,6 +68,8 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 ?? throw new ArgumentNullException(nameof(jsonStringLocalizer));
             this.queueJobs = queueJobs
                 ?? throw new ArgumentNullException(nameof(queueJobs));
+            this.memoryCache = memoryCache
+                ?? throw new ArgumentNullException(nameof(memoryCache));
             _encryption = new EncryptionHelper(dataProtectionProvider);
         }
 
@@ -128,6 +135,20 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             }
         }
 
+        [Queue("onmemory_queue")]
+        public async Task QueueOnMemoryDss(IJobCancellationToken token, Guid id, string dssParameters, PerformContext context)
+        {
+            try
+            {
+                token.ThrowIfCancellationRequested();
+                await ExecuteOnMemoryDss(id, dssParameters, context);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(string.Format("Error in BLL - Error executing On the Fly DSS. {0}", ex.Message));
+            }
+        }
+
         [Queue("weather_queue")]
         public async Task QueueWeatherToAmalgamationService(IJobCancellationToken token, string weatherStringParametersUrl)
         {
@@ -165,8 +186,30 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             }
         }
 
+        private async Task ExecuteOnMemoryDss(Guid id, string dssParameters, PerformContext context)
+        {
+            try
+            {
+                httpClient = new HttpClient();
+                var dss = await this.dataService.FieldCropPestDsses.FindByIdAsync(id);
+                var dssResult = await RunOnTheFlyDss(dss, dssParameters);
+                if (dssResult == null) return;
+                string jobId = context.BackgroundJob.Id;
+                var cacheKey = string.Format("InMemoryDssResult_{0}", jobId);
+                memoryCache.Set(cacheKey, dssResult, MemoryCacheHelper.CreateMemoryCacheEntryOptionsMinutes(5));
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(string.Format("Error in BLL - ExecuteDssOnQueue. {0}", ex.Message));
+            }
+            finally
+            {
+                httpClient.Dispose();
+            }
+        }
+
         #region DSS Common Stuff
-        public async Task<FieldDssResult> RunOnTheFlyDss(FieldCropPestDss dss)
+        public async Task<FieldDssResult> RunOnTheFlyDss(FieldCropPestDss dss, string onTheFlyDssParameters = "")
         {
             var dssResult = new FieldDssResult()
             {
@@ -202,8 +245,13 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 DssDataHelper.RemoveNotRequiredInputSchemaProperties(inputSchema);
 
                 var inputAsJsonObject = JsonSchemaToJson.ToJsonObject(inputSchema.ToString(), logger);
-                // Add user parameters
-                if (!string.IsNullOrEmpty(dss.DssParameters))
+                // Add user parameters or parameters on the fly
+                if (!string.IsNullOrEmpty(onTheFlyDssParameters))
+                {
+                    JObject dssParametersAsJsonObject = JObject.Parse(onTheFlyDssParameters.ToString());
+                    DssDataHelper.AddUserDssParametersToDssInput(dssParametersAsJsonObject, inputAsJsonObject);
+                }
+                else if (!string.IsNullOrEmpty(dss.DssParameters))
                 {
                     JObject dssParametersAsJsonObject = JObject.Parse(dss.DssParameters.ToString());
                     DssDataHelper.AddUserDssParametersToDssInput(dssParametersAsJsonObject, inputAsJsonObject);
@@ -365,7 +413,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 dssResult.ResultMessageType = (int)DssOutputMessageTypeEnum.Error;
                 CreateDssRunErrorResult(dssResult, ex.Message, DssOutputMessageTypeEnum.Error);
                 return;
-            } 
+            }
         }
         #endregion
 
