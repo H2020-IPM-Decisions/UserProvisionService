@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using H2020.IPMDecisions.UPR.Core.Dtos;
@@ -39,7 +40,7 @@ namespace H2020.IPMDecisions.UPR.BLL
             {
                 return await this.dataService
                     .FieldCropPestDsses
-                    .HasAny(f => 
+                    .HasAny(f =>
                         f.FieldCropPest
                             .FieldCrop
                             .Field
@@ -51,6 +52,23 @@ namespace H2020.IPMDecisions.UPR.BLL
             {
                 logger.LogError(string.Format("Error in BLL - UserHasAnyDss. {0}", ex.Message), ex);
                 return false;
+            }
+        }
+
+        public async Task<List<ReportDataDto>> GetDataForReport()
+        {
+            try
+            {
+                var userFarms = await this.dataService
+                    .UserFarms
+                    .GetReportDataAsync();
+
+                return this.mapper.Map<List<ReportDataDto>>(userFarms);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(string.Format("Error in BLL - GetDataForReport. {0}", ex.Message), ex);
+                return null;
             }
         }
         #region Helpers

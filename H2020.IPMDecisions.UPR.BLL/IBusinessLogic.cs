@@ -94,6 +94,7 @@ namespace H2020.IPMDecisions.UPR.BLL
         #region Internal Call
         Task<GenericResponse> InitialUserProfileCreation(UserProfileInternalCallDto userProfileDto);
         Task<bool> UserHasAnyDss(Guid userId);
+        Task<List<ReportDataDto>> GetDataForReport();
         #endregion
 
         #region  UserWidget

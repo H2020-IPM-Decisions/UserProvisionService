@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Net.Mime;
 using System.Threading.Tasks;
 using H2020.IPMDecisions.UPR.API.Filters;
@@ -56,13 +57,23 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [HttpGet("hasDss/{userId:guid}", Name = "api.internal.get.dss")]
         // GET: api/internalcall/hasDss
-        public async Task<IActionResult> GET(
+        public async Task<IActionResult> Get(
             [FromRoute] Guid userId)
         {
             bool response = await businessLogic.UserHasAnyDss(userId);
             if (response)
                 return Ok();
             return BadRequest();
+        }
+
+        [ProducesResponseType(typeof(IEnumerable<ReportDataDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [HttpGet("report", Name = "api.internal.get.reportdata")]
+        // GET: api/internalcall/report
+        public async Task<IActionResult> GetReportData()
+        {
+            var response = await businessLogic.GetDataForReport();            
+            return Ok(response);
         }
     }
 }
