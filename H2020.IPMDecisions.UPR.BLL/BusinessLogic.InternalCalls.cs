@@ -6,6 +6,7 @@ using H2020.IPMDecisions.UPR.Core.Dtos;
 using H2020.IPMDecisions.UPR.Core.Entities;
 using H2020.IPMDecisions.UPR.Core.Models;
 using Microsoft.Extensions.Logging;
+using Two10.CountryLookup;
 
 namespace H2020.IPMDecisions.UPR.BLL
 {
@@ -63,7 +64,33 @@ namespace H2020.IPMDecisions.UPR.BLL
                     .UserFarms
                     .GetReportDataAsync();
 
-                return this.mapper.Map<List<ReportDataDto>>(userFarms);
+                // Creating a ReverseLookup object is expensive, so it's worth keeping it as a singleton.
+                var lookup = new ReverseLookup();
+                var dataToReturn = new List<ReportDataDto>();
+                foreach (var userFarm in userFarms)
+                {
+                    var newItem = this.mapper.Map<ReportDataDto>(userFarm);
+                    newItem.Farm.Country = lookup.Lookup((float)userFarm.Farm.Location.Coordinate.Y, (float)userFarm.Farm.Location.X).Name.ToString();
+                    var listOfFieldCropPestDss = new List<CropPestDss>();
+                    // How you do this in automapper!!??!! 
+                    // Improve process with dictionaries to improve efficiency
+                    if (userFarm.Farm.Fields == null) continue;
+                    foreach (var field in userFarm.Farm.Fields)
+                    {
+                        if (field.FieldCrop.FieldCropPests == null) continue;
+                        foreach (var fieldCropPests in field.FieldCrop.FieldCropPests)
+                        {
+                            if (fieldCropPests.CropPest.CropPestDsses == null) continue;
+                            foreach (var cropPestDss in fieldCropPests.CropPest.CropPestDsses)
+                            {
+                                listOfFieldCropPestDss.Add(cropPestDss);
+                            }
+                        }
+                    }
+                    newItem.Farm.DssModels = this.mapper.Map<List<ReportDataDssModel>>(listOfFieldCropPestDss);
+                    dataToReturn.Add(newItem);
+                }
+                return dataToReturn;
             }
             catch (Exception ex)
             {

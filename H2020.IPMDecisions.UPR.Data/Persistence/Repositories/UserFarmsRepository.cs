@@ -35,8 +35,8 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
                     .ThenInclude(f => f.Fields)
                         .ThenInclude(fi => fi.FieldCrop)
                             .ThenInclude(fc => fc.FieldCropPests)
-                                .ThenInclude(fcp => fcp.FieldCropPestDsses)
-                                    .ThenInclude(fcpd => fcpd.CropPestDss)
+                                .ThenInclude(fcp => fcp.CropPest)
+                                    .ThenInclude(cp => cp.CropPestDsses)
                 .ToListAsync();
         }
     }
