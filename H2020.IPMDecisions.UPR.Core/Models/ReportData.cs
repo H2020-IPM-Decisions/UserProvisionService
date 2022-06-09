@@ -1,11 +1,10 @@
 using System.Collections.Generic;
-using H2020.IPMDecisions.UPR.Core.Models;
 
-namespace H2020.IPMDecisions.UPR.Core.Dtos
+namespace H2020.IPMDecisions.UPR.Core.Models
 {
-    public class ReportDataDto
+    public class ReportData
     {
-        public ReportDataDto()
+        public ReportData()
         {
             Farm = new ReportDataFarm();
         }

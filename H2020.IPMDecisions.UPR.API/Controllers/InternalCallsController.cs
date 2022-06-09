@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using H2020.IPMDecisions.UPR.API.Filters;
 using H2020.IPMDecisions.UPR.BLL;
 using H2020.IPMDecisions.UPR.Core.Dtos;
+using H2020.IPMDecisions.UPR.Core.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -66,7 +67,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
             return BadRequest();
         }
 
-        [ProducesResponseType(typeof(IEnumerable<ReportDataDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(IEnumerable<ReportData>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [HttpGet("report", Name = "api.internal.get.reportdata")]
         // GET: api/internalcall/report

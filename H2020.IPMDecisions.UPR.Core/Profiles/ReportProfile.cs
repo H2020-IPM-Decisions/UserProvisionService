@@ -8,7 +8,7 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
     {
         public ReportProfile()
         {
-            // Entities to Dtos 
+            // Entities to Models 
             CreateMap<CropPestDss, ReportDataDssModel>()
                 .ForMember(dest => dest.ModelId, opt => opt.MapFrom(src => src.DssModelId))
                 .ForMember(dest => dest.ModelName, opt => opt.MapFrom(src => src.DssModelName));
@@ -19,7 +19,7 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
                     dest.Location = new CustomPointLocation(src.Location.X, src.Location.Y, src.Location.SRID);
                 });
 
-            CreateMap<UserFarm, ReportDataDto>()
+            CreateMap<UserFarm, ReportData>()
                 .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId))
                 .ForMember(dest => dest.Farm, opt => opt.MapFrom(src => src.Farm));
         }

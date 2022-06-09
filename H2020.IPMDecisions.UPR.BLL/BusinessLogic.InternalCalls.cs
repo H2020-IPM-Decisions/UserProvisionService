@@ -56,7 +56,7 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
         }
 
-        public async Task<List<ReportDataDto>> GetDataForReport()
+        public async Task<List<ReportData>> GetDataForReport()
         {
             try
             {
@@ -66,10 +66,10 @@ namespace H2020.IPMDecisions.UPR.BLL
 
                 // Creating a ReverseLookup object is expensive, so it's worth keeping it as a singleton.
                 var lookup = new ReverseLookup();
-                var dataToReturn = new List<ReportDataDto>();
+                var dataToReturn = new List<ReportData>();
                 foreach (var userFarm in userFarms)
                 {
-                    var newItem = this.mapper.Map<ReportDataDto>(userFarm);
+                    var newItem = this.mapper.Map<ReportData>(userFarm);
                     newItem.Farm.Country = lookup.Lookup((float)userFarm.Farm.Location.Coordinate.Y, (float)userFarm.Farm.Location.X).Name.ToString();
                     var listOfFieldCropPestDss = new List<CropPestDss>();
                     // How you do this in automapper!!??!! 
