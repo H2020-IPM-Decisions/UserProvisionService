@@ -27,7 +27,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 var listOfPreferredWeatherDataSources = new List<WeatherSchemaForHttp>();
                 var farm = dss.FieldCropPest.FieldCrop.Field.Farm;
                 var currentYear = DssDataHelper.GetCurrentYearForDssDefaultDates(dssInformation, dssInputSchemaAsJson);
-                var currentHost = "https://platform.ipmdecisions.net";
+                var currentHost = config["MicroserviceInternalCommunication:WeatherApiUrl"];
                 if (farm.WeatherForecast != null)
                 {
                     var weatherInformation = await this.internalCommunicationProvider
@@ -422,14 +422,16 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                     internalCommunicationProvider
                     .GetWeatherUsingAmalgamationProxyService(weatherDataSource.Url, weatherStringParametersUrl);
             }
-            bool useOwnService = true;
-            if (useOwnService)
-            {
-                return await
-                    internalCommunicationProvider
-                    .GetWeatherUsingOwnService(weatherDataSource.Url, weatherStringParametersUrl);
+            // #if DEBUG
+            //             bool useOwnService = true;
+            //             if (useOwnService)
+            //             {
+            //                 return await
+            //                     internalCommunicationProvider
+            //                     .GetWeatherUsingOwnService(weatherDataSource.Url, weatherStringParametersUrl);
 
-            }
+            //             }
+            // #endif
             return await
                 internalCommunicationProvider
                 .GetWeatherUsingAmalgamationService(weatherStringParametersUrl);
