@@ -27,12 +27,16 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 var listOfPreferredWeatherDataSources = new List<WeatherSchemaForHttp>();
                 var farm = dss.FieldCropPest.FieldCrop.Field.Farm;
                 var currentYear = DssDataHelper.GetCurrentYearForDssDefaultDates(dssInformation, dssInputSchemaAsJson);
+                var currentHost = "https://platform.ipmdecisions.net";
                 if (farm.WeatherForecast != null)
                 {
                     var weatherInformation = await this.internalCommunicationProvider
                            .GetWeatherProviderInformationFromWeatherMicroservice(farm.WeatherForecast.WeatherId);
 
-                    var weatherToCall = this.mapper.Map<WeatherSchemaForHttp>(weatherInformation);
+                    var weatherToCall = this.mapper.Map<WeatherSchemaForHttp>(weatherInformation, opt =>
+                    {
+                        opt.Items["host"] = currentHost;
+                    });
                     weatherToCall.IsForecast = true;
                     result = AddWeatherDates(dssInformation, dssInputSchemaAsJson, weatherToCall, currentYear);
                     listOfPreferredWeatherDataSources.Add(weatherToCall);
@@ -42,7 +46,10 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                     var weatherInformation = await this.internalCommunicationProvider
                            .GetWeatherProviderInformationFromWeatherMicroservice(farm.WeatherHistorical.WeatherId);
 
-                    var weatherToCall = this.mapper.Map<WeatherSchemaForHttp>(weatherInformation);
+                    var weatherToCall = this.mapper.Map<WeatherSchemaForHttp>(weatherInformation, opt =>
+                    {
+                        opt.Items["host"] = currentHost;
+                    });
                     result = AddWeatherDates(dssInformation, dssInputSchemaAsJson, weatherToCall, currentYear);
                     listOfPreferredWeatherDataSources.Add(weatherToCall);
                 }
@@ -414,6 +421,14 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 return await
                     internalCommunicationProvider
                     .GetWeatherUsingAmalgamationProxyService(weatherDataSource.Url, weatherStringParametersUrl);
+            }
+            bool useOwnService = true;
+            if (useOwnService)
+            {
+                return await
+                    internalCommunicationProvider
+                    .GetWeatherUsingOwnService(weatherDataSource.Url, weatherStringParametersUrl);
+
             }
             return await
                 internalCommunicationProvider

@@ -64,16 +64,17 @@ namespace H2020.IPMDecisions.UPR.BLL
                 // Call Weather service with Farm location
                 AddAmalgamationDataCollectionProcessIntoQueue(farmAsEntity.Location);
 
+                var currentHost = "https://platform.ipmdecisions.net";
                 var defaultIdWeatherForecast = AdminValuesEnum.WeatherForecastService;
                 var weatherForecastDefaultValue = await this.dataService.AdminVariables.FindByIdAsync(defaultIdWeatherForecast);
                 if (weatherForecastDefaultValue == null) throw new ApplicationException(this.jsonStringLocalizer["shared.missing_default_forecast"].ToString());
-                var weatherForecast = await EnsureWeatherForecastExists(weatherForecastDefaultValue.Value);
+                var weatherForecast = await EnsureWeatherForecastExists(weatherForecastDefaultValue.Value, currentHost);
                 farmAsEntity.WeatherForecast = weatherForecast;
 
                 var defaultIdWeatherhistorical = AdminValuesEnum.WeatherHistoricalService;
                 var weatherHistoricalDefaultValue = await this.dataService.AdminVariables.FindByIdAsync(defaultIdWeatherhistorical);
                 if (weatherHistoricalDefaultValue == null) throw new ApplicationException(this.jsonStringLocalizer["shared.missing_default_historical"].ToString());
-                var weatherHistorical = await EnsureWeatherHistoricalExists(weatherHistoricalDefaultValue.Value);
+                var weatherHistorical = await EnsureWeatherHistoricalExists(weatherHistoricalDefaultValue.Value, currentHost);
                 farmAsEntity.WeatherHistorical = weatherHistorical;
 
                 await this.dataService.UserProfiles.AddFarm(userProfile.Result, farmAsEntity, UserFarmTypeEnum.Owner, false);
@@ -302,8 +303,9 @@ namespace H2020.IPMDecisions.UPR.BLL
         {
             try
             {
-                farm.WeatherForecast = await EnsureWeatherForecastExists(farmForFullUpdate.WeatherForecastDto.WeatherId);
-                farm.WeatherHistorical = await EnsureWeatherHistoricalExists(farmForFullUpdate.WeatherHistoricalDto.WeatherId);
+                var currentHost = "https://platform.ipmdecisions.net";
+                farm.WeatherForecast = await EnsureWeatherForecastExists(farmForFullUpdate.WeatherForecastDto.WeatherId, currentHost);
+                farm.WeatherHistorical = await EnsureWeatherHistoricalExists(farmForFullUpdate.WeatherHistoricalDto.WeatherId, currentHost);
 
                 this.mapper.Map(farmForFullUpdate, farm);
                 this.dataService.Farms.Update(farm);
