@@ -346,10 +346,10 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 // check if response is JSON, if not, generic error
                 if (!DataParseHelper.IsValidJson(responseAsText))
                 {
-                    logger.Log(LogLevel.Error, string.Format("Error doing running this DSS: {0} with this payload: {1}. Response was: {2}",
+                    logger.Log(LogLevel.Error, string.Format("Error running DSS: {0}. Response was: {1}. With this payload: {2}",
                     responseDss.RequestMessage.RequestUri.ToString(),
-                    await responseDss.RequestMessage.Content.ReadAsStringAsync(),
-                    responseAsText));
+                    responseAsText,
+                    await responseDss.RequestMessage.Content.ReadAsStringAsync()));
 
                     CreateDssRunErrorResult(dssResult, responseAsText, DssOutputMessageTypeEnum.Error);
                     return;
@@ -358,10 +358,10 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 // ToDo. Check valid responses when DSS do not run properly
                 if (!responseDss.IsSuccessStatusCode)
                 {
-                    logger.Log(LogLevel.Error, string.Format("Error doing running this DSS: {0} with this payload: {1}. Response was: {2}",
+                    logger.Log(LogLevel.Error, string.Format("Error running DSS: {0}. Response was: {1}. With this payload: {2}",
                     responseDss.RequestMessage.RequestUri.ToString(),
-                    await responseDss.RequestMessage.Content.ReadAsStringAsync(),
-                    responseAsText));
+                    responseAsText,
+                    await responseDss.RequestMessage.Content.ReadAsStringAsync()));
 
                     // DSS error follow schema output
                     if (!string.IsNullOrEmpty(dssOutput.Message))
