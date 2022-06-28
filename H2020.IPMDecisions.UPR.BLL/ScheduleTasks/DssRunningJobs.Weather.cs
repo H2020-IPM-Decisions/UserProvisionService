@@ -218,7 +218,15 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 newWeatherObject.Interval = weatherDataAsObject.Interval;
                 newWeatherObject.TimeStart = weatherDataAsObject.TimeStart;
                 newWeatherObject.TimeEnd = weatherDataAsObject.TimeEnd;
-                newWeatherObject.WeatherParameters = weatherParameterFromDss.Split(",").Select(x => Int32.Parse(x)).ToList();
+                var dssWeatherParametersAsList = weatherParameterFromDss
+                    .Split(",")
+                    .Select(x => Int32.Parse(x))
+                    .ToList();
+                newWeatherObject.WeatherParameters = dssWeatherParametersAsList
+                    .Where(wx => weatherDataAsObject.WeatherParameters
+                        .Any(dss => dss == wx))
+                    .ToList();
+
                 newWeatherObject.LocationWeatherDataResult = new List<LocationWeatherDataResult>();
                 for (int i = 0; i < weatherDataAsObject.LocationWeatherDataResult.Count; i++)
                 {
@@ -231,7 +239,6 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
 
                     List<int?> newQcList = new List<int?>();
                     List<int?> newAmalgamationList = new List<int?>();
-
                     foreach (var index in newOldIndex)
                     {
                         var oldIndex = index.Value;
