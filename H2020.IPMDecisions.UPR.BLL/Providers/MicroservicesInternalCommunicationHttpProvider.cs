@@ -386,6 +386,30 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
                 return new HttpResponseMessage(HttpStatusCode.BadRequest);
             }
         }
+
+        public async Task<HttpResponseMessage> GetWeatherParametersAvailableByLocation(double latitude, double longitude)
+        {
+            try
+            {
+                var cacheKey = string.Format("weather_parameters_{0}_{1}", latitude.ToString(), longitude.ToString());
+                if (!memoryCache.TryGetValue(cacheKey, out HttpResponseMessage weatherResponse))
+                {
+                    var wxEndPoint = config["MicroserviceInternalCommunication:WeatherMicroservice"];
+                    var url = string.Format("{0}rest/weatherparameter/location/point?latitude={1}&longitude={2}", wxEndPoint, latitude.ToString(), longitude.ToString());
+                    weatherResponse = await httpClient.GetAsync(url);
+                    if (weatherResponse.IsSuccessStatusCode)
+                        memoryCache.Set(cacheKey, weatherResponse, MemoryCacheHelper.CreateMemoryCacheEntryOptionsDays(1));
+                    else
+                        logger.LogError(string.Format("Weather call error. URL called: {0}. Error returned: {1}", url, await weatherResponse.Content.ReadAsStringAsync()));
+                }
+                return weatherResponse;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(string.Format("Error in Internal Communication - GetWeatherParametersAvailableByLocation. {0}", ex.Message));
+                return new HttpResponseMessage(HttpStatusCode.BadRequest);
+            }
+        }
         #endregion
     }
 }
