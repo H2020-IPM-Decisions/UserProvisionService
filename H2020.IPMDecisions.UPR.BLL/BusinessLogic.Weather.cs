@@ -7,7 +7,7 @@ namespace H2020.IPMDecisions.UPR.BLL
     public partial class BusinessLogic : IBusinessLogic
     {
         #region Helpers
-        private async Task<WeatherForecast> EnsureWeatherForecastExists(string weatherForecastId)
+        private async Task<WeatherForecast> EnsureWeatherForecastExists(string weatherForecastId, string hostName)
         {
             var weatherStationAsEntity = await this
                                 .dataService
@@ -20,13 +20,16 @@ namespace H2020.IPMDecisions.UPR.BLL
                     .GetWeatherProviderInformationFromWeatherMicroservice(weatherForecastId);
                 if (weatherInformation == null) throw new NullReferenceException(this.jsonStringLocalizer["weather.missing_service", weatherForecastId].ToString());
 
-                weatherStationAsEntity = this.mapper.Map<WeatherForecast>(weatherInformation);
+                weatherStationAsEntity = this.mapper.Map<WeatherForecast>(weatherInformation, opt =>
+                    {
+                        opt.Items["host"] = hostName;
+                    });
                 this.dataService.WeatherForecasts.Create(weatherStationAsEntity);
             }
             return weatherStationAsEntity;
         }
 
-        private async Task<WeatherHistorical> EnsureWeatherHistoricalExists(string weatherHistoricalId)
+        private async Task<WeatherHistorical> EnsureWeatherHistoricalExists(string weatherHistoricalId, string hostName)
         {
             var weatherStationAsEntity = await this
                                 .dataService
@@ -39,7 +42,10 @@ namespace H2020.IPMDecisions.UPR.BLL
                    .GetWeatherProviderInformationFromWeatherMicroservice(weatherHistoricalId);
                 if (weatherInformation == null) throw new NullReferenceException(this.jsonStringLocalizer["weather.missing_service", weatherHistoricalId].ToString());
 
-                weatherStationAsEntity = this.mapper.Map<WeatherHistorical>(weatherInformation);
+                weatherStationAsEntity = this.mapper.Map<WeatherHistorical>(weatherInformation, opt =>
+                    {
+                        opt.Items["host"] = hostName;
+                    });
                 this.dataService.WeatherHistoricals.Create(weatherStationAsEntity);
             }
             return weatherStationAsEntity;

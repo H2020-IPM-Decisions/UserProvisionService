@@ -27,12 +27,16 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 var listOfPreferredWeatherDataSources = new List<WeatherSchemaForHttp>();
                 var farm = dss.FieldCropPest.FieldCrop.Field.Farm;
                 var currentYear = DssDataHelper.GetCurrentYearForDssDefaultDates(dssInformation, dssInputSchemaAsJson);
+                var currentHost = config["MicroserviceInternalCommunication:WeatherApiUrl"];
                 if (farm.WeatherForecast != null)
                 {
                     var weatherInformation = await this.internalCommunicationProvider
                            .GetWeatherProviderInformationFromWeatherMicroservice(farm.WeatherForecast.WeatherId);
 
-                    var weatherToCall = this.mapper.Map<WeatherSchemaForHttp>(weatherInformation);
+                    var weatherToCall = this.mapper.Map<WeatherSchemaForHttp>(weatherInformation, opt =>
+                    {
+                        opt.Items["host"] = currentHost;
+                    });
                     weatherToCall.IsForecast = true;
                     result = AddWeatherDates(dssInformation, dssInputSchemaAsJson, weatherToCall, currentYear);
                     listOfPreferredWeatherDataSources.Add(weatherToCall);
@@ -42,7 +46,10 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                     var weatherInformation = await this.internalCommunicationProvider
                            .GetWeatherProviderInformationFromWeatherMicroservice(farm.WeatherHistorical.WeatherId);
 
-                    var weatherToCall = this.mapper.Map<WeatherSchemaForHttp>(weatherInformation);
+                    var weatherToCall = this.mapper.Map<WeatherSchemaForHttp>(weatherInformation, opt =>
+                    {
+                        opt.Items["host"] = currentHost;
+                    });
                     result = AddWeatherDates(dssInformation, dssInputSchemaAsJson, weatherToCall, currentYear);
                     listOfPreferredWeatherDataSources.Add(weatherToCall);
                 }
@@ -211,7 +218,15 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 newWeatherObject.Interval = weatherDataAsObject.Interval;
                 newWeatherObject.TimeStart = weatherDataAsObject.TimeStart;
                 newWeatherObject.TimeEnd = weatherDataAsObject.TimeEnd;
-                newWeatherObject.WeatherParameters = weatherParameterFromDss.Split(",").Select(x => Int32.Parse(x)).ToList();
+                var dssWeatherParametersAsList = weatherParameterFromDss
+                    .Split(",")
+                    .Select(x => Int32.Parse(x))
+                    .ToList();
+                newWeatherObject.WeatherParameters = dssWeatherParametersAsList
+                    .Where(wx => weatherDataAsObject.WeatherParameters
+                        .Any(dss => dss == wx))
+                    .ToList();
+
                 newWeatherObject.LocationWeatherDataResult = new List<LocationWeatherDataResult>();
                 for (int i = 0; i < weatherDataAsObject.LocationWeatherDataResult.Count; i++)
                 {
@@ -224,7 +239,6 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
 
                     List<int?> newQcList = new List<int?>();
                     List<int?> newAmalgamationList = new List<int?>();
-
                     foreach (var index in newOldIndex)
                     {
                         var oldIndex = index.Value;
@@ -415,6 +429,16 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                     internalCommunicationProvider
                     .GetWeatherUsingAmalgamationProxyService(weatherDataSource.Url, weatherStringParametersUrl);
             }
+            // #if DEBUG
+            //             bool useOwnService = true;
+            //             if (useOwnService)
+            //             {
+            //                 return await
+            //                     internalCommunicationProvider
+            //                     .GetWeatherUsingOwnService(weatherDataSource.Url, weatherStringParametersUrl);
+
+            //             }
+            // #endif
             return await
                 internalCommunicationProvider
                 .GetWeatherUsingAmalgamationService(weatherStringParametersUrl);
