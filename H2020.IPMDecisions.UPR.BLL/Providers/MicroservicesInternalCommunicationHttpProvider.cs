@@ -102,7 +102,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
 
                 if (!response.IsSuccessStatusCode) return null;
                 var responseAsString = await response.Content.ReadAsStringAsync();
-                JSchemaUrlResolver resolver = new JSchemaUrlResolver(); 
+                JSchemaUrlResolver resolver = new JSchemaUrlResolver();
                 return JSchema.Parse(responseAsString, resolver);
             }
             catch (Exception ex)
@@ -387,27 +387,56 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
             }
         }
 
-        public async Task<HttpResponseMessage> GetWeatherParametersAvailableByLocation(double latitude, double longitude)
+        public async Task<List<int>> GetWeatherParametersAvailableByLocation(double latitude, double longitude)
         {
             try
             {
                 var cacheKey = string.Format("weather_parameters_{0}_{1}", latitude.ToString(), longitude.ToString());
-                if (!memoryCache.TryGetValue(cacheKey, out HttpResponseMessage weatherResponse))
+                if (!memoryCache.TryGetValue(cacheKey, out List<int> weatherResponse))
                 {
                     var wxEndPoint = config["MicroserviceInternalCommunication:WeatherMicroservice"];
                     var url = string.Format("{0}rest/weatherparameter/location/point?latitude={1}&longitude={2}", wxEndPoint, latitude.ToString(), longitude.ToString());
-                    weatherResponse = await httpClient.GetAsync(url);
-                    if (weatherResponse.IsSuccessStatusCode)
-                        memoryCache.Set(cacheKey, weatherResponse, MemoryCacheHelper.CreateMemoryCacheEntryOptionsDays(1));
-                    else
-                        logger.LogError(string.Format("Weather call error. URL called: {0}. Error returned: {1}", url, await weatherResponse.Content.ReadAsStringAsync()));
+                    var httpResponse = await httpClient.GetAsync(url);
+                    if (!httpResponse.IsSuccessStatusCode)
+                        logger.LogError(string.Format("Weather call error. URL called: {0}. Error returned: {1}", url, await httpResponse.Content.ReadAsStringAsync()));
+
+                    var responseAsText = await httpResponse.Content.ReadAsStringAsync();
+                    weatherResponse = JsonConvert.DeserializeObject<List<int>>(responseAsText);
+                    memoryCache.Set(cacheKey, weatherResponse, MemoryCacheHelper.CreateMemoryCacheEntryOptionsDays(1));
                 }
                 return weatherResponse;
             }
             catch (Exception ex)
             {
                 logger.LogError(string.Format("Error in Internal Communication - GetWeatherParametersAvailableByLocation. {0}", ex.Message));
-                return new HttpResponseMessage(HttpStatusCode.BadRequest);
+                return null;
+            }
+        }
+
+        public async Task<IEnumerable<DssInformation>> GetAllListOfDssFilteredByCropsFromDssMicroservice(string cropCodes)
+        {
+            try
+            {
+                var language = Thread.CurrentThread.CurrentCulture.Name;
+                var cacheKey = string.Format("listOfDss_{0}", language);
+                if (!memoryCache.TryGetValue(cacheKey, out IEnumerable<DssInformation> listOfDss))
+                {
+                    var dssEndPoint = config["MicroserviceInternalCommunication:DssMicroservice"];
+                    var response = await httpClient.GetAsync(string.Format("{0}rest/dss/crops/{1}?language={2}", dssEndPoint, cropCodes, language));
+
+                    if (!response.IsSuccessStatusCode)
+                        return null;
+
+                    var responseAsText = await response.Content.ReadAsStringAsync();
+                    listOfDss = JsonConvert.DeserializeObject<IEnumerable<DssInformation>>(responseAsText);
+                    memoryCache.Set(cacheKey, listOfDss, MemoryCacheHelper.CreateMemoryCacheEntryOptionsDays(1));
+                }
+                return listOfDss;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(string.Format("Error in Internal Communication - GetAllListOfDssFromDssMicroservice. {0}", ex.Message));
+                return null;
             }
         }
         #endregion

@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using H2020.IPMDecisions.UPR.API.Filters;
 using H2020.IPMDecisions.UPR.BLL;
 using H2020.IPMDecisions.UPR.Core.Dtos;
+using H2020.IPMDecisions.UPR.Core.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -170,12 +171,11 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         /// <remarks>
         /// <para>CropCodes are a list of Crop EPPO codes comma separated: e.g: cropCodes?DAUCS,HORVW </para>
         /// </remarks>
-        [ProducesResponseType(typeof(IEnumerable<LinkDssDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(IEnumerable<DssInformation>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [Produces(MediaTypeNames.Application.Json)]
         [HttpGet("filter", Name = "api.dss.get.filter")]
-        // GET: api/farms/1/filter
+        // GET: api/dds/filter
         public async Task<IActionResult> GetListFromDssService([FromQuery] DssListFilterDto dssListFilterDto)
         {
             var response = await businessLogic.GetAllAvailableDssOnFarmLocation(dssListFilterDto);
