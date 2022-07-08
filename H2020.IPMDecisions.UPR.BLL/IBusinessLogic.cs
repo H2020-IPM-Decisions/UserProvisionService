@@ -44,7 +44,6 @@ namespace H2020.IPMDecisions.UPR.BLL
 
         #region FarmDss
         Task<GenericResponse<IDictionary<string, object>>> AddListOfFarmDss(IEnumerable<FarmDssForCreationDto> listOfFarmDssDto, HttpContext httpContext, string mediaType);
-        Task<GenericResponse<IEnumerable<DssInformation>>> GetAllAvailableDssOnFarmLocation(string cropCodes, HttpContext httpContext);
         #endregion
 
         #region Field
@@ -110,6 +109,7 @@ namespace H2020.IPMDecisions.UPR.BLL
         Task<GenericResponse> DeleteDss(Guid id, Guid userId);
         Task<GenericResponse<IEnumerable<FieldDssResultDto>>> GetAllDssResults(Guid userId);
         Task<GenericResponse<IEnumerable<LinkDssDto>>> GetAllLinkDss(Guid userId);
+        Task<GenericResponse<IEnumerable<DssInformation>>> GetAllAvailableDssOnFarmLocation(DssListFilterDto dssListFilterDto);
         #endregion
 
         #region DssResults
