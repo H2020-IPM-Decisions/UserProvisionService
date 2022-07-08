@@ -62,12 +62,31 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
             return Ok(response.Result);
         }
 
+
+        /// <summary>
+        /// Use this request to get a list off DSS based on a crop and available weather parameters
+        /// </summary>
+        [ProducesResponseType(typeof(IEnumerable<LinkDssDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [Produces(MediaTypeNames.Application.Json)]
+        [HttpGet("location", Name = "api.farm.get.location")]
+        // GET: api/farms/1/dss/location
+        public async Task<IActionResult> GetListFromDssService([FromQuery] string cropCodes)
+        {
+            var response = await businessLogic.GetAllAvailableDssOnFarmLocation(cropCodes, HttpContext);
+            // if (!response.IsSuccessful)
+            //     return BadRequest(new { message = response.ErrorMessage });
+
+            return Ok();
+        }
+
         [ProducesResponseType(StatusCodes.Status200OK)]
         [HttpOptions]
         //OPTIONS: api/farms/1/dss
         public IActionResult Options([FromRoute] Guid fieldId)
         {
-            Response.Headers.Add("Allow", "OPTIONS, POST");
+            Response.Headers.Add("Allow", "OPTIONS, GET, POST");
             return Ok();
         }
     }

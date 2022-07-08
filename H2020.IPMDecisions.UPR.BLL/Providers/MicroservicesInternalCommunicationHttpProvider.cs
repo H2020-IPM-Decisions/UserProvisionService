@@ -102,7 +102,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
 
                 if (!response.IsSuccessStatusCode) return null;
                 var responseAsString = await response.Content.ReadAsStringAsync();
-                JSchemaUrlResolver resolver = new JSchemaUrlResolver();
+                JSchemaUrlResolver resolver = new JSchemaUrlResolver(); 
                 return JSchema.Parse(responseAsString, resolver);
             }
             catch (Exception ex)

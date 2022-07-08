@@ -123,6 +123,11 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
         }
 
+        public Task<GenericResponse<IEnumerable<DssInformation>>> GetAllAvailableDssOnFarmLocation(string cropCodes, HttpContext httpContext)
+        {
+            throw new NotImplementedException();
+        }
+        
         private async Task<GenericResponse<FieldCropPestDssDto>> AddNewFarmDss(FarmDssForCreationDto farmDssDto, HttpContext httpContext, string mediaType)
         {
             try

@@ -44,6 +44,7 @@ namespace H2020.IPMDecisions.UPR.BLL
 
         #region FarmDss
         Task<GenericResponse<IDictionary<string, object>>> AddListOfFarmDss(IEnumerable<FarmDssForCreationDto> listOfFarmDssDto, HttpContext httpContext, string mediaType);
+        Task<GenericResponse<IEnumerable<DssInformation>>> GetAllAvailableDssOnFarmLocation(string cropCodes, HttpContext httpContext);
         #endregion
 
         #region Field
