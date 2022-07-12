@@ -8,5 +8,6 @@ namespace H2020.IPMDecisions.UPR.Core.Dtos
         public string CropCodes { get; set; }
         public double LocationLatitude { get; set; }
         public double LocationLongitude { get; set; }
+        public string ExecutionType { get; set; } = "";
     }
 }

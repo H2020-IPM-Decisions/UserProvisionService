@@ -417,16 +417,16 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
             }
         }
 
-        public async Task<List<DssInformation>> GetAllListOfDssFilteredByCropsFromDssMicroservice(string cropCodes)
+        public async Task<List<DssInformation>> GetAllListOfDssFilteredByCropsFromDssMicroservice(string cropCodes, string executionType = "")
         {
             try
             {
                 var language = Thread.CurrentThread.CurrentCulture.Name;
-                var cacheKey = string.Format("listOfDss_{0}_{1}", cropCodes, language);
+                var cacheKey = string.Format("listOfDss_{0}_{1}_{2}", cropCodes.ToUpper(), language.ToUpper(), executionType.ToUpper());
                 if (!memoryCache.TryGetValue(cacheKey, out List<DssInformation> listOfDss))
                 {
                     var dssEndPoint = config["MicroserviceInternalCommunication:DssMicroservice"];
-                    var response = await httpClient.GetAsync(string.Format("{0}rest/dss/crops/{1}?language={2}", dssEndPoint, cropCodes, language));
+                    var response = await httpClient.GetAsync(string.Format("{0}rest/dss/crops/{1}?language={2}&executionType={3}", dssEndPoint, cropCodes, language, executionType.ToUpper()));
 
                     if (!response.IsSuccessStatusCode)
                         return null;
