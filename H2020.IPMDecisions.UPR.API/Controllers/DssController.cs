@@ -170,6 +170,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         /// </summary>
         /// <remarks>
         /// <para>CropCodes are a list of Crop EPPO codes comma separated: e.g: cropCodes?DAUCS,HORVW </para>
+        ///  <para>executionType filter for types of models. Example values are ONTHEFLY and LINK </para>
         /// </remarks>
         [ProducesResponseType(typeof(IEnumerable<DssInformation>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
