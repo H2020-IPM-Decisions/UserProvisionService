@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using H2020.IPMDecisions.UPR.Core.Dtos;
 using Newtonsoft.Json;
 
 namespace H2020.IPMDecisions.UPR.Core.Models
@@ -6,6 +7,12 @@ namespace H2020.IPMDecisions.UPR.Core.Models
     // This class matches the schema definition of /api/dss/rest/schema/dss - Model section
     public class DssModelInformation
     {
+        public DssModelInformation()
+        {
+            PestsDto = new List<EppoCodeDto>();
+            CropsDto = new List<EppoCodeDto>();
+        }
+
         public string Id { get; set; }
         public string Name { get; set; }
         [JsonProperty("type_of_decision")]
@@ -29,6 +36,11 @@ namespace H2020.IPMDecisions.UPR.Core.Models
         [JsonProperty("platform_validated")]
         public bool PlatformValidated { get; set; }
         public string Purpose { get; set; }
+
+        // These properties are not on original schema
+        public bool WeatherParametersValidated { get; set; }
+        public List<EppoCodeDto> PestsDto { get; set; }
+        public List<EppoCodeDto> CropsDto { get; set; }
     }
 
     public class DssModelValidSpatial

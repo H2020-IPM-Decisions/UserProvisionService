@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Net;
 using System.Net.Http;
 using System.Net.Mime;
@@ -395,7 +396,10 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
                 if (!memoryCache.TryGetValue(cacheKey, out List<int> weatherResponse))
                 {
                     var wxEndPoint = config["MicroserviceInternalCommunication:WeatherMicroservice"];
-                    var url = string.Format("{0}rest/weatherparameter/location/point?latitude={1}&longitude={2}", wxEndPoint, latitude.ToString(), longitude.ToString());
+                    var url = string.Format("{0}rest/weatherparameter/location/point?latitude={1}&longitude={2}",
+                        wxEndPoint,
+                        latitude.ToString("G", CultureInfo.InvariantCulture),
+                        longitude.ToString("G", CultureInfo.InvariantCulture));
                     var httpResponse = await httpClient.GetAsync(url);
                     if (!httpResponse.IsSuccessStatusCode)
                         logger.LogError(string.Format("Weather call error. URL called: {0}. Error returned: {1}", url, await httpResponse.Content.ReadAsStringAsync()));
@@ -413,13 +417,13 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
             }
         }
 
-        public async Task<IEnumerable<DssInformation>> GetAllListOfDssFilteredByCropsFromDssMicroservice(string cropCodes)
+        public async Task<List<DssInformation>> GetAllListOfDssFilteredByCropsFromDssMicroservice(string cropCodes)
         {
             try
             {
                 var language = Thread.CurrentThread.CurrentCulture.Name;
-                var cacheKey = string.Format("listOfDss_{0}", language);
-                if (!memoryCache.TryGetValue(cacheKey, out IEnumerable<DssInformation> listOfDss))
+                var cacheKey = string.Format("listOfDss_{0}_{1}", cropCodes, language);
+                if (!memoryCache.TryGetValue(cacheKey, out List<DssInformation> listOfDss))
                 {
                     var dssEndPoint = config["MicroserviceInternalCommunication:DssMicroservice"];
                     var response = await httpClient.GetAsync(string.Format("{0}rest/dss/crops/{1}?language={2}", dssEndPoint, cropCodes, language));
@@ -428,7 +432,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
                         return null;
 
                     var responseAsText = await response.Content.ReadAsStringAsync();
-                    listOfDss = JsonConvert.DeserializeObject<IEnumerable<DssInformation>>(responseAsText);
+                    listOfDss = JsonConvert.DeserializeObject<List<DssInformation>>(responseAsText);
                     memoryCache.Set(cacheKey, listOfDss, MemoryCacheHelper.CreateMemoryCacheEntryOptionsDays(1));
                 }
                 return listOfDss;

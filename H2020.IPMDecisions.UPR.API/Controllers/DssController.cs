@@ -179,10 +179,10 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         public async Task<IActionResult> GetListFromDssService([FromQuery] DssListFilterDto dssListFilterDto)
         {
             var response = await businessLogic.GetAllAvailableDssOnFarmLocation(dssListFilterDto);
-            // if (!response.IsSuccessful)
-            //     return BadRequest(new { message = response.ErrorMessage });
+            if (!response.IsSuccessful)
+                return BadRequest(new { message = response.ErrorMessage });
 
-            return Ok();
+            return Ok(response.Result);
         }
 
         // <summary>Requests permitted on this URL</summary>
