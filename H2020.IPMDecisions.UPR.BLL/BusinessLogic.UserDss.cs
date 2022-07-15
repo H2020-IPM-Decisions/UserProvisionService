@@ -160,9 +160,29 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
         }
 
-        public Task<GenericResponse<JObject>> GetFieldCropPestDssDefaultParametersById(Guid id, Guid userId)
+        public async Task<GenericResponse<JObject>> GetFieldCropPestDssDefaultParametersById(Guid id, Guid userId)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var dss = await this.dataService.FieldCropPestDsses.FindByIdAsync(id);
+                if (dss == null) return GenericResponseBuilder.NotFound<JObject>();
+
+                var dssUserId = dss.FieldCropPest.FieldCrop.Field.Farm.UserFarms.FirstOrDefault().UserId;
+                if (userId != dssUserId) return GenericResponseBuilder.NotFound<JObject>();
+
+                var dssParameters = await GetDefaultDssParametersFromMicroservice(dss.CropPestDss);
+                // ToDo: Return only JSON or get new default parameters and overwrite?
+                // dss.DssParameters = dssParameters;
+                // await this.dataService.CompleteAsync();
+                JObject dataToRetun = JObject.Parse(dssParameters.ToString());
+                return GenericResponseBuilder.Success<JObject>(dataToRetun);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(string.Format("Error in BLL - GetFieldCropPestDssDefaultParametersById. {0}", ex.Message), ex);
+                String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
+                return GenericResponseBuilder.NoSuccess<JObject>(null, $"{ex.Message} InnerException: {innerMessage}");
+            }
         }
 
         private async Task AddExtraInformationToDss(IEnumerable<FieldDssResultDto> dssResultsToReturn)
@@ -465,7 +485,6 @@ namespace H2020.IPMDecisions.UPR.BLL
                 JObject userParametersAsJsonObject = JObject.Parse(dss.DssParameters.ToString());
                 DssDataHelper.AddDefaultDssParametersToInputSchema(inputAsJsonObject, userParametersAsJsonObject);
             }
-
             return inputAsJsonObject;
         }
     }

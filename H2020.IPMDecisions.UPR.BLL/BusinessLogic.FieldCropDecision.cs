@@ -232,7 +232,7 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
 
             if (string.IsNullOrEmpty(dssParameters))
-                dssParameters = await AddDefaultDssParameters(cropPestDss, dssParameters);
+                dssParameters = await GetDefaultDssParametersFromMicroservice(cropPestDss);
 
             var newFieldCropPestDss = new FieldCropPestDss()
             {
@@ -244,10 +244,11 @@ namespace H2020.IPMDecisions.UPR.BLL
             return newFieldCropPestDss;
         }
 
-        private async Task<string> AddDefaultDssParameters(CropPestDss cropPestDss, string dssParameters)
+        private async Task<string> GetDefaultDssParametersFromMicroservice(CropPestDss cropPestDss)
         {
             var dssInputUISchema = await internalCommunicationProvider
                                         .GetDssModelInputSchemaMicroservice(cropPestDss.DssId, cropPestDss.DssModelId);
+            var dssParameters = "";
             if (dssInputUISchema != null)
             {
                 var dssModelInformation = await internalCommunicationProvider
