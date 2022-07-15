@@ -140,7 +140,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
             }
         }
 
-        public async Task<IEnumerable<DssInformation>> GetListOfDssByLocationFromDssMicroservice(GeoJsonFeatureCollection geoJson)
+        public async Task<IEnumerable<DssInformation>> GetListOfDssByLocationFromDssMicroservice(GeoJsonFeatureCollection geoJson, string executionType = "")
         {
             try
             {
@@ -151,7 +151,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
                     MediaTypeNames.Application.Json);
                 var dssEndPoint = config["MicroserviceInternalCommunication:DssMicroservice"];
                 var response = await httpClient.PostAsync(
-                    string.Format("{0}rest/dss/location?language={1}", dssEndPoint, language),
+                    string.Format("{0}rest/dss/location?language={1}&executionType={2}", dssEndPoint, language, executionType),
                     content);
 
                 if (!response.IsSuccessStatusCode)
