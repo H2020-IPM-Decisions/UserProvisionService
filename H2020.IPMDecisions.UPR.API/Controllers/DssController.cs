@@ -186,6 +186,29 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
             return Ok(response.Result);
         }
 
+        /// <summary>
+        /// Use this request to get the DSS default parameters
+        /// </summary>
+        /// <remarks>The user will be identified using the UserId on the authentification JWT.
+        /// <para>The DSS must belong to the user</para>
+        /// </remarks>
+        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [Produces(MediaTypeNames.Application.Json)]
+        [HttpGet("{id:guid}/defaultparameters", Name = "api.dss.getdefaultparameters.byid")]
+        // GET: api/dss/1/defaultparameters
+        public async Task<IActionResult> GetDefaultParametersById([FromRoute] Guid id)
+        {
+            var userId = Guid.Parse(HttpContext.Items["userId"].ToString());
+
+            var response = await businessLogic.GetFieldCropPestDssDefaultParametersById(id, userId);
+            if (!response.IsSuccessful)
+                return response.RequestResult;
+
+            return Ok(response.Result);
+        }
+
         // <summary>Requests permitted on this URL</summary>
         [ProducesResponseType(StatusCodes.Status200OK)]
         [HttpOptions]

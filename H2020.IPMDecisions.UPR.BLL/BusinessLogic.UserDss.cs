@@ -160,6 +160,11 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
         }
 
+        public Task<GenericResponse<JObject>> GetFieldCropPestDssDefaultParametersById(Guid id, Guid userId)
+        {
+            throw new NotImplementedException();
+        }
+
         private async Task AddExtraInformationToDss(IEnumerable<FieldDssResultDto> dssResultsToReturn)
         {
             var listOfDss = await this.internalCommunicationProvider.GetAllListOfDssFromDssMicroservice();
