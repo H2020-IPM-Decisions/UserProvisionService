@@ -111,7 +111,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                     location.Y.ToString("G", CultureInfo.InvariantCulture),
                     "86400", // Default Interval
                     DateTime.Today.AddDays(-1).ToString("yyyy-MM-dd"),
-                    DateTime.Today.ToString("yyyy-MM-dd"),
+                    DateTime.Today.AddDays(1).ToString("yyyy-MM-dd"),
                     "1002"); // Valid parameter
 
                 this.queueJobs.AddFarmLocationToWeatherQueue(parametersUrl);
