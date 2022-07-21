@@ -7,12 +7,6 @@ namespace H2020.IPMDecisions.UPR.Core.Models
     // This class matches the schema definition of /api/dss/rest/schema/dss - Model section
     public class DssModelInformation
     {
-        public DssModelInformation()
-        {
-            PestsDto = new List<EppoCodeDto>();
-            CropsDto = new List<EppoCodeDto>();
-        }
-
         public string Id { get; set; }
         public string Name { get; set; }
         [JsonProperty("type_of_decision")]
@@ -25,8 +19,8 @@ namespace H2020.IPMDecisions.UPR.Core.Models
         public string Version { get; set; }
         // public string Citation { get; set; }
         public string Keywords { get; set; }
-        public IEnumerable<string> Pests { get; set; }
-        public IEnumerable<string> Crops { get; set; }
+        public List<string> Pests { get; set; }
+        public List<string> Crops { get; set; }
         public DssModelSchemaExecution Execution { get; set; }
         public DssModelSchemaInput Input { get; set; }
         public DssModelSchemaOutput Output { get; set; }
@@ -39,8 +33,6 @@ namespace H2020.IPMDecisions.UPR.Core.Models
 
         // These properties are not on original schema
         public bool WeatherParametersValidated { get; set; }
-        public List<EppoCodeDto> PestsDto { get; set; }
-        public List<EppoCodeDto> CropsDto { get; set; }
     }
 
     public class DssModelValidSpatial

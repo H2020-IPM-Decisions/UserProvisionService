@@ -46,7 +46,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                     if (model.Input != null && model.Input.WeatherParameters != null)
                         AreAllWeatherParametersAvailable(weatherParametersAsList, model);
 
-                    CreateEppoCodesDto(eppoCodesResult, model);
+                    DistinctEppoCodes(eppoCodesResult, model);
                 }
 
                 foreach (var modelToDelete in listModelsToDelete)
@@ -65,33 +65,52 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
         }
 
-        private static void CreateEppoCodesDto(List<EppoCode> eppoCodesResult, DssModelInformation model)
+        private static void DistinctEppoCodes(List<EppoCode> eppoCodesResult, DssModelInformation model)
         {
             if (model.Crops != null)
             {
+                var cropEppoCodesToRemove = new List<string>();
+                var cropEppoCodesLanguage = new List<EppoCodeDto>();
                 foreach (var eppoCode in model.Crops)
                 {
-                    var cropAsDto = new EppoCodeDto()
+                    var eppoAsDto = new EppoCodeDto()
                     {
                         EppoCode = eppoCode,
                         Languages = EppoCodesHelper.GetNameFromEppoCodeData(eppoCodesResult, "crop", eppoCode)
                     };
-                    model.CropsDto.Add(cropAsDto);
+
+                    var languageValue = eppoAsDto.Languages.FirstOrDefault().Value.ToString();
+                    if (!cropEppoCodesLanguage.Any(c => c.Languages.Any(l => l.Value.Contains(languageValue))))
+                        cropEppoCodesLanguage.Add(eppoAsDto);
+                    else
+                        cropEppoCodesToRemove.Add(eppoCode);
                 }
-                // Do CropsDto distinct
+                foreach (var toRemove in cropEppoCodesToRemove)
+                {
+                    model.Crops.Remove(toRemove);
+                }
             }
             if (model.Pests != null)
             {
+                var pestEppoCodesToRemove = new List<string>();
+                var pestEppoCodesLanguage = new List<EppoCodeDto>();
                 foreach (var eppoCode in model.Pests)
                 {
-                    var cropAsDto = new EppoCodeDto()
+                    var eppoAsDto = new EppoCodeDto()
                     {
                         EppoCode = eppoCode,
                         Languages = EppoCodesHelper.GetNameFromEppoCodeData(eppoCodesResult, "pest", eppoCode)
                     };
-                    model.PestsDto.Add(cropAsDto);
+                    var languageValue = eppoAsDto.Languages.FirstOrDefault().Value.ToString();
+                    if (!pestEppoCodesLanguage.Any(c => c.Languages.Any(l => l.Value.Contains(languageValue))))
+                        pestEppoCodesLanguage.Add(eppoAsDto);
+                    else
+                        pestEppoCodesToRemove.Add(eppoCode);
                 }
-                // Do PestsDto distinct
+                foreach (var toRemove in pestEppoCodesToRemove)
+                {
+                    model.Pests.Remove(toRemove);
+                }
             }
         }
 
