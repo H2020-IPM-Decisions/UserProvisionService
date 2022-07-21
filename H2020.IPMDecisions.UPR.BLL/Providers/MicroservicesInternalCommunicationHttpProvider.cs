@@ -417,12 +417,12 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
             }
         }
 
-        public async Task<List<DssInformation>> GetAllListOfDssFilteredByCropsFromDssMicroservice(string cropCodes, string executionType = "")
+        public async Task<List<DssInformation>> GetAllListOfDssFilteredByCropsFromDssMicroservice(string cropCodes, string executionType = "", string country = "")
         {
             try
             {
                 var language = Thread.CurrentThread.CurrentCulture.Name;
-                var cacheKey = string.Format("listOfDss_{0}_{1}_{2}", cropCodes.ToUpper(), language.ToUpper(), executionType.ToUpper());
+                var cacheKey = string.Format("listOfDss_{0}_{1}_{2}_{3}", cropCodes.ToUpper(), language.ToUpper(), executionType.ToUpper(), country.ToUpper());
                 if (!memoryCache.TryGetValue(cacheKey, out List<DssInformation> listOfDss))
                 {
                     var dssEndPoint = config["MicroserviceInternalCommunication:DssMicroservice"];

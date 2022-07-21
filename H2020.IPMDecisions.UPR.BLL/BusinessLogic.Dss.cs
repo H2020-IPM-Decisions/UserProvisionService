@@ -22,7 +22,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                     return GenericResponseBuilder.NoSuccess<IEnumerable<DssInformation>>(null, "Please select at least one crop");
                 }
 
-                var dssList = internalCommunicationProvider.GetAllListOfDssFilteredByCropsFromDssMicroservice(dssListFilterDto.CropCodes, dssListFilterDto.ExecutionType);
+                var dssList = internalCommunicationProvider.GetAllListOfDssFilteredByCropsFromDssMicroservice(dssListFilterDto.CropCodes, dssListFilterDto.ExecutionType, dssListFilterDto.Country);
                 var weatherParameters = internalCommunicationProvider.GetWeatherParametersAvailableByLocation(dssListFilterDto.LocationLongitude, dssListFilterDto.LocationLatitude);
                 var eppoCodesData = this.dataService.EppoCodes.GetEppoCodesAsync();
 
@@ -32,14 +32,14 @@ namespace H2020.IPMDecisions.UPR.BLL
 
                 var weatherParametersAsList = weatherParametersResult.Select(wx => wx);
                 var eppoCodesResult = await eppoCodesData;
+                var listModelsToDelete = new List<DssModelInformation>();
                 foreach (DssModelInformation model in dssListResult.SelectMany(d => d.DssModelInformation))
                 {
-                    if (!(!string.IsNullOrEmpty(dssListFilterDto.Country)
-                        && model.ValidSpatial != null
-                        && model.ValidSpatial.Countries != null
-                        && model.ValidSpatial.Countries.Any(c => c.ToUpper() == dssListFilterDto.Country.ToUpper())))
+                    if (!string.IsNullOrEmpty(dssListFilterDto.Country) && model.ValidSpatial != null
+                            && model.ValidSpatial.Countries != null
+                            && !model.ValidSpatial.Countries.Any(c => c.ToUpper() == dssListFilterDto.Country.ToUpper()))
                     {
-                        //Remove from list....
+                        listModelsToDelete.Add(model);
                         continue;
                     }
 
@@ -48,6 +48,13 @@ namespace H2020.IPMDecisions.UPR.BLL
 
                     CreateEppoCodesDto(eppoCodesResult, model);
                 }
+
+                foreach (var modelToDelete in listModelsToDelete)
+                {
+                    var dssInformation = dssListResult.Where(d => d.DssModelInformation.Any(m => m.Id == modelToDelete.Id)).FirstOrDefault();
+                    dssInformation.DssModelInformation.Remove(modelToDelete);
+                }
+
                 return GenericResponseBuilder.Success<IEnumerable<DssInformation>>(dssListResult);
             }
             catch (Exception ex)
