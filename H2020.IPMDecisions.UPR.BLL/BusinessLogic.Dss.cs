@@ -34,6 +34,15 @@ namespace H2020.IPMDecisions.UPR.BLL
                 var eppoCodesResult = await eppoCodesData;
                 foreach (DssModelInformation model in dssListResult.SelectMany(d => d.DssModelInformation))
                 {
+                    if (!(!string.IsNullOrEmpty(dssListFilterDto.Country)
+                        && model.ValidSpatial != null
+                        && model.ValidSpatial.Countries != null
+                        && model.ValidSpatial.Countries.Any(c => c.ToUpper() == dssListFilterDto.Country.ToUpper())))
+                    {
+                        //Remove from list....
+                        continue;
+                    }
+
                     if (model.Input != null && model.Input.WeatherParameters != null)
                         AreAllWeatherParametersAvailable(weatherParametersAsList, model);
 

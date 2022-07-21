@@ -9,5 +9,6 @@ namespace H2020.IPMDecisions.UPR.Core.Dtos
         public double LocationLatitude { get; set; }
         public double LocationLongitude { get; set; }
         public string ExecutionType { get; set; } = "";
+        public string Country { get; set; } = "";
     }
 }
