@@ -5,12 +5,12 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Reflection;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using H2020.IPMDecisions.UPR.BLL.Helpers;
 using H2020.IPMDecisions.UPR.Core.Entities;
 using H2020.IPMDecisions.UPR.Core.Enums;
 using H2020.IPMDecisions.UPR.Core.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -142,35 +142,29 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             result.Continue = false;
             if (!responseWeather.IsSuccessStatusCode)
             {
-                var responseText = await responseWeather.Content.ReadAsStringAsync();
-                // Amalgamation service error
-                Regex regex = new Regex(@".{30}\d{3}.{42}[:]",
-                RegexOptions.IgnoreCase | RegexOptions.IgnorePatternWhitespace);
-
-                if ((int)responseWeather.StatusCode == 500)
+                // Massive fail on the WX server, some parameters must be wrong!
+                if ((int)responseWeather.StatusCode == StatusCodes.Status500InternalServerError)
                 {
-                    if (regex.IsMatch(responseText))
-                    {
-                        responseText = regex.Replace(responseText, "", 1);
-                        result.ResponseWeatherAsString = responseText.Trim();
-                        result.ErrorType = DssOutputMessageTypeEnum.Warning;
-                        return result;
-                    }
-                    result.ReSchedule = true;
-                    result.ResponseWeatherAsString = this.jsonStringLocalizer["weather.internal_error", "10"].ToString();
-                }
-                else if (regex.IsMatch(responseText))
-                {
-                    responseText = regex.Replace(responseText, "", 1);
-                    result.ResponseWeatherAsString = responseText.Trim();
-                    result.ErrorType = DssOutputMessageTypeEnum.Warning;
+                    logger.LogError(string.Format("Error weather service: ", responseWeather.RequestMessage.RequestUri.ToString()));
+                    result.ErrorType = DssOutputMessageTypeEnum.Error; ;
+                    result.ResponseWeatherAsString = this.jsonStringLocalizer["weather.internal_error"].ToString();
                     return result;
+                }
+
+                var responseText = await responseWeather.Content.ReadAsStringAsync();
+                var weatherResponseAsObject = JsonConvert.DeserializeObject<IEnumerable<WeatherErrorResult>>(responseText);
+
+                if (weatherResponseAsObject.Any(wr => wr.ErrorCode == StatusCodes.Status500InternalServerError))
+                {
+                    result.ReSchedule = true;
+                    result.ErrorType = DssOutputMessageTypeEnum.Error;
+                    result.ResponseWeatherAsString = this.jsonStringLocalizer["weather.service_busy", "10"].ToString();
                 }
                 else
                 {
-                    result.ResponseWeatherAsString = responseText;
+                    result.ErrorType = DssOutputMessageTypeEnum.Error;
+                    result.ResponseWeatherAsString = string.Join("; ", weatherResponseAsObject.Select(wr => wr.Message));
                 }
-                result.ErrorType = DssOutputMessageTypeEnum.Error;
                 return result;
             }
 

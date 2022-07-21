@@ -42,7 +42,8 @@
     "next_season_fixed": "The model is only valid for use from {0} to {1}. Unfortunately this is a fixed date determinate by the DSS owner and can't be changed by the user.",
     "missing_weather_service": "No Weather Data Sources or Weather Stations associated to the farm",
     "next_season": "DSS default start date to get and use weather data is {0}. Please wait until this date or change the DSS parameters to start using earlier weather data.",
-    "internal_error": "Weather service is busy and can't process your request. The platform will try again to get the weather data in 5 minutes. If the error persist, please contact us.",
+    "service_busy": "Weather service is busy and can't process your request. The platform will try again to get the weather data in {0} minutes. If the error persist, please contact us.",
+    "internal_error": "Weather service can't process your request. If the error persist, please contact us.",
     "missing_service": "Weather service with ID '{0}' do not exist on the weather microservice.",
     "no_json_format": "Weather data received in not in a JSON format.",
     "start_end_date_problem": "The start date ({0}) is after the end date ({1}) on the weather data parameters. Please fix this before continuing."
