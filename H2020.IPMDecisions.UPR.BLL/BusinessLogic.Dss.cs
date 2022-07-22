@@ -29,6 +29,10 @@ namespace H2020.IPMDecisions.UPR.BLL
                 var dssListResult = await dssList;
                 if (dssListResult.Count() == 0) return GenericResponseBuilder.Success<IEnumerable<DssInformation>>(dssListResult);
                 var weatherParametersResult = await weatherParameters;
+                
+                // ToDo Remove this when 
+                if (weatherParametersResult.Contains(1001) && !weatherParametersResult.Contains(1002)) weatherParametersResult.Add(1002);
+                if (weatherParametersResult.Contains(3001) && !weatherParametersResult.Contains(3002)) weatherParametersResult.Add(3002);
 
                 var weatherParametersAsList = weatherParametersResult.Select(wx => wx);
                 var eppoCodesResult = await eppoCodesData;
@@ -42,6 +46,10 @@ namespace H2020.IPMDecisions.UPR.BLL
                         listModelsToDelete.Add(model);
                         continue;
                     }
+
+                    // For observation models?
+                    if (model.Input != null && model.Input.WeatherParameters == null)
+                        model.WeatherParametersValidated = true;
 
                     if (model.Input != null && model.Input.WeatherParameters != null)
                         AreAllWeatherParametersAvailable(weatherParametersAsList, model);
