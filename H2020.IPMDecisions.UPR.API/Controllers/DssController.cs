@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using H2020.IPMDecisions.UPR.API.Filters;
 using H2020.IPMDecisions.UPR.BLL;
 using H2020.IPMDecisions.UPR.Core.Dtos;
+using H2020.IPMDecisions.UPR.Core.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -160,6 +161,50 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
             var response = await businessLogic.GetAllLinkDss(userId);
             if (!response.IsSuccessful)
                 return BadRequest(new { message = response.ErrorMessage });
+
+            return Ok(response.Result);
+        }
+
+        /// <summary>
+        /// Use this request to get a list off DSS based on a list of crop and available weather parameters available on farm location
+        /// </summary>
+        /// <remarks>
+        /// <para>CropCodes are a list of Crop EPPO codes comma separated: e.g: cropCodes?DAUCS,HORVW </para>
+        ///  <para>executionType filter for types of models. Example values are ONTHEFLY and LINK </para>
+        /// </remarks>
+        [ProducesResponseType(typeof(IEnumerable<DssInformation>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [Produces(MediaTypeNames.Application.Json)]
+        [HttpGet("filter", Name = "api.dss.get.filter")]
+        // GET: api/dds/filter
+        public async Task<IActionResult> GetListFromDssService([FromQuery] DssListFilterDto dssListFilterDto)
+        {
+            var response = await businessLogic.GetAllAvailableDssOnFarmLocation(dssListFilterDto);
+            if (!response.IsSuccessful)
+                return BadRequest(new { message = response.ErrorMessage });
+
+            return Ok(response.Result);
+        }
+
+        /// <summary>
+        /// Use this request to get the DSS default parameters
+        /// </summary>
+        /// <remarks>The user will be identified using the UserId on the authentification JWT.
+        /// <para>The DSS must belong to the user</para>
+        /// </remarks>
+        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [Produces(MediaTypeNames.Application.Json)]
+        [HttpGet("{id:guid}/defaultparameters", Name = "api.dss.getdefaultparameters.byid")]
+        // GET: api/dss/1/defaultparameters
+        public async Task<IActionResult> GetDefaultParametersById([FromRoute] Guid id)
+        {
+            var userId = Guid.Parse(HttpContext.Items["userId"].ToString());
+
+            var response = await businessLogic.GetFieldCropPestDssDefaultParametersById(id, userId);
+            if (!response.IsSuccessful)
+                return response.RequestResult;
 
             return Ok(response.Result);
         }

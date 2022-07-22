@@ -14,7 +14,7 @@ namespace H2020.IPMDecisions.UPR.Core.Models
         [JsonProperty("organization")]
         public DssOrganization DssOrganization { get; set; }
         [JsonProperty("models")]
-        public IEnumerable<DssModelInformation> DssModelInformation { get; set; }
+        public List<DssModelInformation> DssModelInformation { get; set; }
     }
 
     public class DssOrganization

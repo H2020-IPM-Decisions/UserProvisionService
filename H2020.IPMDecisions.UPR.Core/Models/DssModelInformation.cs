@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using H2020.IPMDecisions.UPR.Core.Dtos;
 using Newtonsoft.Json;
 
 namespace H2020.IPMDecisions.UPR.Core.Models
@@ -18,8 +19,8 @@ namespace H2020.IPMDecisions.UPR.Core.Models
         public string Version { get; set; }
         // public string Citation { get; set; }
         public string Keywords { get; set; }
-        public IEnumerable<string> Pests { get; set; }
-        public IEnumerable<string> Crops { get; set; }
+        public List<string> Pests { get; set; }
+        public List<string> Crops { get; set; }
         public DssModelSchemaExecution Execution { get; set; }
         public DssModelSchemaInput Input { get; set; }
         public DssModelSchemaOutput Output { get; set; }
@@ -29,6 +30,9 @@ namespace H2020.IPMDecisions.UPR.Core.Models
         [JsonProperty("platform_validated")]
         public bool PlatformValidated { get; set; }
         public string Purpose { get; set; }
+
+        // These properties are not on original schema
+        public bool WeatherParametersValidated { get; set; }
     }
 
     public class DssModelValidSpatial

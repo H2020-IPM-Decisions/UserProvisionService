@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Net;
 using System.Net.Http;
 using System.Net.Mime;
@@ -139,7 +140,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
             }
         }
 
-        public async Task<IEnumerable<DssInformation>> GetListOfDssByLocationFromDssMicroservice(GeoJsonFeatureCollection geoJson)
+        public async Task<IEnumerable<DssInformation>> GetListOfDssByLocationFromDssMicroservice(GeoJsonFeatureCollection geoJson, string executionType = "")
         {
             try
             {
@@ -150,7 +151,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
                     MediaTypeNames.Application.Json);
                 var dssEndPoint = config["MicroserviceInternalCommunication:DssMicroservice"];
                 var response = await httpClient.PostAsync(
-                    string.Format("{0}rest/dss/location?language={1}", dssEndPoint, language),
+                    string.Format("{0}rest/dss/location?language={1}&executionType={2}", dssEndPoint, language, executionType),
                     content);
 
                 if (!response.IsSuccessStatusCode)
@@ -384,6 +385,62 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
             {
                 logger.LogError(string.Format("Error in Internal Communication - GetWeatherUsingAmalgamationService. {0}", ex.Message));
                 return new HttpResponseMessage(HttpStatusCode.BadRequest);
+            }
+        }
+
+        public async Task<List<int>> GetWeatherParametersAvailableByLocation(double latitude, double longitude)
+        {
+            try
+            {
+                var cacheKey = string.Format("weather_parameters_{0}_{1}", latitude.ToString(), longitude.ToString());
+                if (!memoryCache.TryGetValue(cacheKey, out List<int> weatherResponse))
+                {
+                    var wxEndPoint = config["MicroserviceInternalCommunication:WeatherMicroservice"];
+                    var url = string.Format("{0}rest/weatherparameter/location/point?latitude={1}&longitude={2}",
+                        wxEndPoint,
+                        latitude.ToString("G", CultureInfo.InvariantCulture),
+                        longitude.ToString("G", CultureInfo.InvariantCulture));
+                    var httpResponse = await httpClient.GetAsync(url);
+                    if (!httpResponse.IsSuccessStatusCode)
+                        logger.LogError(string.Format("Weather call error. URL called: {0}. Error returned: {1}", url, await httpResponse.Content.ReadAsStringAsync()));
+
+                    var responseAsText = await httpResponse.Content.ReadAsStringAsync();
+                    weatherResponse = JsonConvert.DeserializeObject<List<int>>(responseAsText);
+                    memoryCache.Set(cacheKey, weatherResponse, MemoryCacheHelper.CreateMemoryCacheEntryOptionsDays(1));
+                }
+                return weatherResponse;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(string.Format("Error in Internal Communication - GetWeatherParametersAvailableByLocation. {0}", ex.Message));
+                return null;
+            }
+        }
+
+        public async Task<List<DssInformation>> GetAllListOfDssFilteredByCropsFromDssMicroservice(string cropCodes, string executionType = "", string country = "")
+        {
+            try
+            {
+                var language = Thread.CurrentThread.CurrentCulture.Name;
+                var cacheKey = string.Format("listOfDss_{0}_{1}_{2}_{3}", cropCodes.ToUpper(), language.ToUpper(), executionType.ToUpper(), country.ToUpper());
+                if (!memoryCache.TryGetValue(cacheKey, out List<DssInformation> listOfDss))
+                {
+                    var dssEndPoint = config["MicroserviceInternalCommunication:DssMicroservice"];
+                    var response = await httpClient.GetAsync(string.Format("{0}rest/dss/crops/{1}?language={2}&executionType={3}", dssEndPoint, cropCodes, language, executionType.ToUpper()));
+
+                    if (!response.IsSuccessStatusCode)
+                        return null;
+
+                    var responseAsText = await response.Content.ReadAsStringAsync();
+                    listOfDss = JsonConvert.DeserializeObject<List<DssInformation>>(responseAsText);
+                    memoryCache.Set(cacheKey, listOfDss, MemoryCacheHelper.CreateMemoryCacheEntryOptionsDays(1));
+                }
+                return listOfDss;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(string.Format("Error in Internal Communication - GetAllListOfDssFromDssMicroservice. {0}", ex.Message));
+                return null;
             }
         }
         #endregion

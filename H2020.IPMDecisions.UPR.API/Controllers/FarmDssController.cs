@@ -67,7 +67,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         //OPTIONS: api/farms/1/dss
         public IActionResult Options([FromRoute] Guid fieldId)
         {
-            Response.Headers.Add("Allow", "OPTIONS, POST");
+            Response.Headers.Add("Allow", "OPTIONS, GET, POST");
             return Ok();
         }
     }
