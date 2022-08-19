@@ -23,17 +23,13 @@ namespace H2020.IPMDecisions.UPR.BLL
                 }
 
                 var dssList = internalCommunicationProvider.GetAllListOfDssFilteredByCropsFromDssMicroservice(dssListFilterDto.CropCodes, dssListFilterDto.ExecutionType, dssListFilterDto.Country);
-                var weatherParameters = internalCommunicationProvider.GetWeatherParametersAvailableByLocation(dssListFilterDto.LocationLongitude, dssListFilterDto.LocationLatitude);
+                var weatherParameters = internalCommunicationProvider.GetWeatherParametersAvailableByLocation(dssListFilterDto.LocationLatitude, dssListFilterDto.LocationLongitude);
                 var eppoCodesData = this.dataService.EppoCodes.GetEppoCodesAsync();
 
                 var dssListResult = await dssList;
                 if (dssListResult.Count() == 0) return GenericResponseBuilder.Success<IEnumerable<DssInformation>>(dssListResult);
                 var weatherParametersResult = await weatherParameters;
                 
-                // ToDo Remove this when 
-                if (weatherParametersResult.Contains(1001) && !weatherParametersResult.Contains(1002)) weatherParametersResult.Add(1002);
-                if (weatherParametersResult.Contains(3001) && !weatherParametersResult.Contains(3002)) weatherParametersResult.Add(3002);
-
                 var weatherParametersAsList = weatherParametersResult.Select(wx => wx);
                 var eppoCodesResult = await eppoCodesData;
                 var listModelsToDelete = new List<DssModelInformation>();
