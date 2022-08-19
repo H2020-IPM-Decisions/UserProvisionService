@@ -396,7 +396,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
                 if (!memoryCache.TryGetValue(cacheKey, out List<int> weatherResponse))
                 {
                     var wxEndPoint = config["MicroserviceInternalCommunication:WeatherMicroservice"];
-                    var url = string.Format("{0}rest/weatherparameter/location/point?latitude={1}&longitude={2}",
+                    var url = string.Format("{0}rest/weatherparameter/location/point?latitude={1}&longitude={2}&includeFallbackParams=true",
                         wxEndPoint,
                         latitude.ToString("G", CultureInfo.InvariantCulture),
                         longitude.ToString("G", CultureInfo.InvariantCulture));
