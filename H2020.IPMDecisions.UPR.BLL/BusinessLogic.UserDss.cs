@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using H2020.IPMDecisions.UPR.BLL.Helpers;
 using H2020.IPMDecisions.UPR.Core.Dtos;
 using H2020.IPMDecisions.UPR.Core.Entities;
+using H2020.IPMDecisions.UPR.Core.Enums;
 using H2020.IPMDecisions.UPR.Core.Models;
 using Hangfire;
 using Microsoft.Extensions.Logging;
@@ -76,7 +77,7 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
         }
 
-        public async Task<GenericResponse<IEnumerable<FieldDssResultDto>>> GetAllDssResults(Guid userId)
+        public async Task<GenericResponse<IEnumerable<FieldDssResultDto>>> GetAllDssResults(Guid userId, bool outOfSeason = false)
         {
             try
             {
@@ -185,7 +186,7 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
         }
 
-        private async Task AddExtraInformationToDss(IEnumerable<FieldDssResultDto> dssResultsToReturn)
+        private async Task AddExtraInformationToDss(IEnumerable<FieldDssResultDto> dssResultsToReturn, bool outOfSeason = false)
         {
             var listOfDss = await this.internalCommunicationProvider.GetAllListOfDssFromDssMicroservice();
             var eppoCodesData = await this.dataService.EppoCodes.GetEppoCodesAsync();
@@ -221,6 +222,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                         {
                             AddWarningMessages(dss, dssModelMatchDatabaseRecord);
                         }
+                        if (!outOfSeason) CheckIfDssOutOfSeason(dss);
                     }
                 }
 
@@ -234,6 +236,19 @@ namespace H2020.IPMDecisions.UPR.BLL
                 {
                     dss.DssTaskStatusDto = CreateDssStatusFromJobDetail(dss.Id, dss.DssTaskStatusDto.Id, jobDetail);
                 }
+            }
+        }
+
+        private void CheckIfDssOutOfSeason(FieldDssResultDto dss)
+        {
+            var fullResult = JsonConvert.DeserializeObject<DssModelOutputInformation>(dss.DssFullResult);
+            if (fullResult.TimeEnd != null && DateTime.Parse(fullResult.TimeEnd) < DateTime.Today)
+            {
+                var dateTimeAsShortDate = DateTime.Parse(fullResult.TimeEnd).ToString("dd/MM/yyyy");
+                dss.IsValid = false;
+                dss.ResultMessageType = (int)DssOutputMessageTypeEnum.Info;
+                dss.ResultMessage = this.jsonStringLocalizer["weather.end_of_season", dateTimeAsShortDate].ToString();
+                dss.WarningStatus = 0;
             }
         }
 
@@ -311,6 +326,11 @@ namespace H2020.IPMDecisions.UPR.BLL
             int maxDaysOutput = int.Parse(this.config["AppConfiguration:MaxDaysAllowedForDssOutputData"]);
             IEnumerable<List<double?>> dataLastDays = SelectDssLastResultsData(dataToReturn, locationResultData, daysDataToReturn, maxDaysOutput);
             List<string> labels = CreateResultParametersLabels(dataToReturn.OutputTimeEnd, dataLastDays.Count());
+            if (labels == null || labels.Count() == 0)
+            {
+                if (daysDataToReturn > maxDaysOutput) daysDataToReturn = maxDaysOutput;
+                labels = CreateResultParametersLabels(dataToReturn.OutputTimeEnd, daysDataToReturn);
+            }
             dataToReturn.WarningStatusLabels = labels;
 
             for (int i = 0; i < dssFullOutputAsObject.ResultParameters.Count; i++)
