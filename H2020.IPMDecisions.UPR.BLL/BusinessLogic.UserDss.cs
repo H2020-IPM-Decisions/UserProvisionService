@@ -326,6 +326,11 @@ namespace H2020.IPMDecisions.UPR.BLL
             int maxDaysOutput = int.Parse(this.config["AppConfiguration:MaxDaysAllowedForDssOutputData"]);
             IEnumerable<List<double?>> dataLastDays = SelectDssLastResultsData(dataToReturn, locationResultData, daysDataToReturn, maxDaysOutput);
             List<string> labels = CreateResultParametersLabels(dataToReturn.OutputTimeEnd, dataLastDays.Count());
+            if (labels == null || labels.Count() == 0)
+            {
+                if (daysDataToReturn > maxDaysOutput) daysDataToReturn = maxDaysOutput;
+                labels = CreateResultParametersLabels(dataToReturn.OutputTimeEnd, daysDataToReturn);
+            }
             dataToReturn.WarningStatusLabels = labels;
 
             for (int i = 0; i < dssFullOutputAsObject.ResultParameters.Count; i++)
