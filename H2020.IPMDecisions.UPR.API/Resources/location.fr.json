@@ -1,57 +1,61 @@
 {
     "data_share": {
-        "user_not_registered": "L'utilisateur n'est pas enregistré dans le système.", 
-        "pending_change_error": "Vous ne pouvez pas mettre à jour une demande en attente. Veuillez utiliser la fonction \"reply\" pour accepter/refuser une demande.", 
-        "back_to_pending": "Vous ne pouvez pas remettre une demande en attente.", 
-        "no_farms_error": "L'utilisateur n'a pas d'exploitations agricoles dans le système.", 
-        "existing_request": "Vous avez déjà demandé des données à cet utilisateur.", 
-        "request_error": "La demande n'appartient pas à l'utilisateur.", 
-        "email_error": "La demande a été créée mais une erreur s'est produite lors de l'envoi de l'e-mail.", 
-        "user_requesting_no_profile": "L'utilisateur qui demande le partage de données n'a pas de profil dans le système.", 
-        "not_existing_request": "La demande n'existe pas dans le système ou a déjà été acceptée/déclinée.", 
-        "own_request_error": "L'utilisateur ne peut pas demander ses propres données.", 
-        "user_without_profile": "L'utilisateur n'a pas de profil dans le système.", 
-        "declined_request": "L'utilisateur a refusé l'accès aux données.", 
-        "farms_ownership_error": "Les exploitations agricoles n'appartiennent pas à l'utilisateur.", 
+        "back_to_pending": "Vous ne pouvez pas remettre une demande en attente.",
+        "declined_request": "L'utilisateur a refusé l'accès aux données.",
+        "email_error": "La demande a été créée mais une erreur s'est produite lors de l'envoi de l'e-mail.",
+        "existing_request": "Vous avez déjà demandé des données à cet utilisateur.",
+        "farms_ownership_error": "Les exploitations agricoles n'appartiennent pas à l'utilisateur.",
+        "no_farms_error": "L'utilisateur n'a pas d'exploitations agricoles dans le système.",
+        "not_existing_request": "La demande n'existe pas dans le système ou a déjà été acceptée/déclinée.",
+        "own_request_error": "L'utilisateur ne peut pas demander ses propres données.",
+        "pending_change_error": "Vous ne pouvez pas mettre à jour une demande en attente. Veuillez utiliser la fonction \"reply\" pour accepter/refuser une demande.",
+        "request_error": "La demande n'appartient pas à l'utilisateur.",
+        "user_not_registered": "L'utilisateur n'est pas enregistré dans le système.",
+        "user_requesting_no_profile": "L'utilisateur qui demande le partage de données n'a pas de profil dans le système.",
+        "user_without_profile": "L'utilisateur n'a pas de profil dans le système.",
         "wrong_method": "La méthode permet d'accepter ou de refuser les demandes."
-    }, 
+    },
+    "dss": {
+        "dss_missing_metadata": "L'OAD avec l'ID '{0}' et la version '{1}' n'existe pas dans le microservice OAD.",
+        "duplicated": "Double combinaison de Culture ({0}), Bioagresseur ({1}), OAD ({2}), Modèle ({3}) & Version de modèle d'OAD ({4}) dans un champ.",
+        "existing_combination": "Le champ présente déjà la combinaison Culture ({0}), Bioagresseur ({1}) et OAD ({2}).",
+        "field_eppo_code": "Le champ avec l'ID {0} n'accepte que le code EPPO '{1}' pour la culture.",
+        "model_missing_metadata": "L'OAD avec l'ID '{0}' et la version '{1}' n'a aucun modèle avec l'ID '{2}' et la version '{3}' dans le microservice OAD.",
+        "warning_header": "Une ou plusieurs combinaisons de Culture, Bioagresseur et OAD existe déjà. Veuillez consulter la réponse pour plus d'informations.",
+        "warnings": "Veuillez corriger la ou les erreurs suivantes avant de sauvegarder :"
+    },
+    "dss_process": {
+        "dss_error": "Erreur d'exécution de l'OAD - {0}",
+        "dss_format_error": "Le message d'erreur de l'OAD ne suit pas les normes d'IPM Decisions, donc nous ne pouvons malheureusement pas fournir plus d'informations.",
+        "dss_information": "Erreur pour obtenir des informations sur l'OAD à partir du microservice.",
+        "dss_no_endpoint": "Le terminal n'est pas disponible pour exécuter l'OAD.",
+        "json_validation_error": "A problem has occurred, the platform will try to re-run de DSS in {0} minutes",
+        "not_on_the_fly": "The DSS can not run 'on-the-fly', so this process cannot be completed.",
+        "system_ready_error": "Erreur d'exécution de l'OAD - Système non prêt.",
+        "weather_data_error": "Erreur avec les données météo - {0}"
+    },
     "farm": {
         "owner_error": "Vous n'êtes pas le propriétaire de cette exploitation agricole, le processus ne peut donc pas être achevé."
-    }, 
-    "dss": {
-        "existing_combination": "Le champ présente déjà la combinaison Culture ({0}), Bioagresseur ({1}) et OAD ({2}).", 
-        "warning_header": "Une ou plusieurs combinaisons de Culture, Bioagresseur et OAD existe déjà. Veuillez consulter la réponse pour plus d'informations.", 
-        "warnings": "Veuillez corriger la ou les erreurs suivantes avant de sauvegarder :", 
-        "model_missing_metadata": "L'OAD avec l'ID '{0}' et la version '{1}' n'a aucun modèle avec l'ID '{2}' et la version '{3}' dans le microservice OAD.", 
-        "field_eppo_code": "Le champ avec l'ID {0} n'accepte que le code EPPO '{1}' pour la culture.", 
-        "dss_missing_metadata": "L'OAD avec l'ID '{0}' et la version '{1}' n'existe pas dans le microservice OAD.", 
-        "duplicated": "Double combinaison de Culture ({0}), Bioagresseur ({1}), OAD ({2}), Modèle ({3}) & Version de modèle d'OAD ({4}) dans un champ."
-    }, 
-    "dss_process": {
-        "dss_format_error": "Le message d'erreur de l'OAD ne suit pas les normes d'IPM Decisions, donc nous ne pouvons malheureusement pas fournir plus d'informations.", 
-        "dss_error": "Erreur d'exécution de l'OAD - {0}", 
-        "dss_information": "Erreur pour obtenir des informations sur l'OAD à partir du microservice.", 
-        "system_ready_error": "Erreur d'exécution de l'OAD - Système non prêt.", 
-        "dss_no_endpoint": "Le terminal n'est pas disponible pour exécuter l'OAD.", 
-        "weather_data_error": "{0} - Erreur avec les données météo",
-        "json_validation_error":""
-    }, 
-    "weather": {
-        "validation_error": "Les données météorologiques reçues n'ont pas satisfait au schéma de validation météorologique d'IPM Decisions. Cela peut être dû au fait que la source de données météo sélectionnée n'accepte pas les paramètres météo requis par l'OAD : {0}", 
-        "next_season_fixed": "", 
-        "missing_weather_service": "Aucune source de données météo ou station météo n'est associée à l'exploitation agricole.", 
-        "next_season": "La date de début par défaut l'OAD pour obtenir et utiliser les données météorologiques est {0}. Veuillez attendre cette date ou modifier les paramètres de l'OAD pour commencer à utiliser des données météorologiques plus tôt.", 
-        "internal_error": "", 
-        "missing_service": "Le service météo avec l'ID '{0}' n'existe pas dans le microservice météo.", 
-        "no_json_format": "Les données météorologiques reçues ne sont pas au format JSON."
-    }, 
+    },
     "shared": {
-        "missing_payload": "Données manquantes dans les données utiles (payload).", 
-        "wrong_media_type": "Le type de média de la demande est incorrect.", 
-        "missing_user_profile": "Veuillez créer d'abord un \"Profil d'utilisateur\".", 
-        "wrong_fields": "Champs saisis erronés ou champ \"id\" manquant dans la demande.", 
-        "wrong_order_by": "Un OrderBy erroné a été saisi dans la demande.", 
-        "missing_default_forecast": "La base de données ne contient pas de données de prévision météo par défaut.", 
-        "missing_default_historical": "La base de données ne contient pas de données météo historiques par défaut."
+        "missing_default_forecast": "La base de données ne contient pas de données de prévision météo par défaut.",
+        "missing_default_historical": "La base de données ne contient pas de données météo historiques par défaut.",
+        "missing_payload": "Données manquantes dans les données utiles (payload).",
+        "missing_user_profile": "Veuillez créer d'abord un \"Profil d'utilisateur\".",
+        "wrong_fields": "Champs saisis erronés ou champ \"id\" manquant dans la demande.",
+        "wrong_media_type": "Le type de média de la demande est incorrect.",
+        "wrong_order_by": "Un OrderBy erroné a été saisi dans la demande."
+    },
+    "weather": {
+        "end_of_season": "This model is inactive since {0}. Please wait until the start of the new season or change the end date of the weather data parameters to keep using the model.",
+        "internal_error": "Weather service can't process your request. If the error persists, please contact us.",
+        "missing_service": "Le service météo avec l'ID '{0}' n'existe pas dans le microservice météo.",
+        "missing_weather_service": "Aucune source de données météo ou station météo n'est associée à l'exploitation agricole.",
+        "next_season": "La date de début par défaut l'OAD pour obtenir et utiliser les données météorologiques est {0}. Veuillez attendre cette date ou modifier les paramètres de l'OAD pour commencer à utiliser des données météorologiques plus tôt.",
+        "next_season_fixed": "The model is only valid for use from {0} to {1}. Unfortunately, this is a fixed date determined by the DSS owner and can't be changed by the user.",
+        "no_json_format": "Les données météorologiques reçues ne sont pas au format JSON.",
+        "service_busy": "Weather service is busy and can't process your request. The platform will try again to get the weather data in {0} minutes. If the error persists, please contact us.",
+        "start_end_date_problem": "The start date ({0}) is after the end date ({1}) on the weather data parameters. Please fix this before continuing.",
+        "validation_error": "Les données météorologiques reçues n'ont pas satisfait au schéma de validation météorologique d'IPM Decisions. Cela peut être dû au fait que la source de données météo sélectionnée n'accepte pas les paramètres météo requis par l'OAD : {0}"
     }
 }
