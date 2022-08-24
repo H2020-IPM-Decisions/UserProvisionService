@@ -86,7 +86,7 @@ namespace H2020.IPMDecisions.UPR.BLL
 
                 if (dssResultsToReturn != null && dssResultsToReturn.Count() != 0)
                 {
-                    await AddExtraInformationToDss(dssResultsToReturn);
+                    await AddExtraInformationToDss(dssResultsToReturn, outOfSeason);
                 }
                 return GenericResponseBuilder.Success<IEnumerable<FieldDssResultDto>>(dssResultsToReturn);
             }
