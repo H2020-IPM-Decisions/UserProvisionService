@@ -158,7 +158,8 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 if (weatherResponseAsObject.Any(wr => wr.ErrorCode == StatusCodes.Status202Accepted))
                 {
                     result.ErrorType = DssOutputMessageTypeEnum.Warning;
-                    result.ResponseWeatherAsString = string.Join("; ", weatherResponseAsObject.Select(wr => wr.Message));
+                    result.ResponseWeatherAsString = string.Join("; ", weatherResponseAsObject.Select(wr => wr.Message)
+                        .Where(wr => !wr.Contains("Internal Server Error")));
                 }
                 // Error Code returned by Euroweather for requests before time series start
                 else if (weatherResponseAsObject.Any(wr => wr.ErrorCode == StatusCodes.Status403Forbidden))
