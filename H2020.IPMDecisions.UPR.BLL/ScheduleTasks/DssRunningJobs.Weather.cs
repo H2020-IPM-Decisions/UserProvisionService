@@ -154,7 +154,14 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 var responseText = await responseWeather.Content.ReadAsStringAsync();
                 var weatherResponseAsObject = JsonConvert.DeserializeObject<IEnumerable<WeatherErrorResult>>(responseText);
 
-                if (weatherResponseAsObject.Any(wr => wr.Message.Contains("is before dataseries starts (2021-10-24T00:00:00)")))
+                // Error Code returned by Euroweather for first location request
+                if (weatherResponseAsObject.Any(wr => wr.ErrorCode == StatusCodes.Status202Accepted))
+                {
+                    result.ErrorType = DssOutputMessageTypeEnum.Warning;
+                    result.ResponseWeatherAsString = string.Join("; ", weatherResponseAsObject.Select(wr => wr.Message));
+                }
+                // Error Code returned by Euroweather for requests before time series start
+                else if (weatherResponseAsObject.Any(wr => wr.ErrorCode == StatusCodes.Status403Forbidden))
                 {
                     result.ErrorType = DssOutputMessageTypeEnum.Error;
                     result.ResponseWeatherAsString = string.Join("; ", weatherResponseAsObject.Select(wr => wr.Message)
