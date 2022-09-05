@@ -16,6 +16,7 @@ EXPOSE ${URL_EXPOSE_PORT_HTTPS}
 FROM mcr.microsoft.com/dotnet/core/sdk:3.1 AS build
 WORKDIR /src
 COPY ["H2020.IPMDecisions.UPR.API/H2020.IPMDecisions.UPR.API.csproj", "H2020.IPMDecisions.UPR.API/"]
+COPY ["H2020.IPMDecisions.UPR.API/appsettingsTemplate.json", "H2020.IPMDecisions.UPR.API/appsettings.json"]
 RUN dotnet restore "H2020.IPMDecisions.UPR.API/H2020.IPMDecisions.UPR.API.csproj"
 
 COPY . .
