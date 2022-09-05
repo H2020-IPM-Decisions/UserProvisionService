@@ -292,5 +292,32 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
             }
             return inputAsJsonObject;
         }
+
+        public static JObject HideInternalDssParametersFromInputSchema(JObject inputAsJsonObject, List<string> dssInternalParameters)
+        {
+            var pathsListDssInputSchema = DssDataHelper.CreateJsonPaths(inputAsJsonObject);
+
+            var optionsPropertyName = "options";
+            var hiddenPropertyName = "hidden";
+            var hiddenPropertyValue = true;
+            foreach (var internalParameterPath in dssInternalParameters)
+            {
+                var pathPropertyName = internalParameterPath.Split(".").LastOrDefault();
+                var tokensPathFromInput = pathsListDssInputSchema.Where(s => s.Contains(pathPropertyName));
+
+                var hasOptionsProperty = tokensPathFromInput.Any(s => s.Contains(optionsPropertyName));
+                if (!hasOptionsProperty)
+                {
+                    var firstPartOfTheTokenList = tokensPathFromInput.FirstOrDefault();
+                    var stringToReplace = firstPartOfTheTokenList.Split(".").LastOrDefault();
+                    var newOptionsPath = firstPartOfTheTokenList.Replace(stringToReplace, optionsPropertyName);
+                    var childObject = new JObject(){
+                        new JProperty(hiddenPropertyName, hiddenPropertyValue)
+                    };
+                    AddNewTokenToJObject(inputAsJsonObject, newOptionsPath, childObject);
+                }
+            }
+            return inputAsJsonObject;
+        }
     }
 }

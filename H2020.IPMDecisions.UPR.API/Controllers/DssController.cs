@@ -88,11 +88,11 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         [Produces(MediaTypeNames.Application.Json)]
         [HttpGet("{id:guid}/parameters", Name = "api.dss.getparameters.byid")]
         // GET: api/dss/1/parameters
-        public async Task<IActionResult> GetParametersById([FromRoute] Guid id)
+        public async Task<IActionResult> GetParametersById([FromRoute] Guid id, [FromQueryAttribute] bool displayInternal = false)
         {
             var userId = Guid.Parse(HttpContext.Items["userId"].ToString());
 
-            var response = await businessLogic.GetFieldCropPestDssParametersById(id, userId);
+            var response = await businessLogic.GetFieldCropPestDssParametersById(id, userId, displayInternal);
             if (!response.IsSuccessful)
                 return response.RequestResult;
 
