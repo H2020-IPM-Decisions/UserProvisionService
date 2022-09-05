@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/core/aspnet:3.1.101 AS base
+FROM mcr.microsoft.com/dotnet/core/aspnet:3.1 AS base
 
 ARG URL_EXPOSE_PORT=80
 ARG URL_EXPOSE_PORT_HTTPS=443
@@ -13,13 +13,9 @@ WORKDIR /app
 EXPOSE ${URL_EXPOSE_PORT}
 EXPOSE ${URL_EXPOSE_PORT_HTTPS}
 
-FROM mcr.microsoft.com/dotnet/core/sdk:3.1.101 AS build
+FROM mcr.microsoft.com/dotnet/core/sdk:3.1 AS build
 WORKDIR /src
 COPY ["H2020.IPMDecisions.UPR.API/H2020.IPMDecisions.UPR.API.csproj", "H2020.IPMDecisions.UPR.API/"]
-COPY ["H2020.IPMDecisions.UPR.API/appsettingsTemplate.json", "H2020.IPMDecisions.UPR.API/appsettings.json"]
-COPY ["H2020.IPMDecisions.UPR.BLL/H2020.IPMDecisions.UPR.BLL.csproj", "H2020.IPMDecisions.UPR.BLL/"]
-COPY ["H2020.IPMDecisions.UPR.Core/H2020.IPMDecisions.UPR.Core.csproj", "H2020.IPMDecisions.UPR.Core/"]
-COPY ["H2020.IPMDecisions.UPR.Data/H2020.IPMDecisions.UPR.Data.csproj", "H2020.IPMDecisions.UPR.Data/"]
 RUN dotnet restore "H2020.IPMDecisions.UPR.API/H2020.IPMDecisions.UPR.API.csproj"
 
 COPY . .
