@@ -140,7 +140,7 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
         }
 
-        public async Task<GenericResponse<JObject>> GetFieldCropPestDssParametersById(Guid id, Guid userId)
+        public async Task<GenericResponse<JObject>> GetFieldCropPestDssParametersById(Guid id, Guid userId, bool displayInternalParameters = false)
         {
             try
             {
@@ -150,7 +150,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                 var dssUserId = dss.FieldCropPest.FieldCrop.Field.Farm.UserFarms.FirstOrDefault().UserId;
                 if (userId != dssUserId) return GenericResponseBuilder.NotFound<JObject>();
 
-                var dataToRetun = await GenerateUserDssParameters(dss);
+                var dataToRetun = await GenerateUserDssParameters(dss, displayInternalParameters);
                 return GenericResponseBuilder.Success<JObject>(dataToRetun);
             }
             catch (Exception ex)
@@ -494,7 +494,7 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
         }
 
-        private async Task<JObject> GenerateUserDssParameters(FieldCropPestDss dss)
+        private async Task<JObject> GenerateUserDssParameters(FieldCropPestDss dss, bool displayInternalParameters = false)
         {
             var dssInputUISchema = await internalCommunicationProvider
                                                    .GetDssModelInputSchemaMicroservice(dss.CropPestDss.DssId, dss.CropPestDss.DssModelId);
@@ -504,6 +504,19 @@ namespace H2020.IPMDecisions.UPR.BLL
                 inputAsJsonObject = JObject.Parse(dssInputUISchema.ToString());
                 JObject userParametersAsJsonObject = JObject.Parse(dss.DssParameters.ToString());
                 DssDataHelper.AddDefaultDssParametersToInputSchema(inputAsJsonObject, userParametersAsJsonObject);
+
+                if (!displayInternalParameters)
+                {
+                    var dssModelInformation = await internalCommunicationProvider
+                                            .GetDssModelInformationFromDssMicroservice(dss.CropPestDss.DssId, dss.CropPestDss.DssModelId);
+
+                    var dssInternalParameters = dssModelInformation.Execution.InputSchemaCategories.Internal;
+
+                    if (dssInternalParameters.Count != 0)
+                    {
+                        DssDataHelper.HideInternalDssParametersFromInputSchema(inputAsJsonObject, dssInternalParameters);
+                    }
+                }
             }
             return inputAsJsonObject;
         }
