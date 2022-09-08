@@ -17,7 +17,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
     /// <summary>
     /// Field Observations are observations of a pest on a field.
     /// <para>Observations needs to be associate to a FieldCropPest. The FieldId must be associated to the UserId of the Authorization JWT.</para>
-    /// <para>The user will be identified using the UserId on the authentification JWT.</para>
+    /// <para>The user will be identified using the UserId on the authentication JWT.</para>
     /// </summary>
     [ApiController]
     [Route("api/fields/{fieldId:guid}/observations")]

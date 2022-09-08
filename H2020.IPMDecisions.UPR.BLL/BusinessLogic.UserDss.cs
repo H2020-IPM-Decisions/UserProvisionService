@@ -50,10 +50,10 @@ namespace H2020.IPMDecisions.UPR.BLL
                 if (userId != dssUserId) return GenericResponseBuilder.NotFound<FieldCropPestDssDto>();
 
                 // Validate DSS parameters on server side
-                var validationErrormessages = await ValidateNewDssParameters(dss.CropPestDss, fieldCropPestDssForUpdateDto.DssParameters);
-                if (validationErrormessages.Count > 0)
+                var validationErrorMessages = await ValidateNewDssParameters(dss.CropPestDss, fieldCropPestDssForUpdateDto.DssParameters);
+                if (validationErrorMessages.Count > 0)
                 {
-                    var errorMessageToReturn = string.Join(" ", validationErrormessages);
+                    var errorMessageToReturn = string.Join(" ", validationErrorMessages);
                     return GenericResponseBuilder.NoSuccess(errorMessageToReturn);
                 }
 
@@ -102,9 +102,9 @@ namespace H2020.IPMDecisions.UPR.BLL
         {
             try
             {
-                IEnumerable<LinkDssDto> dataToRetun = new List<LinkDssDto>();
+                IEnumerable<LinkDssDto> dataToReturn = new List<LinkDssDto>();
                 var farmsFromUser = await this.dataService.Farms.FindAllByConditionAsync(f => f.UserFarms.Any(uf => uf.UserId == userId & (uf.Authorised)));
-                if (farmsFromUser.Count() == 0) return GenericResponseBuilder.Success<IEnumerable<LinkDssDto>>(dataToRetun);
+                if (farmsFromUser.Count() == 0) return GenericResponseBuilder.Success<IEnumerable<LinkDssDto>>(dataToReturn);
 
                 var farmGeoJson = CreateFarmLocationGeoJson(farmsFromUser);
                 var listDssOnLocation = await this.internalCommunicationProvider.GetListOfDssByLocationFromDssMicroservice(farmGeoJson, "LINK");
@@ -120,17 +120,17 @@ namespace H2020.IPMDecisions.UPR.BLL
                     .Where(linkDssFiltered => linkDssFiltered.DssModelInformation.Execution.Type.ToLower() == "link"
                         & linkDssFiltered.DssModelInformation.Crops.Any(c => farmCrops.Contains(c)))
                     .ToList();
-                if (linkDssOnLocation.Count() == 0) return GenericResponseBuilder.Success<IEnumerable<LinkDssDto>>(dataToRetun);
+                if (linkDssOnLocation.Count() == 0) return GenericResponseBuilder.Success<IEnumerable<LinkDssDto>>(dataToReturn);
 
-                dataToRetun = this.mapper.Map<IEnumerable<LinkDssDto>>(linkDssOnLocation);
+                dataToReturn = this.mapper.Map<IEnumerable<LinkDssDto>>(linkDssOnLocation);
                 var eppoCodesData = await this.dataService.EppoCodes.GetEppoCodesAsync();
-                foreach (var dss in dataToRetun)
+                foreach (var dss in dataToReturn)
                 {
                     var eppoCodeLanguages = EppoCodesHelper.GetCropPestEppoCodesNames(eppoCodesData, dss.CropEppoCode, dss.PestEppoCode);
                     dss.CropLanguages = eppoCodeLanguages.CropLanguages;
                     dss.PestLanguages = eppoCodeLanguages.PestLanguages;
                 }
-                return GenericResponseBuilder.Success<IEnumerable<LinkDssDto>>(dataToRetun);
+                return GenericResponseBuilder.Success<IEnumerable<LinkDssDto>>(dataToReturn);
             }
             catch (Exception ex)
             {
@@ -150,8 +150,8 @@ namespace H2020.IPMDecisions.UPR.BLL
                 var dssUserId = dss.FieldCropPest.FieldCrop.Field.Farm.UserFarms.FirstOrDefault().UserId;
                 if (userId != dssUserId) return GenericResponseBuilder.NotFound<JObject>();
 
-                var dataToRetun = await GenerateUserDssParameters(dss, displayInternalParameters);
-                return GenericResponseBuilder.Success<JObject>(dataToRetun);
+                var dataToReturn = await GenerateUserDssParameters(dss, displayInternalParameters);
+                return GenericResponseBuilder.Success<JObject>(dataToReturn);
             }
             catch (Exception ex)
             {
@@ -175,8 +175,8 @@ namespace H2020.IPMDecisions.UPR.BLL
                 // ToDo: Return only JSON or get new default parameters and overwrite?
                 // dss.DssParameters = dssParameters;
                 // await this.dataService.CompleteAsync();
-                JObject dataToRetun = JObject.Parse(dssParameters.ToString());
-                return GenericResponseBuilder.Success<JObject>(dataToRetun);
+                JObject dataToReturn = JObject.Parse(dssParameters.ToString());
+                return GenericResponseBuilder.Success<JObject>(dataToReturn);
             }
             catch (Exception ex)
             {
@@ -482,9 +482,9 @@ namespace H2020.IPMDecisions.UPR.BLL
                                        .GetDssModelInputSchemaMicroservice(cropPestDss.DssId, cropPestDss.DssModelId);
                 DssDataHelper.RemoveNotRequiredInputSchemaProperties(dssInputUISchema);
                 JObject inputAsJsonObject = JObject.Parse(newDssParameters.ToString());
-                IList<string> validationErrormessages;
-                var isJsonObjectvalid = inputAsJsonObject.IsValid(dssInputUISchema, out validationErrormessages);
-                return validationErrormessages;
+                IList<string> validationErrorMessages;
+                var isJsonObjectValid = inputAsJsonObject.IsValid(dssInputUISchema, out validationErrorMessages);
+                return validationErrorMessages;
             }
             catch (Exception ex)
             {

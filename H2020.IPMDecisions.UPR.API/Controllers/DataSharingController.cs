@@ -16,7 +16,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
 {
     /// <summary>
     /// These end points allows users to manage the data shared with other users.
-    /// <para>The user will be identified using the UserId on the authentification JWT.</para>
+    /// <para>The user will be identified using the UserId on the authentication JWT.</para>
     /// </summary>
     [ApiController]
     [Route("api/datashare")]

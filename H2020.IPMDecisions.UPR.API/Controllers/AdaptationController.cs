@@ -13,7 +13,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
 {
     /// <summary>
     /// These end points allows to see all the DSS associated to a user.
-    /// <para>The user will be identified using the UserId on the authentification JWT.</para>
+    /// <para>The user will be identified using the UserId on the authentication JWT.</para>
     /// </summary>
     [ApiController]
     [Route("api/adaptation")]
@@ -31,7 +31,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         /// <summary>
         /// Use this request to get the DSS data for creating the DSS Adaptation Dashboard
         /// </summary>
-        /// <remarks>The user will be identified using the UserId on the authentification JWT.
+        /// <remarks>The user will be identified using the UserId on the authentication JWT.
         /// <para>The DSS must belong to the user</para>
         /// </remarks>
         [ProducesResponseType(typeof(AdaptationDashboardDto), StatusCodes.Status200OK)]
@@ -54,7 +54,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         /// <summary>
         /// Use this request to run a DSS with temp data
         /// </summary>
-        /// <remarks>The user will be identified using the UserId on the authentification JWT.
+        /// <remarks>The user will be identified using the UserId on the authentication JWT.
         /// <para>The DSS must belong to the user</para>
         /// </remarks>
         [Consumes(MediaTypeNames.Application.Json)]
