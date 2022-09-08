@@ -15,7 +15,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
 {
     /// <summary>
     /// These end points allows to see all the DSS associated to a user.
-    /// <para>The user will be identified using the UserId on the authentification JWT.</para>
+    /// <para>The user will be identified using the UserId on the authentication JWT.</para>
     /// </summary>
     [ApiController]
     [Route("api/dss")]
@@ -33,7 +33,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         /// <summary>
         /// Use this request to get the DSS related to a user
         /// </summary>
-        /// <remarks>The user will be identified using the UserId on the authentification JWT.
+        /// <remarks>The user will be identified using the UserId on the authentication JWT.
         /// </remarks>
         [ProducesResponseType(typeof(IEnumerable<FieldDssResultDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -56,7 +56,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         /// <summary>
         /// Use this request to get a DSS related to a user
         /// </summary>
-        /// <remarks>The user will be identified using the UserId on the authentification JWT.
+        /// <remarks>The user will be identified using the UserId on the authentication JWT.
         /// <para>The DSS must belong to the user</para>
         /// </remarks>
         [ProducesResponseType(typeof(FieldDssResultDetailedDto), StatusCodes.Status200OK)]
@@ -79,7 +79,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         /// <summary>
         /// Use this request to get the DSS parameters setup by the user
         /// </summary>
-        /// <remarks>The user will be identified using the UserId on the authentification JWT.
+        /// <remarks>The user will be identified using the UserId on the authentication JWT.
         /// <para>The DSS must belong to the user</para>
         /// </remarks>
         [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
@@ -88,7 +88,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         [Produces(MediaTypeNames.Application.Json)]
         [HttpGet("{id:guid}/parameters", Name = "api.dss.getparameters.byid")]
         // GET: api/dss/1/parameters
-        public async Task<IActionResult> GetParametersById([FromRoute] Guid id, [FromQueryAttribute] bool displayInternal = false)
+        public async Task<IActionResult> GetParametersById([FromRoute] Guid id, [FromQueryAttribute] bool displayInternal = true)
         {
             var userId = Guid.Parse(HttpContext.Items["userId"].ToString());
 
@@ -102,7 +102,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         /// <summary>
         /// Use this request to update a DSS parameter
         /// </summary>
-        /// <remarks>The user will be identified using the UserId on the authentification JWT.
+        /// <remarks>The user will be identified using the UserId on the authentication JWT.
         /// <para>The DSS must belong to the user</para>
         /// </remarks>
         [Consumes(MediaTypeNames.Application.Json)]
@@ -123,7 +123,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         }
 
         /// <summary>Use this endpoint to remove a DSS by ID
-        /// <remarks>The user will be identified using the UserId on the authentification JWT.
+        /// <remarks>The user will be identified using the UserId on the authentication JWT.
         /// <para>The DSS must belong to the user</para>
         /// </remarks>
         /// </summary>
@@ -145,7 +145,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         /// <summary>
         /// Use this request to get all the external DSS (link type) related to a user
         /// </summary>
-        /// <remarks>The user will be identified using the UserId on the authentification JWT.
+        /// <remarks>The user will be identified using the UserId on the authentication JWT.
         /// </remarks>
         [ProducesResponseType(typeof(IEnumerable<LinkDssDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -189,7 +189,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         /// <summary>
         /// Use this request to get the DSS default parameters
         /// </summary>
-        /// <remarks>The user will be identified using the UserId on the authentification JWT.
+        /// <remarks>The user will be identified using the UserId on the authentication JWT.
         /// <para>The DSS must belong to the user</para>
         /// </remarks>
         [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]

@@ -14,7 +14,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
 {
     /// <summary>
     /// These end points allows to compare DSSs associated to a user.
-    /// <para>The user will be identified using the UserId on the authentification JWT.</para>
+    /// <para>The user will be identified using the UserId on the authentication JWT.</para>
     /// </summary>
     [ApiController]
     [Route("api/dsscomparison")]
@@ -32,7 +32,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         /// <summary>
         /// Use this request to compare DSS related to a user
         /// </summary>
-        /// <remarks>The user will be identified using the UserId on the authentification JWT.
+        /// <remarks>The user will be identified using the UserId on the authentication JWT.
         /// <para>Due to the GUID complexity, the query parameters should be like the following:
         /// api/upr/dsscomparison?dssids=firstDssId&amp;dssids=secondDssId&amp;dssids=otherDssId</para>
         /// <para> It is a limit of 5 DSS ids on the list</para> 
