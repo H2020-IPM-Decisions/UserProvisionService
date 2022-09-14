@@ -104,11 +104,11 @@ namespace H2020.IPMDecisions.UPR.BLL
 
         #region User DSS
         Task<GenericResponse<FieldDssResultDetailedDto>> GetFieldCropPestDssById(Guid id, Guid userId, int daysDataToReturn = 7);
-        Task<GenericResponse<JObject>> GetFieldCropPestDssParametersById(Guid id, Guid userId, bool displayInternalParameters = false);
+        Task<GenericResponse<JObject>> GetFieldCropPestDssParametersById(Guid id, Guid userId, bool? displayInternalParameters);
         Task<GenericResponse<JObject>> GetFieldCropPestDssDefaultParametersById(Guid id, Guid userId);
         Task<GenericResponse> UpdateFieldCropPestDssById(Guid id, Guid userId, FieldCropPestDssForUpdateDto fieldCropPestDssForUpdateDto);
         Task<GenericResponse> DeleteDss(Guid id, Guid userId);
-        Task<GenericResponse<IEnumerable<FieldDssResultDto>>> GetAllDssResults(Guid userId, bool outOfSeason = false);
+        Task<GenericResponse<IEnumerable<FieldDssResultDto>>> GetAllDssResults(Guid userId, bool? displayOutOfSeason);
         Task<GenericResponse<IEnumerable<LinkDssDto>>> GetAllLinkDss(Guid userId);
         Task<GenericResponse<IEnumerable<DssInformation>>> GetAllAvailableDssOnFarmLocation(DssListFilterDto dssListFilterDto);
         #endregion

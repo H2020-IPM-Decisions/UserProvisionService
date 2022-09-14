@@ -42,7 +42,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         [HttpGet(Name = "api.dss.get.all")]
         [HttpHead]
         // GET: api/dss
-        public async Task<IActionResult> Get([FromQuery] bool displayOutOfSeason = true)
+        public async Task<IActionResult> Get([FromQuery] bool? displayOutOfSeason)
         {
             var userId = Guid.Parse(HttpContext.Items["userId"].ToString());
 
@@ -88,7 +88,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         [Produces(MediaTypeNames.Application.Json)]
         [HttpGet("{id:guid}/parameters", Name = "api.dss.getparameters.byid")]
         // GET: api/dss/1/parameters
-        public async Task<IActionResult> GetParametersById([FromRoute] Guid id, [FromQueryAttribute] bool displayInternal = true)
+        public async Task<IActionResult> GetParametersById([FromRoute] Guid id, [FromQueryAttribute] bool? displayInternal)
         {
             var userId = Guid.Parse(HttpContext.Items["userId"].ToString());
 
