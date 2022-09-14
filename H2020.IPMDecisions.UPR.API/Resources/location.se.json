@@ -29,8 +29,8 @@
         "dss_format_error": "Felmeddelande från DSS följer inte IPM Decisions-standard, så tyvärr kan vi inte ge mer information.",
         "dss_information": "Det gick inte att hämta DSS-information från tjänsten.",
         "dss_no_endpoint": "Slutpunkten är inte tillgänglig för att köra DSS.",
-        "json_validation_error": "A problem has occurred, the platform will try to re-run de DSS in {0} minutes",
-        "not_on_the_fly": "The DSS can not run 'on-the-fly', so this process cannot be completed.",
+        "json_validation_error": "Ett problem har uppstått, plattformen kommer att försöka köra DSS igen om {0} minuter",
+        "not_on_the_fly": "DSS kan inte köras 'on-the-fly', så denna process kan inte slutföras",
         "system_ready_error": "Fel vid körning av DSS - Systemet är inte klart.",
         "weather_data_error": "Fel på väderdata - {0}"
     },
@@ -47,15 +47,15 @@
         "wrong_order_by": "Fel OrderBy angavs vid begäran."
     },
     "weather": {
-        "end_of_season": "This model is inactive since {0}. Please wait until the start of the new season or change the end date of the weather data parameters to keep using the model.",
-        "internal_error": "Weather service can't process your request. If the error persists, please contact us.",
+        "end_of_season": "Denna modell är inaktiv sedan {0}. Vänta tills början av den nya säsongen eller ändra slutdatumet för väderdataparametrarna för att fortsätta använda modellen.",
+        "internal_error": "Vädertjänsten kan inte behandla din förfrågan. Kontakta oss om felet kvarstår.",
         "missing_service": "Vädertjänsten med ID \"{0}\" finns inte på vädertjänsten.",
         "missing_weather_service": "Inga väderdatakällor eller väderstationer är länkade till gården",
         "next_season": "Förinställt startdatum för DSS för att hämta och använda väderdata är {0}. Vänta till detta datum eller ändra DSS-parametrarna för att börja använda tidigare väderdata.",
-        "next_season_fixed": "The model is only valid for use from {0} to {1}. Unfortunately, this is a fixed date determined by the DSS owner and can't be changed by the user.",
+        "next_season_fixed": "Modellen är endast giltig för användning från {0} till {1}. Tyvärr är detta ett fast datum som bestäms av DSS-ägaren och kan inte ändras av användaren.",
         "no_json_format": "Mottagna väderdata är inte i JSON-format.",
-        "service_busy": "Weather service is busy and can't process your request. The platform will try again to get the weather data in {0} minutes. If the error persists, please contact us.",
-        "start_end_date_problem": "The start date ({0}) is after the end date ({1}) on the weather data parameters. Please fix this before continuing.",
+        "service_busy": "Vädertjänsten är upptagen och kan inte behandla din förfrågan. Plattformen kommer att försöka hämta väderdata igen om {0} minuter. Kontakta oss om felet kvarstår.",
+        "start_end_date_problem": "Startdatumet ({0}) är efter slutdatumet ({1}) på väderdataparametrarna. Vänligen rätta detta innan du fortsätter.",
         "validation_error": "Mottagna väderdata kunde inte valideras av IPM Decisions plattformen. Detta kan bero på att den valda väderdatakällan inte accepterar väderparametrar som krävs av DSS: {0}"
     }
 }
