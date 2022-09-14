@@ -42,7 +42,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         [HttpGet(Name = "api.dss.get.all")]
         [HttpHead]
         // GET: api/dss
-        public async Task<IActionResult> Get([FromQuery] bool displayOutOfSeason = true)
+        public async Task<IActionResult> Get([FromQuery] bool? displayOutOfSeason)
         {
             var userId = Guid.Parse(HttpContext.Items["userId"].ToString());
 

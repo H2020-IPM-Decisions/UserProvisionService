@@ -77,7 +77,7 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
         }
 
-        public async Task<GenericResponse<IEnumerable<FieldDssResultDto>>> GetAllDssResults(Guid userId, bool outOfSeason = false)
+        public async Task<GenericResponse<IEnumerable<FieldDssResultDto>>> GetAllDssResults(Guid userId, bool? displayOutOfSeason)
         {
             try
             {
@@ -86,7 +86,8 @@ namespace H2020.IPMDecisions.UPR.BLL
 
                 if (dssResultsToReturn != null && dssResultsToReturn.Count() != 0)
                 {
-                    await AddExtraInformationToDss(dssResultsToReturn, outOfSeason);
+                    bool newDisplayOutOfSeason = displayOutOfSeason.HasValue ? displayOutOfSeason.Value : bool.Parse(this.config["AppConfiguration:DisplayOutOfSeasonDss"]);
+                    await AddExtraInformationToDss(dssResultsToReturn, newDisplayOutOfSeason);
                 }
                 return GenericResponseBuilder.Success<IEnumerable<FieldDssResultDto>>(dssResultsToReturn);
             }
