@@ -140,7 +140,7 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
         }
 
-        public async Task<GenericResponse<JObject>> GetFieldCropPestDssParametersById(Guid id, Guid userId, bool displayInternalParameters = false)
+        public async Task<GenericResponse<JObject>> GetFieldCropPestDssParametersById(Guid id, Guid userId, bool? displayInternalParameters)
         {
             try
             {
@@ -150,7 +150,8 @@ namespace H2020.IPMDecisions.UPR.BLL
                 var dssUserId = dss.FieldCropPest.FieldCrop.Field.Farm.UserFarms.FirstOrDefault().UserId;
                 if (userId != dssUserId) return GenericResponseBuilder.NotFound<JObject>();
 
-                var dataToReturn = await GenerateUserDssParameters(dss, displayInternalParameters);
+                bool newDisplayInternalParameters = displayInternalParameters.HasValue ? displayInternalParameters.Value : bool.Parse(this.config["AppConfiguration:DisplayInternalParameters"]);
+                var dataToReturn = await GenerateUserDssParameters(dss, newDisplayInternalParameters);
                 return GenericResponseBuilder.Success<JObject>(dataToReturn);
             }
             catch (Exception ex)
