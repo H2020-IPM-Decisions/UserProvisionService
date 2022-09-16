@@ -27,7 +27,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                 var eppoCodesData = await this.dataService.EppoCodes.GetEppoCodesAsync();
 
                 var dssListResult = await dssList;
-                if (dssListResult.Count() == 0) return GenericResponseBuilder.Success<IEnumerable<DssInformation>>(dssListResult);
+                if (dssListResult == null || dssListResult.Count() == 0) return GenericResponseBuilder.Success<IEnumerable<DssInformation>>(dssListResult);
                 var weatherParametersResult = await weatherParameters;
 
                 var weatherParametersAsList = weatherParametersResult.Select(wx => wx);
