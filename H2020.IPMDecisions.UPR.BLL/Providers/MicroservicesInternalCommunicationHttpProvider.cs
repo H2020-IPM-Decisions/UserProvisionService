@@ -429,7 +429,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
                 {
                     var dssEndPoint = config["MicroserviceInternalCommunication:DssMicroservice"];
                     var response = await httpClient.GetAsync(string.Format("{0}rest/dss/crops/{1}{2}?language={3}&executionType={4}",
-                        dssEndPoint,  platformValidated,cropCodes, language, executionType.ToUpper()));
+                        dssEndPoint, cropCodes, platformValidated, language, executionType.ToUpper()));
 
                     if (!response.IsSuccessStatusCode)
                         return listOfDss;
