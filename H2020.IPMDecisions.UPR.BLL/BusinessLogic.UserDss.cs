@@ -82,6 +82,7 @@ namespace H2020.IPMDecisions.UPR.BLL
             try
             {
                 var dssResults = await this.dataService.DssResult.GetAllDssResults(userId);
+                if (dssResults == null) { return GenericResponseBuilder.Success<IEnumerable<FieldDssResultDto>>(new List<FieldDssResultDto>()); }
                 var dssResultsToReturn = this.mapper.Map<IEnumerable<FieldDssResultDto>>(dssResults);
 
                 if (dssResultsToReturn != null && dssResultsToReturn.Count() != 0)
@@ -190,54 +191,62 @@ namespace H2020.IPMDecisions.UPR.BLL
 
         private async Task AddExtraInformationToDss(IEnumerable<FieldDssResultDto> dssResultsToReturn, bool outOfSeason = false)
         {
-            var listOfDss = await this.internalCommunicationProvider.GetAllListOfDssFromDssMicroservice();
-            var eppoCodesData = await this.dataService.EppoCodes.GetEppoCodesAsync();
-            var monitoringApi = JobStorage.Current.GetMonitoringApi();
-
-            foreach (var dss in dssResultsToReturn)
+            try
             {
-                if (listOfDss != null && listOfDss.Count() != 0)
+                var listOfDss = await this.internalCommunicationProvider.GetAllListOfDssFromDssMicroservice();
+                var eppoCodesData = await this.dataService.EppoCodes.GetEppoCodesAsync();
+                var monitoringApi = JobStorage.Current.GetMonitoringApi();
+
+                foreach (var dss in dssResultsToReturn)
                 {
-                    var dssOnListMatchDatabaseRecord = listOfDss
-                        .Where(d => d.Id == dss.DssId)
-                        .FirstOrDefault();
-                    if (dssOnListMatchDatabaseRecord == null) continue;
-
-                    var dssModelMatchDatabaseRecord = dssOnListMatchDatabaseRecord
-                      .DssModelInformation
-                      .Where(dm => dm.Id == dss.DssModelId)
-                       .FirstOrDefault();
-
-                    if (dssModelMatchDatabaseRecord == null)
+                    if (listOfDss != null && listOfDss.Count() != 0)
                     {
-                        dss.DssDescription = this.jsonStringLocalizer["dss.model_missing_metadata",
-                            dss.DssId,
-                            dss.DssVersion,
-                            dss.DssModelId,
-                            dss.DssModelVersion].ToString();
-                    }
-                    else
-                    {
-                        this.mapper.Map(dssOnListMatchDatabaseRecord, dss);
-                        this.mapper.Map(dssModelMatchDatabaseRecord, dss);
-                        if (dssModelMatchDatabaseRecord.Output != null)
+                        var dssOnListMatchDatabaseRecord = listOfDss
+                            .Where(d => d.Id == dss.DssId)
+                            .FirstOrDefault();
+                        if (dssOnListMatchDatabaseRecord == null) continue;
+
+                        var dssModelMatchDatabaseRecord = dssOnListMatchDatabaseRecord
+                          .DssModelInformation
+                          .Where(dm => dm.Id == dss.DssModelId)
+                           .FirstOrDefault();
+
+                        if (dssModelMatchDatabaseRecord == null)
                         {
-                            AddWarningMessages(dss, dssModelMatchDatabaseRecord);
+                            dss.DssDescription = this.jsonStringLocalizer["dss.model_missing_metadata",
+                                dss.DssId,
+                                dss.DssVersion,
+                                dss.DssModelId,
+                                dss.DssModelVersion].ToString();
                         }
-                        if (!outOfSeason) CheckIfDssOutOfSeason(dss);
+                        else
+                        {
+                            this.mapper.Map(dssOnListMatchDatabaseRecord, dss);
+                            this.mapper.Map(dssModelMatchDatabaseRecord, dss);
+                            if (dssModelMatchDatabaseRecord.Output != null)
+                            {
+                                AddWarningMessages(dss, dssModelMatchDatabaseRecord);
+                            }
+                            if (!outOfSeason) CheckIfDssOutOfSeason(dss);
+                        }
+                    }
+
+                    var eppoCodeLanguages = EppoCodesHelper.GetCropPestEppoCodesNames(eppoCodesData, dss.CropEppoCode, dss.PestEppoCode);
+                    dss.CropLanguages = eppoCodeLanguages.CropLanguages;
+                    dss.PestLanguages = eppoCodeLanguages.PestLanguages;
+
+                    if (string.IsNullOrEmpty(dss.DssTaskStatusDto.Id)) continue;
+                    var jobDetail = monitoringApi.JobDetails(dss.DssTaskStatusDto.Id);
+                    if (jobDetail != null)
+                    {
+                        dss.DssTaskStatusDto = CreateDssStatusFromJobDetail(dss.Id, dss.DssTaskStatusDto.Id, jobDetail);
                     }
                 }
-
-                var eppoCodeLanguages = EppoCodesHelper.GetCropPestEppoCodesNames(eppoCodesData, dss.CropEppoCode, dss.PestEppoCode);
-                dss.CropLanguages = eppoCodeLanguages.CropLanguages;
-                dss.PestLanguages = eppoCodeLanguages.PestLanguages;
-
-                if (string.IsNullOrEmpty(dss.DssTaskStatusDto.Id)) continue;
-                var jobDetail = monitoringApi.JobDetails(dss.DssTaskStatusDto.Id);
-                if (jobDetail != null)
-                {
-                    dss.DssTaskStatusDto = CreateDssStatusFromJobDetail(dss.Id, dss.DssTaskStatusDto.Id, jobDetail);
-                }
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(string.Format("Error in BLL - AddExtraInformationToDss. {0}", ex.Message), ex);
+                throw ex;
             }
         }
 
