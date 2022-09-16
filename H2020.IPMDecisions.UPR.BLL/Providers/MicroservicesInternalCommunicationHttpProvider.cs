@@ -422,14 +422,17 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
             try
             {
                 var language = Thread.CurrentThread.CurrentCulture.Name;
-                var cacheKey = string.Format("listOfDss_{0}_{1}_{2}_{3}", cropCodes.ToUpper(), language.ToUpper(), executionType.ToUpper(), country.ToUpper());
+                var platformValidated = bool.Parse(this.config["AppConfiguration:DisplayNotValidatedDss"]) ? "" : "/platform_validated/true";
+
+                var cacheKey = string.Format("listOfDss_{0}_{1}_{2}_{3}_{4}", cropCodes.ToUpper(), language.ToUpper(), executionType.ToUpper(), country.ToUpper(), platformValidated.ToUpper());
                 if (!memoryCache.TryGetValue(cacheKey, out List<DssInformation> listOfDss))
                 {
                     var dssEndPoint = config["MicroserviceInternalCommunication:DssMicroservice"];
-                    var response = await httpClient.GetAsync(string.Format("{0}rest/dss/crops/{1}?language={2}&executionType={3}", dssEndPoint, cropCodes, language, executionType.ToUpper()));
+                    var response = await httpClient.GetAsync(string.Format("{0}rest/dss/crops/{1}{2}?language={3}&executionType={4}",
+                        dssEndPoint,  platformValidated,cropCodes, language, executionType.ToUpper()));
 
                     if (!response.IsSuccessStatusCode)
-                        return null;
+                        return listOfDss;
 
                     var responseAsText = await response.Content.ReadAsStringAsync();
                     listOfDss = JsonConvert.DeserializeObject<List<DssInformation>>(responseAsText);

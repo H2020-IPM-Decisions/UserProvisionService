@@ -29,8 +29,8 @@
         "dss_format_error": "Foutbericht van DSS volgt niet IPM Decision standaard, helaas kunnen we geen verdere informatie geven",
         "dss_information": "Fout ophalen DSS informatie van de microservice",
         "dss_no_endpoint": "Eindpunt niet beschikbaar om DSS te gebruiken",
-        "json_validation_error": "A problem has occurred, the platform will try to re-run de DSS in {0} minutes",
-        "not_on_the_fly": "The DSS can not run 'on-the-fly', so this process cannot be completed.",
+        "json_validation_error": " Er is een probleem opgetreden, het platform probeert het opnieuw in {0} minutes",
+        "not_on_the_fly": " Het BOS kan niet 'on-the-fly' worden gebruikt, dit proces kan daarom niet worden voltooid.",
         "system_ready_error": "Fout gebruik van de DSS - Systeem niet gereed",
         "weather_data_error": "Fout met Weerdata - {0}"
     },
@@ -47,15 +47,15 @@
         "wrong_order_by": "Verkeerde OrderBy ingevoerd bij het verzoek"
     },
     "weather": {
-        "end_of_season": "This model is inactive since {0}. Please wait until the start of the new season or change the end date of the weather data parameters to keep using the model.",
-        "internal_error": "Weather service can't process your request. If the error persists, please contact us.",
+        "end_of_season": " Dit BOS is inactief sinds {0}. Wacht aub tot de start van het nieuwe seizoen of verander de eind data van de weerparameters om het BOS te kunnen blijven gebruiken.",
+        "internal_error": "Weerservice kan uw verzoek niet uitvoeren. Als de foutmelding zich steeds herhaalt, neem aub contact met ons op",
         "missing_service": "Weer service met ID '{0}' bestaat niet in de weer microservice.",
         "missing_weather_service": "Geen Weersgegevens of Weerstation gekoppeld aan het bedrijf",
         "next_season": "De default start datum voor gebruik weerdata is  {0}. Aub wacht tot deze datum of verander de DSS parameters om te starten met eerdere weerdata",
-        "next_season_fixed": "The model is only valid for use from {0} to {1}. Unfortunately, this is a fixed date determinated by the DSS owner and can't be changed by the user.",
+        "next_season_fixed": "Het BOS is alleen te gebruiken van {0} tot {1}. Helaas, dit is een datum die is vastgesteld door de BOS eigenaar en kan niet worden veranderd door de gebruiker.",
         "no_json_format": "Weersgegevens ontvangen in een niet-JSON formaat",
-        "service_busy": "Weather service is busy and can't process your request. The platform will try again to get the weather data in {0} minutes. If the error persists, please contact us.",
-        "start_end_date_problem": "The start date ({0}) is after the end date ({1}) on the weather data parameters. Please fix this before continuing.",
+        "service_busy": "Weerservice is bezig en kan uw verzoek niet verwerken. Het platform probeert opnieuw de weerdata op te halen over {0} minutes. Indien de fout blijft ontstaan, neem aub contact op met ons.",
+        "start_end_date_problem": "De startdatum ({0}) is later dan de einddatum ({1}) van de weerparameters. Pas de data aan voordat u verder gaat.",
         "validation_error": "Ontvangen weerdata konden niet gebruikt worden voor het IPM Decisions validatie schema. Dit kan veroorzaakt zijn omdat de geselecteerde bron van weersgegevens geen weerparameters accepteert die nodig zijn voor de DSS: {0}"
     }
 }
