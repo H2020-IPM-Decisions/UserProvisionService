@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using H2020.IPMDecisions.UPR.Core.Dtos;
@@ -24,7 +23,7 @@ namespace H2020.IPMDecisions.UPR.BLL
 
                 var dataToReturn = new AdaptationDashboardDto()
                 {
-                    DssOriginalParameters = await GenerateUserDssParameters(dss),
+                    DssOriginalParameters = await GenerateUserDssParameters(dss, displayInternalParameters: true),
                     DssOriginalResult = await CreateDetailedResultToReturn(dss, daysDataToReturn)
                 };
 
