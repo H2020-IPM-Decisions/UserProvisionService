@@ -70,7 +70,16 @@ namespace H2020.IPMDecisions.UPR.BLL
                 foreach (var userFarm in userFarms)
                 {
                     var newItem = this.mapper.Map<ReportData>(userFarm);
-                    newItem.Farm.Country = lookup.Lookup((float)userFarm.Farm.Location.Coordinate.Y, (float)userFarm.Farm.Location.X).Name.ToString();
+
+                    logger.LogInformation(string.Format("New Item: {0}", newItem));
+                    if (userFarm.Farm == null) continue;
+                    var country = lookup.Lookup((float)userFarm.Farm.Location.Coordinate.Y, (float)userFarm.Farm.Location.X).Name.ToString();
+                    if (!string.IsNullOrEmpty(country))
+                    {
+                        logger.LogInformation(string.Format("Country not found... Y: {0}, X: {1}", userFarm.Farm.Location.Coordinate.Y, userFarm.Farm.Location.Coordinate.X));
+                        newItem.Farm.Country = country;
+                    }
+
                     var listOfFieldCropPestDss = new List<CropPestDss>();
                     // How you do this in automapper!!??!! 
                     // Improve process with dictionaries to improve efficiency
