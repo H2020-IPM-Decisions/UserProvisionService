@@ -346,10 +346,9 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 // check if response is JSON, if not, generic error
                 if (!DataParseHelper.IsValidJson(responseAsText))
                 {
-                    logger.Log(LogLevel.Error, string.Format("Error running DSS: {0}. Response was: {1}. With this payload: {2}",
+                    logger.Log(LogLevel.Error, string.Format("Error running DSS: {0}. Response was: {1}",
                     responseDss.RequestMessage.RequestUri.ToString(),
-                    responseAsText,
-                    await responseDss.RequestMessage.Content.ReadAsStringAsync()));
+                    responseAsText));
 
                     CreateDssRunErrorResult(dssResult, responseAsText, DssOutputMessageTypeEnum.Error);
                     return;
@@ -358,10 +357,9 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 // ToDo. Check valid responses when DSS do not run properly
                 if (!responseDss.IsSuccessStatusCode)
                 {
-                    logger.Log(LogLevel.Error, string.Format("Error running DSS: {0}. Response was: {1}. With this payload: {2}",
+                    logger.Log(LogLevel.Error, string.Format("Error running DSS: {0}. Response was: {1}",
                     responseDss.RequestMessage.RequestUri.ToString(),
-                    responseAsText,
-                    await responseDss.RequestMessage.Content.ReadAsStringAsync()));
+                    responseAsText));
 
                     // DSS error follow schema output
                     if (!string.IsNullOrEmpty(dssOutput.Message))
@@ -411,9 +409,8 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             }
             catch (Exception ex)
             {
-                logger.Log(LogLevel.Error, string.Format("Error doing running this DSS: {0} with this payload: {1}. Response was: {2}",
+                logger.Log(LogLevel.Error, string.Format("Error running this DSS: {0}. Response was: {1}",
                     responseDss.RequestMessage.RequestUri.ToString(),
-                    await responseDss.RequestMessage.Content.ReadAsStringAsync(),
                     await responseDss.Content.ReadAsStringAsync()));
                 dssResult.ResultMessageType = (int)DssOutputMessageTypeEnum.Error;
                 CreateDssRunErrorResult(dssResult, ex.Message, DssOutputMessageTypeEnum.Error);
