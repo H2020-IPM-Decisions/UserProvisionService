@@ -85,6 +85,7 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
             CreateMap<OutputChartInfo, DssParameterChartInformation>();
 
             CreateMap<DssInformation, FieldDssResultDto>()
+                .ForMember(dest => dest.DssName, opt => opt.MapFrom(src => src.Name))
                 .ForMember(dest => dest.DssSource, opt => opt.MapFrom(src =>
                             string.Format("{0}, {1}",
                                 src.DssOrganization.Name,
@@ -92,6 +93,7 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
                 .ForMember(dest => dest.Id, opt => opt.Ignore());
 
             CreateMap<DssModelInformation, FieldDssResultDto>()
+                .ForMember(dest => dest.DssModelName, opt => opt.MapFrom(src => src.Name))
                 .ForMember(dest => dest.DssDescription, opt => opt.MapFrom(src => src.Description))
                 .ForMember(dest => dest.DssPurpose, opt => opt.MapFrom(src => src.Purpose))
                 .ForMember(dest => dest.ValidatedSpatialCountries, opt => opt.MapFrom(src => src.ValidSpatial.Countries))
