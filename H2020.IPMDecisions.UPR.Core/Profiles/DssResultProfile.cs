@@ -100,11 +100,13 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
                 .ForMember(dest => dest.Id, opt => opt.Ignore());
 
             CreateMap<DssModelInformation, CropPestDssDto>()
+               .ForMember(dest => dest.DssModelName, opt => opt.MapFrom(src => src.Name))
                .ForMember(dest => dest.DssPurpose, opt => opt.MapFrom(src => src.Purpose))
                .ForMember(dest => dest.ValidatedSpatialCountries, opt => opt.MapFrom(src => src.ValidSpatial.Countries))
                .ForMember(dest => dest.Id, opt => opt.Ignore());
 
             CreateMap<DssModelInformation, FieldDssResultDetailedDto>()
+               .ForMember(dest => dest.DssModelName, opt => opt.MapFrom(src => src.Name))
                .ForMember(dest => dest.DssTypeOfDecision, opt => opt.MapFrom(src => src.TypeOfDecision))
                .ForMember(dest => dest.DssTypeOfOutput, opt => opt.MapFrom(src => src.TypeOfOutput))
                .ForMember(dest => dest.DssDescription, opt => opt.MapFrom(src => src.Description))
