@@ -63,14 +63,20 @@ namespace H2020.IPMDecisions.UPR.BLL
                 var userFarms = await this.dataService
                     .UserFarms
                     .GetReportDataAsync();
-
                 // Creating a ReverseLookup object is expensive, so it's worth keeping it as a singleton.
                 var lookup = new ReverseLookup();
                 var dataToReturn = new List<ReportData>();
                 foreach (var userFarm in userFarms)
                 {
                     var newItem = this.mapper.Map<ReportData>(userFarm);
-                    newItem.Farm.Country = lookup.Lookup((float)userFarm.Farm.Location.Coordinate.Y, (float)userFarm.Farm.Location.X).Name.ToString();
+                    if (userFarm.Farm == null) continue;
+
+                    var region = lookup.Lookup((float)userFarm.Farm.Location.Coordinate.Y, (float)userFarm.Farm.Location.X);
+                    if (region != null)
+                        newItem.Farm.Country = region.Name.ToString();
+                    else
+                        logger.LogInformation(string.Format("Country not found... Y: {0}, X: {1}", userFarm.Farm.Location.Coordinate.Y, userFarm.Farm.Location.Coordinate.X));
+
                     var listOfFieldCropPestDss = new List<CropPestDss>();
                     // How you do this in automapper!!??!! 
                     // Improve process with dictionaries to improve efficiency

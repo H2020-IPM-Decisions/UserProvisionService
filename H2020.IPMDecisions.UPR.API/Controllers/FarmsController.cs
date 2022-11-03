@@ -21,7 +21,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
 {
     /// <summary>
     /// Use these endpoints to manage the farms associated to a user.
-    /// <para>The user will be identified using the UserId on the authentification JWT.</para>
+    /// <para>The user will be identified using the UserId on the authentication JWT.</para>
     /// </summary>
     [ApiController]
     [Route("api/farms")]

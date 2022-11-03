@@ -13,7 +13,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
 {
     /// <summary>
     /// These end points allows administrators to manage default values used by the system.
-    /// <para>The user will be identified using the "Admin" claim on the authentification JWT.</para>
+    /// <para>The user will be identified using the "Admin" claim on the authentication JWT.</para>
     /// </summary>
     [ApiController]
     [Route("api/admin")]
@@ -31,7 +31,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         /// <summary>
         /// Use this request to get the different default variables
         /// </summary>
-        /// <remarks>The user will be identified using the "Admin" claim on the authentification JWT.
+        /// <remarks>The user will be identified using the "Admin" claim on the authentication JWT.
         /// </remarks>
         [ProducesResponseType(typeof(IEnumerable<AdminVariableDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -52,7 +52,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         /// <summary>
         /// Use this request to update a default admin variable
         /// </summary>
-        /// <remarks>The user will be identified using the "Admin" claim on the authentification JWT.
+        /// <remarks>The user will be identified using the "Admin" claim on the authentication JWT.
         /// </remarks>
         [Consumes(MediaTypeNames.Application.Json)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]

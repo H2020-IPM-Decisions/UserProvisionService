@@ -14,7 +14,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
 {
     /// <summary>
     /// These end points allows to manage the results of a DSS.
-    /// <para>The user will be identified using the UserId on the authentification JWT.</para>
+    /// <para>The user will be identified using the UserId on the authentication JWT.</para>
     /// </summary>
     [Obsolete]
     [ApiController]
@@ -33,7 +33,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         /// <summary>
         /// Use this request to get the result the latest result related to a Field Crop Pest DSS
         /// </summary>
-        /// <remarks>The user will be identified using the UserId on the authentification JWT.
+        /// <remarks>The user will be identified using the UserId on the authentication JWT.
         /// </remarks>
         [ProducesResponseType(typeof(FieldDssResultDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -57,7 +57,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         /// <summary>
         /// Use this request to save the result of a DSS
         /// </summary>
-        /// <remarks>The user will be identified using the UserId on the authentification JWT.
+        /// <remarks>The user will be identified using the UserId on the authentication JWT.
         /// <para>The DSS must belong to the user</para>
         /// </remarks>
         [Consumes(MediaTypeNames.Application.Json)]

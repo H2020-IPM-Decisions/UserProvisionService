@@ -24,14 +24,13 @@ namespace H2020.IPMDecisions.UPR.BLL
 
                 var dssList = internalCommunicationProvider.GetAllListOfDssFilteredByCropsFromDssMicroservice(dssListFilterDto.CropCodes, dssListFilterDto.ExecutionType, dssListFilterDto.Country);
                 var weatherParameters = internalCommunicationProvider.GetWeatherParametersAvailableByLocation(dssListFilterDto.LocationLatitude, dssListFilterDto.LocationLongitude);
-                var eppoCodesData = this.dataService.EppoCodes.GetEppoCodesAsync();
+                var eppoCodesData = await this.dataService.EppoCodes.GetEppoCodesAsync();
 
                 var dssListResult = await dssList;
-                if (dssListResult.Count() == 0) return GenericResponseBuilder.Success<IEnumerable<DssInformation>>(dssListResult);
+                if (dssListResult == null || dssListResult.Count() == 0) return GenericResponseBuilder.Success<IEnumerable<DssInformation>>(dssListResult);
                 var weatherParametersResult = await weatherParameters;
-                
+
                 var weatherParametersAsList = weatherParametersResult.Select(wx => wx);
-                var eppoCodesResult = await eppoCodesData;
                 var listModelsToDelete = new List<DssModelInformation>();
                 foreach (DssModelInformation model in dssListResult.SelectMany(d => d.DssModelInformation))
                 {
@@ -50,7 +49,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                     if (model.Input != null && model.Input.WeatherParameters != null)
                         AreAllWeatherParametersAvailable(weatherParametersAsList, model);
 
-                    DistinctEppoCodes(eppoCodesResult, model);
+                    DistinctEppoCodes(eppoCodesData, model);
                 }
 
                 foreach (var modelToDelete in listModelsToDelete)
@@ -71,6 +70,7 @@ namespace H2020.IPMDecisions.UPR.BLL
 
         private static void DistinctEppoCodes(List<EppoCode> eppoCodesResult, DssModelInformation model)
         {
+            if (eppoCodesResult is null) return;
             if (model.Crops != null)
             {
                 var cropEppoCodesToRemove = new List<string>();

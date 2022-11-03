@@ -1,9 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
-    <Version>1.14.6.0</Version>
-    <AssemblyVersion>1.14.6.0</AssemblyVersion>
-    <FileVersion>1.14.6.0</FileVersion>
+    <Version>1.15.5.4</Version>
+    <AssemblyVersion>1.15.5.4</AssemblyVersion>
+    <FileVersion>1.15.5.4</FileVersion>
     <Authors>ADAS Modelling and Informatics Team</Authors>
     <Company>RSK ADAS Ltd</Company>
     <Product>H2020 IPM Decisions User Provision Service</Product>

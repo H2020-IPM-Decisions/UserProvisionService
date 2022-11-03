@@ -396,7 +396,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
                 if (!memoryCache.TryGetValue(cacheKey, out List<int> weatherResponse))
                 {
                     var wxEndPoint = config["MicroserviceInternalCommunication:WeatherMicroservice"];
-                    var url = string.Format("{0}rest/weatherparameter/location/point?latitude={1}&longitude={2}&includeFallbackParams=true&includeCalculatableParams=true",
+                    var url = string.Format("{0}rest/weatherparameter/location/point?latitude={1}&longitude={2}&tolerance=1000&includeFallbackParams=true&includeCalculatableParams=true",
                         wxEndPoint,
                         latitude.ToString("G", CultureInfo.InvariantCulture),
                         longitude.ToString("G", CultureInfo.InvariantCulture));
@@ -422,14 +422,17 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
             try
             {
                 var language = Thread.CurrentThread.CurrentCulture.Name;
-                var cacheKey = string.Format("listOfDss_{0}_{1}_{2}_{3}", cropCodes.ToUpper(), language.ToUpper(), executionType.ToUpper(), country.ToUpper());
+                var platformValidated = bool.Parse(this.config["AppConfiguration:DisplayNotValidatedDss"]) ? "" : "/platform_validated/true";
+
+                var cacheKey = string.Format("listOfDss_{0}_{1}_{2}_{3}_{4}", cropCodes.ToUpper(), language.ToUpper(), executionType.ToUpper(), country.ToUpper(), platformValidated.ToUpper());
                 if (!memoryCache.TryGetValue(cacheKey, out List<DssInformation> listOfDss))
                 {
                     var dssEndPoint = config["MicroserviceInternalCommunication:DssMicroservice"];
-                    var response = await httpClient.GetAsync(string.Format("{0}rest/dss/crops/{1}?language={2}&executionType={3}", dssEndPoint, cropCodes, language, executionType.ToUpper()));
+                    var response = await httpClient.GetAsync(string.Format("{0}rest/dss/crops/{1}{2}?language={3}&executionType={4}",
+                        dssEndPoint, cropCodes, platformValidated, language, executionType.ToUpper()));
 
                     if (!response.IsSuccessStatusCode)
-                        return null;
+                        return listOfDss;
 
                     var responseAsText = await response.Content.ReadAsStringAsync();
                     listOfDss = JsonConvert.DeserializeObject<List<DssInformation>>(responseAsText);

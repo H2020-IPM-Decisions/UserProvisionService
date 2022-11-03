@@ -50,10 +50,10 @@ namespace H2020.IPMDecisions.UPR.BLL
                 if (userId != dssUserId) return GenericResponseBuilder.NotFound<FieldCropPestDssDto>();
 
                 // Validate DSS parameters on server side
-                var validationErrormessages = await ValidateNewDssParameters(dss.CropPestDss, fieldCropPestDssForUpdateDto.DssParameters);
-                if (validationErrormessages.Count > 0)
+                var validationErrorMessages = await ValidateNewDssParameters(dss.CropPestDss, fieldCropPestDssForUpdateDto.DssParameters);
+                if (validationErrorMessages.Count > 0)
                 {
-                    var errorMessageToReturn = string.Join(" ", validationErrormessages);
+                    var errorMessageToReturn = string.Join(" ", validationErrorMessages);
                     return GenericResponseBuilder.NoSuccess(errorMessageToReturn);
                 }
 
@@ -77,16 +77,18 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
         }
 
-        public async Task<GenericResponse<IEnumerable<FieldDssResultDto>>> GetAllDssResults(Guid userId, bool outOfSeason = false)
+        public async Task<GenericResponse<IEnumerable<FieldDssResultDto>>> GetAllDssResults(Guid userId, bool? displayOutOfSeason)
         {
             try
             {
                 var dssResults = await this.dataService.DssResult.GetAllDssResults(userId);
+                if (dssResults == null) { return GenericResponseBuilder.Success<IEnumerable<FieldDssResultDto>>(new List<FieldDssResultDto>()); }
                 var dssResultsToReturn = this.mapper.Map<IEnumerable<FieldDssResultDto>>(dssResults);
 
                 if (dssResultsToReturn != null && dssResultsToReturn.Count() != 0)
                 {
-                    await AddExtraInformationToDss(dssResultsToReturn, outOfSeason);
+                    bool newDisplayOutOfSeason = displayOutOfSeason.HasValue ? displayOutOfSeason.Value : bool.Parse(this.config["AppConfiguration:DisplayOutOfSeasonDss"]);
+                    await AddExtraInformationToDss(dssResultsToReturn, newDisplayOutOfSeason);
                 }
                 return GenericResponseBuilder.Success<IEnumerable<FieldDssResultDto>>(dssResultsToReturn);
             }
@@ -102,9 +104,9 @@ namespace H2020.IPMDecisions.UPR.BLL
         {
             try
             {
-                IEnumerable<LinkDssDto> dataToRetun = new List<LinkDssDto>();
+                IEnumerable<LinkDssDto> dataToReturn = new List<LinkDssDto>();
                 var farmsFromUser = await this.dataService.Farms.FindAllByConditionAsync(f => f.UserFarms.Any(uf => uf.UserId == userId & (uf.Authorised)));
-                if (farmsFromUser.Count() == 0) return GenericResponseBuilder.Success<IEnumerable<LinkDssDto>>(dataToRetun);
+                if (farmsFromUser.Count() == 0) return GenericResponseBuilder.Success<IEnumerable<LinkDssDto>>(dataToReturn);
 
                 var farmGeoJson = CreateFarmLocationGeoJson(farmsFromUser);
                 var listDssOnLocation = await this.internalCommunicationProvider.GetListOfDssByLocationFromDssMicroservice(farmGeoJson, "LINK");
@@ -120,17 +122,17 @@ namespace H2020.IPMDecisions.UPR.BLL
                     .Where(linkDssFiltered => linkDssFiltered.DssModelInformation.Execution.Type.ToLower() == "link"
                         & linkDssFiltered.DssModelInformation.Crops.Any(c => farmCrops.Contains(c)))
                     .ToList();
-                if (linkDssOnLocation.Count() == 0) return GenericResponseBuilder.Success<IEnumerable<LinkDssDto>>(dataToRetun);
+                if (linkDssOnLocation.Count() == 0) return GenericResponseBuilder.Success<IEnumerable<LinkDssDto>>(dataToReturn);
 
-                dataToRetun = this.mapper.Map<IEnumerable<LinkDssDto>>(linkDssOnLocation);
+                dataToReturn = this.mapper.Map<IEnumerable<LinkDssDto>>(linkDssOnLocation);
                 var eppoCodesData = await this.dataService.EppoCodes.GetEppoCodesAsync();
-                foreach (var dss in dataToRetun)
+                foreach (var dss in dataToReturn)
                 {
                     var eppoCodeLanguages = EppoCodesHelper.GetCropPestEppoCodesNames(eppoCodesData, dss.CropEppoCode, dss.PestEppoCode);
                     dss.CropLanguages = eppoCodeLanguages.CropLanguages;
                     dss.PestLanguages = eppoCodeLanguages.PestLanguages;
                 }
-                return GenericResponseBuilder.Success<IEnumerable<LinkDssDto>>(dataToRetun);
+                return GenericResponseBuilder.Success<IEnumerable<LinkDssDto>>(dataToReturn);
             }
             catch (Exception ex)
             {
@@ -140,7 +142,7 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
         }
 
-        public async Task<GenericResponse<JObject>> GetFieldCropPestDssParametersById(Guid id, Guid userId, bool displayInternalParameters = false)
+        public async Task<GenericResponse<JObject>> GetFieldCropPestDssParametersById(Guid id, Guid userId, bool? displayInternalParameters)
         {
             try
             {
@@ -150,8 +152,9 @@ namespace H2020.IPMDecisions.UPR.BLL
                 var dssUserId = dss.FieldCropPest.FieldCrop.Field.Farm.UserFarms.FirstOrDefault().UserId;
                 if (userId != dssUserId) return GenericResponseBuilder.NotFound<JObject>();
 
-                var dataToRetun = await GenerateUserDssParameters(dss, displayInternalParameters);
-                return GenericResponseBuilder.Success<JObject>(dataToRetun);
+                bool newDisplayInternalParameters = displayInternalParameters.HasValue ? displayInternalParameters.Value : bool.Parse(this.config["AppConfiguration:DisplayInternalParameters"]);
+                var dataToReturn = await GenerateUserDssParameters(dss, newDisplayInternalParameters);
+                return GenericResponseBuilder.Success<JObject>(dataToReturn);
             }
             catch (Exception ex)
             {
@@ -175,8 +178,8 @@ namespace H2020.IPMDecisions.UPR.BLL
                 // ToDo: Return only JSON or get new default parameters and overwrite?
                 // dss.DssParameters = dssParameters;
                 // await this.dataService.CompleteAsync();
-                JObject dataToRetun = JObject.Parse(dssParameters.ToString());
-                return GenericResponseBuilder.Success<JObject>(dataToRetun);
+                JObject dataToReturn = JObject.Parse(dssParameters.ToString());
+                return GenericResponseBuilder.Success<JObject>(dataToReturn);
             }
             catch (Exception ex)
             {
@@ -188,54 +191,62 @@ namespace H2020.IPMDecisions.UPR.BLL
 
         private async Task AddExtraInformationToDss(IEnumerable<FieldDssResultDto> dssResultsToReturn, bool outOfSeason = false)
         {
-            var listOfDss = await this.internalCommunicationProvider.GetAllListOfDssFromDssMicroservice();
-            var eppoCodesData = await this.dataService.EppoCodes.GetEppoCodesAsync();
-            var monitoringApi = JobStorage.Current.GetMonitoringApi();
-
-            foreach (var dss in dssResultsToReturn)
+            try
             {
-                if (listOfDss != null && listOfDss.Count() != 0)
+                var listOfDss = await this.internalCommunicationProvider.GetAllListOfDssFromDssMicroservice();
+                var eppoCodesData = await this.dataService.EppoCodes.GetEppoCodesAsync();
+                var monitoringApi = JobStorage.Current.GetMonitoringApi();
+
+                foreach (var dss in dssResultsToReturn)
                 {
-                    var dssOnListMatchDatabaseRecord = listOfDss
-                        .Where(d => d.Id == dss.DssId)
-                        .FirstOrDefault();
-                    if (dssOnListMatchDatabaseRecord == null) continue;
-
-                    var dssModelMatchDatabaseRecord = dssOnListMatchDatabaseRecord
-                      .DssModelInformation
-                      .Where(dm => dm.Id == dss.DssModelId)
-                       .FirstOrDefault();
-
-                    if (dssModelMatchDatabaseRecord == null)
+                    if (listOfDss != null && listOfDss.Count() != 0)
                     {
-                        dss.DssDescription = this.jsonStringLocalizer["dss.model_missing_metadata",
-                            dss.DssId,
-                            dss.DssVersion,
-                            dss.DssModelId,
-                            dss.DssModelVersion].ToString();
-                    }
-                    else
-                    {
-                        this.mapper.Map(dssOnListMatchDatabaseRecord, dss);
-                        this.mapper.Map(dssModelMatchDatabaseRecord, dss);
-                        if (dssModelMatchDatabaseRecord.Output != null)
+                        var dssOnListMatchDatabaseRecord = listOfDss
+                            .Where(d => d.Id == dss.DssId)
+                            .FirstOrDefault();
+                        if (dssOnListMatchDatabaseRecord == null) continue;
+
+                        var dssModelMatchDatabaseRecord = dssOnListMatchDatabaseRecord
+                          .DssModelInformation
+                          .Where(dm => dm.Id == dss.DssModelId)
+                           .FirstOrDefault();
+
+                        if (dssModelMatchDatabaseRecord == null)
                         {
-                            AddWarningMessages(dss, dssModelMatchDatabaseRecord);
+                            dss.DssDescription = this.jsonStringLocalizer["dss.model_missing_metadata",
+                                dss.DssId,
+                                dss.DssVersion,
+                                dss.DssModelId,
+                                dss.DssModelVersion].ToString();
                         }
-                        if (!outOfSeason) CheckIfDssOutOfSeason(dss);
+                        else
+                        {
+                            this.mapper.Map(dssOnListMatchDatabaseRecord, dss);
+                            this.mapper.Map(dssModelMatchDatabaseRecord, dss);
+                            if (dssModelMatchDatabaseRecord.Output != null)
+                            {
+                                AddWarningMessages(dss, dssModelMatchDatabaseRecord);
+                            }
+                            if (!outOfSeason) CheckIfDssOutOfSeason(dss);
+                        }
+                    }
+
+                    var eppoCodeLanguages = EppoCodesHelper.GetCropPestEppoCodesNames(eppoCodesData, dss.CropEppoCode, dss.PestEppoCode);
+                    dss.CropLanguages = eppoCodeLanguages.CropLanguages;
+                    dss.PestLanguages = eppoCodeLanguages.PestLanguages;
+
+                    if (string.IsNullOrEmpty(dss.DssTaskStatusDto.Id)) continue;
+                    var jobDetail = monitoringApi.JobDetails(dss.DssTaskStatusDto.Id);
+                    if (jobDetail != null)
+                    {
+                        dss.DssTaskStatusDto = CreateDssStatusFromJobDetail(dss.Id, dss.DssTaskStatusDto.Id, jobDetail);
                     }
                 }
-
-                var eppoCodeLanguages = EppoCodesHelper.GetCropPestEppoCodesNames(eppoCodesData, dss.CropEppoCode, dss.PestEppoCode);
-                dss.CropLanguages = eppoCodeLanguages.CropLanguages;
-                dss.PestLanguages = eppoCodeLanguages.PestLanguages;
-
-                if (string.IsNullOrEmpty(dss.DssTaskStatusDto.Id)) continue;
-                var jobDetail = monitoringApi.JobDetails(dss.DssTaskStatusDto.Id);
-                if (jobDetail != null)
-                {
-                    dss.DssTaskStatusDto = CreateDssStatusFromJobDetail(dss.Id, dss.DssTaskStatusDto.Id, jobDetail);
-                }
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(string.Format("Error in BLL - AddExtraInformationToDss. {0}", ex.Message), ex);
+                throw ex;
             }
         }
 
@@ -482,9 +493,9 @@ namespace H2020.IPMDecisions.UPR.BLL
                                        .GetDssModelInputSchemaMicroservice(cropPestDss.DssId, cropPestDss.DssModelId);
                 DssDataHelper.RemoveNotRequiredInputSchemaProperties(dssInputUISchema);
                 JObject inputAsJsonObject = JObject.Parse(newDssParameters.ToString());
-                IList<string> validationErrormessages;
-                var isJsonObjectvalid = inputAsJsonObject.IsValid(dssInputUISchema, out validationErrormessages);
-                return validationErrormessages;
+                IList<string> validationErrorMessages;
+                var isJsonObjectValid = inputAsJsonObject.IsValid(dssInputUISchema, out validationErrorMessages);
+                return validationErrorMessages;
             }
             catch (Exception ex)
             {
