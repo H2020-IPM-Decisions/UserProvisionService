@@ -1,0 +1,61 @@
+{
+    "data_share": {
+        "back_to_pending": "You can not change a request back to pending.",
+        "declined_request": "The user has declined access to the data.",
+        "email_error": "Request created but error sending email.",
+        "existing_request": "You have already requested data from this user.",
+        "farms_ownership_error": "Farms do not belong to the user.",
+        "no_farms_error": "User does not have any farms in the system.",
+        "not_existing_request": "Request do not exist in the system or already accepted/declined.",
+        "own_request_error": "User can not request its own data.",
+        "pending_change_error": "You can not update a pending request. Please use the 'reply' endpoint to accept/decline request.",
+        "request_error": "Request does not belong to the user.",
+        "user_not_registered": "User is not registered in the system.",
+        "user_requesting_no_profile": "User requesting data share does not have a profile in the system.",
+        "user_without_profile": "User does not have a profile in the system.",
+        "wrong_method": "The method is for accepting or declining requests."
+    },
+    "dss": {
+        "dss_missing_metadata": "DSS with ID '{0}' and version '{1}' do not exist on the DSS microservice.",
+        "duplicated": "Duplicated combination of Crop ({0}), Pest ({1}), DSS ({2}), Model ({3}) & DSS Model version ({4}) on a field.",
+        "existing_combination": "Field already has crop ({0}), pest ({1}), and DSS ({2}) combination.",
+        "field_eppo_code": "Field with ID {0} only accepts '{1}' crop EPPO code",
+        "model_missing_metadata": "The DSS with ID '{0}' and version '{1}', do not have any model with ID '{2}' and version '{3}' on the DSS microservice.",
+        "warning_header": "One or more crop, pest & DSS combinations already exist. Please check the response body for more information.",
+        "warnings": "Please fix the following error(s) before saving:"
+    },
+    "dss_process": {
+        "dss_error": "Error running the DSS - {0}",
+        "dss_format_error": "Message error from DSS do not follow IPM Decisions standards, so, unfortunately, we can not provide more information.",
+        "dss_information": "Error getting DSS information from microservice.",
+        "dss_no_endpoint": "Endpoint not available to run DSS.",
+        "json_validation_error": "A problem has occurred, the platform will try to re-run de DSS in {0} minutes",
+        "not_on_the_fly": "The DSS can not run 'on-the-fly', so this process cannot be completed.",
+        "system_ready_error": "Error running the DSS - System not ready.",
+        "weather_data_error": "Error with Weather Data - {0}"
+    },
+    "farm": {
+        "owner_error": "You are not the owner of this farm, so the process can not be completed."
+    },
+    "shared": {
+        "missing_default_forecast": "Database do not contain default weather forecast value.",
+        "missing_default_historical": "Database do not contain default weather historical value.",
+        "missing_payload": "Data missing on payload.",
+        "missing_user_profile": "Please create a `User Profile` first.",
+        "wrong_fields": "Wrong fields entered or missing 'id' field on the request.",
+        "wrong_media_type": "Wrong media type on the request.",
+        "wrong_order_by": "Wrong OrderBy entered on the request."
+    },
+    "weather": {        
+        "end_of_season": "This model is inactive since {0}. Please wait until the start of the new season or change the end date of the weather data parameters to keep using the model.",
+        "internal_error": "Weather service can't process your request. If the error persists, please contact us.",
+        "missing_service": "Weather service with ID '{0}' do not exist on the weather microservice.",
+        "missing_weather_service": "No Weather Data Sources or Weather Stations associated with the farm",
+        "next_season": "DSS default start date to get and use weather data is {0}. Please wait until this date or change the DSS parameters to start using earlier weather data.",
+        "next_season_fixed": "The model is only valid for use from {0} to {1}. Unfortunately, this is a fixed date determined by the DSS owner and can't be changed by the user.",
+        "no_json_format": "Weather data received in not in a JSON format.",
+        "service_busy": "Weather service is busy and can't process your request. The platform will try again to get the weather data in {0} minutes. If the error persists, please contact us.",
+        "start_end_date_problem": "The start date ({0}) is after the end date ({1}) on the weather data parameters. Please fix this before continuing.",
+        "validation_error": "Weather data received failed the IPM Decisions Weather validation schema. This might be because the weather data source selected does not accept weather parameters required by the DSS: {0}"
+    }
+}

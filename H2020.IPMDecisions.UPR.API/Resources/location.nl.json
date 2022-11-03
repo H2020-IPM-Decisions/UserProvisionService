@@ -1,0 +1,61 @@
+{
+    "data_share": {
+        "back_to_pending": "U kunt een verzoek niet veranderen naar lopend",
+        "declined_request": "De gebruiker heeft toegang tot data geweigerd",
+        "email_error": "Verzoek gemaakt maar foutmelding bij verzenden email",
+        "existing_request": "U heeft al data gevraagd voor deze gebruiker",
+        "farms_ownership_error": "Bedrijven horen niet bij de gebruiker",
+        "no_farms_error": "Gebruiker heeft geen bedrijf in het systeem",
+        "not_existing_request": "Verzoek bestaat niet in het systeem of is reeds geaccepteerd/geweigerd",
+        "own_request_error": "Gebruiker kan niet eigen data vragen",
+        "pending_change_error": "U kunt lopen verzoek niet updaten. Gebruik aub het 'antwoord' eindpunt om verzoek te accepteren/weigeren",
+        "request_error": "Vraag hoort niet bij de gebruiker",
+        "user_not_registered": "Gebruiker is niet geregistreerd in het systeem",
+        "user_requesting_no_profile": "Gebruiker die vraagt data te delen heeft geen profiel in het systeem",
+        "user_without_profile": "Gebruiker heeft geen profiel in het systeem",
+        "wrong_method": "De methode is voor acceptatie of weigeren van verzoeken"
+    },
+    "dss": {
+        "dss_missing_metadata": "DSS met ID '{0}' en versie '{1}' bestaan niet in de DSS microservice.",
+        "duplicated": "Dubbele combinatie van Gewas ({0}), Ziekte ({1}), DSS ({2}), Model ({3}) & DSS Model versie ({4}) op een perceel.",
+        "existing_combination": "Perceel heeft al gewas ({0}), ziekte ({1}), and DSS ({2}) combinatie.",
+        "field_eppo_code": "Perceel met ID '(0) accepteert alleen '(1) 'EPPO gewascode",
+        "model_missing_metadata": "De DSS met ID '{0}' en versie '{1}', hebben geen enkel model met ID '{2}' en versie '{3}' in de DSS microservice.",
+        "warning_header": "Een of meer gewas, pest & DSS combinaties bestaan al. Controleer 'response body' voor meer informatie",
+        "warnings": "Corrigeer de volgende fout(en) alvorens op te slaan"
+    },
+    "dss_process": {
+        "dss_error": "Fout gebruik  DSS - {0}",
+        "dss_format_error": "Foutbericht van DSS volgt niet IPM Decision standaard, helaas kunnen we geen verdere informatie geven",
+        "dss_information": "Fout ophalen DSS informatie van de microservice",
+        "dss_no_endpoint": "Eindpunt niet beschikbaar om DSS te gebruiken",
+        "json_validation_error": " Er is een probleem opgetreden, het platform probeert het opnieuw in {0} minutes",
+        "not_on_the_fly": " Het BOS kan niet 'on-the-fly' worden gebruikt, dit proces kan daarom niet worden voltooid.",
+        "system_ready_error": "Fout gebruik van de DSS - Systeem niet gereed",
+        "weather_data_error": "Fout met Weerdata - {0}"
+    },
+    "farm": {
+        "owner_error": "U bent niet de eigenaar van dit bedrijf, de bewerking kan niet worden uitgevoerd"
+    },
+    "shared": {
+        "missing_default_forecast": "Database bevat geen default waarde voor de weersvoorspelling",
+        "missing_default_historical": "Database bevat geen default voor historische weersgegevens",
+        "missing_payload": "Gegens ontbreken op 'payload'",
+        "missing_user_profile": "Creëer eerst een Gebruikersprofiel",
+        "wrong_fields": "Verkeerde percelen ingevoerd of ontbrekend 'id' voor het gevraagde perceel",
+        "wrong_media_type": "Verkeerde media type voor dit verzoek",
+        "wrong_order_by": "Verkeerde OrderBy ingevoerd bij het verzoek"
+    },
+    "weather": {
+        "end_of_season": " Dit BOS is inactief sinds {0}. Wacht aub tot de start van het nieuwe seizoen of verander de eind data van de weerparameters om het BOS te kunnen blijven gebruiken.",
+        "internal_error": "Weerservice kan uw verzoek niet uitvoeren. Als de foutmelding zich steeds herhaalt, neem aub contact met ons op",
+        "missing_service": "Weer service met ID '{0}' bestaat niet in de weer microservice.",
+        "missing_weather_service": "Geen Weersgegevens of Weerstation gekoppeld aan het bedrijf",
+        "next_season": "De default start datum voor gebruik weerdata is  {0}. Aub wacht tot deze datum of verander de DSS parameters om te starten met eerdere weerdata",
+        "next_season_fixed": "Het BOS is alleen te gebruiken van {0} tot {1}. Helaas, dit is een datum die is vastgesteld door de BOS eigenaar en kan niet worden veranderd door de gebruiker.",
+        "no_json_format": "Weersgegevens ontvangen in een niet-JSON formaat",
+        "service_busy": "Weerservice is bezig en kan uw verzoek niet verwerken. Het platform probeert opnieuw de weerdata op te halen over {0} minutes. Indien de fout blijft ontstaan, neem aub contact op met ons.",
+        "start_end_date_problem": "De startdatum ({0}) is later dan de einddatum ({1}) van de weerparameters. Pas de data aan voordat u verder gaat.",
+        "validation_error": "Ontvangen weerdata konden niet gebruikt worden voor het IPM Decisions validatie schema. Dit kan veroorzaakt zijn omdat de geselecteerde bron van weersgegevens geen weerparameters accepteert die nodig zijn voor de DSS: {0}"
+    }
+}

@@ -1,8 +1,8 @@
-version: '3.4'
+version: '3.8'
 
 services:
   upr.db:
-    image: postgres:12.2
+    image: postgis:12-2.5-alpine
     container_name: upr-postgres
     environment:
       # change default username/password 
@@ -17,8 +17,9 @@ services:
     volumes: 
       - postgres_upr_volume:/var/lib/postgresql/data
       # Change username and password before loading the data
-      - ./UPR_Postgresql_Init_Script/1.createUser.sql :/docker-entrypoint-initdb.d/1.createUser.sql
-      - ./UPR_Postgresql_Init_Script/2.dbBackup.sql :/docker-entrypoint-initdb.d/2.dbBackup.sql
+      - ./UPR_Postgresql_Init_Script/1.createUser.sql:/docker-entrypoint-initdb.d/1.createUser.sql
+      - ./UPR_Postgresql_Init_Script/2.dbBackup.sql:/docker-entrypoint-initdb.d/2.dbBackup.sql
+      - ./UPR_Postgresql_Init_Script/3.defaultData.sql:/docker-entrypoint-initdb.d/3.defaultData.sql
     networks:
       - dockerapi-dev
   pgadmin:
@@ -52,7 +53,7 @@ services:
       - ConnectionStrings:MyPostgreSQLConnection=Host=upr.db;Port=5432;Database=H2020.IPMDecisions.UPR;Username=upr_user;Password=xxxxxx;
       - JwtSettings:SecretKey=AddYourSecretKey
       - JwtSettings:IssuerServerUrl=AddYourServer
-      - JwtSettings:ValidAudiencesUrls=https://testclient.com
+      - JwtSettings:ValidAudiences=https://testclient.com
       - AllowedHosts=*
     networks:
       - dockerapi-dev

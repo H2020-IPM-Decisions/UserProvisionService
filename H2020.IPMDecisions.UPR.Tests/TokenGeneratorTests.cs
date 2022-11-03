@@ -42,7 +42,7 @@ namespace H2020.IPMDecisions.UPR.Tests
             var tokenLifetimeMinutes = "30";
             var issuerServerUrl = configuration["JwtSettings:IssuerServerUrl"];
             var jwtSecretKey = configuration["JwtSettings:SecretKey"];
-            var audienceServerUrl = configuration["JwtSettings:ValidAudiencesUrls"];
+            var audienceServerUrl = configuration["JwtSettings:ValidAudiences"];
 
             var secretKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecretKey));
             var signingCredentials = new SigningCredentials(secretKey, SecurityAlgorithms.HmacSha256);

@@ -1,0 +1,61 @@
+{
+    "data_share": {
+        "back_to_pending": "Du kan inte ändra en begäran till väntande.",
+        "declined_request": "Användaren har nekat åtkomst till data.",
+        "email_error": "Begäran har skapats men ett fel uppstod vid epost-utskick.",
+        "existing_request": "Du har redan begärt data till den här användaren.",
+        "farms_ownership_error": "Gårdar tillhör inte användaren.",
+        "no_farms_error": "Användaren har inga gårdar i systemet.",
+        "not_existing_request": "Begäran finns inte i systemet eller har redan accepterats/avvisats.",
+        "own_request_error": "Användaren kan inte begära sina egna data.",
+        "pending_change_error": "Du kan inte uppdatera en väntande begäran. Använd  \"svara\" för att acceptera/avvisa begäran.",
+        "request_error": "Begäran tillhör inte användaren.",
+        "user_not_registered": "Användaren är inte registrerad i systemet.",
+        "user_requesting_no_profile": "Användare som begär datadelning har ingen profil i systemet.",
+        "user_without_profile": "Användaren har ingen profil i systemet.",
+        "wrong_method": "Metoden är för att acceptera eller avvisa förfrågningar."
+    },
+    "dss": {
+        "dss_missing_metadata": "DSS med ID \"{0}\" och version \"{1}\" finns inte i DSS-tjänsten.",
+        "duplicated": "Duplicerad kombination av Crop ({0}), Pest ({1}), DSS ({2}), Model ({3}) & DSS Model version ({4}) för ett fält.",
+        "existing_combination": "Fältet har redan kombinationen gröda ({0}), skadegörare ({1}) och DSS ({2}).",
+        "field_eppo_code": "Fält med ID {0} accepterar endast EPPO-kod för \"{1}\"",
+        "model_missing_metadata": "DSS med ID \"{0}\" och version \"{1}\", har ingen modell med ID \"{2}\" och version \"{3}\" i DSS-tjänsten.",
+        "warning_header": "En eller flera kombinationer av grödor, skadegörare och DSS finns redan. Mer information finns i svarstexten.",
+        "warnings": "Åtgärda följande fel innan du sparar:"
+    },
+    "dss_process": {
+        "dss_error": "Det gick inte att köra DSS - {0}",
+        "dss_format_error": "Felmeddelande från DSS följer inte IPM Decisions-standard, så tyvärr kan vi inte ge mer information.",
+        "dss_information": "Det gick inte att hämta DSS-information från tjänsten.",
+        "dss_no_endpoint": "Slutpunkten är inte tillgänglig för att köra DSS.",
+        "json_validation_error": "Ett problem har uppstått, plattformen kommer att försöka köra DSS igen om {0} minuter",
+        "not_on_the_fly": "DSS kan inte köras 'on-the-fly', så denna process kan inte slutföras",
+        "system_ready_error": "Fel vid körning av DSS - Systemet är inte klart.",
+        "weather_data_error": "Fel på väderdata - {0}"
+    },
+    "farm": {
+        "owner_error": "Du är inte ägare till denna gård, så processen kan inte slutföras."
+    },
+    "shared": {
+        "missing_default_forecast": "Databasen innehåller inte standardvärdet för väderprognoser.",
+        "missing_default_historical": "Databasen innehåller inte standardvärde för historiskt väder",
+        "missing_payload": "Data saknas på nyttolast.",
+        "missing_user_profile": "Skapa först en \"Användarprofil\".",
+        "wrong_fields": "Fel fält har angetts eller id-fält saknas i begäran.",
+        "wrong_media_type": "Fel medietyp på begäran.",
+        "wrong_order_by": "Fel OrderBy angavs vid begäran."
+    },
+    "weather": {
+        "end_of_season": "Denna modell är inaktiv sedan {0}. Vänta tills början av den nya säsongen eller ändra slutdatumet för väderdataparametrarna för att fortsätta använda modellen.",
+        "internal_error": "Vädertjänsten kan inte behandla din förfrågan. Kontakta oss om felet kvarstår.",
+        "missing_service": "Vädertjänsten med ID \"{0}\" finns inte på vädertjänsten.",
+        "missing_weather_service": "Inga väderdatakällor eller väderstationer är länkade till gården",
+        "next_season": "Förinställt startdatum för DSS för att hämta och använda väderdata är {0}. Vänta till detta datum eller ändra DSS-parametrarna för att börja använda tidigare väderdata.",
+        "next_season_fixed": "Modellen är endast giltig för användning från {0} till {1}. Tyvärr är detta ett fast datum som bestäms av DSS-ägaren och kan inte ändras av användaren.",
+        "no_json_format": "Mottagna väderdata är inte i JSON-format.",
+        "service_busy": "Vädertjänsten är upptagen och kan inte behandla din förfrågan. Plattformen kommer att försöka hämta väderdata igen om {0} minuter. Kontakta oss om felet kvarstår.",
+        "start_end_date_problem": "Startdatumet ({0}) är efter slutdatumet ({1}) på väderdataparametrarna. Vänligen rätta detta innan du fortsätter.",
+        "validation_error": "Mottagna väderdata kunde inte valideras av IPM Decisions plattformen. Detta kan bero på att den valda väderdatakällan inte accepterar väderparametrar som krävs av DSS: {0}"
+    }
+}

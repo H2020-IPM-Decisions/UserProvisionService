@@ -1,0 +1,61 @@
+{
+	"data_share": {
+		"back_to_pending": "Du kan ikke ændre en anmodning tilbage til afventende.",
+		"declined_request": "Brugeren har afvist adgang til data.",
+		"email_error": "Forespørgsel oprettet, men der opstod en fejl under afsendelse af e-mail.",
+		"existing_request": "Du har allerede anmodet om data til denne bruger.",
+		"farms_ownership_error": "Landbrug tilhører ikke brugeren.",
+		"no_farms_error": "Brugeren har intet landbrug i systemet.",
+		"not_existing_request": "Anmodningen findes ikke i systemet eller er allerede accepteret/afvist.",
+		"own_request_error": "Brugeren kan ikke anmode om sine egne data.",
+		"pending_change_error": "Du kan ikke opdatere en afventende anmodning. Brug venligst 'svar'- for at acceptere/afvise anmodning.",
+		"request_error": "Anmodningen tilhører ikke brugeren.",
+		"user_not_registered": "Brugeren er ikke registreret i systemet.",
+		"user_requesting_no_profile": "Bruger, der anmoder om datadeling, har ikke en profil i systemet.",
+		"user_without_profile": "Brugeren har ikke en profil i systemet.",
+		"wrong_method": "Metoden er til at acceptere eller afvise anmodninger."
+	},
+	"dss": {
+		"dss_missing_metadata": "DSS med ID '{0}' og version '{1}' findes ikke på DSS-mikrotjenesten.",
+		"duplicated": "Duplikeret kombination af afgrøde ({0}), skadedyr ({1}), DSS ({2}), model ({3}) og DSS-modelversion ({4}) på en mark.",
+		"existing_combination": "Marken har allerede en kombination af afgrøde ({0}), skadedyr ({1}) og DSS ({2}).",
+		"field_eppo_code": "Felt med ID {0} accepterer kun '{1}'-afgrøde-EPPO-kode",
+		"model_missing_metadata": "DSS med id '{0}' og version '{1}' har ikke nogen model med id '{2}' og version '{3}' på DSS-mikrotjenesten.",
+		"warning_header": "En eller flere kombinationer af afgrøde, skadedyr og DSS findes allerede. Se venligst svarteksten for mere information.",
+		"warnings": "Ret venligst følgende fejl, før du gemmer:"
+	},
+	"dss_process": {
+		"dss_error": "Fejl ved kørsel af DSS - {0}",
+		"dss_format_error": "Meddelelsesfejl fra DSS følger ikke IPM Decisions standarder, så vi kan desværre ikke give flere oplysninger.",
+		"dss_information": "Fejl ved hentning af DSS-oplysninger fra mikroservice.",
+		"dss_no_endpoint": "Slutpunktet er ikke tilgængeligt til at køre DSS.",
+		"json_validation_error": "En fejl er opstået, platformen prøver at kører DSS igen om {0} minutter",
+		"not_on_the_fly": "DSS kan ikke køre 'on-the-fly', så denne proces kan ikke gennemføres.",
+		"system_ready_error": "Fejl ved kørsel af DSS - Systemet er ikke klar.",
+		"weather_data_error": "Fejl med vejrdata - {0}"
+	},
+	"farm": {
+		"owner_error": "Du er ikke ejeren af dette landbrug, så processen kan ikke afsluttes."
+	},
+	"shared": {
+		"missing_default_forecast": "Databasen indeholder ikke standard vejrudsigtsværdi.",
+		"missing_default_historical": "Databasen indeholder ikke standard vejrhistorisk værdi.",
+		"missing_payload": "Data mangler på nyttelast.",
+		"missing_user_profile": "Opret venligst først en `Brugerprofil`.",
+		"wrong_fields": "Forkerte marker indtastet eller manglende 'id'-felt på anmodningen.",
+		"wrong_media_type": "Forkert medietype på anmodningen.",
+		"wrong_order_by": "Forkert OrderBy indtastet på anmodningen."
+	},
+	"weather": {
+		"end_of_season": "Denne model er inaktiv siden {0}. Vent venligst indtil en ny sæson starter eller ændr dato for vejrdata parametre for at blive ved med at bruge modellen.",
+		"internal_error": "Vejr data tjeneste kan ikke processere din anmodning. Hvis fejlen forsætter, kontakt os venligst.",
+		"missing_service": "Vejrtjeneste med ID '{0}' findes ikke på vejrmikrotjenesten.",
+		"missing_weather_service": "Ingen vejrdatakilder eller vejrstationer knyttet til landbruget",
+		"next_season": "DSS standardstartdato for at hente og bruge vejrdata er {0}. Vent venligst indtil denne dato, eller skift DSS-parametrene for at begynde at bruge tidligere vejrdata.",
+		"next_season_fixed": "Modellen kan kun bruges fra {0} til {1}. Desværre er denne fastsættelse sat af DSS-ejeren og kan ikke ændres af brugeren.",
+		"no_json_format": "Vejrdata modtaget i ikke et JSON-format.",
+		"service_busy": "Vejrtjenesten er optaget og kan ikke gennemføre din anmodning. Platformen prøver at få vejrdata igen om {0} minutter. Hvis fejlen fortsætter, kontakt os venligst.",
+		"start_end_date_problem": "Startdatoen ({0}) er efter slutdatoen ({1}) på vejr data parametre. Ændr venligst dette inden du fortsætter.",
+		"validation_error": "Modtagne vejrdata mislykkedes i IPM Decisions vejr-valideringsskemaet. Dette kan skyldes, at den valgte vejrdatakilde ikke accepterer vejrparametre, der kræves af DSS: {0}"
+	}
+}
