@@ -272,8 +272,8 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                     if (reSchedule)
                     {
                         errorMessageToReturn = this.jsonStringLocalizer["dss_process.json_validation_error", 60].ToString();
-                        var jobscheduleId = this.queueJobs.ScheduleDssOnTheFlyQueue(dss.Id, 61);
-                        dss.LastJobId = jobscheduleId;
+                        var jobScheduleId = this.queueJobs.ScheduleDssOnTheFlyQueue(dss.Id, 61);
+                        dss.LastJobId = jobScheduleId;
                     }
                     else
                     {
