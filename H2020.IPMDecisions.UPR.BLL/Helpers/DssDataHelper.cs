@@ -279,9 +279,16 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
 
             foreach (var userParameterPath in pathsListDssParameters)
             {
-                var tokenFromDssParameter = userParametersAsJsonObject.SelectToken(userParameterPath);
+                var userParameterPathForModification = userParameterPath;
+                var match = Regex.Match(userParameterPathForModification, @"\w+[[]\d+[]]");
+                var isAnArray = (match.Success) ? true : false;
+                if (isAnArray)
+                {
+                    userParameterPathForModification = userParameterPathForModification.Substring(0, userParameterPathForModification.IndexOf("["));
+                }
+                var tokenFromDssParameter = userParametersAsJsonObject.SelectToken(userParameterPathForModification);
+                var pathPropertyName = userParameterPathForModification.Split(".").LastOrDefault();
 
-                var pathPropertyName = userParameterPath.Split(".").LastOrDefault();
                 var tokensPathFromInput = pathsListDssInputSchema.Where(s => s.Contains(pathPropertyName));
                 if (tokensPathFromInput.Count() == 0)
                 {
