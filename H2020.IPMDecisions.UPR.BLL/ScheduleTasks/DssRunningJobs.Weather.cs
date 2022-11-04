@@ -96,12 +96,12 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                     if (dssInformation.Input.WeatherDataPeriodStart.FirstOrDefault().DeterminedBy.ToLower() == "fixed_date")
                     {
                         result.ResponseWeatherAsString = this.jsonStringLocalizer["weather.next_season_fixed",
-                        weatherToCall.WeatherTimeStart.ToString("dd/MM"), originalWeatherEndDate.ToString("dd/MM")].ToString();
+                            weatherToCall.WeatherTimeStart.ToString("dd/MM"), originalWeatherEndDate.ToString("dd/MM")].ToString();
                     }
                     else
                     {
                         result.ResponseWeatherAsString = this.jsonStringLocalizer["weather.next_season",
-                               weatherToCall.WeatherTimeStart.ToString("dd/MM/yyyy")].ToString();
+                            weatherToCall.WeatherTimeStart.ToString("dd/MM/yyyy")].ToString();
                     }
                     result.Continue = false;
                     result.ErrorType = DssOutputMessageTypeEnum.Warning;
@@ -109,7 +109,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 else if (weatherToCall.WeatherTimeStart > weatherToCall.WeatherTimeEnd)
                 {
                     result.ResponseWeatherAsString = this.jsonStringLocalizer["weather.start_end_date_problem",
-                                            weatherToCall.WeatherTimeStart.ToString("dd/MM/yyyy"), originalWeatherEndDate.ToString("dd/MM/yyyy")].ToString();
+                        weatherToCall.WeatherTimeStart.ToString("dd/MM/yyyy"), originalWeatherEndDate.ToString("dd/MM/yyyy")].ToString();
                     result.Continue = false;
                     result.ErrorType = DssOutputMessageTypeEnum.Warning;
                 }
