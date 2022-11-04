@@ -248,7 +248,7 @@ namespace H2020.IPMDecisions.UPR.BLL
         {
             var dssInputUISchema = await internalCommunicationProvider
                                         .GetDssModelInputSchemaMicroservice(cropPestDss.DssId, cropPestDss.DssModelId);
-            var dssParameters = "";
+            var dssParameters = "{}";
             if (dssInputUISchema != null)
             {
                 var dssModelInformation = await internalCommunicationProvider
