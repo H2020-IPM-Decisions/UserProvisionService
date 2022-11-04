@@ -196,6 +196,13 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
 
         private static void AddNewTokenToJObject(JObject inputSchemaAsJson, string userParameterPath, JToken userToken)
         {
+            // check if it is an array
+            var match = Regex.Match(userParameterPath, @"\w+[[]\d+[]]");
+            var isAnArray = (match.Success) ? true : false;
+            if (isAnArray)
+            {
+                userParameterPath = userParameterPath.Substring(0, userParameterPath.IndexOf("["));
+            }
             // check if nested path
             var pathList = userParameterPath.Split(".");
             if (pathList.Count() == 1)
@@ -228,6 +235,18 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
                         if (isLastPartOfPath)
                         {
                             var newProperty = new JProperty(nestedPropertyPath, userToken);
+                            if (isAnArray)
+                            {
+                                var arrayExists = existingToken.SelectToken(nestedPropertyPath);
+                                if (arrayExists != null)
+                                {
+                                    arrayExists.Children().LastOrDefault().AddAfterSelf(userToken);
+                                    continue;
+                                }
+                                JArray arrayObject = new JArray();
+                                arrayObject.Add(userToken);
+                                newProperty = new JProperty(nestedPropertyPath, arrayObject);
+                            }
                             if (existingToken.Children().Any())
                                 existingToken.Children().FirstOrDefault().AddAfterSelf(newProperty);
                             else
@@ -260,9 +279,16 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
 
             foreach (var userParameterPath in pathsListDssParameters)
             {
-                var tokenFromDssParameter = userParametersAsJsonObject.SelectToken(userParameterPath);
+                var userParameterPathForModification = userParameterPath;
+                var match = Regex.Match(userParameterPathForModification, @"\w+[[]\d+[]]");
+                var isAnArray = (match.Success) ? true : false;
+                if (isAnArray)
+                {
+                    userParameterPathForModification = userParameterPathForModification.Substring(0, userParameterPathForModification.IndexOf("["));
+                }
+                var tokenFromDssParameter = userParametersAsJsonObject.SelectToken(userParameterPathForModification);
+                var pathPropertyName = userParameterPathForModification.Split(".").LastOrDefault();
 
-                var pathPropertyName = userParameterPath.Split(".").LastOrDefault();
                 var tokensPathFromInput = pathsListDssInputSchema.Where(s => s.Contains(pathPropertyName));
                 if (tokensPathFromInput.Count() == 0)
                 {

@@ -153,21 +153,20 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
                 logger.LogError(string.Format("Error on ProcessObjectProperty. {0}", ex.Message));
                 return null;
             }
-
         }
 
-        private static JObject ProcessArrayProperty(KeyValuePair<string, JSchema> property, ILogger logger)
+        private static JArray ProcessArrayProperty(KeyValuePair<string, JSchema> property, ILogger logger)
         {
             try
             {
-                var jsonObject = new JObject();
-                JSchema schema = StringToJsonSchema(property.Value.ToString(), logger);
-                foreach (var item in schema.Items)
-                {
-                    //ToDo: Do we need to do this or object saved on DB?
-                }
-                ProcessJsonSchemaProperties(jsonObject, schema, logger);
-                return jsonObject;
+                var array = new JArray();
+                // JSchema schema = StringToJsonSchema(property.Value.ToString(), logger);
+                // foreach (var item in schema.Items)
+                // {
+                //     //ToDo: Do we need to do this or object saved on DB?
+                // }
+                // ProcessJsonSchemaProperties(jsonObject, schema, logger);
+                return array;
             }
             catch (Exception ex)
             {
