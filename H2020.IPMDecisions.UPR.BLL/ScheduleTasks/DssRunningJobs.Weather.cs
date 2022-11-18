@@ -55,7 +55,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 }
                 if (result.Continue == false) return result;
 
-                return await GetWeatherData(farm.Location.X, farm.Location.Y, listOfPreferredWeatherDataSources, dssInformation.Input);
+                return await GetWeatherData(Math.Round(farm.Location.X, 4), Math.Round(farm.Location.Y, 4), listOfPreferredWeatherDataSources, dssInformation.Input);
             }
             catch (Exception ex)
             {
@@ -391,8 +391,8 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             bool useProxy = false)
         {
             var weatherStringParametersUrl = string.Format("longitude={0}&latitude={1}&interval={2}&ignoreErrors=true",
-                farmLocationX.ToString("G", CultureInfo.InvariantCulture),
-                farmLocationY.ToString("G", CultureInfo.InvariantCulture),
+                Math.Round(farmLocationX, 4).ToString("G", CultureInfo.InvariantCulture),
+                Math.Round(farmLocationY, 4).ToString("G", CultureInfo.InvariantCulture),
                 weatherDataSource.Interval.ToString());
 
             // ToDo this is for testing purposes as WX data needed from 2021;
