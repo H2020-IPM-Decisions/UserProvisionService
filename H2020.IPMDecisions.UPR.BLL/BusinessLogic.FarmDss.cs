@@ -54,23 +54,23 @@ namespace H2020.IPMDecisions.UPR.BLL
                         fieldCrop = fieldAsEntity.FieldCrop;
                     }
                     var fieldCropPestExists = new FieldCropPest();
-                    foreach (var farmForcreation in cropGroup)
+                    foreach (var farmForCreation in cropGroup)
                     {
-                        fieldCropPestExists = await AddCropPestToFieldCrop(fieldCrop, farmForcreation.PestEppoCode);
+                        fieldCropPestExists = await AddCropPestToFieldCrop(fieldCrop, farmForCreation.PestEppoCode);
 
-                        var cropPestDss = this.mapper.Map<CropPestDss>(farmForcreation);
+                        var cropPestDss = this.mapper.Map<CropPestDss>(farmForCreation);
                         var newFieldCropPestDss = await CreateFieldCropPestDss(
                             fieldCropPestExists,
                             cropPestDss,
-                            farmForcreation.DssParameters);
+                            farmForCreation.DssParameters);
                         if (newFieldCropPestDss != null)
                             listOfNewFieldCropPestDss.Add(newFieldCropPestDss);
                         else
                             listOfErrorsToReturn.Add(this.jsonStringLocalizer["dss.duplicated",
-                                farmForcreation.CropEppoCode,
-                                farmForcreation.PestEppoCode,
-                                farmForcreation.DssId, farmForcreation.DssModelId,
-                                farmForcreation.DssModelVersion].ToString());
+                                farmForCreation.CropEppoCode,
+                                farmForCreation.PestEppoCode,
+                                farmForCreation.DssId, farmForCreation.DssModelId,
+                                farmForCreation.DssModelVersion].ToString());
                     }
                 }
                 var dataToReturn = new Dictionary<string, object>();
