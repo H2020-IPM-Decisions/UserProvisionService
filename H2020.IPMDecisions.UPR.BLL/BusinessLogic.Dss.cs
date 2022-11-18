@@ -23,7 +23,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                 }
 
                 var dssList = internalCommunicationProvider.GetAllListOfDssFilteredByCropsFromDssMicroservice(dssListFilterDto.CropCodes, dssListFilterDto.ExecutionType, dssListFilterDto.Country);
-                var weatherParameters = internalCommunicationProvider.GetWeatherParametersAvailableByLocation(dssListFilterDto.LocationLatitude, dssListFilterDto.LocationLongitude);
+                var weatherParameters = internalCommunicationProvider.GetWeatherParametersAvailableByLocation(Math.Round(dssListFilterDto.LocationLatitude, 4), Math.Round(dssListFilterDto.LocationLongitude, 4));
                 var eppoCodesData = await this.dataService.EppoCodes.GetEppoCodesAsync();
 
                 var dssListResult = await dssList;

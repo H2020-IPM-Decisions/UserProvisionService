@@ -107,8 +107,8 @@ namespace H2020.IPMDecisions.UPR.BLL
             try
             {
                 var parametersUrl = string.Format("longitude={0}&latitude={1}&interval={2}&timeStart={3}&timeEnd={4}&parameters={5}&ignoreErrors=true",
-                    location.X.ToString("G", CultureInfo.InvariantCulture),
-                    location.Y.ToString("G", CultureInfo.InvariantCulture),
+                    Math.Round(location.X, 4).ToString("G", CultureInfo.InvariantCulture),
+                    Math.Round(location.Y, 4).ToString("G", CultureInfo.InvariantCulture),
                     "86400", // Default Interval
                     DateTime.Today.AddDays(-1).ToString("yyyy-MM-dd"),
                     DateTime.Today.AddDays(1).ToString("yyyy-MM-dd"),
