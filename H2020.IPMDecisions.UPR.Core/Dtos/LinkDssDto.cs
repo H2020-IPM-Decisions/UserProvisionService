@@ -13,6 +13,13 @@ namespace H2020.IPMDecisions.UPR.Core.Dtos
         public string DssModelId { get; set; }
         public string DssModelName { get; set; }
         public string DssEndPoint { get; set; }
+        public string DssVersion { get; set; }
+        public string DssModelVersion { get; set; }
+        public string DssDescription { get; set; }
+        public string DssPurpose { get; set; }
+        public string DssSource { get; set; }
+        public IEnumerable<DssModelAuthorsDto> Authors { get; set; }
+
         public IEnumerable<string> ValidatedSpatialCountries { get; set; }
     }
 }
