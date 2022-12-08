@@ -104,7 +104,7 @@ namespace H2020.IPMDecisions.UPR.BLL
         {
             try
             {
-                IEnumerable<LinkDssDto> dataToReturn = new List<LinkDssDto>();
+                List<LinkDssDto> dataToReturn = new List<LinkDssDto>();
                 var farmsFromUser = await this.dataService.Farms.FindAllByConditionAsync(f => f.UserFarms.Any(uf => uf.UserId == userId & (uf.Authorised)));
                 if (farmsFromUser.Count() == 0) return GenericResponseBuilder.Success<IEnumerable<LinkDssDto>>(dataToReturn);
 
@@ -117,14 +117,28 @@ namespace H2020.IPMDecisions.UPR.BLL
                     .Distinct()
                     .ToList();
 
-                var linkDssOnLocation = listDssOnLocation
+                List<DssInformationJoined> linkDssOnLocation = new List<DssInformationJoined>();
+                foreach (var crop in farmCrops)
+                {
+                    var linkDssOnCrop = listDssOnLocation
                     .SelectMany(d => d.DssModelInformation, (dss, model) => new DssInformationJoined { DssInformation = dss, DssModelInformation = model })
                     .Where(linkDssFiltered => linkDssFiltered.DssModelInformation.Execution.Type.ToLower() == "link"
-                        & linkDssFiltered.DssModelInformation.Crops.Any(c => farmCrops.Contains(c)))
+                        & linkDssFiltered.DssModelInformation.Crops.Any(c => c.Equals(crop)))
                     .ToList();
+
+                    if (linkDssOnCrop.Count() == 0) continue;
+                    linkDssOnCrop.ForEach(l =>
+                    {
+                        var oldIndex = l.DssModelInformation.Crops.FindIndex(c => c.Equals(crop));
+                        l.DssModelInformation.Crops.RemoveAt(oldIndex);
+                        l.DssModelInformation.Crops.Insert(0, crop);
+                        var mappedItem = this.mapper.Map<LinkDssDto>(l);
+                        dataToReturn.Add(mappedItem);
+                    });
+                    linkDssOnLocation.AddRange(linkDssOnCrop);
+                }
                 if (linkDssOnLocation.Count() == 0) return GenericResponseBuilder.Success<IEnumerable<LinkDssDto>>(dataToReturn);
 
-                dataToReturn = this.mapper.Map<IEnumerable<LinkDssDto>>(linkDssOnLocation);
                 var eppoCodesData = await this.dataService.EppoCodes.GetEppoCodesAsync();
                 foreach (var dss in dataToReturn)
                 {
