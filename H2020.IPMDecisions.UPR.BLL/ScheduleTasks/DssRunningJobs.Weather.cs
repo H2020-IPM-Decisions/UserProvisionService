@@ -72,15 +72,19 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
         {
             var result = new WeatherDataResult() { Continue = true };
             DateTime originalWeatherEndDate = DateTime.Today.AddDays(-1);
+            bool addExtraYear = false;
             if (dssInformation.Input.WeatherDataPeriodEnd != null)
             {
                 weatherToCall.WeatherTimeEnd = DssDataHelper.ProcessWeatherDataPeriod(dssInformation.Input.WeatherDataPeriodEnd, dssInputSchemaAsJson, currentYear);
                 originalWeatherEndDate = weatherToCall.WeatherTimeEnd;
                 if (weatherToCall.WeatherTimeEnd < DateTime.Today.AddDays(15))
                 {
-                    // ToDo - Waiting for requirements
-                    // Send a message to the user about DSS not longer running or change parameters 
-                    // depending type of date: Fixed or Parameters
+                    if (dssInformation.Input.WeatherDataPeriodStart.FirstOrDefault().DeterminedBy.ToLower() != "fixed_date")
+                    {
+                        weatherToCall.WeatherTimeEnd = weatherToCall.WeatherTimeEnd.AddYears(1);
+                        DssDataHelper.UpdateDssParametersToNewCalendarYear(dssInformation.Input.WeatherDataPeriodEnd, dssInputSchemaAsJson);
+                        addExtraYear = true;
+                    }
                 }
                 // Forecast weather max 8 days
                 if (weatherToCall.WeatherTimeEnd > DateTime.Today.AddDays(8))
@@ -91,6 +95,11 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             if (dssInformation.Input.WeatherDataPeriodStart != null)
             {
                 weatherToCall.WeatherTimeStart = DssDataHelper.ProcessWeatherDataPeriod(dssInformation.Input.WeatherDataPeriodStart, dssInputSchemaAsJson, currentYear);
+                if (addExtraYear)
+                {
+                    weatherToCall.WeatherTimeStart = weatherToCall.WeatherTimeStart.AddYears(1);
+                    DssDataHelper.UpdateDssParametersToNewCalendarYear(dssInformation.Input.WeatherDataPeriodStart, dssInputSchemaAsJson);
+                }
                 if (weatherToCall.WeatherTimeStart > DateTime.Today)
                 {
                     if (dssInformation.Input.WeatherDataPeriodStart.FirstOrDefault().DeterminedBy.ToLower() == "fixed_date")

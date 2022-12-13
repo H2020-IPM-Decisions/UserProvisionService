@@ -54,7 +54,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
             {
                 var weatherStartDate = ProcessWeatherDataPeriod(input.WeatherDataPeriodStart, dssInputSchemaAsJson, currentYear);
                 var startDateYear = weatherStartDate.Year;
-                if (startDateYear == currentYear && weatherStartDate > DateTime.Today || startDateYear < currentYear) return true;
+                if ((startDateYear == currentYear && weatherStartDate < DateTime.Today) || startDateYear < currentYear) return true;
             }
             return false;
         }
@@ -166,6 +166,34 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
                     continue;
                 }
                 AddNewTokenToJObject(inputSchemaAsJObject, userParameterPath, userToken);
+            }
+        }
+
+        public static void UpdateDssParametersToNewCalendarYear(IEnumerable<WeatherDataPeriod> weatherDatePeriodList, JObject dssInputSchemaAsJson)
+        {
+            try
+            {
+                foreach (var weatherDate in weatherDatePeriodList)
+                {
+                    var weatherDateJson = weatherDate.Value.ToString();
+                    if (weatherDate.DeterminedBy.ToLower() == "input_schema_property")
+                    {
+                        var token = dssInputSchemaAsJson.SelectTokens(weatherDateJson).FirstOrDefault();
+                        if (token == null)
+                            continue;
+                        string dateString = token.ToString();
+                        DateTime dateValue;
+                        if (!DateTime.TryParse(dateString, CultureInfo.InvariantCulture, DateTimeStyles.None, out dateValue))
+                            dateValue = DateTime.Parse(DssDataHelper.AddDefaultDatesToDssJsonInput(dateString));
+
+                        dateValue = dateValue.AddYears(1);
+                        // ToDo implement change on DSS schema
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error UpdateDssParametersToNewCalendarYear", ex);
             }
         }
 
