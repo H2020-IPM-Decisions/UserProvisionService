@@ -169,7 +169,14 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
             }
         }
 
-        public static void UpdateDssParametersToNewCalendarYear(IEnumerable<WeatherDataPeriod> weatherDatePeriodList, JObject dssInputSchemaAsJson)
+        private static string UpdateTokenValue(string jsonString, string tokenName, string newValue)
+        {
+            JObject jsonObj = (JObject)Newtonsoft.Json.JsonConvert.DeserializeObject(jsonString);
+            jsonObj.SelectToken(tokenName).Replace(newValue);
+            return Newtonsoft.Json.JsonConvert.SerializeObject(jsonObj);
+        }
+
+        public static string UpdateDssParametersToNewCalendarYear(IEnumerable<WeatherDataPeriod> weatherDatePeriodList, string dssParameters)
         {
             try
             {
@@ -178,6 +185,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
                     var weatherDateJson = weatherDate.Value.ToString();
                     if (weatherDate.DeterminedBy.ToLower() == "input_schema_property")
                     {
+                        JObject dssInputSchemaAsJson = JObject.Parse(dssParameters.ToString());
                         var token = dssInputSchemaAsJson.SelectTokens(weatherDateJson).FirstOrDefault();
                         if (token == null)
                             continue;
@@ -186,10 +194,11 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
                         if (!DateTime.TryParse(dateString, CultureInfo.InvariantCulture, DateTimeStyles.None, out dateValue))
                             dateValue = DateTime.Parse(DssDataHelper.AddDefaultDatesToDssJsonInput(dateString));
 
-                        dateValue = dateValue.AddYears(1);
-                        // ToDo implement change on DSS schema
+                        var newDateValue = dateValue.AddYears(1).ToString("yyyy-MM-dd");
+                        return UpdateTokenValue(dssParameters, weatherDateJson, newDateValue.ToString());
                     }
                 }
+                return dssParameters;
             }
             catch (Exception ex)
             {

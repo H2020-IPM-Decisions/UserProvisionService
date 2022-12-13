@@ -82,7 +82,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                     if (dssInformation.Input.WeatherDataPeriodStart.FirstOrDefault().DeterminedBy.ToLower() != "fixed_date")
                     {
                         weatherToCall.WeatherTimeEnd = weatherToCall.WeatherTimeEnd.AddYears(1);
-                        DssDataHelper.UpdateDssParametersToNewCalendarYear(dssInformation.Input.WeatherDataPeriodEnd, dssInputSchemaAsJson);
+                        result.UpdateDssParameters = true;
                         addExtraYear = true;
                     }
                 }
@@ -95,11 +95,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             if (dssInformation.Input.WeatherDataPeriodStart != null)
             {
                 weatherToCall.WeatherTimeStart = DssDataHelper.ProcessWeatherDataPeriod(dssInformation.Input.WeatherDataPeriodStart, dssInputSchemaAsJson, currentYear);
-                if (addExtraYear)
-                {
-                    weatherToCall.WeatherTimeStart = weatherToCall.WeatherTimeStart.AddYears(1);
-                    DssDataHelper.UpdateDssParametersToNewCalendarYear(dssInformation.Input.WeatherDataPeriodStart, dssInputSchemaAsJson);
-                }
+                if (addExtraYear) weatherToCall.WeatherTimeStart = weatherToCall.WeatherTimeStart.AddYears(1);
                 if (weatherToCall.WeatherTimeStart > DateTime.Today)
                 {
                     if (dssInformation.Input.WeatherDataPeriodStart.FirstOrDefault().DeterminedBy.ToLower() == "fixed_date")
