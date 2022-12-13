@@ -81,6 +81,7 @@ namespace H2020.IPMDecisions.UPR.API
             services.ConfigureSwagger();
             services.AddDataProtection();
             services.ConfigureCaching();
+            services.AddHealthChecks();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -137,6 +138,8 @@ namespace H2020.IPMDecisions.UPR.API
 
             app.UseHangfireDashboard($"/{apiBasePath}dashboard", dashboardOptions);
             HangfireJobScheduler.HangfireScheduleJobs();
+
+            app.UseHealthChecks($"/api/health");
 
             app.UseEndpoints(endpoints =>
             {
