@@ -77,7 +77,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             {
                 weatherToCall.WeatherTimeEnd = DssDataHelper.ProcessWeatherDataPeriod(dssInformation.Input.WeatherDataPeriodEnd, dssInputSchemaAsJson, currentYear);
                 originalWeatherEndDate = weatherToCall.WeatherTimeEnd;
-                if (weatherToCall.WeatherTimeEnd.AddDays(15) < DateTime.Today)
+                if (weatherToCall.WeatherTimeEnd.AddDays(15) < DateTime.Today && bool.Parse(config["AppConfiguration:AutoUpdateToNextSeason"]))
                 {
                     if (dssInformation.Input.WeatherDataPeriodStart.FirstOrDefault().DeterminedBy.ToLower() != "fixed_date")
                     {
