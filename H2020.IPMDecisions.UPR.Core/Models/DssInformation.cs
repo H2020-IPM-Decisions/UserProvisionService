@@ -10,6 +10,8 @@ namespace H2020.IPMDecisions.UPR.Core.Models
         public string Version { get; set; }
         public string Name { get; set; }
         public string Url { get; set; }
+        [JsonProperty("logo_url")]
+        public string LogoUrl { get; set; }
         public List<string> Languages { get; set; }
         [JsonProperty("organization")]
         public DssOrganization DssOrganization { get; set; }
