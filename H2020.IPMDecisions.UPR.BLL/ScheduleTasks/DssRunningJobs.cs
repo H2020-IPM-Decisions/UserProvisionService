@@ -301,7 +301,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                         }
                         if (responseWeather.ReSchedule)
                         {
-                            var jobScheduleId = this.queueJobs.ScheduleDssOnTheFlyQueue(dss.Id, 10);
+                            var jobScheduleId = this.queueJobs.ScheduleDssOnTheFlyQueue(dss.Id, 360);
                             dss.LastJobId = jobScheduleId;
                         }
                         var errorMessage = this.jsonStringLocalizer["dss_process.weather_data_error", responseWeather.ResponseWeatherAsString.ToString()].ToString();
