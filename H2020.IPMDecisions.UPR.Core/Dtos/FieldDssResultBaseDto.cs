@@ -27,6 +27,7 @@ namespace H2020.IPMDecisions.UPR.Core.Dtos
         public string DssPurpose { get; set; }
         public string DssSource { get; set; }
         public string DssEndPoint { get; set; }
+        public string DssLogoUrl { get; set; }
         public int WarningStatus { get; set; }
         public string WarningStatusRepresentation { get; set; }
         public string WarningMessage { get; set; }

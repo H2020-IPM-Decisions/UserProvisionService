@@ -86,6 +86,7 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
 
             CreateMap<DssInformation, FieldDssResultDto>()
                 .ForMember(dest => dest.DssName, opt => opt.MapFrom(src => src.Name))
+                .ForMember(dest => dest.DssLogoUrl, opt => opt.MapFrom(src => src.LogoUrl))
                 .ForMember(dest => dest.DssSource, opt => opt.MapFrom(src =>
                             string.Format("{0}, {1}",
                                 src.DssOrganization.Name,

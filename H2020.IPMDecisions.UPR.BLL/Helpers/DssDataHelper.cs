@@ -54,7 +54,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
             {
                 var weatherStartDate = ProcessWeatherDataPeriod(input.WeatherDataPeriodStart, dssInputSchemaAsJson, currentYear);
                 var startDateYear = weatherStartDate.Year;
-                if (startDateYear == currentYear && weatherStartDate > DateTime.Today || startDateYear < currentYear) return true;
+                if ((startDateYear == currentYear && weatherStartDate < DateTime.Today) || startDateYear < currentYear) return true;
             }
             return false;
         }
@@ -169,6 +169,43 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
             }
         }
 
+        private static string UpdateTokenValue(string jsonString, string tokenName, string newValue)
+        {
+            JObject jsonObj = (JObject)Newtonsoft.Json.JsonConvert.DeserializeObject(jsonString);
+            jsonObj.SelectToken(tokenName).Replace(newValue);
+            return Newtonsoft.Json.JsonConvert.SerializeObject(jsonObj);
+        }
+
+        public static string UpdateDssParametersToNewCalendarYear(IEnumerable<WeatherDataPeriod> weatherDatePeriodList, string dssParameters)
+        {
+            try
+            {
+                foreach (var weatherDate in weatherDatePeriodList)
+                {
+                    var weatherDateJson = weatherDate.Value.ToString();
+                    if (weatherDate.DeterminedBy.ToLower() == "input_schema_property")
+                    {
+                        JObject dssInputSchemaAsJson = JObject.Parse(dssParameters.ToString());
+                        var token = dssInputSchemaAsJson.SelectTokens(weatherDateJson).FirstOrDefault();
+                        if (token == null)
+                            continue;
+                        string dateString = token.ToString();
+                        DateTime dateValue;
+                        if (!DateTime.TryParse(dateString, CultureInfo.InvariantCulture, DateTimeStyles.None, out dateValue))
+                            dateValue = DateTime.Parse(DssDataHelper.AddDefaultDatesToDssJsonInput(dateString));
+
+                        var newDateValue = dateValue.AddYears(1).ToString("yyyy-MM-dd");
+                        return UpdateTokenValue(dssParameters, weatherDateJson, newDateValue.ToString());
+                    }
+                }
+                return dssParameters;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error UpdateDssParametersToNewCalendarYear", ex);
+            }
+        }
+
         private static List<string> CreateJsonPaths(JObject jsonObject)
         {
             List<string> pathsList = new List<string>();
@@ -276,16 +313,13 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
         {
             var pathsListDssInputSchema = DssDataHelper.CreateJsonPaths(inputAsJsonObject);
             var pathsListDssParameters = DssDataHelper.CreateJsonPaths(userParametersAsJsonObject);
-
+            var arrayNotProcessed = true;
             foreach (var userParameterPath in pathsListDssParameters)
             {
                 var userParameterPathForModification = userParameterPath;
                 var match = Regex.Match(userParameterPathForModification, @"\w+[[]\d+[]]");
                 var isAnArray = (match.Success) ? true : false;
-                if (isAnArray)
-                {
-                    userParameterPathForModification = userParameterPathForModification.Substring(0, userParameterPathForModification.IndexOf("["));
-                }
+                if (isAnArray) userParameterPathForModification = userParameterPathForModification.Substring(0, userParameterPathForModification.IndexOf("["));
                 var tokenFromDssParameter = userParametersAsJsonObject.SelectToken(userParameterPathForModification);
                 var pathPropertyName = userParameterPathForModification.Split(".").LastOrDefault();
 
@@ -296,7 +330,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
                     continue;
                 }
                 var hasDefaultProperty = tokensPathFromInput.Any(s => s.Contains("default"));
-                if (!hasDefaultProperty)
+                if (!hasDefaultProperty || (isAnArray & hasDefaultProperty & arrayNotProcessed))
                 {
                     var firstPartOfTheTokenList = tokensPathFromInput.FirstOrDefault();
                     var stringToReplace = firstPartOfTheTokenList.Split(".").LastOrDefault();
@@ -304,6 +338,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
 
                     AddNewTokenToJObject(inputAsJsonObject, newDefaultPath, tokenFromDssParameter);
                     pathsListDssInputSchema.Add(newDefaultPath);
+                    if (isAnArray) arrayNotProcessed = false;
                 }
 
                 var defaultPropertyPath = pathsListDssInputSchema.Where(s => s.Contains(pathPropertyName) & s.Contains("default")).FirstOrDefault();

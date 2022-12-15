@@ -249,7 +249,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 // Check required properties with Json Schema, remove not required
                 DssDataHelper.RemoveNotRequiredInputSchemaProperties(inputSchema);
 
-                var inputAsJsonObject = JsonSchemaToJson.ToJsonObject(inputSchema.ToString(), logger);
+                JObject inputAsJsonObject = JsonSchemaToJson.ToJsonObject(inputSchema.ToString(), logger);
                 // Add user parameters or parameters on the fly
                 if (!string.IsNullOrEmpty(onTheFlyDssParameters))
                 {
@@ -262,11 +262,11 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                     DssDataHelper.AddUserDssParametersToDssInput(dssParametersAsJsonObject, inputAsJsonObject);
                 }
 
-                IList<string> validationErrormessages;
-                bool isJsonObjectvalid;
+                IList<string> validationErrorMessages;
+                bool isJsonObjectValid;
                 bool reSchedule;
-                ValidateJsonSchema(inputSchema, inputAsJsonObject, out validationErrormessages, out isJsonObjectvalid, out reSchedule);
-                if (!isJsonObjectvalid)
+                ValidateJsonSchema(inputSchema, inputAsJsonObject, out validationErrorMessages, out isJsonObjectValid, out reSchedule);
+                if (!isJsonObjectValid)
                 {
                     string errorMessageToReturn = "";
                     if (reSchedule)
@@ -277,7 +277,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                     }
                     else
                     {
-                        errorMessageToReturn = string.Join(" ", validationErrormessages);
+                        errorMessageToReturn = string.Join(" ", validationErrorMessages);
                     }
                     CreateDssRunErrorResult(dssResult, errorMessageToReturn, DssOutputMessageTypeEnum.Error);
                     return dssResult;
@@ -286,17 +286,23 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 if (dssInformation.Input.WeatherParameters != null)
                 {
                     WeatherDataResult responseWeather = await PrepareWeatherData(dss, dssInformation, inputAsJsonObject);
+                    if (responseWeather.UpdateDssParameters)
+                    {
+                        dss.DssParameters = DssDataHelper.UpdateDssParametersToNewCalendarYear(dssInformation.Input.WeatherDataPeriodEnd, dss.DssParameters);
+                        dss.DssParameters = DssDataHelper.UpdateDssParametersToNewCalendarYear(dssInformation.Input.WeatherDataPeriodStart, dss.DssParameters);
+                    }
+
                     if (!responseWeather.Continue)
                     {
                         if (responseWeather.ResponseWeatherAsString.ToString().Contains("This is the first time this season that weather"))
                         {
-                            var jobscheduleId = this.queueJobs.ScheduleDssOnTheFlyQueue(dss.Id, 121);
-                            dss.LastJobId = jobscheduleId;
+                            var jobScheduleId = this.queueJobs.ScheduleDssOnTheFlyQueue(dss.Id, 121);
+                            dss.LastJobId = jobScheduleId;
                         }
                         if (responseWeather.ReSchedule)
                         {
-                            var jobscheduleId = this.queueJobs.ScheduleDssOnTheFlyQueue(dss.Id, 10);
-                            dss.LastJobId = jobscheduleId;
+                            var jobScheduleId = this.queueJobs.ScheduleDssOnTheFlyQueue(dss.Id, 360);
+                            dss.LastJobId = jobScheduleId;
                         }
                         var errorMessage = this.jsonStringLocalizer["dss_process.weather_data_error", responseWeather.ResponseWeatherAsString.ToString()].ToString();
                         CreateDssRunErrorResult(dssResult, errorMessage, responseWeather.ErrorType);
