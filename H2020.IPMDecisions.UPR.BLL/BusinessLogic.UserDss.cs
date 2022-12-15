@@ -111,6 +111,8 @@ namespace H2020.IPMDecisions.UPR.BLL
                 var farmGeoJson = CreateFarmLocationGeoJson(farmsFromUser);
                 var listDssOnLocation = await this.internalCommunicationProvider.GetListOfDssByLocationFromDssMicroservice(farmGeoJson, "LINK");
 
+                if (listDssOnLocation == null) return GenericResponseBuilder.Success<IEnumerable<LinkDssDto>>(dataToReturn);
+
                 // Only DSS that have models with links and crops from farms
                 var farmCrops = farmsFromUser
                     .SelectMany(f => f.Fields.Select(fi => fi.FieldCrop.CropEppoCode))
