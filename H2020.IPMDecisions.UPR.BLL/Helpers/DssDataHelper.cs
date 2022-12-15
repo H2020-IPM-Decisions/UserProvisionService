@@ -313,16 +313,13 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
         {
             var pathsListDssInputSchema = DssDataHelper.CreateJsonPaths(inputAsJsonObject);
             var pathsListDssParameters = DssDataHelper.CreateJsonPaths(userParametersAsJsonObject);
-
+            var arrayNotProcessed = true;
             foreach (var userParameterPath in pathsListDssParameters)
             {
                 var userParameterPathForModification = userParameterPath;
                 var match = Regex.Match(userParameterPathForModification, @"\w+[[]\d+[]]");
                 var isAnArray = (match.Success) ? true : false;
-                if (isAnArray)
-                {
-                    userParameterPathForModification = userParameterPathForModification.Substring(0, userParameterPathForModification.IndexOf("["));
-                }
+                if (isAnArray) userParameterPathForModification = userParameterPathForModification.Substring(0, userParameterPathForModification.IndexOf("["));
                 var tokenFromDssParameter = userParametersAsJsonObject.SelectToken(userParameterPathForModification);
                 var pathPropertyName = userParameterPathForModification.Split(".").LastOrDefault();
 
@@ -333,7 +330,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
                     continue;
                 }
                 var hasDefaultProperty = tokensPathFromInput.Any(s => s.Contains("default"));
-                if (!hasDefaultProperty)
+                if (!hasDefaultProperty || (isAnArray & hasDefaultProperty & arrayNotProcessed))
                 {
                     var firstPartOfTheTokenList = tokensPathFromInput.FirstOrDefault();
                     var stringToReplace = firstPartOfTheTokenList.Split(".").LastOrDefault();
@@ -341,6 +338,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
 
                     AddNewTokenToJObject(inputAsJsonObject, newDefaultPath, tokenFromDssParameter);
                     pathsListDssInputSchema.Add(newDefaultPath);
+                    if (isAnArray) arrayNotProcessed = false;
                 }
 
                 var defaultPropertyPath = pathsListDssInputSchema.Where(s => s.Contains(pathPropertyName) & s.Contains("default")).FirstOrDefault();
