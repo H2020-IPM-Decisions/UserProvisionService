@@ -17,9 +17,6 @@ namespace H2020.IPMDecisions.UPR.API.Filters
                 if (string.IsNullOrEmpty(language)) language = "en";
                 if (language.Split(";").Count() > 1) language = "en";
 
-                // ToDo - Remove when DSS API fixed to follow ISO
-                if (language == "sl") language = "si";
-
                 context.Items.Add("language", language);
                 var culture = new CultureInfo(language);
                 Thread.CurrentThread.CurrentCulture = culture;
