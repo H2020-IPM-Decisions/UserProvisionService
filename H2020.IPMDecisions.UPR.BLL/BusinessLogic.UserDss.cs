@@ -247,11 +247,14 @@ namespace H2020.IPMDecisions.UPR.BLL
                         }
                     }
 
-                    var eppoCodeLanguages = EppoCodesHelper.GetCropPestEppoCodesNames(eppoCodesData, dss.CropEppoCode, dss.PestEppoCode);
-                    dss.CropLanguages = eppoCodeLanguages.CropLanguages;
-                    dss.PestLanguages = eppoCodeLanguages.PestLanguages;
-
-                    if (string.IsNullOrEmpty(dss.DssTaskStatusDto.Id)) continue;
+                    if (eppoCodesData.Count > 0)
+                    {
+                        var eppoCodeLanguages = EppoCodesHelper.GetCropPestEppoCodesNames(eppoCodesData, dss.CropEppoCode, dss.PestEppoCode);
+                        dss.CropLanguages = eppoCodeLanguages.CropLanguages;
+                        dss.PestLanguages = eppoCodeLanguages.PestLanguages;
+                    }
+                    
+                    if (monitoringApi == null || string.IsNullOrEmpty(dss.DssTaskStatusDto.Id)) continue;
                     var jobDetail = monitoringApi.JobDetails(dss.DssTaskStatusDto.Id);
                     if (jobDetail != null)
                     {
