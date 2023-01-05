@@ -178,7 +178,13 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                     result.ReSchedule = true;
                     result.ErrorType = DssOutputMessageTypeEnum.Error;
                     result.ResponseWeatherAsString = this.jsonStringLocalizer["weather.service_busy", "10"].ToString();
-                }
+                } 
+                else if (weatherResponseAsObject.Any(wr => wr.ErrorCode == StatusCodes.Status404NotFound))
+                {
+                    result.ErrorType = DssOutputMessageTypeEnum.Error;
+                    result.ResponseWeatherAsString = string.Join("; ", weatherResponseAsObject.Select(wr => wr.Message)
+                        .Where(wr => !wr.Contains("Internal Server Error")));
+                }         
                 else
                 {
                     result.ErrorType = DssOutputMessageTypeEnum.Error; ;
