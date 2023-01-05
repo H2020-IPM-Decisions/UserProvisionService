@@ -190,7 +190,8 @@ CREATE TABLE public."FieldCropPestDss" (
     "CropPestDssId" uuid NOT NULL,
     "DssParameters" jsonb,
     "ObservationRequired" boolean DEFAULT false NOT NULL,
-    "LastJobId" text
+    "LastJobId" text,
+    "ReScheduleCount" integer NOT NULL DEFAULT 0
 );
 
 

@@ -15,6 +15,7 @@ namespace H2020.IPMDecisions.UPR.Core.Entities
         public string DssParameters { get; set; }
         public bool ObservationRequired { get; set; }
         public string LastJobId { get; set; }
+        public int ReScheduleCount { get; set; }
 
         public ICollection<FieldDssResult> FieldDssResults { get; set; }
         public List<FieldDssObservation> FieldDssObservations { get; set; }
