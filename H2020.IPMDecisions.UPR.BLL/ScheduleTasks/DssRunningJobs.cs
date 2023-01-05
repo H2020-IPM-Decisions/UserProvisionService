@@ -231,6 +231,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             }
             try
             {
+                int maxReScheduleCount = 3;
                 DssModelInformation dssInformation = await GetDssInformationFromMicroservice(dss);
                 if (dssInformation == null)
                 {
@@ -269,11 +270,12 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 if (!isJsonObjectValid)
                 {
                     string errorMessageToReturn = "";
-                    if (reSchedule)
+                    if (reSchedule && dss.ReScheduleCount < maxReScheduleCount)
                     {
                         errorMessageToReturn = this.jsonStringLocalizer["dss_process.json_validation_error", 60].ToString();
                         var jobScheduleId = this.queueJobs.ScheduleDssOnTheFlyQueue(dss.Id, 61);
                         dss.LastJobId = jobScheduleId;
+                        dss.ReScheduleCount += 1;
                     }
                     else
                     {
@@ -294,15 +296,17 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
 
                     if (!responseWeather.Continue)
                     {
-                        if (responseWeather.ResponseWeatherAsString.ToString().Contains("This is the first time this season that weather"))
+                        if (responseWeather.ResponseWeatherAsString.ToString().Contains("This is the first time this season that weather") && dss.ReScheduleCount < maxReScheduleCount)
                         {
                             var jobScheduleId = this.queueJobs.ScheduleDssOnTheFlyQueue(dss.Id, 121);
                             dss.LastJobId = jobScheduleId;
+                            dss.ReScheduleCount += 1;
                         }
-                        if (responseWeather.ReSchedule)
+                        if (responseWeather.ReSchedule && dss.ReScheduleCount < maxReScheduleCount)
                         {
                             var jobScheduleId = this.queueJobs.ScheduleDssOnTheFlyQueue(dss.Id, 360);
                             dss.LastJobId = jobScheduleId;
+                            dss.ReScheduleCount += 1;
                         }
                         var errorMessage = this.jsonStringLocalizer["dss_process.weather_data_error", responseWeather.ResponseWeatherAsString.ToString()].ToString();
                         CreateDssRunErrorResult(dssResult, errorMessage, responseWeather.ErrorType);
@@ -310,7 +314,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                     }
                     inputAsJsonObject["weatherData"] = JObject.Parse(responseWeather.ResponseWeatherAsString.ToString());
                 }
-
+                dss.ReScheduleCount = 0;
                 var content = new StringContent(
                      inputAsJsonObject.ToString(),
                      Encoding.UTF8, "application/json");
