@@ -57,6 +57,16 @@ namespace H2020.IPMDecisions.UPR.BLL
                     var dssInformation = dssListResult.Where(d => d.DssModelInformation.Any(m => m.Id == modelToDelete.Id)).FirstOrDefault();
                     dssInformation.DssModelInformation.Remove(modelToDelete);
                 }
+                foreach (var dss in dssListResult)
+                {
+                    if (!string.IsNullOrEmpty(dss.LogoUrl) && (!dss.LogoUrl.StartsWith("http")))
+                    {
+                        var dssApiUrl = config["MicroserviceInternalCommunication:DssApiUrl"];
+                        dss.LogoUrl = string.Format("{0}{1}",
+                            dssApiUrl,
+                            dss.LogoUrl);
+                    }
+                }
 
                 return GenericResponseBuilder.Success<IEnumerable<DssInformation>>(dssListResult);
             }

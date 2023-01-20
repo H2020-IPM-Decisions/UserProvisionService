@@ -237,11 +237,10 @@ namespace H2020.IPMDecisions.UPR.BLL
                         }
                         else
                         {
-                            var mainHost = config["MicroserviceInternalCommunication:ApiGatewayAddress"];
-                            var dssEndPoint = config["MicroserviceInternalCommunication:DssMicroservice"];
+                            var dssApiUrl = config["MicroserviceInternalCommunication:DssApiUrl"];
                             this.mapper.Map(dssOnListMatchDatabaseRecord, dss, opt =>
                             {
-                                opt.Items["host"] = string.Format("{0}{1}", mainHost, dssEndPoint.Remove(dssEndPoint.Length-1));
+                                opt.Items["host"] = string.Format("{0}", dssApiUrl);
                             });
 
                             this.mapper.Map(dssModelMatchDatabaseRecord, dss);
@@ -348,13 +347,9 @@ namespace H2020.IPMDecisions.UPR.BLL
             dataToReturn.DssVersion = dssInformation.Version;
             if (!string.IsNullOrEmpty(dssInformation.LogoUrl))
             {
-                 var mainHost = config["MicroserviceInternalCommunication:ApiGatewayAddress"];
-                 var dssEndPoint = config["MicroserviceInternalCommunication:DssMicroservice"];
-                            
-
-                dataToReturn.DssLogoUrl = string.Format("{0}{1}{2}",
-                    mainHost,
-                    dssEndPoint.Remove(dssEndPoint.Length-1),
+                var dssApiUrl = config["MicroserviceInternalCommunication:DssApiUrl"];
+                dataToReturn.DssLogoUrl = string.Format("{0}{1}",
+                    dssApiUrl,
                     dssInformation.LogoUrl);
             }
             var dssModelInformation = dssInformation
