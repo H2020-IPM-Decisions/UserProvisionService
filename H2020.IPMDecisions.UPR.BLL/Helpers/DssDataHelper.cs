@@ -165,7 +165,32 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
                     token.Replace(userToken);
                     continue;
                 }
-                AddNewTokenToJObject(inputSchemaAsJObject, userParameterPath, userToken);
+                var matchObject = Regex.Match(userParameterPath, @"\w+[[]\d+[]].");
+                var isAnArrayObject = (matchObject.Success) ? true : false;
+                if (isAnArrayObject)
+                {
+                    var startIndex = userParameterPath.IndexOf("[");
+                    var parentArrayParameterPath = userParameterPath.Substring(0, startIndex);
+                    var arrayToken = userDssParametersJObject.SelectToken(parentArrayParameterPath);
+                    AddNewArrayTokenToJObject(inputSchemaAsJObject, parentArrayParameterPath, arrayToken);
+                }
+                else
+                {
+                    AddNewTokenToJObject(inputSchemaAsJObject, userParameterPath, userToken);
+                }
+            }
+        }
+
+        private static void AddNewArrayTokenToJObject(JObject inputSchemaAsJObject, string arrayPath, JToken arrayToken)
+        {
+            var tokenExists = inputSchemaAsJObject.SelectToken(arrayPath);
+            if (tokenExists != null)
+            {
+                tokenExists.Replace(arrayToken);
+            }
+            else
+            {
+                AddNewTokenToJObject(inputSchemaAsJObject, arrayPath, arrayToken);
             }
         }
 
