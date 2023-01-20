@@ -91,7 +91,14 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
                             string.Format("{0}, {1}",
                                 src.DssOrganization.Name,
                                 src.DssOrganization.Country)))
-                .ForMember(dest => dest.Id, opt => opt.Ignore());
+                .ForMember(dest => dest.Id, opt => opt.Ignore())
+                .AfterMap((src, dest, context) =>
+                {
+                    if (!string.IsNullOrEmpty(dest.DssLogoUrl))
+                    {
+                        dest.DssLogoUrl = string.Format("{0}{1}", context.Options.Items["host"].ToString(), dest.DssLogoUrl);
+                    }
+                }); ;
 
             CreateMap<DssModelInformation, FieldDssResultDto>()
                 .ForMember(dest => dest.DssModelName, opt => opt.MapFrom(src => src.Name))

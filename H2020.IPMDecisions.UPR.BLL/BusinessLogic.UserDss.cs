@@ -237,7 +237,13 @@ namespace H2020.IPMDecisions.UPR.BLL
                         }
                         else
                         {
-                            this.mapper.Map(dssOnListMatchDatabaseRecord, dss);
+                            var mainHost = config["MicroserviceInternalCommunication:ApiGatewayAddress"];
+                            var dssEndPoint = config["MicroserviceInternalCommunication:DssMicroservice"];
+                            this.mapper.Map(dssOnListMatchDatabaseRecord, dss, opt =>
+                            {
+                                opt.Items["host"] = string.Format("{0}{1}", mainHost, dssEndPoint.Remove(dssEndPoint.Length-1));
+                            });
+
                             this.mapper.Map(dssModelMatchDatabaseRecord, dss);
                             if (dssModelMatchDatabaseRecord.Output != null)
                             {
@@ -253,7 +259,6 @@ namespace H2020.IPMDecisions.UPR.BLL
                         dss.CropLanguages = eppoCodeLanguages.CropLanguages;
                         dss.PestLanguages = eppoCodeLanguages.PestLanguages;
                     }
-                    
                     if (monitoringApi == null || string.IsNullOrEmpty(dss.DssTaskStatusDto.Id)) continue;
                     var jobDetail = monitoringApi.JobDetails(dss.DssTaskStatusDto.Id);
                     if (jobDetail != null)
@@ -341,7 +346,17 @@ namespace H2020.IPMDecisions.UPR.BLL
                             dssInformation.DssOrganization.Name,
                             dssInformation.DssOrganization.Country);
             dataToReturn.DssVersion = dssInformation.Version;
+            if (!string.IsNullOrEmpty(dssInformation.LogoUrl))
+            {
+                 var mainHost = config["MicroserviceInternalCommunication:ApiGatewayAddress"];
+                 var dssEndPoint = config["MicroserviceInternalCommunication:DssMicroservice"];
+                            
 
+                dataToReturn.DssLogoUrl = string.Format("{0}{1}{2}",
+                    mainHost,
+                    dssEndPoint.Remove(dssEndPoint.Length-1),
+                    dssInformation.LogoUrl);
+            }
             var dssModelInformation = dssInformation
                 .DssModelInformation
                 .FirstOrDefault(m => m.Id == dss.CropPestDss.DssModelId);
