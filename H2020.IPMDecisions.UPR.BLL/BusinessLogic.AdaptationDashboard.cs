@@ -55,10 +55,10 @@ namespace H2020.IPMDecisions.UPR.BLL
                 }
 
                 // Validate DSS parameters on server side
-                var validationErrormessages = await ValidateNewDssParameters(dss.CropPestDss, fieldCropPestDssForUpdateDto.DssParameters);
-                if (validationErrormessages.Count > 0)
+                var validationErrorMessages = await ValidateNewDssParameters(dss.CropPestDss, fieldCropPestDssForUpdateDto.DssParameters);
+                if (validationErrorMessages.Count > 0)
                 {
-                    var errorMessageToReturn = string.Join(" ", validationErrormessages);
+                    var errorMessageToReturn = string.Join(" ", validationErrorMessages);
                     return GenericResponseBuilder.NoSuccess<DssTaskStatusDto>(null, errorMessageToReturn);
                 }
 
@@ -138,10 +138,10 @@ namespace H2020.IPMDecisions.UPR.BLL
                 }
 
                 // Validate DSS parameters on server side
-                var validationErrormessages = await ValidateNewDssParameters(dss.CropPestDss, fieldCropPestDssForUpdateDto.DssParameters);
-                if (validationErrormessages.Count > 0)
+                var validationErrorMessages = await ValidateNewDssParameters(dss.CropPestDss, fieldCropPestDssForUpdateDto.DssParameters);
+                if (validationErrorMessages.Count > 0)
                 {
-                    var errorMessageToReturn = string.Join(" ", validationErrormessages);
+                    var errorMessageToReturn = string.Join(" ", validationErrorMessages);
                     return GenericResponseBuilder.NoSuccess<List<DssHistoricalDataTask>>(null, errorMessageToReturn);
                 }
 
@@ -154,7 +154,9 @@ namespace H2020.IPMDecisions.UPR.BLL
                 };
 
                 // Remove one year from dates
-                var historicalParameters = DssDataHelper.RemoveNYearsDatesDssParameters("");
+                var dssModelInformation = await internalCommunicationProvider
+                                        .GetDssModelInformationFromDssMicroservice(dss.CropPestDss.DssId, dss.CropPestDss.DssModelId);
+                var historicalParameters = DssDataHelper.PrepareDssParametersForHistoricalYear(dssModelInformation.Input, fieldCropPestDssForUpdateDto.DssParameters);
                 DssTaskStatusDto historicalJobTask = CreateTaskStatusDto(id, historicalParameters);
                 var historicalDataJob = new DssHistoricalDataTask()
                 {

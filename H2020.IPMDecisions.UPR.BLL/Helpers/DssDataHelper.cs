@@ -406,17 +406,47 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
             return inputAsJsonObject;
         }
 
-        public static string RemoveNYearsDatesDssParameters(string dssParameters, int yearsToRemove = 1)
+        public static string PrepareDssParametersForHistoricalYear(DssModelSchemaInput inputSchema, string dssParameters, int yearsToRemove = 1)
         {
             try
             {
-                //ToDo
-                return "{\r\n  \"configParameters\": {\r\n    \"timeZone\": \"Europe/Oslo\",\r\n   \"timeStart\": \"2021-11-01\",\r\n    \"timeEnd\": \"2022-01-20\"\r\n  }}";
+                dssParameters = RemoveNYearsDatesDssParameters(inputSchema.WeatherDataPeriodStart, dssParameters, yearsToRemove);
+                dssParameters = RemoveNYearsDatesDssParameters(inputSchema.WeatherDataPeriodEnd, dssParameters, yearsToRemove);
+                return dssParameters;
             }
-            catch (System.Exception)
+            catch (Exception ex)
             {
+                throw new Exception("Error PrepareDssParametersForHistoricalYear", ex);
+            }
+        }
 
-                throw;
+        private static string RemoveNYearsDatesDssParameters(IEnumerable<WeatherDataPeriod> weatherDatePeriodList, string dssParameters, int yearsToRemove = 1)
+        {
+            try
+            {
+                foreach (var weatherDate in weatherDatePeriodList)
+                {
+                    var weatherDateJson = weatherDate.Value.ToString();
+                    if (weatherDate.DeterminedBy.ToLower() == "input_schema_property")
+                    {
+                        JObject dssInputSchemaAsJson = JObject.Parse(dssParameters.ToString());
+                        var token = dssInputSchemaAsJson.SelectTokens(weatherDateJson).FirstOrDefault();
+                        if (token == null)
+                            continue;
+                        string dateString = token.ToString();
+                        DateTime dateValue;
+                        if (!DateTime.TryParse(dateString, CultureInfo.InvariantCulture, DateTimeStyles.None, out dateValue))
+                            dateValue = DateTime.Parse(DssDataHelper.AddDefaultDatesToDssJsonInput(dateString));
+
+                        var newDateValue = dateValue.AddYears(-yearsToRemove).ToString("yyyy-MM-dd");
+                        return UpdateTokenValue(dssParameters, weatherDateJson, newDateValue.ToString());
+                    }
+                }
+                return dssParameters;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error RemoveNYearsDatesDssParameters", ex);
             }
         }
     }
