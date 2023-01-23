@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Net.Mime;
 using System.Threading.Tasks;
 using H2020.IPMDecisions.UPR.API.Filters;
@@ -75,7 +76,35 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
             var routeValues = new
             {
                 dssId = id,
-                id = response.Result
+                id = response.Result.Id
+            };
+            return AcceptedAtRoute(route, routeValues, response.Result);
+        }
+
+        /// <summary>
+        /// Use this request to run a DSS with temp data
+        /// </summary>
+        /// <remarks>The user will be identified using the UserId on the authentication JWT.
+        /// <para>The DSS must belong to the user</para>
+        /// </remarks>
+        [Consumes(MediaTypeNames.Application.Json)]
+        [ProducesResponseType(StatusCodes.Status202Accepted)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [HttpPost("{id:guid}/historicaldata", Name = "api.adaptation.posthistoricaldata.byid")]
+        // POST: api/dss/1
+        public async Task<IActionResult> PostHistoricalData([FromRoute] Guid id, [FromBody] FieldCropPestDssForUpdateDto fieldCropPestDssForUpdateDto)
+        {
+            var userId = Guid.Parse(HttpContext.Items["userId"].ToString());
+            var response = await businessLogic.PrepareDssToRunFieldCropPestDssHistoricalDataById(id, userId, fieldCropPestDssForUpdateDto);
+            if (!response.IsSuccessful)
+                return response.RequestResult;
+
+            var route = "api.adaptation.task.byId";
+            var routeValues = new
+            {
+                dssId = id,
+                id = response.Result.FirstOrDefault().TaskStatusDto.Id
             };
             return AcceptedAtRoute(route, routeValues, response.Result);
         }

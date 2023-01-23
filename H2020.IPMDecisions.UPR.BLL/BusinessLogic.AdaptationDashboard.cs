@@ -1,6 +1,8 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using H2020.IPMDecisions.UPR.BLL.Helpers;
 using H2020.IPMDecisions.UPR.Core.Dtos;
 using H2020.IPMDecisions.UPR.Core.Entities;
 using H2020.IPMDecisions.UPR.Core.Models;
@@ -60,12 +62,8 @@ namespace H2020.IPMDecisions.UPR.BLL
                     return GenericResponseBuilder.NoSuccess<DssTaskStatusDto>(null, errorMessageToReturn);
                 }
 
-                var jobId = this.queueJobs.RunDssOnMemory(id, fieldCropPestDssForUpdateDto.DssParameters);
-                var monitoringApi = JobStorage.Current.GetMonitoringApi();
-                var jobDetail = monitoringApi.JobDetails(jobId);
-                if (jobDetail == null) return GenericResponseBuilder.NotFound<DssTaskStatusDto>();
-                DssTaskStatusDto dataToReturn = CreateDssStatusFromJobDetail(id, jobId, jobDetail);
-
+                var dataToReturn = CreateTaskStatusDto(id, fieldCropPestDssForUpdateDto.DssParameters);
+                if (dataToReturn == null) return GenericResponseBuilder.NotFound<DssTaskStatusDto>();
                 return GenericResponseBuilder.Success<DssTaskStatusDto>(dataToReturn);
             }
             catch (Exception ex)
@@ -122,6 +120,67 @@ namespace H2020.IPMDecisions.UPR.BLL
                 String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
                 return GenericResponseBuilder.NoSuccess<AdaptationTaskDssResult>(null, $"{ex.Message} InnerException: {innerMessage}");
             }
+        }
+
+        public async Task<GenericResponse<List<DssHistoricalDataTask>>> PrepareDssToRunFieldCropPestDssHistoricalDataById(Guid id, Guid userId, FieldCropPestDssForUpdateDto fieldCropPestDssForUpdateDto)
+        {
+            try
+            {
+                var dss = await this.dataService.FieldCropPestDsses.FindByIdAsync(id);
+                if (dss == null) return GenericResponseBuilder.NotFound<List<DssHistoricalDataTask>>();
+
+                var dssUserId = dss.FieldCropPest.FieldCrop.Field.Farm.UserFarms.FirstOrDefault().UserId;
+                if (userId != dssUserId) return GenericResponseBuilder.NotFound<List<DssHistoricalDataTask>>();
+
+                if (dss.CropPestDss.DssExecutionType.ToLower() != "onthefly")
+                {
+                    GenericResponseBuilder.NoSuccess<DssHistoricalDataTask>(null, this.jsonStringLocalizer["dss_process.not_on_the_fly"].ToString());
+                }
+
+                // Validate DSS parameters on server side
+                var validationErrormessages = await ValidateNewDssParameters(dss.CropPestDss, fieldCropPestDssForUpdateDto.DssParameters);
+                if (validationErrormessages.Count > 0)
+                {
+                    var errorMessageToReturn = string.Join(" ", validationErrormessages);
+                    return GenericResponseBuilder.NoSuccess<List<DssHistoricalDataTask>>(null, errorMessageToReturn);
+                }
+
+                var listOfJobs = new List<DssHistoricalDataTask>();
+                DssTaskStatusDto currentJobTask = CreateTaskStatusDto(id, fieldCropPestDssForUpdateDto.DssParameters);
+                var currentDateJob = new DssHistoricalDataTask()
+                {
+                    TaskType = "Current",
+                    TaskStatusDto = currentJobTask
+                };
+
+                // Remove one year from dates
+                var historicalParameters = DssDataHelper.RemoveNYearsDatesDssParameters("");
+                DssTaskStatusDto historicalJobTask = CreateTaskStatusDto(id, historicalParameters);
+                var historicalDataJob = new DssHistoricalDataTask()
+                {
+                    TaskType = "Historical",
+                    TaskStatusDto = historicalJobTask
+                };
+                listOfJobs.Add(currentDateJob);
+                listOfJobs.Add(historicalDataJob);
+
+                return GenericResponseBuilder.Success<List<DssHistoricalDataTask>>(listOfJobs);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(string.Format("Error in BLL - UpdateFieldCropPestDssById. {0}", ex.Message), ex);
+                String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
+                return GenericResponseBuilder.NoSuccess<List<DssHistoricalDataTask>>(null, $"{ex.Message} InnerException: {innerMessage}");
+            }
+        }
+
+        private DssTaskStatusDto CreateTaskStatusDto(Guid dssId, string dssParameters)
+        {
+            var jobId = this.queueJobs.RunDssOnMemory(dssId, dssParameters);
+            var monitoringApi = JobStorage.Current.GetMonitoringApi();
+            var jobDetail = monitoringApi.JobDetails(jobId);
+            if (jobDetail == null) return null;
+            return CreateDssStatusFromJobDetail(dssId, jobId, jobDetail);
         }
     }
 }

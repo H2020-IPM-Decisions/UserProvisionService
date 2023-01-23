@@ -405,5 +405,19 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
             }
             return inputAsJsonObject;
         }
+
+        public static string RemoveNYearsDatesDssParameters(string dssParameters, int yearsToRemove = 1)
+        {
+            try
+            {
+                //ToDo
+                return "{\r\n  \"configParameters\": {\r\n    \"timeZone\": \"Europe/Oslo\",\r\n   \"timeStart\": \"2021-11-01\",\r\n    \"timeEnd\": \"2022-01-20\"\r\n  }}";
+            }
+            catch (System.Exception)
+            {
+
+                throw;
+            }
+        }
     }
 }
