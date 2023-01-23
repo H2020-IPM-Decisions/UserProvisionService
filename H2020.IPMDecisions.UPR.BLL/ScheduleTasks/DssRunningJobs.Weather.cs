@@ -19,7 +19,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
 {
     public partial class DssRunningJobs
     {
-        private async Task<WeatherDataResult> PrepareWeatherData(FieldCropPestDss dss, DssModelInformation dssInformation, JObject dssInputSchemaAsJson)
+        private async Task<WeatherDataResult> PrepareWeatherData(FieldCropPestDss dss, DssModelInformation dssInformation, JObject dssInputSchemaAsJson, bool isOnTheFlyData = true)
         {
             try
             {
@@ -38,7 +38,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                         opt.Items["host"] = currentHost;
                     });
                     weatherToCall.IsForecast = true;
-                    result = AddWeatherDates(dssInformation, dssInputSchemaAsJson, weatherToCall, currentYear);
+                    result = AddWeatherDates(dssInformation, dssInputSchemaAsJson, weatherToCall, currentYear, isOnTheFlyData);
                     listOfPreferredWeatherDataSources.Add(weatherToCall);
                 }
                 if (farm.WeatherHistorical != null)
@@ -50,7 +50,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                     {
                         opt.Items["host"] = currentHost;
                     });
-                    result = AddWeatherDates(dssInformation, dssInputSchemaAsJson, weatherToCall, currentYear);
+                    result = AddWeatherDates(dssInformation, dssInputSchemaAsJson, weatherToCall, currentYear, isOnTheFlyData);
                     listOfPreferredWeatherDataSources.Add(weatherToCall);
                 }
                 if (result.Continue == false) return result;
@@ -68,7 +68,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             }
         }
 
-        private WeatherDataResult AddWeatherDates(DssModelInformation dssInformation, JObject dssInputSchemaAsJson, WeatherSchemaForHttp weatherToCall, int currentYear = -1)
+        private WeatherDataResult AddWeatherDates(DssModelInformation dssInformation, JObject dssInputSchemaAsJson, WeatherSchemaForHttp weatherToCall, int currentYear = -1, bool isOnTheFlyData = false)
         {
             var result = new WeatherDataResult() { Continue = true };
             DateTime originalWeatherEndDate = DateTime.Today.AddDays(-1);
@@ -77,7 +77,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             {
                 weatherToCall.WeatherTimeEnd = DssDataHelper.ProcessWeatherDataPeriod(dssInformation.Input.WeatherDataPeriodEnd, dssInputSchemaAsJson, currentYear);
                 originalWeatherEndDate = weatherToCall.WeatherTimeEnd;
-                if (weatherToCall.WeatherTimeEnd.AddDays(15) < DateTime.Today && bool.Parse(config["AppConfiguration:AutoUpdateToNextSeason"]))
+                if (weatherToCall.WeatherTimeEnd.AddDays(15) < DateTime.Today && bool.Parse(config["AppConfiguration:AutoUpdateToNextSeason"]) && !isOnTheFlyData)
                 {
                     if (dssInformation.Input.WeatherDataPeriodStart.FirstOrDefault().DeterminedBy.ToLower() != "fixed_date")
                     {
@@ -178,13 +178,13 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                     result.ReSchedule = true;
                     result.ErrorType = DssOutputMessageTypeEnum.Error;
                     result.ResponseWeatherAsString = this.jsonStringLocalizer["weather.service_busy", "10"].ToString();
-                } 
+                }
                 else if (weatherResponseAsObject.Any(wr => wr.ErrorCode == StatusCodes.Status404NotFound))
                 {
                     result.ErrorType = DssOutputMessageTypeEnum.Error;
                     result.ResponseWeatherAsString = string.Join("; ", weatherResponseAsObject.Select(wr => wr.Message)
                         .Where(wr => !wr.Contains("Internal Server Error")));
-                }         
+                }
                 else
                 {
                     result.ErrorType = DssOutputMessageTypeEnum.Error; ;
