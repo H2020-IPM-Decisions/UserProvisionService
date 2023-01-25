@@ -401,12 +401,14 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
                         latitude.ToString("G", CultureInfo.InvariantCulture),
                         longitude.ToString("G", CultureInfo.InvariantCulture));
                     var httpResponse = await httpClient.GetAsync(url);
-                    if (!httpResponse.IsSuccessStatusCode)
+                    if (httpResponse.IsSuccessStatusCode)
+                    {
+                        var responseAsText = await httpResponse.Content.ReadAsStringAsync();
+                        weatherResponse = JsonConvert.DeserializeObject<List<int>>(responseAsText);
+                        memoryCache.Set(cacheKey, weatherResponse, MemoryCacheHelper.CreateMemoryCacheEntryOptionsMinutes(30));
+                    }
+                    else
                         logger.LogError(string.Format("Weather call error. URL called: {0}. Error returned: {1}", url, await httpResponse.Content.ReadAsStringAsync()));
-
-                    var responseAsText = await httpResponse.Content.ReadAsStringAsync();
-                    weatherResponse = JsonConvert.DeserializeObject<List<int>>(responseAsText);
-                    memoryCache.Set(cacheKey, weatherResponse, MemoryCacheHelper.CreateMemoryCacheEntryOptionsDays(1));
                 }
                 return weatherResponse;
             }

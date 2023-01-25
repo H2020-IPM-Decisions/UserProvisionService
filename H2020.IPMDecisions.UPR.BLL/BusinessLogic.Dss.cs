@@ -30,6 +30,10 @@ namespace H2020.IPMDecisions.UPR.BLL
                 if (dssListResult == null || dssListResult.Count() == 0) return GenericResponseBuilder.Success<IEnumerable<DssInformation>>(dssListResult);
                 var weatherParametersResult = await weatherParameters;
 
+                if (weatherParametersResult == null)
+                {
+                    return GenericResponseBuilder.NoSuccess<IEnumerable<DssInformation>>(null, this.jsonStringLocalizer["weather.internal_error"].ToString());
+                }
                 var weatherParametersAsList = weatherParametersResult.Select(wx => wx);
                 var listModelsToDelete = new List<DssModelInformation>();
                 foreach (DssModelInformation model in dssListResult.SelectMany(d => d.DssModelInformation))
