@@ -122,7 +122,7 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
         }
 
-        public async Task<GenericResponse<List<DssHistoricalDataTask>>> PrepareDssToRunFieldCropPestDssHistoricalDataById(Guid id, Guid userId, FieldCropPestDssForUpdateDto fieldCropPestDssForUpdateDto)
+        public async Task<GenericResponse<List<DssHistoricalDataTask>>> PrepareDssToRunFieldCropPestDssHistoricalDataById(Guid id, Guid userId, FieldCropPestDssForHistoricalDataDto fieldCropPestDssForUpdateDto)
         {
             try
             {
@@ -137,16 +137,22 @@ namespace H2020.IPMDecisions.UPR.BLL
                     GenericResponseBuilder.NoSuccess<DssHistoricalDataTask>(null, this.jsonStringLocalizer["dss_process.not_on_the_fly"].ToString());
                 }
 
-                // Validate DSS parameters on server side
-                var validationErrorMessages = await ValidateNewDssParameters(dss.CropPestDss, fieldCropPestDssForUpdateDto.DssParameters);
-                if (validationErrorMessages.Count > 0)
+                var dssParametersToRun = fieldCropPestDssForUpdateDto.DssParameters;
+                if (string.IsNullOrEmpty(dssParametersToRun))
                 {
-                    var errorMessageToReturn = string.Join(" ", validationErrorMessages);
-                    return GenericResponseBuilder.NoSuccess<List<DssHistoricalDataTask>>(null, errorMessageToReturn);
+                    dssParametersToRun = dss.DssParameters;
                 }
-
+                else
+                {
+                    var validationErrorMessages = await ValidateNewDssParameters(dss.CropPestDss, dssParametersToRun);
+                    if (validationErrorMessages.Count > 0)
+                    {
+                        var errorMessageToReturn = string.Join(" ", validationErrorMessages);
+                        return GenericResponseBuilder.NoSuccess<List<DssHistoricalDataTask>>(null, errorMessageToReturn);
+                    }
+                }
                 var listOfJobs = new List<DssHistoricalDataTask>();
-                DssTaskStatusDto currentJobTask = CreateTaskStatusDto(id, fieldCropPestDssForUpdateDto.DssParameters);
+                DssTaskStatusDto currentJobTask = CreateTaskStatusDto(id, dssParametersToRun);
                 var currentDateJob = new DssHistoricalDataTask()
                 {
                     TaskType = "Current",
@@ -156,7 +162,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                 // Remove one year from dates
                 var dssModelInformation = await internalCommunicationProvider
                                         .GetDssModelInformationFromDssMicroservice(dss.CropPestDss.DssId, dss.CropPestDss.DssModelId);
-                var historicalParameters = DssDataHelper.PrepareDssParametersForHistoricalYear(dssModelInformation.Input, fieldCropPestDssForUpdateDto.DssParameters);
+                var historicalParameters = DssDataHelper.PrepareDssParametersForHistoricalYear(dssModelInformation.Input, dssParametersToRun);
                 DssTaskStatusDto historicalJobTask = CreateTaskStatusDto(id, historicalParameters);
                 var historicalDataJob = new DssHistoricalDataTask()
                 {
@@ -183,6 +189,11 @@ namespace H2020.IPMDecisions.UPR.BLL
             var jobDetail = monitoringApi.JobDetails(jobId);
             if (jobDetail == null) return null;
             return CreateDssStatusFromJobDetail(dssId, jobId, jobDetail);
+        }
+
+        public Task<GenericResponse> SaveAdaptationDss(Guid id, Guid userId, FieldCropPestDssForAdaptationDto fieldCropPestDssForAdaptationDto)
+        {
+            throw new NotImplementedException();
         }
     }
 }

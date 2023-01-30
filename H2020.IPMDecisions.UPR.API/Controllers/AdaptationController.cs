@@ -88,12 +88,33 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         /// <para>The DSS must belong to the user</para>
         /// </remarks>
         [Consumes(MediaTypeNames.Application.Json)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [HttpPost("{id:guid}/save", Name = "api.adaptation.postsave.byid")]
+        // POST: api/dss/1
+        public async Task<IActionResult> Save([FromRoute] Guid id, [FromBody] FieldCropPestDssForAdaptationDto fieldCropPestDssForAdaptationDto)
+        {
+            var userId = Guid.Parse(HttpContext.Items["userId"].ToString());
+            var response = await businessLogic.SaveAdaptationDss(id, userId, fieldCropPestDssForAdaptationDto);
+            if (!response.IsSuccessful)
+                return response.RequestResult;
+            return Ok(response);
+        }
+
+        /// <summary>
+        /// Use this request to run a DSS with temporal data and compare it against historical data
+        /// </summary>
+        /// <remarks>The user will be identified using the UserId on the authentication JWT.
+        /// <para>The DSS must belong to the user</para>
+        /// </remarks>
+        [Consumes(MediaTypeNames.Application.Json)]
         [ProducesResponseType(StatusCodes.Status202Accepted)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [HttpPost("{id:guid}/historicaldata", Name = "api.adaptation.posthistoricaldata.byid")]
         // POST: api/dss/1
-        public async Task<IActionResult> PostHistoricalData([FromRoute] Guid id, [FromBody] FieldCropPestDssForUpdateDto fieldCropPestDssForUpdateDto)
+        public async Task<IActionResult> PostHistoricalData([FromRoute] Guid id, [FromBody] FieldCropPestDssForHistoricalDataDto fieldCropPestDssForUpdateDto)
         {
             var userId = Guid.Parse(HttpContext.Items["userId"].ToString());
             var response = await businessLogic.PrepareDssToRunFieldCropPestDssHistoricalDataById(id, userId, fieldCropPestDssForUpdateDto);
