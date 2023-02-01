@@ -190,7 +190,9 @@ CREATE TABLE public."FieldCropPestDss" (
     "DssParameters" jsonb,
     "ObservationRequired" boolean DEFAULT false NOT NULL,
     "LastJobId" text,
-    "ReScheduleCount" integer DEFAULT 0 NOT NULL
+    "ReScheduleCount" integer DEFAULT 0 NOT NULL,
+    "IsCustomDss" boolean DEFAULT false NOT NULL,
+    "CustomName" text
 );
 
 
@@ -810,10 +812,10 @@ CREATE INDEX "IX_FieldCropPestDss_CropPestDssId" ON public."FieldCropPestDss" US
 
 --
 -- TOC entry 4554 (class 1259 OID 140067)
--- Name: IX_FieldCropPestDss_FieldCropPestId_CropPestDssId; Type: INDEX; Schema: public; Owner: -
+-- Name: IX_FieldCropPestDss_FieldCropPestId_CropPestDssId_IsCustomDss_~; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX "IX_FieldCropPestDss_FieldCropPestId_CropPestDssId" ON public."FieldCropPestDss" USING btree ("FieldCropPestId", "CropPestDssId");
+CREATE UNIQUE INDEX "IX_FieldCropPestDss_FieldCropPestId_CropPestDssId_IsCustomDss_~" ON public."FieldCropPestDss" USING btree ("FieldCropPestId", "CropPestDssId", "IsCustomDss", "CustomName");
 
 
 --
