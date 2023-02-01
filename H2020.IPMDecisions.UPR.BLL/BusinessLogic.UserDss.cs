@@ -275,8 +275,8 @@ namespace H2020.IPMDecisions.UPR.BLL
 
         private void CheckIfDssOutOfSeason(FieldDssResultDto dss)
         {
-            var fullResult = JsonConvert.DeserializeObject<DssModelOutputInformation>(dss.DssFullResult);
-            if (fullResult.TimeEnd != null && DateTime.Parse(fullResult.TimeEnd) < DateTime.Today)
+            var fullResult = JsonConvert.DeserializeObject<DssModelOutputInformation>(dss.DssFullResult);            
+            if (fullResult != null && fullResult.TimeEnd != null && DateTime.Parse(fullResult.TimeEnd) < DateTime.Today)
             {
                 var dateTimeAsShortDate = DateTime.Parse(fullResult.TimeEnd).ToString("dd/MM/yyyy");
                 dss.IsValid = false;
