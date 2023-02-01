@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using H2020.IPMDecisions.UPR.Core.Dtos;
 using H2020.IPMDecisions.UPR.Core.Entities;
@@ -24,6 +25,16 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
 
             // Dtos to Entities       
             CreateMap<FieldCropPestDssForUpdateDto, FieldCropPestDss>();
+
+            CreateMap<FieldCropPestDssForAdaptationDto, FieldCropPestDss>()
+                .ForMember(dest => dest.DssParameters, opt => opt.MapFrom(src => src.DssParameters))
+                .ForMember(dest => dest.CustomName, opt => opt.MapFrom(src => src.Name))
+                .AfterMap((src, dest, context) =>
+                {
+                    dest.IsCustomDss = true;
+                    dest.CropPestDssId = Guid.Parse(context.Options.Items["CropPestDssId"].ToString());
+                    dest.FieldCropPestId = Guid.Parse(context.Options.Items["FieldCropPestId"].ToString());
+                });
         }
     }
 }

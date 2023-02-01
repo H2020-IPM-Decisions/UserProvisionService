@@ -197,9 +197,15 @@ namespace H2020.IPMDecisions.UPR.BLL
                     var errorMessageToReturn = string.Join(" ", validationErrorMessages);
                     return GenericResponseBuilder.NoSuccess<List<DssHistoricalDataTask>>(null, errorMessageToReturn);
                 }
+                var customDss = this.mapper
+                    .Map<FieldCropPestDss>(fieldCropPestDssForAdaptationDto, opt =>
+                    {
+                        opt.Items["CropPestDssId"] = dss.CropPestDssId;
+                        opt.Items["FieldCropPestId"] = dss.FieldCropPestId;
+                    });
 
-                
-
+                this.dataService.FieldCropPestDsses.Create(customDss);
+                await this.dataService.CompleteAsync();
                 return GenericResponseBuilder.Success();
             }
             catch (Exception ex)
