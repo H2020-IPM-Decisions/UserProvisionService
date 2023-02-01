@@ -184,17 +184,30 @@ namespace H2020.IPMDecisions.UPR.BLL
 
         public async Task<GenericResponse> SaveAdaptationDss(Guid id, Guid userId, FieldCropPestDssForAdaptationDto fieldCropPestDssForAdaptationDto)
         {
-            // try
-            // {
+            try
+            {
+                var dss = await this.dataService.FieldCropPestDsses.FindByIdAsync(id);
+                if (dss == null) return GenericResponseBuilder.NotFound();
 
-            // }
-            // catch (Exception ex)
-            // {
-            //     logger.LogError(string.Format("Error in BLL - SaveAdaptationDss. {0}", ex.Message), ex);
-            //     String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
-            //     return GenericResponseBuilder.NoSuccess($"{ex.Message} InnerException: {innerMessage}");
-            // }
-            throw new NotImplementedException();
+                var dssUserId = dss.FieldCropPest.FieldCrop.Field.Farm.UserFarms.FirstOrDefault().UserId;
+                if (userId != dssUserId) return GenericResponseBuilder.NotFound();
+                var validationErrorMessages = await ValidateNewDssParameters(dss.CropPestDss, fieldCropPestDssForAdaptationDto.DssParameters);
+                if (validationErrorMessages.Count > 0)
+                {
+                    var errorMessageToReturn = string.Join(" ", validationErrorMessages);
+                    return GenericResponseBuilder.NoSuccess<List<DssHistoricalDataTask>>(null, errorMessageToReturn);
+                }
+
+                
+
+                return GenericResponseBuilder.Success();
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(string.Format("Error in BLL - SaveAdaptationDss. {0}", ex.Message), ex);
+                String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
+                return GenericResponseBuilder.NoSuccess($"{ex.Message} InnerException: {innerMessage}");
+            }
         }
 
         private DssTaskStatusDto CreateTaskStatusDto(Guid dssId, string dssParameters)
