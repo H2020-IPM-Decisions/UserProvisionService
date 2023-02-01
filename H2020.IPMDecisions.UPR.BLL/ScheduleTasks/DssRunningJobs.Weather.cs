@@ -386,7 +386,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             {
                 return await
                     internalCommunicationProvider
-                    .ValidateWeatherdDataSchemaFromDssMicroservice(weatherDataSchema);
+                    .ValidateWeatherDataSchemaFromDssMicroservice(weatherDataSchema);
             }
             catch (Exception ex)
             {

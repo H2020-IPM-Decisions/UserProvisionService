@@ -265,7 +265,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
             }
         }
 
-        public async Task<bool> ValidateWeatherdDataSchemaFromDssMicroservice(string weatherDataSchema)
+        public async Task<bool> ValidateWeatherDataSchemaFromDssMicroservice(string weatherDataSchema)
         {
             try
             {
