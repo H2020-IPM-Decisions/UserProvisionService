@@ -16,6 +16,7 @@
         "wrong_method": "De methode is voor acceptatie of weigeren van verzoeken"
     },
     "dss": {
+        "adaptation_duplicated": "For model {0}, you have already saved a DSS with the following name {1}. Please change the name before continuing.",
         "dss_missing_metadata": "DSS met ID '{0}' en versie '{1}' bestaan niet in de DSS microservice.",
         "duplicated": "Dubbele combinatie van Gewas ({0}), Ziekte ({1}), DSS ({2}), Model ({3}) & DSS Model versie ({4}) op een perceel.",
         "existing_combination": "Perceel heeft al gewas ({0}), ziekte ({1}), and DSS ({2}) combinatie.",

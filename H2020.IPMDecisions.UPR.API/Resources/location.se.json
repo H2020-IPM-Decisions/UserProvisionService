@@ -16,6 +16,7 @@
         "wrong_method": "Metoden är för att acceptera eller avvisa förfrågningar."
     },
     "dss": {
+        "adaptation_duplicated": "For model {0}, you have already saved a DSS with the following name {1}. Please change the name before continuing.",
         "dss_missing_metadata": "DSS med ID \"{0}\" och version \"{1}\" finns inte i DSS-tjänsten.",
         "duplicated": "Duplicerad kombination av Crop ({0}), Pest ({1}), DSS ({2}), Model ({3}) & DSS Model version ({4}) för ett fält.",
         "existing_combination": "Fältet har redan kombinationen gröda ({0}), skadegörare ({1}) och DSS ({2}).",

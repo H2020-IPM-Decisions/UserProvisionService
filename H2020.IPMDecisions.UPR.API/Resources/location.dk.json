@@ -16,6 +16,7 @@
 		"wrong_method": "Metoden er til at acceptere eller afvise anmodninger."
 	},
 	"dss": {
+        "adaptation_duplicated": "For model {0}, you have already saved a DSS with the following name {1}. Please change the name before continuing.",
 		"dss_missing_metadata": "DSS med ID '{0}' og version '{1}' findes ikke på DSS-mikrotjenesten.",
 		"duplicated": "Duplikeret kombination af afgrøde ({0}), skadedyr ({1}), DSS ({2}), model ({3}) og DSS-modelversion ({4}) på en mark.",
 		"existing_combination": "Marken har allerede en kombination af afgrøde ({0}), skadedyr ({1}) og DSS ({2}).",

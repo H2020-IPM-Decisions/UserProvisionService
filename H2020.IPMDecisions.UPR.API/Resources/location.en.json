@@ -16,6 +16,7 @@
         "wrong_method": "The method is for accepting or declining requests."
     },
     "dss": {
+        "adaptation_duplicated": "For model {0}, you have already saved a DSS with the following name {1}. Please change the name before continuing.",
         "dss_missing_metadata": "DSS with ID '{0}' and version '{1}' do not exist on the DSS microservice.",
         "duplicated": "Duplicated combination of Crop ({0}), Pest ({1}), DSS ({2}), Model ({3}) & DSS Model version ({4}) on a field.",
         "existing_combination": "Field already has crop ({0}), pest ({1}), and DSS ({2}) combination.",

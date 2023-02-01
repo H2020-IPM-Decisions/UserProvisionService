@@ -16,6 +16,7 @@
         "wrong_method": "Metodi on pyyntöjen hyväksymiseen tai hylkäämiseen."
     },
     "dss": {
+        "adaptation_duplicated": "For model {0}, you have already saved a DSS with the following name {1}. Please change the name before continuing.",
         "dss_missing_metadata": "DSS:ää tunnuksella '{0}' ja versiolla '{1}' ei ole olemassa DSS-mikropalveluissa.",
         "duplicated": "Toistettu  kasvin ({0}), kasvintuhoojan ({1}), DSS({2}), mallin ({3}), DSS version ({4}) yhdistelmä pellolla.",
         "existing_combination": "Pellolla on jo kasvin ({0}), kasvintuhoojan ({1}) ja DSS({2}) yhdistelmä.",
