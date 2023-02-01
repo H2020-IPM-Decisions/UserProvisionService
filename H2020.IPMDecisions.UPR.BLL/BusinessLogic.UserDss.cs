@@ -252,7 +252,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                         }
                     }
 
-                    if (eppoCodesData.Count > 0)
+                    if (eppoCodesData != null && eppoCodesData.Count > 0)
                     {
                         var eppoCodeLanguages = EppoCodesHelper.GetCropPestEppoCodesNames(eppoCodesData, dss.CropEppoCode, dss.PestEppoCode);
                         dss.CropLanguages = eppoCodeLanguages.CropLanguages;

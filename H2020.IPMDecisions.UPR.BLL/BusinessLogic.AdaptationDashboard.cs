@@ -182,6 +182,21 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
         }
 
+        public async Task<GenericResponse> SaveAdaptationDss(Guid id, Guid userId, FieldCropPestDssForAdaptationDto fieldCropPestDssForAdaptationDto)
+        {
+            // try
+            // {
+
+            // }
+            // catch (Exception ex)
+            // {
+            //     logger.LogError(string.Format("Error in BLL - SaveAdaptationDss. {0}", ex.Message), ex);
+            //     String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
+            //     return GenericResponseBuilder.NoSuccess($"{ex.Message} InnerException: {innerMessage}");
+            // }
+            throw new NotImplementedException();
+        }
+
         private DssTaskStatusDto CreateTaskStatusDto(Guid dssId, string dssParameters)
         {
             var jobId = this.queueJobs.RunDssOnMemory(dssId, dssParameters);
@@ -189,11 +204,6 @@ namespace H2020.IPMDecisions.UPR.BLL
             var jobDetail = monitoringApi.JobDetails(jobId);
             if (jobDetail == null) return null;
             return CreateDssStatusFromJobDetail(dssId, jobId, jobDetail);
-        }
-
-        public Task<GenericResponse> SaveAdaptationDss(Guid id, Guid userId, FieldCropPestDssForAdaptationDto fieldCropPestDssForAdaptationDto)
-        {
-            throw new NotImplementedException();
         }
     }
 }
