@@ -17,7 +17,11 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
                 .ForMember(dest => dest.DssResult,
                     opt => opt.MapFrom(src => src.FieldDssResults.OrderByDescending(r => r.CreationDate).FirstOrDefault()))
                 .ForMember(dest => dest.DssParameters,
-                    opt => opt.MapFrom(src => JsonConvert.DeserializeObject<dynamic>(src.DssParameters.ToString())));
+                    opt => opt.MapFrom(src => JsonConvert.DeserializeObject<dynamic>(src.DssParameters.ToString())))
+                    .AfterMap((src, dest) =>
+                    {
+                        if (src.IsCustomDss == true && !string.IsNullOrEmpty(src.CustomName)) dest.CropPestDssDto.DssModelName = src.CustomName;
+                    });
 
             CreateMap<FieldCropPestDss, DssParametersDto>()
                 .ForMember(dest => dest.DssParameters,

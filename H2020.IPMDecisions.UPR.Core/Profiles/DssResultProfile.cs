@@ -39,6 +39,7 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
                 .AfterMap((src, dest) =>
                 {
                     if (src.CropPestDss.DssExecutionType.ToLower() == "link") dest.IsValid = true;
+                    dest.DssModelName = (src.IsCustomDss == true && !string.IsNullOrEmpty(src.CustomName)) ? src.CustomName : src.CropPestDss.DssModelName;
                 });
 
             CreateMap<FieldCropPestDss, FieldDssResultDetailedDto>()
@@ -47,7 +48,6 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
                 .ForMember(dest => dest.DssId, opt => opt.MapFrom(src => src.CropPestDss.DssId))
                 .ForMember(dest => dest.DssName, opt => opt.MapFrom(src => src.CropPestDss.DssName))
                 .ForMember(dest => dest.DssModelId, opt => opt.MapFrom(src => src.CropPestDss.DssModelId))
-                .ForMember(dest => dest.DssModelName, opt => opt.MapFrom(src => src.CropPestDss.DssModelName))
                 .ForMember(dest => dest.DssModelVersion, opt => opt.MapFrom(src => src.CropPestDss.DssModelVersion))
                 .ForMember(dest => dest.DssExecutionType, opt => opt.MapFrom(src => src.CropPestDss.DssExecutionType))
                 .ForMember(dest => dest.FarmId, opt => opt.MapFrom(src => src.FieldCropPest.FieldCrop.Field.FarmId))
@@ -68,6 +68,7 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
                 .AfterMap((src, dest) =>
                 {
                     if (src.CropPestDss.DssExecutionType.ToLower() == "link") dest.IsValid = true;
+                    dest.DssModelName = (src.IsCustomDss == true && !string.IsNullOrEmpty(src.CustomName)) ? src.CustomName : src.CropPestDss.DssModelName;
                 });
 
             // Dtos to Entities
@@ -80,6 +81,8 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
                 .AfterMap((src, dest) =>
                 {
                     if (src.DssExecutionType.ToLower() == "link") dest.IsValid = true;
+                    dest.DssModelName = (src.IsCustomModelName == true && !string.IsNullOrEmpty(src.DssCustomModelName)) ? src.DssCustomModelName : src.DssModelName;
+
                 });
 
             CreateMap<OutputChartInfo, DssParameterChartInformation>();
@@ -98,23 +101,20 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
                     {
                         dest.DssLogoUrl = string.Format("{0}{1}", context.Options.Items["host"].ToString(), dest.DssLogoUrl);
                     }
-                }); ;
+                });
 
             CreateMap<DssModelInformation, FieldDssResultDto>()
-                .ForMember(dest => dest.DssModelName, opt => opt.MapFrom(src => src.Name))
                 .ForMember(dest => dest.DssDescription, opt => opt.MapFrom(src => src.Description))
                 .ForMember(dest => dest.DssPurpose, opt => opt.MapFrom(src => src.Purpose))
                 .ForMember(dest => dest.ValidatedSpatialCountries, opt => opt.MapFrom(src => src.ValidSpatial.Countries))
                 .ForMember(dest => dest.Id, opt => opt.Ignore());
 
             CreateMap<DssModelInformation, CropPestDssDto>()
-               .ForMember(dest => dest.DssModelName, opt => opt.MapFrom(src => src.Name))
                .ForMember(dest => dest.DssPurpose, opt => opt.MapFrom(src => src.Purpose))
                .ForMember(dest => dest.ValidatedSpatialCountries, opt => opt.MapFrom(src => src.ValidSpatial.Countries))
                .ForMember(dest => dest.Id, opt => opt.Ignore());
 
             CreateMap<DssModelInformation, FieldDssResultDetailedDto>()
-               .ForMember(dest => dest.DssModelName, opt => opt.MapFrom(src => src.Name))
                .ForMember(dest => dest.DssTypeOfDecision, opt => opt.MapFrom(src => src.TypeOfDecision))
                .ForMember(dest => dest.DssTypeOfOutput, opt => opt.MapFrom(src => src.TypeOfOutput))
                .ForMember(dest => dest.DssDescription, opt => opt.MapFrom(src => src.Description))
