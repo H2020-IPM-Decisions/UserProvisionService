@@ -490,7 +490,7 @@ namespace H2020.IPMDecisions.UPR.BLL
         {
             dss.WarningExplanation = dssModelInformation.Output.ListWarningStatusInterpretation[dss.WarningStatus].Explanation;
             dss.WarningRecommendedAction = dssModelInformation.Output.ListWarningStatusInterpretation[dss.WarningStatus].RecommendedAction;
-            dss.WarningStatusRepresentation = this.jsonStringLocalizer["dss.warning_status_representation", 
+            dss.WarningStatusRepresentation = this.jsonStringLocalizer["dss.warning_status_representation",
                 dss.WarningExplanation, dss.WarningRecommendedAction].ToString();
         }
 
@@ -543,10 +543,10 @@ namespace H2020.IPMDecisions.UPR.BLL
             JObject inputAsJsonObject = null;
             if (dssInputUISchema != null)
             {
-                inputAsJsonObject = JObject.Parse(dssInputUISchema.ToString());
+                var jsonSchemaWithDate = DssDataHelper.AddDefaultDatesToDssJsonInput(dssInputUISchema.ToString());
+                inputAsJsonObject = JObject.Parse(jsonSchemaWithDate.ToString());
                 JObject userParametersAsJsonObject = JObject.Parse(dss.DssParameters.ToString());
                 DssDataHelper.AddDefaultDssParametersToInputSchema(inputAsJsonObject, userParametersAsJsonObject);
-
                 if (!displayInternalParameters)
                 {
                     var dssModelInformation = await internalCommunicationProvider
