@@ -23,6 +23,7 @@
         "field_eppo_code": "Perceel met ID '(0) accepteert alleen '(1) 'EPPO gewascode",
         "model_missing_metadata": "De DSS met ID '{0}' en versie '{1}', hebben geen enkel model met ID '{2}' en versie '{3}' in de DSS microservice.",
         "warning_header": "Een of meer gewas, pest & DSS combinaties bestaan al. Controleer 'response body' voor meer informatie",
+        "warning_status_representation": "Explanation: {0}.\nRecommended Action: {1}.",
         "warnings": "Corrigeer de volgende fout(en) alvorens op te slaan"
     },
     "dss_process": {

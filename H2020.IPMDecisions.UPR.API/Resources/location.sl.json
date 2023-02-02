@@ -23,6 +23,7 @@
         "field_eppo_code": "Polje z ID {0} sprejema samo '{1}' kodo EPPO za kulturno rastlino.",
         "model_missing_metadata": "DSS z ID '{0}' in različico '{1}' nima nobenega modela z ID '{2}' in različico '{3}'.",
         "warning_header": "Ena ali več kombinacij kulturne rastline, škodljivega organizma in DSS že obstaja. Za več informacij kontaktirajte odgovorno osebo. ",
+        "warning_status_representation": "Explanation: {0}.\nRecommended Action: {1}.",
         "warnings": "Pred shranjevanjem odpravite naslednjo(-e) napako(-e):"
     },
     "dss_process": {

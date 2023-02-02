@@ -23,6 +23,7 @@
         "field_eppo_code": "Laukas su ID {0} priima tik „{1}“ augalo EPPO kodą",
         "model_missing_metadata": "SPS su ID '{0}' ir versija '{1}' neturi jokio modelio su ID '{2}' ir versija '{3}' SPS mikropaslaugoje.",
         "warning_header": "Jau yra vienas ar daugiau augalų, kenksmingųjų organizmų ir SPS derinių. Norėdami gauti daugiau informacijos patikrinkite atsakymo turinį.",
+        "warning_status_representation": "Explanation: {0}.\nRecommended Action: {1}.",
         "warnings": "Prieš išsaugodami ištaisykite šią klaidą (-as):"
     },
     "dss_process": {

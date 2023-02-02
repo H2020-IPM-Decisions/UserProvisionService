@@ -275,7 +275,7 @@ namespace H2020.IPMDecisions.UPR.BLL
 
         private void CheckIfDssOutOfSeason(FieldDssResultDto dss)
         {
-            var fullResult = JsonConvert.DeserializeObject<DssModelOutputInformation>(dss.DssFullResult);            
+            var fullResult = JsonConvert.DeserializeObject<DssModelOutputInformation>(dss.DssFullResult);
             if (fullResult != null && fullResult.TimeEnd != null && DateTime.Parse(fullResult.TimeEnd) < DateTime.Today)
             {
                 var dateTimeAsShortDate = DateTime.Parse(fullResult.TimeEnd).ToString("dd/MM/yyyy");
@@ -486,10 +486,12 @@ namespace H2020.IPMDecisions.UPR.BLL
             return labelsList;
         }
 
-        private static void AddWarningMessages(FieldDssResultBaseDto dss, DssModelInformation dssModelInformation)
+        private void AddWarningMessages(FieldDssResultBaseDto dss, DssModelInformation dssModelInformation)
         {
-            dss.WarningStatusRepresentation = dssModelInformation.Output.ListWarningStatusInterpretation[dss.WarningStatus].Explanation;
-            dss.WarningMessage = dssModelInformation.Output.ListWarningStatusInterpretation[dss.WarningStatus].RecommendedAction;
+            dss.WarningExplanation = dssModelInformation.Output.ListWarningStatusInterpretation[dss.WarningStatus].Explanation;
+            dss.WarningRecommendedAction = dssModelInformation.Output.ListWarningStatusInterpretation[dss.WarningStatus].RecommendedAction;
+            dss.WarningStatusRepresentation = this.jsonStringLocalizer["dss.warning_status_representation", 
+                dss.WarningExplanation, dss.WarningRecommendedAction].ToString();
         }
 
         private static GeoJsonFeatureCollection CreateFarmLocationGeoJson(IEnumerable<Farm> farmsFromUser)

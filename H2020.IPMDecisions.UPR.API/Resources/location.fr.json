@@ -23,6 +23,7 @@
         "field_eppo_code": "Le champ avec l'ID {0} n'accepte que le code EPPO '{1}' pour la culture.",
         "model_missing_metadata": "L'OAD avec l'ID '{0}' et la version '{1}' n'a aucun modèle avec l'ID '{2}' et la version '{3}' dans le microservice OAD.",
         "warning_header": "Une ou plusieurs combinaisons de Culture, Bioagresseur et OAD existe déjà. Veuillez consulter la réponse pour plus d'informations.",
+        "warning_status_representation": "Explanation: {0}.\nRecommended Action: {1}.",
         "warnings": "Veuillez corriger la ou les erreurs suivantes avant de sauvegarder :"
     },
     "dss_process": {
