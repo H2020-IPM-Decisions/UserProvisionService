@@ -25,7 +25,7 @@
         "model_missing_metadata": "Το DSS με ID '{0}' και έκδοση '{1}', δεν έχει κανένα μοντέλο με ID '{2}' και έκδοση '{3}' στη μικρουπηρεσία DSS.",
         "not_on_the_fly": "The DSS can not run 'on-the-fly', so this process cannot be completed.",
         "warning_header": "Υπάρχει ήδη ένας ή περισσότεροι συνδυασμοί καλλιέργειας, επιβλαβών οργανισμών και DSS. Ελέγξτε το σώμα της απάντησης για περισσότερες πληροφορίες.",
-        "warning_status_representation": "Explanation: {0}.\nRecommended Action: {1}.",
+        "warning_status_representation": "Explanation: {0}\nRecommended Action: {1}",
         "warnings": "Διορθώστε το(τα) ακόλουθο(-α) σφάλμα(-τα) πριν από την αποθήκευση:"
     },
     "dss_process": {

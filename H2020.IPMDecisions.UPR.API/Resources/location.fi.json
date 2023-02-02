@@ -23,7 +23,7 @@
         "field_eppo_code": "Kenttä {0} hyväksyy vain '{1}' kasvin EPPO-koodin.",
         "model_missing_metadata": "DSS:llä tunnuksella '{0}' ja versiolla '{1}' ei ole yhtään mallia tunnuksella '{2}' ja versiolla '{3}' DSS-mikropalvelussa.",
         "warning_header": "Yksi tai useampi kasvin, kasvintuhoojan ja DSSn yhdistelmä on jo olemassa. Lisätietoja varten tarkista vastauksen sisältö.",
-        "warning_status_representation": "Explanation: {0}.\nRecommended Action: {1}.",
+        "warning_status_representation": "Explanation: {0}\nRecommended Action: {1}",
         "warnings": "Korjaa seuraavat virheet ennen tallentamista."
     },
     "dss_process": {
