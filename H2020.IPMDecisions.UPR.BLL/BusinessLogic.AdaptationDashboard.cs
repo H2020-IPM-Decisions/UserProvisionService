@@ -7,6 +7,7 @@ using H2020.IPMDecisions.UPR.Core.Dtos;
 using H2020.IPMDecisions.UPR.Core.Entities;
 using H2020.IPMDecisions.UPR.Core.Models;
 using Hangfire;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
 namespace H2020.IPMDecisions.UPR.BLL
@@ -106,13 +107,13 @@ namespace H2020.IPMDecisions.UPR.BLL
                         dssResult = await CreateDetailedResultToReturn(newDss, daysDataToReturn);
                     }
                 }
-                var dataTorReturn = new AdaptationTaskDssResult()
+                var dataToReturn = new AdaptationTaskDssResult()
                 {
                     DssTaskStatusDto = taskStatus,
                     DssDetailedResult = dssResult
                 };
 
-                return GenericResponseBuilder.Success<AdaptationTaskDssResult>(dataTorReturn);
+                return GenericResponseBuilder.Success<AdaptationTaskDssResult>(dataToReturn);
             }
             catch (Exception ex)
             {
@@ -182,37 +183,68 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
         }
 
-        public async Task<GenericResponse> SaveAdaptationDss(Guid id, Guid userId, FieldCropPestDssForAdaptationDto fieldCropPestDssForAdaptationDto)
+        public async Task<GenericResponse<IDictionary<string, object>>> SaveAdaptationDss(Guid id, Guid userId, FieldCropPestDssForAdaptationDto fieldCropPestDssForAdaptationDto, HttpContext httpContext)
         {
             try
             {
                 var dss = await this.dataService.FieldCropPestDsses.FindByIdAsync(id);
-                if (dss == null) return GenericResponseBuilder.NotFound();
+                if (dss == null) return GenericResponseBuilder.NotFound<IDictionary<string, object>>();
 
                 var dssUserId = dss.FieldCropPest.FieldCrop.Field.Farm.UserFarms.FirstOrDefault().UserId;
-                if (userId != dssUserId) return GenericResponseBuilder.NotFound();
+                if (userId != dssUserId) return GenericResponseBuilder.NotFound<IDictionary<string, object>>();
                 var validationErrorMessages = await ValidateNewDssParameters(dss.CropPestDss, fieldCropPestDssForAdaptationDto.DssParameters);
+
+                var dataToReturn = new Dictionary<string, object>();
                 if (validationErrorMessages.Count > 0)
                 {
                     var errorMessageToReturn = string.Join(" ", validationErrorMessages);
-                    return GenericResponseBuilder.NoSuccess<List<DssHistoricalDataTask>>(null, errorMessageToReturn);
+                    return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(dataToReturn, errorMessageToReturn);
                 }
-                var customDss = this.mapper
+                var existingCombination = dss.FieldCropPest.FieldCropPestDsses
+                    .Where(fcpd =>
+                        fcpd.CropPestDssId == dss.CropPestDssId
+                        && fcpd.FieldCropPestId == dss.FieldCropPestId
+                        && fcpd.IsCustomDss == true
+                        && fcpd.CustomName == fieldCropPestDssForAdaptationDto.Name)
+                    .FirstOrDefault();
+
+                if (existingCombination != null)
+                {
+                    var errorMessage = this.jsonStringLocalizer["dss.adaptation_duplicated",
+                        dss.CropPestDss.DssModelName,
+                        fieldCropPestDssForAdaptationDto.Name].ToString();
+                    dataToReturn.Add("warnings", errorMessage);
+                    httpContext.Response.Headers.Add("warning", "Warning");
+                    httpContext.Response.Headers.Add("warn-text", this.jsonStringLocalizer["dss.warning_header"].ToString());
+                    return GenericResponseBuilder.Duplicated<IDictionary<string, object>>(errorMessage, dataToReturn);
+                }
+
+                var newDss = this.mapper
                     .Map<FieldCropPestDss>(fieldCropPestDssForAdaptationDto, opt =>
                     {
                         opt.Items["CropPestDssId"] = dss.CropPestDssId;
                         opt.Items["FieldCropPestId"] = dss.FieldCropPestId;
                     });
 
-                this.dataService.FieldCropPestDsses.Create(customDss);
+                this.dataService.FieldCropPestDsses.Create(newDss);
                 await this.dataService.CompleteAsync();
-                return GenericResponseBuilder.Success();
+
+                var fieldCropPestDssToReturn = this.mapper.Map<FieldCropPestDssDto>(newDss);
+                if (newDss.CropPestDss.DssExecutionType.ToLower() == "onthefly")
+                {
+                    var jobId = this.queueJobs.AddDssOnTheFlyQueue(newDss.Id);
+                    fieldCropPestDssToReturn.DssTask.Id = jobId;
+                    newDss.LastJobId = jobId;
+                }
+                await this.dataService.CompleteAsync();
+                dataToReturn.Add("value", fieldCropPestDssToReturn);
+                return GenericResponseBuilder.Success<IDictionary<string, object>>(dataToReturn);
             }
             catch (Exception ex)
             {
                 logger.LogError(string.Format("Error in BLL - SaveAdaptationDss. {0}", ex.Message), ex);
                 String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
-                return GenericResponseBuilder.NoSuccess($"{ex.Message} InnerException: {innerMessage}");
+                return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, $"{ex.Message} InnerException: {innerMessage}");
             }
         }
 

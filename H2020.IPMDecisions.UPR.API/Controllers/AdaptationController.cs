@@ -96,7 +96,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         public async Task<IActionResult> Save([FromRoute] Guid id, [FromBody] FieldCropPestDssForAdaptationDto fieldCropPestDssForAdaptationDto)
         {
             var userId = Guid.Parse(HttpContext.Items["userId"].ToString());
-            var response = await businessLogic.SaveAdaptationDss(id, userId, fieldCropPestDssForAdaptationDto);
+            var response = await businessLogic.SaveAdaptationDss(id, userId, fieldCropPestDssForAdaptationDto, HttpContext);
             if (!response.IsSuccessful)
                 return response.RequestResult;
             return Ok(response);
