@@ -23,7 +23,7 @@
         "field_eppo_code": "Field with ID {0} only accepts '{1}' crop EPPO code",
         "model_missing_metadata": "The DSS with ID '{0}' and version '{1}', do not have any model with ID '{2}' and version '{3}' on the DSS microservice.",
         "warning_header": "One or more crop, pest & DSS combinations already exist. Please check the response body for more information.",
-        "warning_status_representation": "Explanation: {0}\nRecommended Action: {1}",
+        "warning_status_representation": "{0}\n\n{1}",
         "warnings": "Please fix the following error(s) before saving:"
     },
     "dss_process": {

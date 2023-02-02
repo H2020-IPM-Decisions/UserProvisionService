@@ -23,7 +23,7 @@
         "field_eppo_code": "Fält med ID {0} accepterar endast EPPO-kod för \"{1}\"",
         "model_missing_metadata": "DSS med ID \"{0}\" och version \"{1}\", har ingen modell med ID \"{2}\" och version \"{3}\" i DSS-tjänsten.",
         "warning_header": "En eller flera kombinationer av grödor, skadegörare och DSS finns redan. Mer information finns i svarstexten.",
-        "warning_status_representation": "Explanation: {0}\nRecommended Action: {1}",
+        "warning_status_representation": "{0}\n\n{1}",
         "warnings": "Åtgärda följande fel innan du sparar:"
     },
     "dss_process": {
