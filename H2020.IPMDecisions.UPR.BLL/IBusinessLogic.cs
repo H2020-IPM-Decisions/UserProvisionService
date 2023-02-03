@@ -146,5 +146,9 @@ namespace H2020.IPMDecisions.UPR.BLL
         #region DSS Result Task
         Task<GenericResponse<DssTaskStatusDto>> GetLatestTaskStatusByDssId(Guid dssId, Guid userId);
         #endregion
+
+        #region Weather
+        Task<GenericResponse<List<WeatherBaseDto>>> GetWeatherDataSources();
+        #endregion
     }
 }

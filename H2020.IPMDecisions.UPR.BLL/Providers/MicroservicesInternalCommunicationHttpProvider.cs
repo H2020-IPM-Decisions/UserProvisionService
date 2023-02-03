@@ -448,6 +448,32 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
                 return null;
             }
         }
+
+        public async Task<List<WeatherDataSchema>> GetListWeatherProviderInformationFromWeatherMicroservice()
+        {
+            try
+            {
+                var cacheKey = string.Format("list_weather");
+                if (!memoryCache.TryGetValue(cacheKey, out List<WeatherDataSchema> weatherSchema))
+                {
+                    var wxEndPoint = config["MicroserviceInternalCommunication:WeatherMicroservice"];
+                    var response = await httpClient.GetAsync(string.Format("{0}rest/weatherdatasource", wxEndPoint));
+
+                    if (!response.IsSuccessStatusCode)
+                        return null;
+
+                    var responseAsText = await response.Content.ReadAsStringAsync();
+                    weatherSchema = JsonConvert.DeserializeObject<List<WeatherDataSchema>>(responseAsText);
+                    memoryCache.Set(cacheKey, weatherSchema, MemoryCacheHelper.CreateMemoryCacheEntryOptionsDays(1));
+                }
+                return weatherSchema;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(string.Format("Error in Internal Communication - GetListWeatherProviderInformationFromWeatherMicroservice. {0}", ex.Message));
+                return null;
+            }
+        }
         #endregion
     }
 }
