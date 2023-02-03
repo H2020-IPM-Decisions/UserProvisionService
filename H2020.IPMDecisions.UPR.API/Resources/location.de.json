@@ -16,12 +16,14 @@
         "wrong_method": "Die Methode ist zum Annehmen oder Ablehnen von Anfragen."
     },
     "dss": {
+        "adaptation_duplicated": "For model {0}, you have already saved a DSS with the following name {1}. Please change the name before continuing.",
         "dss_missing_metadata": "DSS mit ID '{0}' und Version '{1}' existieren nicht auf dem DSS Microservice.",
         "duplicated": "Doppelte Kombination von Kultur ({0}), Schaderreger ({1}), DSS ({2}), Modell ({3}) & DSS-Modellversion ({4}) auf einem Feld.",
         "existing_combination": "Das Feld hat bereits eine Kombination aus Kultur ({0}), Schaderreger ({1}) und DSS ({2}).",
         "field_eppo_code": "Feld mit ID {0} akzeptiert nur '{1}' als EPPO Kultur-Code",
         "model_missing_metadata": "Für die DSS mit der ID '{0}' und der Version '{1}' gibt es kein Modell mit der ID '{2}' und der Version '{3}' im DSS-Microservice.",
         "warning_header": "Eine oder mehrere Kombinationen aus Kultur, Schaderreger und DSS sind bereits vorhanden. Bitte prüfen Sie den Antworttext für weitere Informationen.",
+        "warning_status_representation": "{0}\n\n{1}",
         "warnings": "Bitte beheben Sie den/die folgenden Fehler vor dem Speichern:"
     },
     "dss_process": {

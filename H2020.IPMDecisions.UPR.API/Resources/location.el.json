@@ -16,6 +16,7 @@
         "wrong_method": "Η μέθοδος αφορά την αποδοχή ή την απόρριψη αιτήσεων."
     },
     "dss": {
+        "adaptation_duplicated": "For model {0}, you have already saved a DSS with the following name {1}. Please change the name before continuing.",
         "dss_missing_metadata": "Το DSS με ID '{0}' και έκδοση '{1}' δεν υπάρχει στη μικρουπηρεσία DSS.",
         "duplicated": "Επαναλαμβανόμενος συνδυασμός των Καλλιέργεια ({0}), Εχθρός ({1}), DSS ({2}), Μοντέλο ({3}) & Έκδοση μοντέλου DSS ({4}) σε ένα πεδίο.",
         "existing_combination": "Ο αγρός έχει ήδη συνδυασμό καλλιέργειας ({0}), επιβλαβών οργανισμών ({1}) και DSS ({2}).",
@@ -24,6 +25,7 @@
         "model_missing_metadata": "Το DSS με ID '{0}' και έκδοση '{1}', δεν έχει κανένα μοντέλο με ID '{2}' και έκδοση '{3}' στη μικρουπηρεσία DSS.",
         "not_on_the_fly": "The DSS can not run 'on-the-fly', so this process cannot be completed.",
         "warning_header": "Υπάρχει ήδη ένας ή περισσότεροι συνδυασμοί καλλιέργειας, επιβλαβών οργανισμών και DSS. Ελέγξτε το σώμα της απάντησης για περισσότερες πληροφορίες.",
+        "warning_status_representation": "{0}\n\n{1}",
         "warnings": "Διορθώστε το(τα) ακόλουθο(-α) σφάλμα(-τα) πριν από την αποθήκευση:"
     },
     "dss_process": {

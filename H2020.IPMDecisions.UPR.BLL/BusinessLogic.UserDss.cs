@@ -237,7 +237,12 @@ namespace H2020.IPMDecisions.UPR.BLL
                         }
                         else
                         {
-                            this.mapper.Map(dssOnListMatchDatabaseRecord, dss);
+                            var dssApiUrl = config["MicroserviceInternalCommunication:DssApiUrl"];
+                            this.mapper.Map(dssOnListMatchDatabaseRecord, dss, opt =>
+                            {
+                                opt.Items["host"] = string.Format("{0}", dssApiUrl);
+                            });
+
                             this.mapper.Map(dssModelMatchDatabaseRecord, dss);
                             if (dssModelMatchDatabaseRecord.Output != null)
                             {
@@ -247,13 +252,12 @@ namespace H2020.IPMDecisions.UPR.BLL
                         }
                     }
 
-                    if (eppoCodesData.Count > 0)
+                    if (eppoCodesData != null && eppoCodesData.Count > 0)
                     {
                         var eppoCodeLanguages = EppoCodesHelper.GetCropPestEppoCodesNames(eppoCodesData, dss.CropEppoCode, dss.PestEppoCode);
                         dss.CropLanguages = eppoCodeLanguages.CropLanguages;
                         dss.PestLanguages = eppoCodeLanguages.PestLanguages;
                     }
-                    
                     if (monitoringApi == null || string.IsNullOrEmpty(dss.DssTaskStatusDto.Id)) continue;
                     var jobDetail = monitoringApi.JobDetails(dss.DssTaskStatusDto.Id);
                     if (jobDetail != null)
@@ -272,7 +276,7 @@ namespace H2020.IPMDecisions.UPR.BLL
         private void CheckIfDssOutOfSeason(FieldDssResultDto dss)
         {
             var fullResult = JsonConvert.DeserializeObject<DssModelOutputInformation>(dss.DssFullResult);
-            if (fullResult.TimeEnd != null && DateTime.Parse(fullResult.TimeEnd) < DateTime.Today)
+            if (fullResult != null && fullResult.TimeEnd != null && DateTime.Parse(fullResult.TimeEnd) < DateTime.Today)
             {
                 var dateTimeAsShortDate = DateTime.Parse(fullResult.TimeEnd).ToString("dd/MM/yyyy");
                 dss.IsValid = false;
@@ -341,7 +345,13 @@ namespace H2020.IPMDecisions.UPR.BLL
                             dssInformation.DssOrganization.Name,
                             dssInformation.DssOrganization.Country);
             dataToReturn.DssVersion = dssInformation.Version;
-
+            if (!string.IsNullOrEmpty(dssInformation.LogoUrl))
+            {
+                var dssApiUrl = config["MicroserviceInternalCommunication:DssApiUrl"];
+                dataToReturn.DssLogoUrl = string.Format("{0}{1}",
+                    dssApiUrl,
+                    dssInformation.LogoUrl);
+            }
             var dssModelInformation = dssInformation
                 .DssModelInformation
                 .FirstOrDefault(m => m.Id == dss.CropPestDss.DssModelId);
@@ -476,10 +486,12 @@ namespace H2020.IPMDecisions.UPR.BLL
             return labelsList;
         }
 
-        private static void AddWarningMessages(FieldDssResultBaseDto dss, DssModelInformation dssModelInformation)
+        private void AddWarningMessages(FieldDssResultBaseDto dss, DssModelInformation dssModelInformation)
         {
-            dss.WarningStatusRepresentation = dssModelInformation.Output.ListWarningStatusInterpretation[dss.WarningStatus].Explanation;
-            dss.WarningMessage = dssModelInformation.Output.ListWarningStatusInterpretation[dss.WarningStatus].RecommendedAction;
+            dss.WarningExplanation = dssModelInformation.Output.ListWarningStatusInterpretation[dss.WarningStatus].Explanation;
+            dss.WarningRecommendedAction = dssModelInformation.Output.ListWarningStatusInterpretation[dss.WarningStatus].RecommendedAction;
+            dss.WarningStatusRepresentation = this.jsonStringLocalizer["dss.warning_status_representation",
+                dss.WarningExplanation, dss.WarningRecommendedAction].ToString();
         }
 
         private static GeoJsonFeatureCollection CreateFarmLocationGeoJson(IEnumerable<Farm> farmsFromUser)
@@ -531,10 +543,10 @@ namespace H2020.IPMDecisions.UPR.BLL
             JObject inputAsJsonObject = null;
             if (dssInputUISchema != null)
             {
-                inputAsJsonObject = JObject.Parse(dssInputUISchema.ToString());
+                var jsonSchemaWithDate = DssDataHelper.AddDefaultDatesToDssJsonInput(dssInputUISchema.ToString());
+                inputAsJsonObject = JObject.Parse(jsonSchemaWithDate.ToString());
                 JObject userParametersAsJsonObject = JObject.Parse(dss.DssParameters.ToString());
                 DssDataHelper.AddDefaultDssParametersToInputSchema(inputAsJsonObject, userParametersAsJsonObject);
-
                 if (!displayInternalParameters)
                 {
                     var dssModelInformation = await internalCommunicationProvider

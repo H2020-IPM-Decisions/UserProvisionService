@@ -63,6 +63,15 @@ namespace H2020.IPMDecisions.UPR.Core.Models
             };
         }
 
+        public static GenericResponse NotFound()
+        {
+            return new GenericResponse()
+            {
+                IsSuccessful = false,
+                RequestResult = new NotFoundResult()
+            };
+        }
+
         public static GenericResponse<T> NotFound<T>()
         {
             return new GenericResponse<T>()

@@ -18,7 +18,9 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Configurations
                 new
                 {
                     cpd.FieldCropPestId,
-                    cpd.CropPestDssId
+                    cpd.CropPestDssId,
+                    cpd.IsCustomDss,
+                    cpd.CustomName
                 })
                 .IsUnique();
 

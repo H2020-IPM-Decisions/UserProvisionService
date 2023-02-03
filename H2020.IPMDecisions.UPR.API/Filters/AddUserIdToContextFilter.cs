@@ -35,7 +35,7 @@ namespace H2020.IPMDecisions.UPR.API.Filters
                 else
                     context.HttpContext.Items.Add("isAdmin", false);
 
-                context.HttpContext.Items.Add("userId", validatedGuid);                        
+                context.HttpContext.Items.Add("userId", validatedGuid);
             }
             catch (Exception ex)
             {

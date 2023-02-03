@@ -252,7 +252,8 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
 
                 JObject inputAsJsonObject = JsonSchemaToJson.ToJsonObject(inputSchema.ToString(), logger);
                 // Add user parameters or parameters on the fly
-                if (!string.IsNullOrEmpty(onTheFlyDssParameters))
+                bool isOnTheFlyRun = !string.IsNullOrEmpty(onTheFlyDssParameters);
+                if (isOnTheFlyRun)
                 {
                     JObject dssParametersAsJsonObject = JObject.Parse(onTheFlyDssParameters.ToString());
                     DssDataHelper.AddUserDssParametersToDssInput(dssParametersAsJsonObject, inputAsJsonObject);
@@ -287,7 +288,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
 
                 if (dssInformation.Input.WeatherParameters != null)
                 {
-                    WeatherDataResult responseWeather = await PrepareWeatherData(dss, dssInformation, inputAsJsonObject);
+                    WeatherDataResult responseWeather = await PrepareWeatherData(dss, dssInformation, inputAsJsonObject, isOnTheFlyRun);
                     if (responseWeather.UpdateDssParameters)
                     {
                         dss.DssParameters = DssDataHelper.UpdateDssParametersToNewCalendarYear(dssInformation.Input.WeatherDataPeriodEnd, dss.DssParameters);

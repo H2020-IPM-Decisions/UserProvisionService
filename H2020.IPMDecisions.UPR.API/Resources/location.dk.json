@@ -16,12 +16,14 @@
 		"wrong_method": "Metoden er til at acceptere eller afvise anmodninger."
 	},
 	"dss": {
+        "adaptation_duplicated": "For model {0}, you have already saved a DSS with the following name {1}. Please change the name before continuing.",
 		"dss_missing_metadata": "DSS med ID '{0}' og version '{1}' findes ikke på DSS-mikrotjenesten.",
 		"duplicated": "Duplikeret kombination af afgrøde ({0}), skadedyr ({1}), DSS ({2}), model ({3}) og DSS-modelversion ({4}) på en mark.",
 		"existing_combination": "Marken har allerede en kombination af afgrøde ({0}), skadedyr ({1}) og DSS ({2}).",
 		"field_eppo_code": "Felt med ID {0} accepterer kun '{1}'-afgrøde-EPPO-kode",
 		"model_missing_metadata": "DSS med id '{0}' og version '{1}' har ikke nogen model med id '{2}' og version '{3}' på DSS-mikrotjenesten.",
 		"warning_header": "En eller flere kombinationer af afgrøde, skadedyr og DSS findes allerede. Se venligst svarteksten for mere information.",
+        "warning_status_representation": "{0}\n\n{1}",
 		"warnings": "Ret venligst følgende fejl, før du gemmer:"
 	},
 	"dss_process": {

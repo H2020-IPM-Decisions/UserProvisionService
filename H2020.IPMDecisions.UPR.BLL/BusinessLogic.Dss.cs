@@ -30,6 +30,10 @@ namespace H2020.IPMDecisions.UPR.BLL
                 if (dssListResult == null || dssListResult.Count() == 0) return GenericResponseBuilder.Success<IEnumerable<DssInformation>>(dssListResult);
                 var weatherParametersResult = await weatherParameters;
 
+                if (weatherParametersResult == null)
+                {
+                    return GenericResponseBuilder.NoSuccess<IEnumerable<DssInformation>>(null, this.jsonStringLocalizer["weather.internal_error"].ToString());
+                }
                 var weatherParametersAsList = weatherParametersResult.Select(wx => wx);
                 var listModelsToDelete = new List<DssModelInformation>();
                 foreach (DssModelInformation model in dssListResult.SelectMany(d => d.DssModelInformation))
@@ -56,6 +60,16 @@ namespace H2020.IPMDecisions.UPR.BLL
                 {
                     var dssInformation = dssListResult.Where(d => d.DssModelInformation.Any(m => m.Id == modelToDelete.Id)).FirstOrDefault();
                     dssInformation.DssModelInformation.Remove(modelToDelete);
+                }
+                foreach (var dss in dssListResult)
+                {
+                    if (!string.IsNullOrEmpty(dss.LogoUrl) && (!dss.LogoUrl.StartsWith("http")))
+                    {
+                        var dssApiUrl = config["MicroserviceInternalCommunication:DssApiUrl"];
+                        dss.LogoUrl = string.Format("{0}{1}",
+                            dssApiUrl,
+                            dss.LogoUrl);
+                    }
                 }
 
                 return GenericResponseBuilder.Success<IEnumerable<DssInformation>>(dssListResult);

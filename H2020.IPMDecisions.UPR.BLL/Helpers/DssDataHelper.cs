@@ -165,7 +165,32 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
                     token.Replace(userToken);
                     continue;
                 }
-                AddNewTokenToJObject(inputSchemaAsJObject, userParameterPath, userToken);
+                var matchObject = Regex.Match(userParameterPath, @"\w+[[]\d+[]].");
+                var isAnArrayObject = (matchObject.Success) ? true : false;
+                if (isAnArrayObject)
+                {
+                    var startIndex = userParameterPath.IndexOf("[");
+                    var parentArrayParameterPath = userParameterPath.Substring(0, startIndex);
+                    var arrayToken = userDssParametersJObject.SelectToken(parentArrayParameterPath);
+                    AddNewArrayTokenToJObject(inputSchemaAsJObject, parentArrayParameterPath, arrayToken);
+                }
+                else
+                {
+                    AddNewTokenToJObject(inputSchemaAsJObject, userParameterPath, userToken);
+                }
+            }
+        }
+
+        private static void AddNewArrayTokenToJObject(JObject inputSchemaAsJObject, string arrayPath, JToken arrayToken)
+        {
+            var tokenExists = inputSchemaAsJObject.SelectToken(arrayPath);
+            if (tokenExists != null)
+            {
+                tokenExists.Replace(arrayToken);
+            }
+            else
+            {
+                AddNewTokenToJObject(inputSchemaAsJObject, arrayPath, arrayToken);
             }
         }
 
@@ -379,6 +404,50 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
                 }
             }
             return inputAsJsonObject;
+        }
+
+        public static string PrepareDssParametersForHistoricalYear(DssModelSchemaInput inputSchema, string dssParameters, int yearsToRemove = 1)
+        {
+            try
+            {
+                dssParameters = RemoveNYearsDatesDssParameters(inputSchema.WeatherDataPeriodStart, dssParameters, yearsToRemove);
+                dssParameters = RemoveNYearsDatesDssParameters(inputSchema.WeatherDataPeriodEnd, dssParameters, yearsToRemove);
+                return dssParameters;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error PrepareDssParametersForHistoricalYear", ex);
+            }
+        }
+
+        private static string RemoveNYearsDatesDssParameters(IEnumerable<WeatherDataPeriod> weatherDatePeriodList, string dssParameters, int yearsToRemove = 1)
+        {
+            try
+            {
+                foreach (var weatherDate in weatherDatePeriodList)
+                {
+                    var weatherDateJson = weatherDate.Value.ToString();
+                    if (weatherDate.DeterminedBy.ToLower() == "input_schema_property")
+                    {
+                        JObject dssInputSchemaAsJson = JObject.Parse(dssParameters.ToString());
+                        var token = dssInputSchemaAsJson.SelectTokens(weatherDateJson).FirstOrDefault();
+                        if (token == null)
+                            continue;
+                        string dateString = token.ToString();
+                        DateTime dateValue;
+                        if (!DateTime.TryParse(dateString, CultureInfo.InvariantCulture, DateTimeStyles.None, out dateValue))
+                            dateValue = DateTime.Parse(DssDataHelper.AddDefaultDatesToDssJsonInput(dateString));
+
+                        var newDateValue = dateValue.AddYears(-yearsToRemove).ToString("yyyy-MM-dd");
+                        return UpdateTokenValue(dssParameters, weatherDateJson, newDateValue.ToString());
+                    }
+                }
+                return dssParameters;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error RemoveNYearsDatesDssParameters", ex);
+            }
         }
     }
 }

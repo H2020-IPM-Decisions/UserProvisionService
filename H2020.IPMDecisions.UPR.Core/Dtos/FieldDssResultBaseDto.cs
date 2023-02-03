@@ -30,7 +30,8 @@ namespace H2020.IPMDecisions.UPR.Core.Dtos
         public string DssLogoUrl { get; set; }
         public int WarningStatus { get; set; }
         public string WarningStatusRepresentation { get; set; }
-        public string WarningMessage { get; set; }
+        public string WarningExplanation { get; set; }
+        public string WarningRecommendedAction { get; set; }
         public int? ResultMessageType { get; set; }
         public string ResultMessage { get; set; }
         public IEnumerable<string> ValidatedSpatialCountries { get; set; }

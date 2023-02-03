@@ -16,12 +16,14 @@
         "wrong_method": "Metoda je namenjena sprejemanju ali zavračanju zahtev."
     },
     "dss": {
+        "adaptation_duplicated": "For model {0}, you have already saved a DSS with the following name {1}. Please change the name before continuing.",
         "dss_missing_metadata": "DSS z ID '{0}' in različico '{1}' ne obstaja.",
         "duplicated": "Podvojena je kombinacija kulturne rastline ({0}), škodljivega organizma ({1}), DSS ({2}), modela {3}) in njegove različice ({4}) na polju.",
         "existing_combination": "Polje že ima kombinacijo kulturne rastline ({0}), škodljivega organizma ({1}) in DSS ({2}).",
         "field_eppo_code": "Polje z ID {0} sprejema samo '{1}' kodo EPPO za kulturno rastlino.",
         "model_missing_metadata": "DSS z ID '{0}' in različico '{1}' nima nobenega modela z ID '{2}' in različico '{3}'.",
         "warning_header": "Ena ali več kombinacij kulturne rastline, škodljivega organizma in DSS že obstaja. Za več informacij kontaktirajte odgovorno osebo. ",
+        "warning_status_representation": "{0}\n\n{1}",
         "warnings": "Pred shranjevanjem odpravite naslednjo(-e) napako(-e):"
     },
     "dss_process": {

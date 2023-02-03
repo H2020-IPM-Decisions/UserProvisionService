@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using H2020.IPMDecisions.UPR.Core.Dtos;
 using H2020.IPMDecisions.UPR.Core.Entities;
@@ -16,7 +17,11 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
                 .ForMember(dest => dest.DssResult,
                     opt => opt.MapFrom(src => src.FieldDssResults.OrderByDescending(r => r.CreationDate).FirstOrDefault()))
                 .ForMember(dest => dest.DssParameters,
-                    opt => opt.MapFrom(src => JsonConvert.DeserializeObject<dynamic>(src.DssParameters.ToString())));
+                    opt => opt.MapFrom(src => JsonConvert.DeserializeObject<dynamic>(src.DssParameters.ToString())))
+                    .AfterMap((src, dest) =>
+                    {
+                        if (src.IsCustomDss == true && !string.IsNullOrEmpty(src.CustomName)) dest.CropPestDssDto.DssModelName = src.CustomName;
+                    });
 
             CreateMap<FieldCropPestDss, DssParametersDto>()
                 .ForMember(dest => dest.DssParameters,
@@ -24,6 +29,16 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
 
             // Dtos to Entities       
             CreateMap<FieldCropPestDssForUpdateDto, FieldCropPestDss>();
+
+            CreateMap<FieldCropPestDssForAdaptationDto, FieldCropPestDss>()
+                .ForMember(dest => dest.DssParameters, opt => opt.MapFrom(src => src.DssParameters))
+                .ForMember(dest => dest.CustomName, opt => opt.MapFrom(src => src.Name))
+                .AfterMap((src, dest, context) =>
+                {
+                    dest.IsCustomDss = true;
+                    dest.CropPestDssId = Guid.Parse(context.Options.Items["CropPestDssId"].ToString());
+                    dest.FieldCropPestId = Guid.Parse(context.Options.Items["FieldCropPestId"].ToString());
+                });
         }
     }
 }

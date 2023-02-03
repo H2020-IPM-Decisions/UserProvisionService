@@ -16,12 +16,14 @@
         "wrong_method": "La méthode permet d'accepter ou de refuser les demandes."
     },
     "dss": {
+        "adaptation_duplicated": "For model {0}, you have already saved a DSS with the following name {1}. Please change the name before continuing.",
         "dss_missing_metadata": "L'OAD avec l'ID '{0}' et la version '{1}' n'existe pas dans le microservice OAD.",
         "duplicated": "Double combinaison de Culture ({0}), Bioagresseur ({1}), OAD ({2}), Modèle ({3}) & Version de modèle d'OAD ({4}) dans un champ.",
         "existing_combination": "Le champ présente déjà la combinaison Culture ({0}), Bioagresseur ({1}) et OAD ({2}).",
         "field_eppo_code": "Le champ avec l'ID {0} n'accepte que le code EPPO '{1}' pour la culture.",
         "model_missing_metadata": "L'OAD avec l'ID '{0}' et la version '{1}' n'a aucun modèle avec l'ID '{2}' et la version '{3}' dans le microservice OAD.",
         "warning_header": "Une ou plusieurs combinaisons de Culture, Bioagresseur et OAD existe déjà. Veuillez consulter la réponse pour plus d'informations.",
+        "warning_status_representation": "{0}\n\n{1}",
         "warnings": "Veuillez corriger la ou les erreurs suivantes avant de sauvegarder :"
     },
     "dss_process": {
