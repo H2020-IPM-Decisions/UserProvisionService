@@ -176,7 +176,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [Produces(MediaTypeNames.Application.Json)]
         [HttpGet("filter", Name = "api.dss.get.filter")]
-        // GET: api/dds/filter
+        // GET: api/dss/filter
         public async Task<IActionResult> GetListFromDssService([FromQuery] DssListFilterDto dssListFilterDto)
         {
             var response = await businessLogic.GetAllAvailableDssOnFarmLocation(dssListFilterDto);
