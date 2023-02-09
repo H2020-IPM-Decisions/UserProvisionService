@@ -31,7 +31,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             try
             {
                 token.ThrowIfCancellationRequested();
-                var maxDaysResult = 7;
+                var maxDaysResult = 2;
                 Task.Run(() => DeleteResultOlderThan(maxDaysResult)).Wait();
             }
             catch (Exception ex)
