@@ -107,12 +107,21 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
                 .ForMember(dest => dest.DssDescription, opt => opt.MapFrom(src => src.Description))
                 .ForMember(dest => dest.DssPurpose, opt => opt.MapFrom(src => src.Purpose))
                 .ForMember(dest => dest.ValidatedSpatialCountries, opt => opt.MapFrom(src => src.ValidSpatial.Countries))
-                .ForMember(dest => dest.Id, opt => opt.Ignore());
+                .ForMember(dest => dest.Id, opt => opt.Ignore())
+                .AfterMap((src, dest, context) =>
+                {
+                    dest.DssEndPoint = !string.IsNullOrEmpty(src.Execution.EndPoint) ? src.Execution.EndPoint : src.DescriptionUrl;
+                });
 
             CreateMap<DssModelInformation, CropPestDssDto>()
                .ForMember(dest => dest.DssPurpose, opt => opt.MapFrom(src => src.Purpose))
                .ForMember(dest => dest.ValidatedSpatialCountries, opt => opt.MapFrom(src => src.ValidSpatial.Countries))
-               .ForMember(dest => dest.Id, opt => opt.Ignore());
+               .ForMember(dest => dest.DssEndPoint, opt => opt.MapFrom(src => src.Execution.EndPoint))
+               .ForMember(dest => dest.Id, opt => opt.Ignore())
+               .AfterMap((src, dest, context) =>
+                {
+                    dest.DssEndPoint = !string.IsNullOrEmpty(src.Execution.EndPoint) ? src.Execution.EndPoint : src.DescriptionUrl;
+                });
 
             CreateMap<DssModelInformation, FieldDssResultDetailedDto>()
                .ForMember(dest => dest.DssTypeOfDecision, opt => opt.MapFrom(src => src.TypeOfDecision))
@@ -120,7 +129,11 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
                .ForMember(dest => dest.DssDescription, opt => opt.MapFrom(src => src.Description))
                .ForMember(dest => dest.DssPurpose, opt => opt.MapFrom(src => src.Purpose))
                .ForMember(dest => dest.ValidatedSpatialCountries, opt => opt.MapFrom(src => src.ValidSpatial.Countries))
-               .ForMember(dest => dest.Id, opt => opt.Ignore());
+               .ForMember(dest => dest.Id, opt => opt.Ignore())
+               .AfterMap((src, dest, context) =>
+                {
+                    dest.DssEndPoint = !string.IsNullOrEmpty(src.Execution.EndPoint) ? src.Execution.EndPoint : src.DescriptionUrl;
+                });
         }
     }
 }
