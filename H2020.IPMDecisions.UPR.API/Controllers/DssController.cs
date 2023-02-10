@@ -42,11 +42,11 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         [HttpGet(Name = "api.dss.get.all")]
         [HttpHead]
         // GET: api/dss
-        public async Task<IActionResult> Get([FromQuery] bool? displayOutOfSeason)
+        public async Task<IActionResult> Get([FromQuery] DssResultListFilterDto filterDto)
         {
             var userId = Guid.Parse(HttpContext.Items["userId"].ToString());
 
-            var response = await businessLogic.GetAllDssResults(userId, displayOutOfSeason);
+            var response = await businessLogic.GetAllDssResults(userId, filterDto);
             if (!response.IsSuccessful)
                 return BadRequest(new { message = response.ErrorMessage });
 

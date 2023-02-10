@@ -77,17 +77,21 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
         }
 
-        public async Task<GenericResponse<IEnumerable<FieldDssResultDto>>> GetAllDssResults(Guid userId, bool? displayOutOfSeason)
+        public async Task<GenericResponse<IEnumerable<FieldDssResultDto>>> GetAllDssResults(Guid userId, DssResultListFilterDto filterDto)
         {
             try
             {
                 var dssResults = await this.dataService.DssResult.GetAllDssResults(userId);
-                if (dssResults == null) { return GenericResponseBuilder.Success<IEnumerable<FieldDssResultDto>>(new List<FieldDssResultDto>()); }
+                if (dssResults == null) return GenericResponseBuilder.Success<IEnumerable<FieldDssResultDto>>(new List<FieldDssResultDto>());
+                if (!string.IsNullOrEmpty(filterDto.ExecutionType))
+                {
+                    dssResults = dssResults.Where(d => d.DssExecutionType.ToLower() == filterDto.ExecutionType).ToList();
+                }
                 var dssResultsToReturn = this.mapper.Map<IEnumerable<FieldDssResultDto>>(dssResults);
 
                 if (dssResultsToReturn != null && dssResultsToReturn.Count() != 0)
                 {
-                    bool newDisplayOutOfSeason = displayOutOfSeason.HasValue ? displayOutOfSeason.Value : bool.Parse(this.config["AppConfiguration:DisplayOutOfSeasonDss"]);
+                    bool newDisplayOutOfSeason = filterDto.DisplayOutOfSeason.HasValue ? filterDto.DisplayOutOfSeason.Value : bool.Parse(this.config["AppConfiguration:DisplayOutOfSeasonDss"]);
                     await AddExtraInformationToDss(dssResultsToReturn, newDisplayOutOfSeason);
                 }
                 return GenericResponseBuilder.Success<IEnumerable<FieldDssResultDto>>(dssResultsToReturn);
