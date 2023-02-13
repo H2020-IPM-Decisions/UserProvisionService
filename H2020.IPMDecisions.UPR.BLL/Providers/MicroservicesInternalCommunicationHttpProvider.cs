@@ -419,19 +419,24 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
             }
         }
 
-        public async Task<List<DssInformation>> GetAllListOfDssFilteredByCropsFromDssMicroservice(string cropCodes, string executionType = "", string country = "")
+        public async Task<List<DssInformation>> GetAllListOfDssFilteredByCropsFromDssMicroservice(string cropCodes = "", string executionType = "")
         {
             try
             {
                 var language = Thread.CurrentThread.CurrentCulture.Name;
                 var platformValidated = bool.Parse(this.config["AppConfiguration:DisplayNotValidatedDss"]) ? "" : "/platform_validated/true";
 
-                var cacheKey = string.Format("listOfDss_{0}_{1}_{2}_{3}_{4}", cropCodes.ToUpper(), language.ToUpper(), executionType.ToUpper(), country.ToUpper(), platformValidated.ToUpper());
+                var cacheKey = string.Format("listOfDss_{0}_{1}_{2}_{3}_{4}", cropCodes.ToUpper(), language.ToUpper(), executionType.ToUpper(), platformValidated.ToUpper());
                 if (!memoryCache.TryGetValue(cacheKey, out List<DssInformation> listOfDss))
                 {
                     var dssEndPoint = config["MicroserviceInternalCommunication:DssMicroservice"];
-                    var response = await httpClient.GetAsync(string.Format("{0}rest/dss/crops/{1}{2}?language={3}&executionType={4}",
-                        dssEndPoint, cropCodes, platformValidated, language, executionType.ToUpper()));
+
+                    var queryUrl = string.Format("{0}rest/dss", dssEndPoint);
+                    if (!string.IsNullOrEmpty(cropCodes))
+                    {
+                        queryUrl = string.Format("{0}/crops/{1}", queryUrl, cropCodes);
+                    }
+                    var response = await httpClient.GetAsync(string.Format("{0}{1}?language={2}&executionType={3}", queryUrl, platformValidated, language, executionType.ToUpper()));
 
                     if (!response.IsSuccessStatusCode)
                         return listOfDss;

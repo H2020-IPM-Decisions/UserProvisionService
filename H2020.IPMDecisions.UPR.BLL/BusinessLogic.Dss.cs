@@ -17,12 +17,7 @@ namespace H2020.IPMDecisions.UPR.BLL
         {
             try
             {
-                if (string.IsNullOrEmpty(dssListFilterDto.CropCodes))
-                {
-                    return GenericResponseBuilder.NoSuccess<IEnumerable<DssInformation>>(null, "Please select at least one crop");
-                }
-
-                var dssList = internalCommunicationProvider.GetAllListOfDssFilteredByCropsFromDssMicroservice(dssListFilterDto.CropCodes, dssListFilterDto.ExecutionType, dssListFilterDto.Country);
+                var dssList = internalCommunicationProvider.GetAllListOfDssFilteredByCropsFromDssMicroservice(dssListFilterDto.CropCodes, dssListFilterDto.ExecutionType);
                 var weatherParameters = internalCommunicationProvider.GetWeatherParametersAvailableByLocation(Math.Round(dssListFilterDto.LocationLatitude, 4), Math.Round(dssListFilterDto.LocationLongitude, 4));
                 var eppoCodesData = await this.dataService.EppoCodes.GetEppoCodesAsync();
 
