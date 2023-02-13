@@ -85,7 +85,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                 if (dssResults == null) return GenericResponseBuilder.Success<IEnumerable<FieldDssResultDto>>(new List<FieldDssResultDto>());
                 if (!string.IsNullOrEmpty(filterDto.ExecutionType))
                 {
-                    dssResults = dssResults.Where(d => d.DssExecutionType.ToLower() == filterDto.ExecutionType).ToList();
+                    dssResults = dssResults.Where(d => d.DssExecutionType.ToLower() == filterDto.ExecutionType.ToLower()).ToList();
                 }
                 var dssResultsToReturn = this.mapper.Map<IEnumerable<FieldDssResultDto>>(dssResults);
 
