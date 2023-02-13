@@ -65,12 +65,16 @@ namespace H2020.IPMDecisions.UPR.BLL
                             farmForCreation.DssParameters);
                         if (newFieldCropPestDss != null)
                             listOfNewFieldCropPestDss.Add(newFieldCropPestDss);
+                        else if (cropPestDss.DssExecutionType.ToLower() == "link")
+                        {
+                            // do not return error
+                        }
                         else
                             listOfErrorsToReturn.Add(this.jsonStringLocalizer["dss.duplicated",
-                                farmForCreation.CropEppoCode,
-                                farmForCreation.PestEppoCode,
-                                farmForCreation.DssId, farmForCreation.DssModelId,
-                                farmForCreation.DssModelVersion].ToString());
+                                   farmForCreation.CropEppoCode,
+                                   farmForCreation.PestEppoCode,
+                                   farmForCreation.DssId, farmForCreation.DssModelId,
+                                   farmForCreation.DssModelVersion].ToString());
                     }
                 }
                 var dataToReturn = new Dictionary<string, object>();
@@ -122,7 +126,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                 return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, $"{ex.Message} InnerException: {innerMessage}");
             }
         }
-        
+
         private async Task<GenericResponse<FieldCropPestDssDto>> AddNewFarmDss(FarmDssForCreationDto farmDssDto, HttpContext httpContext, string mediaType)
         {
             try
