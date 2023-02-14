@@ -179,7 +179,8 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         // GET: api/dss/filter
         public async Task<IActionResult> GetListFromDssService([FromQuery] DssListFilterDto dssListFilterDto)
         {
-            var response = await businessLogic.GetAllAvailableDssOnFarmLocation(dssListFilterDto);
+            var userId = Guid.Parse(HttpContext.Items["userId"].ToString());
+            var response = await businessLogic.GetAllAvailableDssOnFarmLocation(dssListFilterDto, userId);
             if (!response.IsSuccessful)
                 return BadRequest(new { message = response.ErrorMessage });
 

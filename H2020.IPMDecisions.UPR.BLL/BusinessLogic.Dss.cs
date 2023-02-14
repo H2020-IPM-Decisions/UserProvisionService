@@ -13,13 +13,23 @@ namespace H2020.IPMDecisions.UPR.BLL
 {
     public partial class BusinessLogic : IBusinessLogic
     {
-        public async Task<GenericResponse<IEnumerable<DssInformation>>> GetAllAvailableDssOnFarmLocation(DssListFilterDto dssListFilterDto)
+        public async Task<GenericResponse<IEnumerable<DssInformation>>> GetAllAvailableDssOnFarmLocation(DssListFilterDto dssListFilterDto, Guid userId)
         {
             try
             {
                 var dssList = internalCommunicationProvider.GetAllListOfDssFilteredByCropsFromDssMicroservice(dssListFilterDto.CropCodes, dssListFilterDto.ExecutionType);
                 var weatherParameters = internalCommunicationProvider.GetWeatherParametersAvailableByLocation(Math.Round(dssListFilterDto.LocationLatitude, 4), Math.Round(dssListFilterDto.LocationLongitude, 4));
                 var eppoCodesData = await this.dataService.EppoCodes.GetEppoCodesAsync();
+                var listOfModelIds = new List<string>();
+                if (dssListFilterDto.DisplayIsSavedByUser)
+                {
+                    var listOfUserDss = await this
+                        .dataService
+                        .FieldCropPestDsses
+                        .FindAllAsync(d =>
+                            d.FieldCropPest.FieldCrop.Field.Farm.UserFarms.FirstOrDefault().UserId == userId);
+                    listOfModelIds = listOfUserDss.Select(d => d.CropPestDss.DssModelId).ToList();
+                }
 
                 var dssListResult = await dssList;
                 if (dssListResult == null || dssListResult.Count() == 0) return GenericResponseBuilder.Success<IEnumerable<DssInformation>>(dssListResult);
@@ -48,6 +58,9 @@ namespace H2020.IPMDecisions.UPR.BLL
                     if (model.Input != null && model.Input.WeatherParameters != null)
                         AreAllWeatherParametersAvailable(weatherParametersAsList, model);
 
+                    if (dssListFilterDto.DisplayIsSavedByUser)
+                        model.AlreadySavedByUser = listOfModelIds.Any(d => d == model.Id);
+
                     DistinctEppoCodes(eppoCodesData, model);
                 }
 
@@ -65,6 +78,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                             dssApiUrl,
                             dss.LogoUrl);
                     }
+
                 }
 
                 return GenericResponseBuilder.Success<IEnumerable<DssInformation>>(dssListResult);

@@ -110,7 +110,7 @@ namespace H2020.IPMDecisions.UPR.BLL
         Task<GenericResponse> DeleteDss(Guid id, Guid userId);
         Task<GenericResponse<IEnumerable<FieldDssResultDto>>> GetAllDssResults(Guid userId, DssResultListFilterDto filterDto);
         Task<GenericResponse<IEnumerable<LinkDssDto>>> GetAllLinkDss(Guid userId);
-        Task<GenericResponse<IEnumerable<DssInformation>>> GetAllAvailableDssOnFarmLocation(DssListFilterDto dssListFilterDto);
+        Task<GenericResponse<IEnumerable<DssInformation>>> GetAllAvailableDssOnFarmLocation(DssListFilterDto dssListFilterDto, Guid userId);
         #endregion
 
         #region DssResults
