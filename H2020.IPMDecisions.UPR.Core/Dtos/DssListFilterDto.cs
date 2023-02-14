@@ -1,3 +1,5 @@
+using System;
+
 namespace H2020.IPMDecisions.UPR.Core.Dtos
 {
     public class DssListFilterDto
@@ -8,5 +10,6 @@ namespace H2020.IPMDecisions.UPR.Core.Dtos
         public string ExecutionType { get; set; } = "";
         public string Country { get; set; } = "";
         public bool DisplayIsSavedByUser { get; set; } = false;
+        public Guid FarmIdSavedFilter { get; set; }
     }
 }

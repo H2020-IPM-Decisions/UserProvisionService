@@ -28,6 +28,13 @@ namespace H2020.IPMDecisions.UPR.BLL
                         .FieldCropPestDsses
                         .FindAllAsync(d =>
                             d.FieldCropPest.FieldCrop.Field.Farm.UserFarms.FirstOrDefault().UserId == userId);
+
+                    if (dssListFilterDto.FarmIdSavedFilter != null && dssListFilterDto.FarmIdSavedFilter != Guid.Empty)
+                    {
+                        listOfUserDss = listOfUserDss
+                            .Where(d => d.FieldCropPest.FieldCrop.Field.Farm.Id.Equals(dssListFilterDto.FarmIdSavedFilter))
+                            .ToList();
+                    }
                     listOfModelIds = listOfUserDss.Select(d => d.CropPestDss.DssModelId).ToList();
                 }
 
