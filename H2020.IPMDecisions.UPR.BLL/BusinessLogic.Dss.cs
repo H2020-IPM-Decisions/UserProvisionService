@@ -20,7 +20,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                 var dssList = internalCommunicationProvider.GetAllListOfDssFilteredByCropsFromDssMicroservice(dssListFilterDto.CropCodes, dssListFilterDto.ExecutionType);
                 var weatherParameters = internalCommunicationProvider.GetWeatherParametersAvailableByLocation(Math.Round(dssListFilterDto.LocationLatitude, 4), Math.Round(dssListFilterDto.LocationLongitude, 4));
                 var eppoCodesData = await this.dataService.EppoCodes.GetEppoCodesAsync();
-                var listOfModelIds = new List<string>();
+                var listOfModelIds = new List<(string, Guid)>();
                 if (dssListFilterDto.DisplayIsSavedByUser)
                 {
                     var listOfUserDss = await this
@@ -35,7 +35,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                             .Where(d => d.FieldCropPest.FieldCrop.Field.Farm.Id.Equals(dssListFilterDto.FarmIdSavedFilter))
                             .ToList();
                     }
-                    listOfModelIds = listOfUserDss.Select(d => d.CropPestDss.DssModelId).ToList();
+                    listOfModelIds = listOfUserDss.Select(d => (d.CropPestDss.DssModelId, d.Id)).ToList();
                 }
 
                 var dssListResult = await dssList;
@@ -66,7 +66,14 @@ namespace H2020.IPMDecisions.UPR.BLL
                         AreAllWeatherParametersAvailable(weatherParametersAsList, model);
 
                     if (dssListFilterDto.DisplayIsSavedByUser)
-                        model.AlreadySavedByUser = listOfModelIds.Any(d => d == model.Id);
+                    {
+                        var modelExist = listOfModelIds.FirstOrDefault(d => d.Item1 == model.Id);
+                        if (modelExist.Item1 != null)
+                        {
+                            model.AlreadySavedByUser = true;
+                            model.DssDatabaseId = modelExist.Item2;
+                        }
+                    }
 
                     DistinctEppoCodes(eppoCodesData, model);
                 }

@@ -1,5 +1,5 @@
+using System;
 using System.Collections.Generic;
-using H2020.IPMDecisions.UPR.Core.Dtos;
 using Newtonsoft.Json;
 
 namespace H2020.IPMDecisions.UPR.Core.Models
@@ -34,6 +34,7 @@ namespace H2020.IPMDecisions.UPR.Core.Models
         // These properties are not on original schema
         public bool WeatherParametersValidated { get; set; }
         public bool AlreadySavedByUser { get; set; }
+        public Guid DssDatabaseId { get; set; }
     }
 
     public class DssModelValidSpatial
