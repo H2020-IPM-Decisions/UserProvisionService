@@ -64,7 +64,7 @@ namespace H2020.IPMDecisions.UPR.BLL
 
                     if (model.Input != null && model.Input.WeatherParameters != null)
                         AreAllWeatherParametersAvailable(weatherParametersAsList, model);
-
+                    model.AlreadySavedByUser = false;
                     if (dssListFilterDto.DisplayIsSavedByUser)
                     {
                         var modelExist = listOfModelIds.FirstOrDefault(d => d.Item1 == model.Id);
