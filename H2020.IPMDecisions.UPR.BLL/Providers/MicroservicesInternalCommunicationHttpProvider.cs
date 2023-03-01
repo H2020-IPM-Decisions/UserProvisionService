@@ -419,7 +419,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
             }
         }
 
-        public async Task<List<DssInformation>> GetAllListOfDssFilteredByCropsFromDssMicroservice(string cropCodes, string executionType = "", string country = "")
+        public async Task<List<DssInformation>> GetAllListOfDssFilteredByCropsFromDssMicroservice(string cropCodes = "", string executionType = "", string country = "")
         {
             try
             {
@@ -430,8 +430,13 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
                 if (!memoryCache.TryGetValue(cacheKey, out List<DssInformation> listOfDss))
                 {
                     var dssEndPoint = config["MicroserviceInternalCommunication:DssMicroservice"];
-                    var response = await httpClient.GetAsync(string.Format("{0}rest/dss/crops/{1}{2}?language={3}&executionType={4}",
-                        dssEndPoint, cropCodes, platformValidated, language, executionType.ToUpper()));
+
+                    var queryUrl = string.Format("{0}rest/dss", dssEndPoint);
+                    if (!string.IsNullOrEmpty(cropCodes))
+                    {
+                        queryUrl = string.Format("{0}/crops/{1}", queryUrl, cropCodes);
+                    }
+                    var response = await httpClient.GetAsync(string.Format("{0}{1}?language={2}&executionType={3}", queryUrl, platformValidated, language, executionType.ToUpper()));
 
                     if (!response.IsSuccessStatusCode)
                         return listOfDss;
@@ -445,6 +450,32 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
             catch (Exception ex)
             {
                 logger.LogError(string.Format("Error in Internal Communication - GetAllListOfDssFromDssMicroservice. {0}", ex.Message));
+                return null;
+            }
+        }
+
+        public async Task<List<WeatherDataSchema>> GetListWeatherProviderInformationFromWeatherMicroservice()
+        {
+            try
+            {
+                var cacheKey = string.Format("list_weather");
+                if (!memoryCache.TryGetValue(cacheKey, out List<WeatherDataSchema> weatherSchema))
+                {
+                    var wxEndPoint = config["MicroserviceInternalCommunication:WeatherMicroservice"];
+                    var response = await httpClient.GetAsync(string.Format("{0}rest/weatherdatasource", wxEndPoint));
+
+                    if (!response.IsSuccessStatusCode)
+                        return null;
+
+                    var responseAsText = await response.Content.ReadAsStringAsync();
+                    weatherSchema = JsonConvert.DeserializeObject<List<WeatherDataSchema>>(responseAsText);
+                    memoryCache.Set(cacheKey, weatherSchema, MemoryCacheHelper.CreateMemoryCacheEntryOptionsDays(1));
+                }
+                return weatherSchema;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(string.Format("Error in Internal Communication - GetListWeatherProviderInformationFromWeatherMicroservice. {0}", ex.Message));
                 return null;
             }
         }

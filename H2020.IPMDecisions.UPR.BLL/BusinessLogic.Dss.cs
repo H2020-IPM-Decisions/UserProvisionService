@@ -13,18 +13,30 @@ namespace H2020.IPMDecisions.UPR.BLL
 {
     public partial class BusinessLogic : IBusinessLogic
     {
-        public async Task<GenericResponse<IEnumerable<DssInformation>>> GetAllAvailableDssOnFarmLocation(DssListFilterDto dssListFilterDto)
+        public async Task<GenericResponse<IEnumerable<DssInformation>>> GetAllAvailableDssOnFarmLocation(DssListFilterDto dssListFilterDto, Guid userId)
         {
             try
             {
-                if (string.IsNullOrEmpty(dssListFilterDto.CropCodes))
-                {
-                    return GenericResponseBuilder.NoSuccess<IEnumerable<DssInformation>>(null, "Please select at least one crop");
-                }
-
-                var dssList = internalCommunicationProvider.GetAllListOfDssFilteredByCropsFromDssMicroservice(dssListFilterDto.CropCodes, dssListFilterDto.ExecutionType, dssListFilterDto.Country);
+                var dssList = internalCommunicationProvider.GetAllListOfDssFilteredByCropsFromDssMicroservice(dssListFilterDto.CropCodes, dssListFilterDto.ExecutionType);
                 var weatherParameters = internalCommunicationProvider.GetWeatherParametersAvailableByLocation(Math.Round(dssListFilterDto.LocationLatitude, 4), Math.Round(dssListFilterDto.LocationLongitude, 4));
                 var eppoCodesData = await this.dataService.EppoCodes.GetEppoCodesAsync();
+                var listOfModelIds = new List<(string, Guid)>();
+                if (dssListFilterDto.DisplayIsSavedByUser)
+                {
+                    var listOfUserDss = await this
+                        .dataService
+                        .FieldCropPestDsses
+                        .FindAllAsync(d =>
+                            d.FieldCropPest.FieldCrop.Field.Farm.UserFarms.FirstOrDefault().UserId == userId);
+
+                    if (dssListFilterDto.FarmIdSavedFilter != null && dssListFilterDto.FarmIdSavedFilter != Guid.Empty)
+                    {
+                        listOfUserDss = listOfUserDss
+                            .Where(d => d.FieldCropPest.FieldCrop.Field.Farm.Id.Equals(dssListFilterDto.FarmIdSavedFilter))
+                            .ToList();
+                    }
+                    listOfModelIds = listOfUserDss.Select(d => (d.CropPestDss.DssModelId, d.Id)).ToList();
+                }
 
                 var dssListResult = await dssList;
                 if (dssListResult == null || dssListResult.Count() == 0) return GenericResponseBuilder.Success<IEnumerable<DssInformation>>(dssListResult);
@@ -53,6 +65,16 @@ namespace H2020.IPMDecisions.UPR.BLL
                     if (model.Input != null && model.Input.WeatherParameters != null)
                         AreAllWeatherParametersAvailable(weatherParametersAsList, model);
 
+                    if (dssListFilterDto.DisplayIsSavedByUser)
+                    {
+                        var modelExist = listOfModelIds.FirstOrDefault(d => d.Item1 == model.Id);
+                        if (modelExist.Item1 != null)
+                        {
+                            model.AlreadySavedByUser = true;
+                            model.DssDatabaseId = modelExist.Item2;
+                        }
+                    }
+
                     DistinctEppoCodes(eppoCodesData, model);
                 }
 
@@ -70,6 +92,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                             dssApiUrl,
                             dss.LogoUrl);
                     }
+
                 }
 
                 return GenericResponseBuilder.Success<IEnumerable<DssInformation>>(dssListResult);

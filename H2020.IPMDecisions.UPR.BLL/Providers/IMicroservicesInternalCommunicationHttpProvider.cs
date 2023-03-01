@@ -17,11 +17,12 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
         Task<HttpResponseMessage> GetWeatherUsingAmalgamationService(string endPointQueryString);
         Task<HttpResponseMessage> GetWeatherUsingOwnService(string endPointUrl, string endPointParameters);
         Task<IEnumerable<DssInformation>> GetAllListOfDssFromDssMicroservice();
+        Task<List<WeatherDataSchema>> GetListWeatherProviderInformationFromWeatherMicroservice();
         Task<WeatherDataSchema> GetWeatherProviderInformationFromWeatherMicroservice(string weatherId);
         Task<List<string>> GetListOfEppoCodesFromDssMicroservice(string eppoCodeType);
         Task<IEnumerable<DssInformation>> GetListOfDssByLocationFromDssMicroservice(GeoJsonFeatureCollection geoJson, string executionType = "");
         Task<DssInformation> GetDssInformationFromDssMicroservice(string dssId);
         Task<List<int>> GetWeatherParametersAvailableByLocation(double latitude, double longitude);
-        Task<List<DssInformation>> GetAllListOfDssFilteredByCropsFromDssMicroservice(string cropCodes, string executionType = "", string country = "");
+        Task<List<DssInformation>> GetAllListOfDssFilteredByCropsFromDssMicroservice(string cropCodes = "", string executionType = "", string country = "");
     }
 }

@@ -82,7 +82,6 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
                 {
                     if (src.DssExecutionType.ToLower() == "link") dest.IsValid = true;
                     dest.DssModelName = (src.IsCustomModelName == true && !string.IsNullOrEmpty(src.DssCustomModelName)) ? src.DssCustomModelName : src.DssModelName;
-
                 });
 
             CreateMap<OutputChartInfo, DssParameterChartInformation>();
@@ -107,20 +106,23 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
                 .ForMember(dest => dest.DssDescription, opt => opt.MapFrom(src => src.Description))
                 .ForMember(dest => dest.DssPurpose, opt => opt.MapFrom(src => src.Purpose))
                 .ForMember(dest => dest.ValidatedSpatialCountries, opt => opt.MapFrom(src => src.ValidSpatial.Countries))
+                .ForMember(dest => dest.DssEndPoint, opt => opt.MapFrom(src => src.DescriptionUrl))
                 .ForMember(dest => dest.Id, opt => opt.Ignore());
 
             CreateMap<DssModelInformation, CropPestDssDto>()
-               .ForMember(dest => dest.DssPurpose, opt => opt.MapFrom(src => src.Purpose))
-               .ForMember(dest => dest.ValidatedSpatialCountries, opt => opt.MapFrom(src => src.ValidSpatial.Countries))
-               .ForMember(dest => dest.Id, opt => opt.Ignore());
+                .ForMember(dest => dest.DssPurpose, opt => opt.MapFrom(src => src.Purpose))
+                .ForMember(dest => dest.ValidatedSpatialCountries, opt => opt.MapFrom(src => src.ValidSpatial.Countries))
+                .ForMember(dest => dest.DssEndPoint, opt => opt.MapFrom(src => src.DescriptionUrl))
+                .ForMember(dest => dest.Id, opt => opt.Ignore());
 
             CreateMap<DssModelInformation, FieldDssResultDetailedDto>()
-               .ForMember(dest => dest.DssTypeOfDecision, opt => opt.MapFrom(src => src.TypeOfDecision))
-               .ForMember(dest => dest.DssTypeOfOutput, opt => opt.MapFrom(src => src.TypeOfOutput))
-               .ForMember(dest => dest.DssDescription, opt => opt.MapFrom(src => src.Description))
-               .ForMember(dest => dest.DssPurpose, opt => opt.MapFrom(src => src.Purpose))
-               .ForMember(dest => dest.ValidatedSpatialCountries, opt => opt.MapFrom(src => src.ValidSpatial.Countries))
-               .ForMember(dest => dest.Id, opt => opt.Ignore());
+                .ForMember(dest => dest.DssTypeOfDecision, opt => opt.MapFrom(src => src.TypeOfDecision))
+                .ForMember(dest => dest.DssTypeOfOutput, opt => opt.MapFrom(src => src.TypeOfOutput))
+                .ForMember(dest => dest.DssDescription, opt => opt.MapFrom(src => src.Description))
+                .ForMember(dest => dest.DssPurpose, opt => opt.MapFrom(src => src.Purpose))
+                .ForMember(dest => dest.ValidatedSpatialCountries, opt => opt.MapFrom(src => src.ValidSpatial.Countries))
+                .ForMember(dest => dest.DssEndPoint, opt => opt.MapFrom(src => src.DescriptionUrl))
+                .ForMember(dest => dest.Id, opt => opt.Ignore());
         }
     }
 }

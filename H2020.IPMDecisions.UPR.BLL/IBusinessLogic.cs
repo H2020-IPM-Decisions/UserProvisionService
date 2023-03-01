@@ -44,6 +44,7 @@ namespace H2020.IPMDecisions.UPR.BLL
 
         #region FarmDss
         Task<GenericResponse<IDictionary<string, object>>> AddListOfFarmDss(IEnumerable<FarmDssForCreationDto> listOfFarmDssDto, HttpContext httpContext, string mediaType);
+        Task<GenericResponse<IDictionary<string, object>>> AddListOfLinkDssToFarm(IEnumerable<FarmDssForCreationDto> farmDssDto, HttpContext httpContext, string mediaType);
         #endregion
 
         #region Field
@@ -108,9 +109,9 @@ namespace H2020.IPMDecisions.UPR.BLL
         Task<GenericResponse<JObject>> GetFieldCropPestDssDefaultParametersById(Guid id, Guid userId);
         Task<GenericResponse> UpdateFieldCropPestDssById(Guid id, Guid userId, FieldCropPestDssForUpdateDto fieldCropPestDssForUpdateDto);
         Task<GenericResponse> DeleteDss(Guid id, Guid userId);
-        Task<GenericResponse<IEnumerable<FieldDssResultDto>>> GetAllDssResults(Guid userId, bool? displayOutOfSeason);
+        Task<GenericResponse<IEnumerable<FieldDssResultDto>>> GetAllDssResults(Guid userId, DssResultListFilterDto filterDto);
         Task<GenericResponse<IEnumerable<LinkDssDto>>> GetAllLinkDss(Guid userId);
-        Task<GenericResponse<IEnumerable<DssInformation>>> GetAllAvailableDssOnFarmLocation(DssListFilterDto dssListFilterDto);
+        Task<GenericResponse<IEnumerable<DssInformation>>> GetAllAvailableDssOnFarmLocation(DssListFilterDto dssListFilterDto, Guid userId);
         #endregion
 
         #region DssResults
@@ -145,6 +146,10 @@ namespace H2020.IPMDecisions.UPR.BLL
 
         #region DSS Result Task
         Task<GenericResponse<DssTaskStatusDto>> GetLatestTaskStatusByDssId(Guid dssId, Guid userId);
+        #endregion
+
+        #region Weather
+        Task<GenericResponse<List<WeatherBaseDto>>> GetWeatherDataSources();
         #endregion
     }
 }
