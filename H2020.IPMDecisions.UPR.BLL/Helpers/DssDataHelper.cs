@@ -310,7 +310,14 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
                                 newProperty = new JProperty(nestedPropertyPath, arrayObject);
                             }
                             if (existingToken.Children().Any())
-                                existingToken.Children().FirstOrDefault().AddAfterSelf(newProperty);
+                            {
+                                var propertyExits = existingToken.SelectToken(nestedPropertyPath);
+                                if (propertyExits == null)
+                                {
+                                    existingToken.Children().FirstOrDefault().AddAfterSelf(newProperty);
+                                    continue;
+                                }
+                            }
                             else
                                 nestedObject.Add(newProperty);
                         }
@@ -362,7 +369,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
                     var newDefaultPath = firstPartOfTheTokenList.Replace(stringToReplace, "default");
 
                     AddNewTokenToJObject(inputAsJsonObject, newDefaultPath, tokenFromDssParameter);
-                    pathsListDssInputSchema.Add(newDefaultPath);
+                    pathsListDssInputSchema.Insert(0, newDefaultPath);
                     if (isAnArray) arrayNotProcessed = false;
                 }
 

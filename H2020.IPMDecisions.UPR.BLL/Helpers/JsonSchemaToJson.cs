@@ -160,12 +160,11 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
             try
             {
                 var array = new JArray();
-                // JSchema schema = StringToJsonSchema(property.Value.ToString(), logger);
-                // foreach (var item in schema.Items)
-                // {
-                //     //ToDo: Do we need to do this or object saved on DB?
-                // }
-                // ProcessJsonSchemaProperties(jsonObject, schema, logger);
+                JSchema schema = StringToJsonSchema(property.Value.ToString(), logger);
+                if (schema.Default != null)
+                {
+                    array.Add(schema.Default.First);
+                }
                 return array;
             }
             catch (Exception ex)
