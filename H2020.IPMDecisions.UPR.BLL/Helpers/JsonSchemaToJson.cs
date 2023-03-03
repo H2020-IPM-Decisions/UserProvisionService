@@ -89,7 +89,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
                 {
                     return new JProperty(property.Key, property.Value.Default.ToString());
                 }
-                else if (property.Value.Format.ToLower() == "date")
+                else if (property.Value.Format != null && property.Value.Format.ToLower() == "date")
                 {
                     return null;
                 }
