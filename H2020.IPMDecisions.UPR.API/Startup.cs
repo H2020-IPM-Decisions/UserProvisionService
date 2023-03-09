@@ -137,7 +137,7 @@ namespace H2020.IPMDecisions.UPR.API
             }
 
             app.UseHangfireDashboard($"/{apiBasePath}dashboard", dashboardOptions);
-            HangfireJobScheduler.HangfireScheduleJobs();
+            HangfireJobScheduler.HangfireScheduleJobs(Configuration);
 
             app.UseHealthChecks($"/api/health");
 
