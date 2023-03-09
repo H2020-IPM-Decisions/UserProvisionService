@@ -273,8 +273,10 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                     string errorMessageToReturn = "";
                     if (reSchedule && dss.ReScheduleCount < maxReScheduleCount)
                     {
-                        errorMessageToReturn = this.jsonStringLocalizer["dss_process.json_validation_error", 60].ToString();
-                        var jobScheduleId = this.queueJobs.ScheduleDssOnTheFlyQueue(dss.Id, 61);
+                        Random r = new Random();
+                        var randomMinute = r.Next(0, 30);
+                        errorMessageToReturn = this.jsonStringLocalizer["dss_process.json_validation_error", 61 + randomMinute].ToString();
+                        var jobScheduleId = this.queueJobs.ScheduleDssOnTheFlyQueue(dss.Id, 61 + randomMinute);
                         dss.LastJobId = jobScheduleId;
                         dss.ReScheduleCount += 1;
                     }
@@ -333,19 +335,19 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             }
         }
 
-        private void ValidateJsonSchema(JSchema inputSchema, JObject inputAsJsonObject, out IList<string> validationErrormessages, out bool isJsonObjectvalid, out bool reSchedule)
+        private void ValidateJsonSchema(JSchema inputSchema, JObject inputAsJsonObject, out IList<string> validationErrorMessages, out bool isJsonObjectValid, out bool reSchedule)
         {
             try
             {
                 reSchedule = false;
-                isJsonObjectvalid = inputAsJsonObject.IsValid(inputSchema, out validationErrormessages);
+                isJsonObjectValid = inputAsJsonObject.IsValid(inputSchema, out validationErrorMessages);
             }
             catch (Exception ex)
             {
                 logger.LogError(string.Format("Error running DSS. Error: {0}", ex.Message));
-                isJsonObjectvalid = false;
+                isJsonObjectValid = false;
                 reSchedule = true;
-                validationErrormessages = null;
+                validationErrorMessages = null;
             }
         }
 
@@ -410,9 +412,12 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 if (dssOutput.LocationResult != null)
                 {
                     var warningStatuses = dssOutput.LocationResult.FirstOrDefault().WarningStatus;
-                    //Take last 7 days of Data
-                    var maxDaysOutput = 7;
-                    dssResult.WarningStatus = warningStatuses.TakeLast(maxDaysOutput).Max();
+                    if (warningStatuses != null)
+                    {
+                        //Take last 7 days of Data
+                        var maxDaysOutput = 7;
+                        dssResult.WarningStatus = warningStatuses.TakeLast(maxDaysOutput).Max();
+                    }
                     if (dssResult.WarningStatus == null) dssResult.WarningStatus = 0;
                     dssResult.IsValid = true;
                 }

@@ -59,6 +59,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             }
             catch (Exception ex)
             {
+                logger.LogError(string.Format("Error PrepareWeatherData DSS. Id: {0}, Parameters {1}. Error: {2}", dss.Id.ToString(), dss.DssParameters, ex.Message));
                 return new WeatherDataResult()
                 {
                     Continue = false,

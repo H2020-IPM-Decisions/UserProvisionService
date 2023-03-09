@@ -100,7 +100,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
             }
             catch (Exception ex)
             {
-                logger.LogError(string.Format("Error on ProcessStandardTypeProperty. {0}", ex.Message));
+                logger.LogError(string.Format("Error on ProcessStandardTypeProperty. Property:{0}. Error: {1}", property, ex.Message));
                 return null;
             }
         }
@@ -117,7 +117,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
             }
             catch (Exception ex)
             {
-                logger.LogError(string.Format("Error on ProcessStandardTypeProperty. {0}", ex.Message));
+                logger.LogError(string.Format("Error on ProcessNumberTypeProperty. {0}", ex.Message));
                 return null;
             }
         }
@@ -134,7 +134,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
             }
             catch (Exception ex)
             {
-                logger.LogError(string.Format("Error on ProcessStandardTypeProperty. {0}", ex.Message));
+                logger.LogError(string.Format("Error on ProcessIntegerTypeProperty. {0}", ex.Message));
                 return null;
             }
         }
