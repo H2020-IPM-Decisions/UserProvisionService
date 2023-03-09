@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Net.Http;
 using System.Text;
 using System.Threading;
@@ -27,6 +28,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
     public interface IDssRunningJobs
     {
         void ExecuteOnTheFlyDss(IJobCancellationToken token);
+        void ExecuteDssWithErrors(IJobCancellationToken token);
         Task QueueOnTheFlyDss(IJobCancellationToken token, Guid dssId);
         Task QueueOnMemoryDss(IJobCancellationToken token, Guid id, string dssParameters, PerformContext context);
     }
@@ -92,9 +94,37 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             }
         }
 
-        private async Task RunAllDssOnDatabase()
+        [Queue("dsserror_schedule")]
+        public void ExecuteDssWithErrors(IJobCancellationToken token)
         {
-            var count = this.dataService.FieldCropPestDsses.GetCount(f => f.CropPestDss.DssExecutionType.ToLower().Equals("onthefly"));
+            try
+            {
+                token.ThrowIfCancellationRequested();
+                Task.Run(() => RunAllDssOnDatabase(true)).Wait();
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(string.Format("Error in BLL - Error executing On the Fly DSS. {0}", ex.Message));
+            }
+        }
+
+        private async Task RunAllDssOnDatabase(bool addReScheduleFilter = false)
+        {
+            var count = 0;
+            Expression<Func<FieldCropPestDss, bool>> expression = null;
+            if (addReScheduleFilter)
+            {
+                expression = f =>
+                    f.CropPestDss.DssExecutionType.ToLower().Equals("onthefly") &&
+                    f.ReScheduleCount >= int.Parse(config["AppConfiguration:MaxReScheduleAttemptsDss"]);
+            }
+            else
+            {
+                expression = f =>
+                    f.CropPestDss.DssExecutionType.ToLower().Equals("onthefly");
+            }
+            count = this.dataService.FieldCropPestDsses.GetCount(expression);
+
             if (count == 0) return;
             var totalRecordsOnBatch = 50;
             var totalBatches = System.Math.Ceiling((decimal)count / totalRecordsOnBatch);
@@ -106,7 +136,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 var listOfDss = await this
                     .dataService
                     .FieldCropPestDsses
-                    .FindAllAsync(f => f.CropPestDss.DssExecutionType.ToLower().Equals("onthefly"), batchNumber, totalRecordsOnBatch);
+                    .FindAllAsync(expression);
 
                 foreach (var dss in listOfDss)
                 {
@@ -231,7 +261,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             }
             try
             {
-                int maxReScheduleCount = 3;
+                int maxReScheduleCount = int.Parse(config["AppConfiguration:MaxReScheduleAttemptsDss"]);
                 DssModelInformation dssInformation = await GetDssInformationFromMicroservice(dss);
                 if (dssInformation == null)
                 {

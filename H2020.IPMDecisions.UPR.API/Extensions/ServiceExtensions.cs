@@ -246,7 +246,12 @@ namespace H2020.IPMDecisions.APG.API.Extensions
 
             services.AddHangfireServer(options =>
             {
-                options.Queues = new[] { "onthefly_schedule", "onthefly_queue", "deleteoldresults_schedule", "weather_queue", "onmemory_queue" };
+                options.Queues = new[] { "onthefly_schedule", 
+                "onthefly_queue", 
+                "deleteoldresults_schedule", 
+                "weather_queue", 
+                "onmemory_queue", 
+                "dsserror_schedule" };
             });
         }
 
