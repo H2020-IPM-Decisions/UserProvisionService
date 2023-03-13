@@ -46,10 +46,14 @@ namespace H2020.IPMDecisions.UPR.BLL
             var dataToReturn = this.mapper.Map<DssTaskStatusDto>(lastStatus);
             dataToReturn.DssId = dssId;
             dataToReturn.Id = taskId;
-            if (dataToReturn.JobStatus.ToLower() == "scheduled")
+            if (string.IsNullOrEmpty(dataToReturn.JobStatus))
+            {
+                dataToReturn.JobStatus = "Succeeded";
+            }
+            else if (dataToReturn.JobStatus.ToLower() == "scheduled")
             {
                 dataToReturn.ScheduleTime = new DateTime(1970, 1, 1, 0, 0, 0)
-                    .AddMilliseconds(Convert.ToDouble(lastStatus.Data["EnqueueAt"])).ToLocalTime();
+                                    .AddMilliseconds(Convert.ToDouble(lastStatus.Data["EnqueueAt"])).ToLocalTime();
             }
 
             return dataToReturn;
