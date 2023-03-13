@@ -9,6 +9,7 @@ using H2020.IPMDecisions.UPR.Core.Entities;
 using H2020.IPMDecisions.UPR.Core.Enums;
 using H2020.IPMDecisions.UPR.Core.Models;
 using Hangfire;
+using Hangfire.Storage.Monitoring;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -267,6 +268,15 @@ namespace H2020.IPMDecisions.UPR.BLL
                     if (jobDetail != null)
                     {
                         dss.DssTaskStatusDto = CreateDssStatusFromJobDetail(dss.Id, dss.DssTaskStatusDto.Id, jobDetail);
+                    }
+                    else
+                    {
+                        // This statament is because old successful jobs might be removed from the DB
+                        var fakeJobDetail = new DssTaskStatusDto();
+                        fakeJobDetail.JobStatus = "Succeeded";
+                        fakeJobDetail.DssId = dss.Id;
+                        fakeJobDetail.Id = dss.DssTaskStatusDto.Id;
+                        dss.DssTaskStatusDto = fakeJobDetail;
                     }
                 }
             }
