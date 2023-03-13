@@ -240,18 +240,20 @@ namespace H2020.IPMDecisions.APG.API.Extensions
                     new PostgreSqlStorageOptions
                     {
                         PrepareSchemaIfNecessary = true,
-                        QueuePollInterval = new TimeSpan(0, 1, 0)
+                        QueuePollInterval = new TimeSpan(0, 1, 0),
                     }
                 ));
 
             services.AddHangfireServer(options =>
             {
-                options.Queues = new[] { "onthefly_schedule", 
-                "onthefly_queue", 
-                "deleteoldresults_schedule", 
-                "weather_queue", 
-                "onmemory_queue", 
-                "dsserror_schedule" };
+                options.Queues = new[] {
+                    "onthefly_schedule",
+                    "onthefly_queue",
+                    "deleteoldresults_schedule",
+                    "weather_queue",
+                    "onmemory_queue",
+                    "dsserror_schedule"
+                };
             });
         }
 
