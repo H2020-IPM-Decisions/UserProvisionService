@@ -158,12 +158,14 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 if (responseWeather.Content == null)
                 {
                     WeatherInternalError(result);
+                    result.ReSchedule = true;
                     return result;
                 }
                 var responseText = await responseWeather.Content.ReadAsStringAsync();
                 if (string.IsNullOrEmpty(responseText))
                 {
                     WeatherInternalError(result);
+                    result.ReSchedule = true;
                     return result;
                 }
 
