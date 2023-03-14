@@ -110,7 +110,6 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
 
         private async Task RunAllDssOnDatabase(bool addReScheduleFilter = false)
         {
-            var count = 0;
             Expression<Func<FieldCropPestDss, bool>> expression = null;
             if (addReScheduleFilter)
             {
@@ -123,37 +122,33 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 expression = f =>
                     f.CropPestDss.DssExecutionType.ToLower().Equals("onthefly");
             }
-            count = this.dataService.FieldCropPestDsses.GetCount(expression);
-
-            if (count == 0) return;
-            var totalRecordsOnBatch = 50;
-            var totalBatches = System.Math.Ceiling((decimal)count / totalRecordsOnBatch);
 
             httpClient = new HttpClient();
 
-            for (int batchNumber = 1; batchNumber <= totalBatches; batchNumber++)
+            var listOfDss = await this
+                .dataService
+                .FieldCropPestDsses
+                .FindAllAsync(expression);
+            var count = listOfDss.Count();
+            if (count == 0) return;
+            logger.LogWarning("Total dss to run: {0}, Is RescheduleFilter?: {1}", count, addReScheduleFilter);
+            TimeSpan lastEnqueuedTime = TimeSpan.FromSeconds(0);
+            foreach (var dss in listOfDss)
             {
-                var listOfDss = await this
-                    .dataService
-                    .FieldCropPestDsses
-                    .FindAllAsync(expression);
-
-                foreach (var dss in listOfDss)
-                {
-                    // #if DEBUG
-                    // Call one by one to help debuggin
-                    // var dssResult = await RunOnTheFlyDss(dss);
-                    // if (dssResult == null) continue;
-                    // this.dataService.FieldCropPestDsses.AddDssResult(dss, dssResult);
-                    // #else
-                    // Add them to the queue every 10 seconds, to allow weather service to return data so doesn't get overload
-                    Thread.Sleep(7500);
-                    dss.LastJobId = this.queueJobs.ScheduleDssOnTheFlyQueueSeconds(dss.Id, 3);
-                    // #endif
-                }
-                // Save last job ids and DSS results if debugging...
-                await this.dataService.CompleteAsync();
+                // #if DEBUG
+                // Call one by one to help debuggin
+                // var dssResult = await RunOnTheFlyDss(dss);
+                // if (dssResult == null) continue;
+                // this.dataService.FieldCropPestDsses.AddDssResult(dss, dssResult);
+                // #else
+                // Add them to the queue every 10 seconds, to allow weather service to return data so doesn't get overload                
+                dss.LastJobId = this.queueJobs.ScheduleDssOnTheFlyQueueTimeSpan(dss.Id, lastEnqueuedTime);
+                lastEnqueuedTime = lastEnqueuedTime += TimeSpan.FromSeconds(10);
+                // #endif
             }
+            // Save last job ids and DSS results if debugging...
+            await this.dataService.CompleteAsync();
+            logger.LogWarning("Total DSSs to run: {0}, Last DSS will run in: {1}, Is RescheduleFilter?: {2}", count, lastEnqueuedTime, addReScheduleFilter);
         }
 
         [Queue("onthefly_queue")]
