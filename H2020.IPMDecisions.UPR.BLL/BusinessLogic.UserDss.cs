@@ -362,7 +362,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                             dssInformation.DssOrganization.Name,
                             dssInformation.DssOrganization.Country);
             dataToReturn.DssVersion = dssInformation.Version;
-            if (!string.IsNullOrEmpty(dssInformation.LogoUrl))
+            if (!string.IsNullOrEmpty(dssInformation.LogoUrl) && (!dssInformation.LogoUrl.StartsWith("http")))
             {
                 var dssApiUrl = config["MicroserviceInternalCommunication:DssApiUrl"];
                 dataToReturn.DssLogoUrl = string.Format("{0}{1}",
