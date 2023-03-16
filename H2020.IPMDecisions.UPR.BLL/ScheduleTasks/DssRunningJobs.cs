@@ -334,7 +334,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                         {
                             Random r = new Random();
                             var randomMinute = r.Next(0, 30);
-                            var jobScheduleId = this.queueJobs.ScheduleDssOnTheFlyQueue(dss.Id, 120 + randomMinute);
+                            var jobScheduleId = this.queueJobs.ScheduleDssOnTheFlyQueue(dss.Id, 30 + randomMinute);
                             dss.LastJobId = jobScheduleId;
                             dss.ReScheduleCount += 1;
                         }
