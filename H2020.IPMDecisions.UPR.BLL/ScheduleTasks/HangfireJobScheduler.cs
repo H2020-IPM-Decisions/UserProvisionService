@@ -18,7 +18,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
 
             RecurringJob.AddOrUpdate<DssRunningJobs>(nameof(DssRunningJobs.ExecuteDssWithErrors),
                 job => job.ExecuteDssWithErrors(JobCancellationToken.Null),
-                "0 */7 * * *", TimeZoneInfo.Utc);
+                "0 7,14,21 * * *", TimeZoneInfo.Utc);
         }
     }
 }
