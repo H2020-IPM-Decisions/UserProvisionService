@@ -333,8 +333,9 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                         if (responseWeather.ReSchedule && dss.ReScheduleCount < maxReScheduleCount)
                         {
                             Random r = new Random();
-                            var randomMinute = r.Next(0, 30);
-                            var jobScheduleId = this.queueJobs.ScheduleDssOnTheFlyQueue(dss.Id, 30 + randomMinute);
+                            var seconds = r.Next(0, 600);
+                            TimeSpan lastEnqueuedTime = TimeSpan.FromSeconds(1800 + seconds);
+                            var jobScheduleId = this.queueJobs.ScheduleDssOnTheFlyQueueTimeSpan(dss.Id, lastEnqueuedTime);
                             dss.LastJobId = jobScheduleId;
                             dss.ReScheduleCount += 1;
                         }
