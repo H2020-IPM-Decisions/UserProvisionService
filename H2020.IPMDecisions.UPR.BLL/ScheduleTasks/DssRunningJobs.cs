@@ -272,6 +272,18 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 if (dssInformation.Execution.Type.ToLower() != "onthefly") return null;
 
                 var inputSchema = JsonSchemaToJson.StringToJsonSchema(dssInformation.Execution.InputSchema, logger);
+                if (inputSchema == null)
+                {
+                    // This means that the server might be overloaded and can resolve weather schema
+                    Random r = new Random();
+                    var randomMinute = r.Next(0, 30);
+                    string errorMessageToReturn = this.jsonStringLocalizer["dss_process.json_validation_error", 120 + randomMinute].ToString();
+                    var jobScheduleId = this.queueJobs.ScheduleDssOnTheFlyQueue(dss.Id, 120 + randomMinute);
+                    dss.LastJobId = jobScheduleId;
+                    dss.ReScheduleCount += 1;
+                    CreateDssRunErrorResult(dssResult, errorMessageToReturn, DssOutputMessageTypeEnum.Error);
+                    return dssResult;
+                }
                 // Check required properties with Json Schema, remove not required
                 DssDataHelper.RemoveNotRequiredInputSchemaProperties(inputSchema);
 
