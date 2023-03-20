@@ -21,7 +21,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using Newtonsoft.Json;
+using Newtonsoft.Json.Schema;
 using Newtonsoft.Json.Serialization;
 using NLog;
 using NLog.Extensions.Logging;
@@ -261,6 +261,13 @@ namespace H2020.IPMDecisions.APG.API.Extensions
         {
             services.AddMemoryCache();
             services.AddDistributedMemoryCache();
+        }
+
+        internal static void ConfigureNewtonsoft(this IServiceCollection services, IConfiguration config)
+        {
+
+            string licenseKey = config["AppConfiguration:NewtonsoftLicence"];
+            if (!string.IsNullOrEmpty(licenseKey)) License.RegisterLicense(licenseKey);
         }
 
         internal static IEnumerable<string> Audiences(string audiences)

@@ -1,4 +1,3 @@
-using System;
 using AutoMapper;
 using H2020.IPMDecisions.APG.API.Extensions;
 using H2020.IPMDecisions.UPR.API.Filters;
@@ -82,6 +81,7 @@ namespace H2020.IPMDecisions.UPR.API
             services.AddDataProtection();
             services.ConfigureCaching();
             services.AddHealthChecks();
+            services.ConfigureNewtonsoft(Configuration);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
