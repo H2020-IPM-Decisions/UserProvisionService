@@ -131,7 +131,6 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 .FindAllAsync(expression);
             var count = listOfDss.Count();
             if (count == 0) return;
-            logger.LogWarning("Total dss to run: {0}, Is RescheduleFilter?: {1}", count, addReScheduleFilter);
             TimeSpan lastEnqueuedTime = TimeSpan.FromSeconds(0);
             foreach (var dss in listOfDss)
             {
@@ -143,7 +142,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 // #else
                 // Add them to the queue every 10 seconds, to allow weather service to return data so doesn't get overload                
                 dss.LastJobId = this.queueJobs.ScheduleDssOnTheFlyQueueTimeSpan(dss.Id, lastEnqueuedTime);
-                lastEnqueuedTime = lastEnqueuedTime += TimeSpan.FromSeconds(10);
+                lastEnqueuedTime = lastEnqueuedTime += TimeSpan.FromSeconds(25);
                 // #endif
             }
             // Save last job ids and DSS results if debugging...
