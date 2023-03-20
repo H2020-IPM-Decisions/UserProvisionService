@@ -310,9 +310,10 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                     if (reSchedule && dss.ReScheduleCount < maxReScheduleCount)
                     {
                         Random r = new Random();
-                        var randomMinute = r.Next(0, 30);
-                        errorMessageToReturn = this.jsonStringLocalizer["dss_process.json_validation_error", 61 + randomMinute].ToString();
-                        var jobScheduleId = this.queueJobs.ScheduleDssOnTheFlyQueue(dss.Id, 61 + randomMinute);
+                        var seconds = r.Next(0, 600);
+                        TimeSpan enqueuedTime = TimeSpan.FromSeconds(3600 + seconds);
+                        errorMessageToReturn = this.jsonStringLocalizer["dss_process.json_validation_error", enqueuedTime.TotalSeconds / 60].ToString();
+                        var jobScheduleId = this.queueJobs.ScheduleDssOnTheFlyQueueTimeSpan(dss.Id, enqueuedTime);
                         dss.LastJobId = jobScheduleId;
                         dss.ReScheduleCount += 1;
                     }
@@ -345,8 +346,8 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                         {
                             Random r = new Random();
                             var seconds = r.Next(0, 600);
-                            TimeSpan lastEnqueuedTime = TimeSpan.FromSeconds(1800 + seconds);
-                            var jobScheduleId = this.queueJobs.ScheduleDssOnTheFlyQueueTimeSpan(dss.Id, lastEnqueuedTime);
+                            TimeSpan enqueuedTime = TimeSpan.FromSeconds(3600 + seconds);
+                            var jobScheduleId = this.queueJobs.ScheduleDssOnTheFlyQueueTimeSpan(dss.Id, enqueuedTime);
                             dss.LastJobId = jobScheduleId;
                             dss.ReScheduleCount += 1;
                         }
