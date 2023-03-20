@@ -89,7 +89,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
                 {
                     return new JProperty(property.Key, property.Value.Default.ToString());
                 }
-                else if (property.Value.Format.ToLower() == "date")
+                else if (property.Value.Format != null && property.Value.Format.ToLower() == "date")
                 {
                     return null;
                 }
@@ -100,7 +100,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
             }
             catch (Exception ex)
             {
-                logger.LogError(string.Format("Error on ProcessStandardTypeProperty. {0}", ex.Message));
+                logger.LogError(string.Format("Error on ProcessStandardTypeProperty. Property:{0}. Error: {1}", property, ex.Message));
                 return null;
             }
         }
@@ -117,7 +117,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
             }
             catch (Exception ex)
             {
-                logger.LogError(string.Format("Error on ProcessStandardTypeProperty. {0}", ex.Message));
+                logger.LogError(string.Format("Error on ProcessNumberTypeProperty. {0}", ex.Message));
                 return null;
             }
         }
@@ -134,7 +134,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
             }
             catch (Exception ex)
             {
-                logger.LogError(string.Format("Error on ProcessStandardTypeProperty. {0}", ex.Message));
+                logger.LogError(string.Format("Error on ProcessIntegerTypeProperty. {0}", ex.Message));
                 return null;
             }
         }
@@ -160,12 +160,11 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
             try
             {
                 var array = new JArray();
-                // JSchema schema = StringToJsonSchema(property.Value.ToString(), logger);
-                // foreach (var item in schema.Items)
-                // {
-                //     //ToDo: Do we need to do this or object saved on DB?
-                // }
-                // ProcessJsonSchemaProperties(jsonObject, schema, logger);
+                JSchema schema = StringToJsonSchema(property.Value.ToString(), logger);
+                if (schema.Default != null)
+                {
+                    array.Add(schema.Default.First);
+                }
                 return array;
             }
             catch (Exception ex)

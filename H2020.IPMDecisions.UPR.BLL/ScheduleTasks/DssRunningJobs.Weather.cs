@@ -59,6 +59,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             }
             catch (Exception ex)
             {
+                logger.LogError(string.Format("Error PrepareWeatherData DSS. Id: {0}, Parameters {1}. Error: {2}", dss.Id.ToString(), dss.DssParameters, ex));
                 return new WeatherDataResult()
                 {
                     Continue = false,
@@ -151,14 +152,24 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 if ((int)responseWeather.StatusCode == StatusCodes.Status500InternalServerError)
                 {
                     logger.LogError(string.Format("Error weather service: ", responseWeather.RequestMessage.RequestUri.ToString()));
-                    result.ErrorType = DssOutputMessageTypeEnum.Error; ;
-                    result.ResponseWeatherAsString = this.jsonStringLocalizer["weather.internal_error"].ToString();
+                    WeatherInternalError(result);
+                    return result;
+                }
+                if (responseWeather.Content == null)
+                {
+                    WeatherInternalError(result);
+                    result.ReSchedule = true;
+                    return result;
+                }
+                var responseText = await responseWeather.Content.ReadAsStringAsync();
+                if (string.IsNullOrEmpty(responseText))
+                {
+                    WeatherInternalError(result);
+                    result.ReSchedule = true;
                     return result;
                 }
 
-                var responseText = await responseWeather.Content.ReadAsStringAsync();
                 var weatherResponseAsObject = JsonConvert.DeserializeObject<IEnumerable<WeatherErrorResult>>(responseText);
-
                 // Error Code returned by Euroweather for first location request
                 if (weatherResponseAsObject.Any(wr => wr.ErrorCode == StatusCodes.Status202Accepted))
                 {
@@ -187,8 +198,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 }
                 else
                 {
-                    result.ErrorType = DssOutputMessageTypeEnum.Error; ;
-                    result.ResponseWeatherAsString = this.jsonStringLocalizer["weather.internal_error"].ToString();
+                    WeatherInternalError(result);
                 }
                 return result;
             }
@@ -211,6 +221,12 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             result.Continue = true;
             result.ResponseWeatherAsString = responseWeatherAsText;
             return result;
+        }
+
+        private void WeatherInternalError(WeatherDataResult result)
+        {
+            result.ErrorType = DssOutputMessageTypeEnum.Error; ;
+            result.ResponseWeatherAsString = this.jsonStringLocalizer["weather.internal_error"].ToString();
         }
 
         private static string ReorderWeatherParameters(string weatherParameterFromDss, string responseWeatherAsText)

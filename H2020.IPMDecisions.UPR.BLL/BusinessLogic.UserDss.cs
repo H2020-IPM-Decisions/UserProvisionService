@@ -9,6 +9,7 @@ using H2020.IPMDecisions.UPR.Core.Entities;
 using H2020.IPMDecisions.UPR.Core.Enums;
 using H2020.IPMDecisions.UPR.Core.Models;
 using Hangfire;
+using Hangfire.Storage.Monitoring;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -253,6 +254,9 @@ namespace H2020.IPMDecisions.UPR.BLL
                                 AddWarningMessages(dss, dssModelMatchDatabaseRecord);
                             }
                             if (!outOfSeason) CheckIfDssOutOfSeason(dss);
+
+                            // Remove Full result output
+                            dss.DssFullResult = "";
                         }
                     }
 
@@ -268,11 +272,20 @@ namespace H2020.IPMDecisions.UPR.BLL
                     {
                         dss.DssTaskStatusDto = CreateDssStatusFromJobDetail(dss.Id, dss.DssTaskStatusDto.Id, jobDetail);
                     }
+                    else
+                    {
+                        // This statament is because old successful jobs might be removed from the DB
+                        var fakeJobDetail = new DssTaskStatusDto();
+                        fakeJobDetail.JobStatus = "Succeeded";
+                        fakeJobDetail.DssId = dss.Id;
+                        fakeJobDetail.Id = dss.DssTaskStatusDto.Id;
+                        dss.DssTaskStatusDto = fakeJobDetail;
+                    }
                 }
             }
             catch (Exception ex)
             {
-                logger.LogError(string.Format("Error in BLL - AddExtraInformationToDss. {0}", ex.Message), ex);
+                logger.LogError(string.Format("Error in BLL - AddExtraInformationToDss. {0}. Full error: {1}", ex.Message, ex));
                 throw ex;
             }
         }
@@ -349,7 +362,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                             dssInformation.DssOrganization.Name,
                             dssInformation.DssOrganization.Country);
             dataToReturn.DssVersion = dssInformation.Version;
-            if (!string.IsNullOrEmpty(dssInformation.LogoUrl))
+            if (!string.IsNullOrEmpty(dssInformation.LogoUrl) && (!dssInformation.LogoUrl.StartsWith("http")))
             {
                 var dssApiUrl = config["MicroserviceInternalCommunication:DssApiUrl"];
                 dataToReturn.DssLogoUrl = string.Format("{0}{1}",

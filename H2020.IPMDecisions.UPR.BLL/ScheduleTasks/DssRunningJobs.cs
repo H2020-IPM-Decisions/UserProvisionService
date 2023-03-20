@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Net.Http;
 using System.Text;
 using System.Threading;
@@ -27,6 +28,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
     public interface IDssRunningJobs
     {
         void ExecuteOnTheFlyDss(IJobCancellationToken token);
+        void ExecuteDssWithErrors(IJobCancellationToken token);
         Task QueueOnTheFlyDss(IJobCancellationToken token, Guid dssId);
         Task QueueOnMemoryDss(IJobCancellationToken token, Guid id, string dssParameters, PerformContext context);
     }
@@ -92,38 +94,60 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             }
         }
 
-        private async Task RunAllDssOnDatabase()
+        [Queue("dsserror_schedule")]
+        public void ExecuteDssWithErrors(IJobCancellationToken token)
         {
-            var count = this.dataService.FieldCropPestDsses.GetCount(f => f.CropPestDss.DssExecutionType.ToLower().Equals("onthefly"));
-            if (count == 0) return;
-            var totalRecordsOnBatch = 50;
-            var totalBatches = System.Math.Ceiling((decimal)count / totalRecordsOnBatch);
+            try
+            {
+                token.ThrowIfCancellationRequested();
+                Task.Run(() => RunAllDssOnDatabase(true)).Wait();
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(string.Format("Error in BLL - Error executing On the Fly DSS. {0}", ex.Message));
+            }
+        }
+
+        private async Task RunAllDssOnDatabase(bool addReScheduleFilter = false)
+        {
+            Expression<Func<FieldCropPestDss, bool>> expression = null;
+            if (addReScheduleFilter)
+            {
+                expression = f =>
+                    f.CropPestDss.DssExecutionType.ToLower().Equals("onthefly") &&
+                    f.ReScheduleCount >= int.Parse(config["AppConfiguration:MaxReScheduleAttemptsDss"]);
+            }
+            else
+            {
+                expression = f =>
+                    f.CropPestDss.DssExecutionType.ToLower().Equals("onthefly");
+            }
 
             httpClient = new HttpClient();
 
-            for (int batchNumber = 1; batchNumber <= totalBatches; batchNumber++)
+            var listOfDss = await this
+                .dataService
+                .FieldCropPestDsses
+                .FindAllAsync(expression);
+            var count = listOfDss.Count();
+            if (count == 0) return;
+            TimeSpan lastEnqueuedTime = TimeSpan.FromSeconds(0);
+            foreach (var dss in listOfDss)
             {
-                var listOfDss = await this
-                    .dataService
-                    .FieldCropPestDsses
-                    .FindAllAsync(f => f.CropPestDss.DssExecutionType.ToLower().Equals("onthefly"), batchNumber, totalRecordsOnBatch);
-
-                foreach (var dss in listOfDss)
-                {
-                    // #if DEBUG
-                    // Call one by one to help debuggin
-                    // var dssResult = await RunOnTheFlyDss(dss);
-                    // if (dssResult == null) continue;
-                    // this.dataService.FieldCropPestDsses.AddDssResult(dss, dssResult);
-                    // #else
-                    // Add them to the queue every 10 seconds, to allow weather service to return data so doesn't get overload
-                    Thread.Sleep(7500);
-                    dss.LastJobId = this.queueJobs.ScheduleDssOnTheFlyQueueSeconds(dss.Id, 3);
-                    // #endif
-                }
-                // Save last job ids and DSS results if debugging...
-                await this.dataService.CompleteAsync();
+                // #if DEBUG
+                // Call one by one to help debuggin
+                // var dssResult = await RunOnTheFlyDss(dss);
+                // if (dssResult == null) continue;
+                // this.dataService.FieldCropPestDsses.AddDssResult(dss, dssResult);
+                // #else
+                // Add them to the queue every 10 seconds, to allow weather service to return data so doesn't get overload                
+                dss.LastJobId = this.queueJobs.ScheduleDssOnTheFlyQueueTimeSpan(dss.Id, lastEnqueuedTime);
+                lastEnqueuedTime = lastEnqueuedTime += TimeSpan.FromSeconds(int.Parse(config["AppConfiguration:SecondsGapDssNightSchedule"]));
+                // #endif
             }
+            // Save last job ids and DSS results if debugging...
+            await this.dataService.CompleteAsync();
+            logger.LogWarning("Total DSSs to run: {0}, Last DSS will run in: {1}, Is RescheduleFilter?: {2}", count, lastEnqueuedTime, addReScheduleFilter);
         }
 
         [Queue("onthefly_queue")]
@@ -231,7 +255,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             }
             try
             {
-                int maxReScheduleCount = 3;
+                int maxReScheduleCount = int.Parse(config["AppConfiguration:MaxReScheduleAttemptsDss"]);
                 DssModelInformation dssInformation = await GetDssInformationFromMicroservice(dss);
                 if (dssInformation == null)
                 {
@@ -247,6 +271,18 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 if (dssInformation.Execution.Type.ToLower() != "onthefly") return null;
 
                 var inputSchema = JsonSchemaToJson.StringToJsonSchema(dssInformation.Execution.InputSchema, logger);
+                if (inputSchema == null)
+                {
+                    // This means that the server might be overloaded and can resolve weather schema
+                    Random r = new Random();
+                    var randomMinute = r.Next(0, 30);
+                    string errorMessageToReturn = this.jsonStringLocalizer["dss_process.json_validation_error", 120 + randomMinute].ToString();
+                    var jobScheduleId = this.queueJobs.ScheduleDssOnTheFlyQueue(dss.Id, 120 + randomMinute);
+                    dss.LastJobId = jobScheduleId;
+                    dss.ReScheduleCount += 1;
+                    CreateDssRunErrorResult(dssResult, errorMessageToReturn, DssOutputMessageTypeEnum.Error);
+                    return dssResult;
+                }
                 // Check required properties with Json Schema, remove not required
                 DssDataHelper.RemoveNotRequiredInputSchemaProperties(inputSchema);
 
@@ -273,8 +309,11 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                     string errorMessageToReturn = "";
                     if (reSchedule && dss.ReScheduleCount < maxReScheduleCount)
                     {
-                        errorMessageToReturn = this.jsonStringLocalizer["dss_process.json_validation_error", 60].ToString();
-                        var jobScheduleId = this.queueJobs.ScheduleDssOnTheFlyQueue(dss.Id, 61);
+                        Random r = new Random();
+                        var seconds = r.Next(0, 600);
+                        TimeSpan enqueuedTime = TimeSpan.FromSeconds(3600 + seconds);
+                        errorMessageToReturn = this.jsonStringLocalizer["dss_process.json_validation_error", enqueuedTime.TotalSeconds / 60].ToString();
+                        var jobScheduleId = this.queueJobs.ScheduleDssOnTheFlyQueueTimeSpan(dss.Id, enqueuedTime);
                         dss.LastJobId = jobScheduleId;
                         dss.ReScheduleCount += 1;
                     }
@@ -305,7 +344,10 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                         }
                         if (responseWeather.ReSchedule && dss.ReScheduleCount < maxReScheduleCount)
                         {
-                            var jobScheduleId = this.queueJobs.ScheduleDssOnTheFlyQueue(dss.Id, 360);
+                            Random r = new Random();
+                            var seconds = r.Next(0, 600);
+                            TimeSpan enqueuedTime = TimeSpan.FromSeconds(3600 + seconds);
+                            var jobScheduleId = this.queueJobs.ScheduleDssOnTheFlyQueueTimeSpan(dss.Id, enqueuedTime);
                             dss.LastJobId = jobScheduleId;
                             dss.ReScheduleCount += 1;
                         }
@@ -333,19 +375,19 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             }
         }
 
-        private void ValidateJsonSchema(JSchema inputSchema, JObject inputAsJsonObject, out IList<string> validationErrormessages, out bool isJsonObjectvalid, out bool reSchedule)
+        private void ValidateJsonSchema(JSchema inputSchema, JObject inputAsJsonObject, out IList<string> validationErrorMessages, out bool isJsonObjectValid, out bool reSchedule)
         {
             try
             {
                 reSchedule = false;
-                isJsonObjectvalid = inputAsJsonObject.IsValid(inputSchema, out validationErrormessages);
+                isJsonObjectValid = inputAsJsonObject.IsValid(inputSchema, out validationErrorMessages);
             }
             catch (Exception ex)
             {
                 logger.LogError(string.Format("Error running DSS. Error: {0}", ex.Message));
-                isJsonObjectvalid = false;
+                isJsonObjectValid = false;
                 reSchedule = true;
-                validationErrormessages = null;
+                validationErrorMessages = null;
             }
         }
 
@@ -410,9 +452,12 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 if (dssOutput.LocationResult != null)
                 {
                     var warningStatuses = dssOutput.LocationResult.FirstOrDefault().WarningStatus;
-                    //Take last 7 days of Data
-                    var maxDaysOutput = 7;
-                    dssResult.WarningStatus = warningStatuses.TakeLast(maxDaysOutput).Max();
+                    if (warningStatuses != null)
+                    {
+                        //Take last 7 days of Data
+                        var maxDaysOutput = 7;
+                        dssResult.WarningStatus = warningStatuses.TakeLast(maxDaysOutput).Max();
+                    }
                     if (dssResult.WarningStatus == null) dssResult.WarningStatus = 0;
                     dssResult.IsValid = true;
                 }

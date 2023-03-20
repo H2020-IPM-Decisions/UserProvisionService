@@ -80,7 +80,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
 
                     var responseAsText = await response.Content.ReadAsStringAsync();
                     listOfDss = JsonConvert.DeserializeObject<IEnumerable<DssInformation>>(responseAsText);
-                    memoryCache.Set(cacheKey, listOfDss, MemoryCacheHelper.CreateMemoryCacheEntryOptionsDays(1));
+                    memoryCache.Set(cacheKey, listOfDss, MemoryCacheHelper.CreateMemoryCacheEntryOptionsMinutes(30));
                 }
                 return listOfDss;
             }
@@ -129,7 +129,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
                     var responseAsText = await response.Content.ReadAsStringAsync();
                     listOfEppoCodes = JsonConvert.DeserializeObject<List<string>>(responseAsText);
 
-                    memoryCache.Set(cacheKey, listOfEppoCodes, MemoryCacheHelper.CreateMemoryCacheEntryOptionsDays(1));
+                    memoryCache.Set(cacheKey, listOfEppoCodes, MemoryCacheHelper.CreateMemoryCacheEntryOptionsMinutes(30));
                 }
                 return listOfEppoCodes;
             }
@@ -183,7 +183,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
                     var responseAsText = await response.Content.ReadAsStringAsync();
                     dssInformation = JsonConvert.DeserializeObject<DssInformation>(responseAsText);
 
-                    memoryCache.Set(cacheKey, dssInformation, MemoryCacheHelper.CreateMemoryCacheEntryOptionsDays(1));
+                    memoryCache.Set(cacheKey, dssInformation, MemoryCacheHelper.CreateMemoryCacheEntryOptionsMinutes(30));
                 }
                 return dssInformation;
             }
@@ -305,7 +305,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
                     var url = string.Format("{0}rest/amalgamation/amalgamate/proxy/?endpointURL={1}&endpointQueryStr={2}", wxEndPoint, endPointUrlEncoded, endPointQueryStringEncoded);
                     weatherResponse = await httpClient.GetAsync(url);
                     if (weatherResponse.IsSuccessStatusCode)
-                        memoryCache.Set(cacheKey, weatherResponse, MemoryCacheHelper.CreateMemoryCacheEntryOptionsDays(1));
+                        memoryCache.Set(cacheKey, weatherResponse, MemoryCacheHelper.CreateMemoryCacheEntryOptionsMinutes(30));
                     else
                         logger.LogError(string.Format("Weather call error. URL called: {0}. Error returned: {1}", url, await weatherResponse.Content.ReadAsStringAsync()));
                 }
@@ -327,7 +327,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
                 {
                     weatherResponse = await httpClient.GetAsync(string.Format("{0}?{1}", endPointUrl, endPointParameters));
                     if (weatherResponse.IsSuccessStatusCode)
-                        memoryCache.Set(cacheKey, weatherResponse, MemoryCacheHelper.CreateMemoryCacheEntryOptionsDays(1));
+                        memoryCache.Set(cacheKey, weatherResponse, MemoryCacheHelper.CreateMemoryCacheEntryOptionsMinutes(30));
                 }
                 return weatherResponse;
             }
@@ -353,7 +353,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
 
                     var responseAsText = await response.Content.ReadAsStringAsync();
                     weatherSchema = JsonConvert.DeserializeObject<WeatherDataSchema>(responseAsText);
-                    memoryCache.Set(cacheKey, weatherSchema, MemoryCacheHelper.CreateMemoryCacheEntryOptionsDays(1));
+                    memoryCache.Set(cacheKey, weatherSchema, MemoryCacheHelper.CreateMemoryCacheEntryOptionsMinutes(30));
                 }
                 return weatherSchema;
             }
@@ -375,7 +375,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
                     var url = string.Format("{0}rest/amalgamation/amalgamate?{1}", wxEndPoint, endPointQueryString);
                     weatherResponse = await httpClient.GetAsync(url);
                     if (weatherResponse.IsSuccessStatusCode)
-                        memoryCache.Set(cacheKey, weatherResponse, MemoryCacheHelper.CreateMemoryCacheEntryOptionsDays(1));
+                        memoryCache.Set(cacheKey, weatherResponse, MemoryCacheHelper.CreateMemoryCacheEntryOptionsMinutes(30));
                     else
                         logger.LogError(string.Format("Weather call error. URL called: {0}. Error returned: {1}", url, await weatherResponse.Content.ReadAsStringAsync()));
                 }
@@ -443,7 +443,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
 
                     var responseAsText = await response.Content.ReadAsStringAsync();
                     listOfDss = JsonConvert.DeserializeObject<List<DssInformation>>(responseAsText);
-                    memoryCache.Set(cacheKey, listOfDss, MemoryCacheHelper.CreateMemoryCacheEntryOptionsDays(1));
+                    memoryCache.Set(cacheKey, listOfDss, MemoryCacheHelper.CreateMemoryCacheEntryOptionsMinutes(30));
                 }
                 return listOfDss;
             }
@@ -469,7 +469,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
 
                     var responseAsText = await response.Content.ReadAsStringAsync();
                     weatherSchema = JsonConvert.DeserializeObject<List<WeatherDataSchema>>(responseAsText);
-                    memoryCache.Set(cacheKey, weatherSchema, MemoryCacheHelper.CreateMemoryCacheEntryOptionsDays(1));
+                    memoryCache.Set(cacheKey, weatherSchema, MemoryCacheHelper.CreateMemoryCacheEntryOptionsMinutes(30));
                 }
                 return weatherSchema;
             }

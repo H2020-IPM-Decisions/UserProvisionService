@@ -21,7 +21,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using Newtonsoft.Json;
+using Newtonsoft.Json.Schema;
 using Newtonsoft.Json.Serialization;
 using NLog;
 using NLog.Extensions.Logging;
@@ -240,13 +240,20 @@ namespace H2020.IPMDecisions.APG.API.Extensions
                     new PostgreSqlStorageOptions
                     {
                         PrepareSchemaIfNecessary = true,
-                        QueuePollInterval = new TimeSpan(0, 1, 0)
+                        QueuePollInterval = new TimeSpan(0, 1, 0),
                     }
                 ));
 
             services.AddHangfireServer(options =>
             {
-                options.Queues = new[] { "onthefly_schedule", "onthefly_queue", "deleteoldresults_schedule", "weather_queue", "onmemory_queue" };
+                options.Queues = new[] {
+                    "onthefly_schedule",
+                    "onthefly_queue",
+                    "deleteoldresults_schedule",
+                    "weather_queue",
+                    "onmemory_queue",
+                    "dsserror_schedule"
+                };
             });
         }
 
@@ -254,6 +261,13 @@ namespace H2020.IPMDecisions.APG.API.Extensions
         {
             services.AddMemoryCache();
             services.AddDistributedMemoryCache();
+        }
+
+        internal static void ConfigureNewtonsoft(this IServiceCollection services, IConfiguration config)
+        {
+
+            string licenseKey = config["AppConfiguration:NewtonsoftLicence"];
+            if (!string.IsNullOrEmpty(licenseKey)) License.RegisterLicense(licenseKey);
         }
 
         internal static IEnumerable<string> Audiences(string audiences)
