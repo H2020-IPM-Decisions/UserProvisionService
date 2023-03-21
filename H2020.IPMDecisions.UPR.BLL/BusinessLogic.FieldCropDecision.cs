@@ -231,7 +231,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                 if (existingCombination != null) return null;
             }
 
-            if (string.IsNullOrEmpty(dssParameters))
+            if (string.IsNullOrEmpty(dssParameters) && cropPestDss.DssExecutionType.ToLower() != "link")
                 dssParameters = await GetDefaultDssParametersFromMicroservice(cropPestDss);
 
             var newFieldCropPestDss = new FieldCropPestDss()
