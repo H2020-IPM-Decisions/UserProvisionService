@@ -293,6 +293,14 @@ namespace H2020.IPMDecisions.UPR.BLL
         private void CheckIfDssOutOfSeason(FieldDssResultDto dss)
         {
             var fullResult = JsonConvert.DeserializeObject<DssModelOutputInformation>(dss.DssFullResult);
+            if (fullResult != null && fullResult.MessageType == 2 && fullResult.Message != null && !string.IsNullOrWhiteSpace(fullResult.Message))
+            {
+                dss.IsValid = false;
+                dss.ResultMessageType = fullResult.MessageType;
+                dss.ResultMessage = fullResult.Message;
+                dss.WarningStatus = 0;
+                return;
+            }
             if (fullResult != null && fullResult.TimeEnd != null && DateTime.Parse(fullResult.TimeEnd) < DateTime.Today)
             {
                 var dateTimeAsShortDate = DateTime.Parse(fullResult.TimeEnd).ToString("dd/MM/yyyy");
@@ -300,6 +308,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                 dss.ResultMessageType = (int)DssOutputMessageTypeEnum.Info;
                 dss.ResultMessage = this.jsonStringLocalizer["weather.end_of_season", dateTimeAsShortDate].ToString();
                 dss.WarningStatus = 0;
+                return;
             }
         }
 
