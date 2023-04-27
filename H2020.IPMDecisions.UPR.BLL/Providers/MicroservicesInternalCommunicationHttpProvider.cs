@@ -113,16 +113,18 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
             }
         }
 
-        public async Task<List<string>> GetListOfEppoCodesFromDssMicroservice(string eppoCodeType)
+        public async Task<List<string>> GetListOfEppoCodesFromDssMicroservice(string eppoCodeType, string executionType)
         {
             try
             {
                 var language = Thread.CurrentThread.CurrentCulture.Name;
-                var cacheKey = string.Format("eppoCodes_{0}_{1}", eppoCodeType.ToLower(), language);
+                var cacheKey = string.Format("eppoCodes_{0}_{1}_{2}", eppoCodeType.ToLower(), language, executionType);
                 if (!memoryCache.TryGetValue(cacheKey, out List<string> listOfEppoCodes))
                 {
                     var dssEndPoint = config["MicroserviceInternalCommunication:DssMicroservice"];
-                    var response = await httpClient.GetAsync(string.Format("{0}rest/{1}?language={2}", dssEndPoint, eppoCodeType, language));
+                    var executionTypeString = string.IsNullOrEmpty(executionType) ? "" : $"execution_type/{executionType.ToUpper()}";
+
+                    var response = await httpClient.GetAsync(string.Format("{0}rest/{1}/{2}", dssEndPoint, eppoCodeType, executionTypeString));
 
                     if (!response.IsSuccessStatusCode) return null;
 

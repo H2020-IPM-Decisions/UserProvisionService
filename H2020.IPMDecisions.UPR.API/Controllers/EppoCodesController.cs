@@ -56,9 +56,9 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         // GET: api/eppocodes/type?name
         public async Task<IActionResult> GetEppoCode(
             [FromRoute] string eppoCodeType,
-            [FromQuery] string eppoCode)
+            [FromQuery] string eppoCode, string executionType)
         {
-            var response = await businessLogic.GetEppoCode(eppoCodeType, eppoCode);
+            var response = await businessLogic.GetEppoCode(eppoCodeType, eppoCode, executionType);
             if (!response.IsSuccessful)
                 return response.RequestResult;
 
