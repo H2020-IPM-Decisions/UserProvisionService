@@ -207,12 +207,14 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             if (!DataParseHelper.IsValidJson(responseWeatherAsText))
             {
                 result.ResponseWeatherAsString = this.jsonStringLocalizer["weather.no_json_format"].ToString();
+                result.ErrorType = DssOutputMessageTypeEnum.Error;
                 return result;
             };
 
             if (!await ValidateWeatherDataSchema(responseWeatherAsText))
             {
                 result.ResponseWeatherAsString = this.jsonStringLocalizer["weather.validation_error", weatherDataSource.WeatherDssParameters.ToString()].ToString();
+                result.ErrorType = DssOutputMessageTypeEnum.Error;
                 return result;
             };
 
@@ -225,7 +227,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
 
         private void WeatherInternalError(WeatherDataResult result)
         {
-            result.ErrorType = DssOutputMessageTypeEnum.Error; ;
+            result.ErrorType = DssOutputMessageTypeEnum.Error;
             result.ResponseWeatherAsString = this.jsonStringLocalizer["weather.internal_error"].ToString();
         }
 
