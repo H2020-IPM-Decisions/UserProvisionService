@@ -51,7 +51,7 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
         }
 
-        public async Task<GenericResponse<EppoCodeTypeDto>> GetEppoCode(string eppoCodeType, string eppoCode)
+        public async Task<GenericResponse<EppoCodeTypeDto>> GetEppoCode(string eppoCodeType, string eppoCode, string executionType)
         {
             try
             {
@@ -59,7 +59,8 @@ namespace H2020.IPMDecisions.UPR.BLL
                 if (eppoCodeTypeFiltered.Count == 0) return GenericResponseBuilder.NotFound<EppoCodeTypeDto>();
 
                 var type = eppoCodeTypeFiltered.FirstOrDefault();
-                EppoCodeTypeDto dataToReturn = await EppoCodeToEppoCodeTypeDto(type, eppoCode, Thread.CurrentThread.CurrentCulture.Name);
+                EppoCodeTypeDto dataToReturn = await EppoCodeToEppoCodeTypeDto(type, eppoCode, Thread.CurrentThread.CurrentCulture.Name, executionType);
+
                 if (dataToReturn == null) return GenericResponseBuilder.NotFound<EppoCodeTypeDto>();
                 return GenericResponseBuilder.Success<EppoCodeTypeDto>(dataToReturn);
             }
@@ -112,11 +113,11 @@ namespace H2020.IPMDecisions.UPR.BLL
         }
 
         #region Helpers
-        private async Task<EppoCodeTypeDto> EppoCodeToEppoCodeTypeDto(EppoCode type, string eppoCodeFilter = "", string languageFilter = "en")
+        private async Task<EppoCodeTypeDto> EppoCodeToEppoCodeTypeDto(EppoCode type, string eppoCodeFilter = "", string languageFilter = "en", string executionTypeFilter = "")
         {
             EppoCodeTypeDto eppoCodeType = this.mapper.Map<EppoCodeTypeDto>(type);
             var eppoCodesOnType = JsonConvert.DeserializeObject<List<IDictionary<string, string>>>(type.Data);
-            var eppoCodesFromDssService = await this.internalCommunicationProvider.GetListOfEppoCodesFromDssMicroservice(type.Type.ToLower());
+            var eppoCodesFromDssService = await this.internalCommunicationProvider.GetListOfEppoCodesFromDssMicroservice(type.Type.ToLower(), executionTypeFilter);
 
             if (!string.IsNullOrEmpty(eppoCodeFilter))
             {

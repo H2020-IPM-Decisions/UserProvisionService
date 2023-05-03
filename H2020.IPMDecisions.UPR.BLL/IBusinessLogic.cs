@@ -123,7 +123,7 @@ namespace H2020.IPMDecisions.UPR.BLL
         Task<GenericResponse<EppoCodeTypeDto>> CreateEppoCodeType(EppoCodeForCreationDto eppoCodeForCreationDto);
         Task<GenericResponse<List<string>>> GetEppoCodeTypes();
         Task<GenericResponse<List<EppoCodeTypeDto>>> GetAllEppoCodes();
-        Task<GenericResponse<EppoCodeTypeDto>> GetEppoCode(string eppoCodeType, string eppoCode);
+        Task<GenericResponse<EppoCodeTypeDto>> GetEppoCode(string eppoCodeType, string eppoCode, string executionType);
         Task<GenericResponse> UpdateEppoCodeType(string eppoCodeType, EppoCodeForUpdateDto eppoCodeForUpdateDto);
         #endregion
 

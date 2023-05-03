@@ -469,11 +469,82 @@ namespace H2020.IPMDecisions.UPR.BLL
 
             if (locationResultData != null)
             {
-                dataLastDays = locationResultData.Data.TakeLast(daysOutput);
-                dataToReturn.ResultParametersLength = dataLastDays.Count();
-                dataToReturn.WarningStatusPerDay = locationResultData.WarningStatus.TakeLast(daysOutput).ToList();
+                if (int.Parse(dataToReturn.Interval) == 3600)
+                {
+                    List<List<double?>> dataByDay;
+                    List<int?> calculatedWarningStatusPerDay;
+                    CalculateDailyDataFromHourly(dataToReturn, locationResultData, daysOutput, out dataByDay, out calculatedWarningStatusPerDay);
+
+                    dataLastDays = dataByDay.TakeLast(daysOutput);
+                    dataToReturn.ResultParametersLength = dataLastDays.Count();
+                    dataToReturn.WarningStatusPerDay = calculatedWarningStatusPerDay.TakeLast(daysOutput).ToList();
+                }
+                else
+                {
+                    dataLastDays = locationResultData.Data.TakeLast(daysOutput);
+                    dataToReturn.ResultParametersLength = dataLastDays.Count();
+                    dataToReturn.WarningStatusPerDay = locationResultData.WarningStatus.TakeLast(daysOutput).ToList();
+                }
             };
             return dataLastDays;
+        }
+
+        private static void CalculateDailyDataFromHourly(FieldDssResultDetailedDto dataToReturn, LocationResultDssOutput locationResultData, int daysOutput, out List<List<double?>> dataByDay, out List<int?> calculatedWarningStatusPerDay)
+        {
+            try
+            {
+                DateTime timeStart = DateTime.Parse(dataToReturn.OutputTimeStart);
+                DateTime timeEnd = DateTime.Parse(dataToReturn.OutputTimeEnd);
+
+                int index = locationResultData.Data.Count - 1;
+                int lastIndex = locationResultData.Data.Count - ((daysOutput - 1) * 24 + timeEnd.Hour);
+
+                var selectedData = locationResultData.Data.Skip(index - (timeEnd.Hour - 1)).Take(timeEnd.Hour);
+                var selectedWarningStatus = locationResultData.WarningStatus.Skip(index - (timeEnd.Hour - 1)).Take(timeEnd.Hour);
+
+                dataByDay = new List<List<double?>>();
+                calculatedWarningStatusPerDay = new List<int?>();
+                dataByDay.Add(GetMaxValueFromDoubleListOnList(selectedData));
+                calculatedWarningStatusPerDay.Add(selectedWarningStatus.Max());
+
+                var day = 1;
+                int indexAfterLastDay = index - (timeEnd.Hour);
+                while (indexAfterLastDay >= lastIndex)
+                {
+                    selectedData = locationResultData.Data.Skip(indexAfterLastDay - 23).Take(24);
+                    selectedWarningStatus = locationResultData.WarningStatus.Skip(indexAfterLastDay - 23).Take(24);
+
+                    dataByDay.Insert(0, GetMaxValueFromDoubleListOnList(selectedData));
+                    calculatedWarningStatusPerDay.Insert(0, selectedWarningStatus.Max());
+
+                    day += 1;
+                    indexAfterLastDay -= 24;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        private static List<double?> GetMaxValueFromDoubleListOnList(IEnumerable<List<double?>> data)
+        {
+            List<double?> maxValues = new List<double?>(data.FirstOrDefault().Count);
+            for (int i = 0; i < maxValues.Capacity; i++)
+            {
+                maxValues.Add(null);
+            }
+            foreach (List<double?> dataItem in data)
+            {
+                for (int i = 0; i < dataItem.Count; i++)
+                {
+                    if (maxValues[i] == null || dataItem[i] > maxValues[i])
+                    {
+                        maxValues[i] = dataItem[i];
+                    }
+                }
+            }
+            return maxValues;
         }
 
         private static DssModelOutputInformation AddDssFullResultData(FieldDssResultDetailedDto dataToReturn)
