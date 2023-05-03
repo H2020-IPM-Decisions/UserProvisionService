@@ -456,6 +456,11 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                     {
                         //Take last 7 days of Data
                         var maxDaysOutput = 7;
+                        if (dssOutput.Interval.Equals(3600.ToString()))
+                        {
+                            // Results are in hours
+                            maxDaysOutput = 24 * 7;
+                        }
                         dssResult.WarningStatus = warningStatuses.TakeLast(maxDaysOutput).Max();
                     }
                     if (dssResult.WarningStatus == null) dssResult.WarningStatus = 0;
