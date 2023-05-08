@@ -43,6 +43,16 @@ namespace H2020.IPMDecisions.UPR.BLL
         {
             var lastStatus = jobDetail.History.FirstOrDefault();
 
+            if (lastStatus == null)
+            {
+                return new DssTaskStatusDto()
+                {
+                    JobStatus = "Succeeded",
+                    DssId = dssId,
+                    Id = taskId
+                };
+            }
+
             var dataToReturn = this.mapper.Map<DssTaskStatusDto>(lastStatus);
             dataToReturn.DssId = dssId;
             dataToReturn.Id = taskId;
