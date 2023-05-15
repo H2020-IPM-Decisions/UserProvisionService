@@ -217,6 +217,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                 var listOfDss = await this.internalCommunicationProvider.GetAllListOfDssFromDssMicroservice();
                 var eppoCodesData = await this.dataService.EppoCodes.GetEppoCodesAsync();
                 var monitoringApi = JobStorage.Current.GetMonitoringApi();
+                var listOfDisableDss = await this.dataService.DisabledDss.GetAllAsync();
 
                 foreach (var dss in dssResultsToReturn)
                 {
@@ -249,6 +250,21 @@ namespace H2020.IPMDecisions.UPR.BLL
                             });
 
                             this.mapper.Map(dssModelMatchDatabaseRecord, dss);
+
+                            if (listOfDisableDss.Any(
+                                d => d.DssId == dss.DssId
+                                && d.DssVersion == dss.DssVersion
+                                && d.DssModelId == dss.DssModelId
+                                && d.DssModelVersion == dss.DssModelVersion))
+                            {
+                                dss.IsValid = false;
+                                dss.ResultMessageType = (int)DssOutputMessageTypeEnum.Info;
+                                dss.ResultMessage = this.jsonStringLocalizer["dss.dss_is_disabled"].ToString();
+                                dss.WarningStatus = 0;
+                                dss.DssFullResult = "";
+                                continue;
+                            }
+
                             if (dssModelMatchDatabaseRecord.Output != null)
                             {
                                 AddWarningMessages(dss, dssModelMatchDatabaseRecord);

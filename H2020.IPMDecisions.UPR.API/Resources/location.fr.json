@@ -18,6 +18,7 @@
     "dss": {
         "adaptation_duplicated": "For model {0}, you have already saved a DSS with the following name {1}. Please change the name before continuing.",
         "dss_missing_metadata": "L'OAD avec l'ID '{0}' et la version '{1}' n'existe pas dans le microservice OAD.",
+        "dss_is_disabled": "This DSS has been temporarily removed from the IPM Decisions Platform due to the identification of potential issues with the DSS. The DSS will be reinstated once these issues have been resolved.",
         "duplicated": "Double combinaison de Culture ({0}), Bioagresseur ({1}), OAD ({2}), Modèle ({3}) & Version de modèle d'OAD ({4}) dans un champ.",
         "existing_combination": "Le champ présente déjà la combinaison Culture ({0}), Bioagresseur ({1}) et OAD ({2}).",
         "field_eppo_code": "Le champ avec l'ID {0} n'accepte que le code EPPO '{1}' pour la culture.",
