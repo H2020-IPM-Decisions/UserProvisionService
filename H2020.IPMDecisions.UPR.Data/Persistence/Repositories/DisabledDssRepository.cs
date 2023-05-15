@@ -24,7 +24,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
             this.context.DisabledDss.RemoveRange(entities);
         }
 
-        public async Task<IEnumerable<DisabledDss>> FindAllByConditionAsync(Expression<Func<DisabledDss, bool>> expression)
+        public async Task<List<DisabledDss>> FindAllByConditionAsync(Expression<Func<DisabledDss, bool>> expression)
         {
             return await this.context
                 .DisabledDss
@@ -32,7 +32,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
                 .ToListAsync<DisabledDss>();
         }
 
-        public async Task<IEnumerable<DisabledDss>> GetAllAsync()
+        public async Task<List<DisabledDss>> GetAllAsync()
         {
             return await this.context
                 .DisabledDss

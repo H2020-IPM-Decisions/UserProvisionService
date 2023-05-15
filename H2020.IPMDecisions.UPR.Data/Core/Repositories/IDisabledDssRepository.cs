@@ -9,8 +9,8 @@ namespace H2020.IPMDecisions.UPR.Data.Core.Repositories
     public interface IDisabledDssRepository
     {
         Task Create(List<DisabledDss> entities);
-        Task<IEnumerable<DisabledDss>> FindAllByConditionAsync(Expression<Func<DisabledDss, bool>> expression);
-        Task<IEnumerable<DisabledDss>> GetAllAsync();
+        Task<List<DisabledDss>> FindAllByConditionAsync(Expression<Func<DisabledDss, bool>> expression);
+        Task<List<DisabledDss>> GetAllAsync();
         Task Delete(List<Guid> ids);
     }
 }
