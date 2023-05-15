@@ -11,5 +11,6 @@ namespace H2020.IPMDecisions.UPR.Core.Dtos
         public string DssModelId { get; set; }
         public string DssModelName { get; set; }
         public string DssModelVersion { get; set; }
+        public bool IsDisabled { get; set; }
     }
 }

@@ -130,9 +130,12 @@ namespace H2020.IPMDecisions.UPR.BLL
         #region Administration
         Task<GenericResponse<IEnumerable<AdminVariableDto>>> GetAllAdminVariables();
         Task<GenericResponse> UpdateAdminVariableById(AdminValuesEnum id, AdminVariableForManipulationDto adminVariableForManipulationDto);
+        Task<GenericResponse> RemoveDisabledDssFromListAsync(List<Guid> ids);
+        Task<GenericResponse<IEnumerable<DisabledDssDto>>> GetAllDisabledDss();
+        Task<GenericResponse<IEnumerable<DisabledDssDto>>> AddDisabledDssFromListAsync(IEnumerable<DisabledDssForCreationDto> listOfDisabledDssDto);
         #endregion
 
-        #region Comparision DSS
+        #region Comparison DSS
         Task<GenericResponse<IEnumerable<FieldDssResultDetailedDto>>> CompareDssByIds(List<Guid> ids, Guid userId, int daysDataToReturn = 7);
         #endregion
 

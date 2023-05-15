@@ -49,5 +49,20 @@ namespace H2020.IPMDecisions.UPR.BLL
                 return GenericResponseBuilder.NoSuccess($"{ex.Message} InnerException: {innerMessage}");
             }
         }
+
+        public Task<GenericResponse<IEnumerable<DisabledDssDto>>> GetAllDisabledDss()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<GenericResponse> RemoveDisabledDssFromListAsync(List<Guid> ids)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<GenericResponse<IEnumerable<DisabledDssDto>>> AddDisabledDssFromListAsync(IEnumerable<DisabledDssForCreationDto> listOfDisabledDssDto)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
