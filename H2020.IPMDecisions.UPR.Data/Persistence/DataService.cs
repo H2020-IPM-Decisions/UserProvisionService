@@ -260,6 +260,19 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence
             }
         }
 
+        public IDisabledDssRepository disabledDss;
+        public IDisabledDssRepository DisabledDss
+        {
+            get
+            {
+                if (disabledDss == null)
+                {
+                    disabledDss = new DisabledDssRepository(this.context);
+                }
+                return disabledDss;
+            }
+        }
+
         public DataService(
             ApplicationDbContext context,
             IPropertyMappingService propertyMappingService)

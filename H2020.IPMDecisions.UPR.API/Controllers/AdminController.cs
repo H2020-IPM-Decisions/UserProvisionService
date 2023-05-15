@@ -37,10 +37,10 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [Produces(MediaTypeNames.Application.Json)]
-        [HttpGet(Name = "api.admin.get.all")]
+        [HttpGet("values", Name = "api.admin.get.allvalues")]
         [HttpHead]
         // GET: api/admin
-        public async Task<IActionResult> Get()
+        public async Task<IActionResult> GetValues()
         {
             var response = await businessLogic.GetAllAdminVariables();
             if (!response.IsSuccessful)
@@ -58,9 +58,9 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [HttpPut("{id:int}", Name = "api.admin.put.byid")]
+        [HttpPut("values/{id:int}", Name = "api.admin.put.valuesbyid")]
         // PUT: api/admin/1
-        public async Task<IActionResult> Put([FromRoute] AdminValuesEnum id, [FromBody] AdminVariableForManipulationDto adminVariableForManipulationDto)
+        public async Task<IActionResult> PutValues([FromRoute] AdminValuesEnum id, [FromBody] AdminVariableForManipulationDto adminVariableForManipulationDto)
         {
             var response = await businessLogic.UpdateAdminVariableById(id, adminVariableForManipulationDto);
             if (!response.IsSuccessful)
