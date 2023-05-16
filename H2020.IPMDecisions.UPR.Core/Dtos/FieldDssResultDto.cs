@@ -9,5 +9,6 @@ namespace H2020.IPMDecisions.UPR.Core.Dtos
 
         public DssTaskStatusDto DssTaskStatusDto { get; set; }
         public bool IsDisabled { get; set; } = false;
+        public bool IsValidInLocation { get; set; } = true;
     }
 }

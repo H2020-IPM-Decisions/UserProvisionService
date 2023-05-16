@@ -19,6 +19,7 @@
         "adaptation_duplicated": "For model {0}, you have already saved a DSS with the following name {1}. Please change the name before continuing.",
         "dss_missing_metadata": "DSS mit ID '{0}' und Version '{1}' existieren nicht auf dem DSS Microservice.",
         "dss_is_disabled": "This DSS has been temporarily removed from the IPM Decisions Platform due to the identification of potential issues with the DSS. The DSS will be reinstated once these issues have been resolved.",
+        "dss_is_not_Valid_location": "This DSS has not been validated for your location and you should treat it's results with caution, as they may not be reliable.",
         "duplicated": "Doppelte Kombination von Kultur ({0}), Schaderreger ({1}), DSS ({2}), Modell ({3}) & DSS-Modellversion ({4}) auf einem Feld.",
         "existing_combination": "Das Feld hat bereits eine Kombination aus Kultur ({0}), Schaderreger ({1}) und DSS ({2}).",
         "field_eppo_code": "Feld mit ID {0} akzeptiert nur '{1}' als EPPO Kultur-Code",

@@ -147,19 +147,24 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
             try
             {
                 var language = Thread.CurrentThread.CurrentCulture.Name;
-                var content = new StringContent(
-                    System.Text.Json.JsonSerializer.Serialize(geoJson),
-                    Encoding.UTF8,
-                    MediaTypeNames.Application.Json);
-                var dssEndPoint = config["MicroserviceInternalCommunication:DssMicroservice"];
-                var response = await httpClient.PostAsync(
-                    string.Format("{0}rest/dss/location?language={1}&executionType={2}", dssEndPoint, language, executionType),
-                    content);
+                var cacheKey = string.Format("eppoCodes_{0}_{1}_{2}", geoJson.ToString().ToLower(), language, executionType);
+                if (!memoryCache.TryGetValue(cacheKey, out string responseAsText))
+                {
+                    var content = new StringContent(
+                        System.Text.Json.JsonSerializer.Serialize(geoJson),
+                        Encoding.UTF8,
+                        MediaTypeNames.Application.Json);
+                    var dssEndPoint = config["MicroserviceInternalCommunication:DssMicroservice"];
+                    var response = await httpClient.PostAsync(
+                        string.Format("{0}rest/dss/location?language={1}&executionType={2}", dssEndPoint, language, executionType),
+                        content);
 
-                if (!response.IsSuccessStatusCode)
-                    return null;
+                    if (!response.IsSuccessStatusCode)
+                        return null;
 
-                var responseAsText = await response.Content.ReadAsStringAsync();
+                    responseAsText = await response.Content.ReadAsStringAsync();
+                    memoryCache.Set(cacheKey, responseAsText, MemoryCacheHelper.CreateMemoryCacheEntryOptionsMinutes(30));
+                }
                 return JsonConvert.DeserializeObject<IEnumerable<DssInformation>>(responseAsText);
             }
             catch (Exception ex)

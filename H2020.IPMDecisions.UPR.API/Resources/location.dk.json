@@ -19,6 +19,7 @@
         "adaptation_duplicated": "For model {0}, you have already saved a DSS with the following name {1}. Please change the name before continuing.",
 		"dss_missing_metadata": "DSS med ID '{0}' og version '{1}' findes ikke på DSS-mikrotjenesten.",
 		"dss_is_disabled": "This DSS has been temporarily removed from the IPM Decisions Platform due to the identification of potential issues with the DSS. The DSS will be reinstated once these issues have been resolved.",
+		"dss_is_not_Valid_location": "This DSS has not been validated for your location and you should treat it's results with caution, as they may not be reliable.",
 		"duplicated": "Duplikeret kombination af afgrøde ({0}), skadedyr ({1}), DSS ({2}), model ({3}) og DSS-modelversion ({4}) på en mark.",
 		"existing_combination": "Marken har allerede en kombination af afgrøde ({0}), skadedyr ({1}) og DSS ({2}).",
 		"field_eppo_code": "Felt med ID {0} accepterer kun '{1}'-afgrøde-EPPO-kode",

@@ -113,7 +113,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                 var farmsFromUser = await this.dataService.Farms.FindAllByConditionAsync(f => f.UserFarms.Any(uf => uf.UserId == userId & (uf.Authorised)));
                 if (farmsFromUser.Count() == 0) return GenericResponseBuilder.Success<IEnumerable<LinkDssDto>>(dataToReturn);
 
-                var farmGeoJson = CreateFarmLocationGeoJson(farmsFromUser);
+                var farmGeoJson = CreateFarmsLocationGeoJson(farmsFromUser);
                 var listDssOnLocation = await this.internalCommunicationProvider.GetListOfDssByLocationFromDssMicroservice(farmGeoJson, "LINK");
 
                 if (listDssOnLocation == null) return GenericResponseBuilder.Success<IEnumerable<LinkDssDto>>(dataToReturn);
@@ -218,7 +218,8 @@ namespace H2020.IPMDecisions.UPR.BLL
                 var eppoCodesData = await this.dataService.EppoCodes.GetEppoCodesAsync();
                 var monitoringApi = JobStorage.Current.GetMonitoringApi();
                 var listOfDisableDss = await this.dataService.DisabledDss.GetAllAsync();
-
+                var farmIds = dssResultsToReturn.GroupBy(t => t.FarmId).Select(grp => grp.First().FarmId).ToList();
+                List<FarmWithDssAvailableByLocation> listOfFarms = await GetDssModelAvailableFromFarmIds(farmIds);
                 foreach (var dss in dssResultsToReturn)
                 {
                     if (listOfDss != null && listOfDss.Count() != 0)
@@ -257,12 +258,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                                 && d.DssModelId == dss.DssModelId
                                 && d.DssModelVersion == dss.DssModelVersion))
                             {
-                                dss.IsValid = false;
-                                dss.ResultMessageType = (int)DssOutputMessageTypeEnum.Error;
-                                dss.ResultMessage = this.jsonStringLocalizer["dss.dss_is_disabled"].ToString();
-                                dss.WarningStatus = 0;
-                                dss.DssFullResult = "";
-                                dss.IsDisabled = true;
+                                AddDisableDssMessage(dss);
                                 continue;
                             }
 
@@ -270,6 +266,15 @@ namespace H2020.IPMDecisions.UPR.BLL
                             {
                                 AddWarningMessages(dss, dssModelMatchDatabaseRecord);
                             }
+
+                            if (!listOfFarms.Any(
+                                f => f.FarmId == dss.FarmId
+                                && f.DssModelsAvailable.Any(
+                                    d => d.Id == dss.DssModelId)))
+                            {
+                                AddNotValidatedOnLocation(dss);
+                            }
+
                             if (!outOfSeason) CheckIfDssOutOfSeason(dss);
 
                             // Remove Full result output
@@ -608,26 +613,31 @@ namespace H2020.IPMDecisions.UPR.BLL
                 dss.WarningExplanation, dss.WarningRecommendedAction].ToString();
         }
 
-        private static GeoJsonFeatureCollection CreateFarmLocationGeoJson(IEnumerable<Farm> farmsFromUser)
+        private static GeoJsonFeatureCollection CreateFarmsLocationGeoJson(IEnumerable<Farm> farmsFromUser)
         {
             var geoJson = new GeoJsonFeatureCollection();
             foreach (var farm in farmsFromUser)
             {
-                var coordinates = new List<double>(){
+                AddFarmLocationToGeoJson(geoJson, farm);
+            }
+            return geoJson;
+        }
+
+        private static void AddFarmLocationToGeoJson(GeoJsonFeatureCollection geoJson, Farm farm)
+        {
+            var coordinates = new List<double>(){
                     farm.Location.Coordinate.X,
                     farm.Location.Coordinate.Y
                 };
-                var geometry = new GeoJsonGeometry()
-                {
-                    Coordinates = coordinates
-                };
-                var feature = new GeoJsonFeature()
-                {
-                    Geometry = geometry
-                };
-                geoJson.Features.Add(feature);
-            }
-            return geoJson;
+            var geometry = new GeoJsonGeometry()
+            {
+                Coordinates = coordinates
+            };
+            var feature = new GeoJsonFeature()
+            {
+                Geometry = geometry
+            };
+            geoJson.Features.Add(feature);
         }
 
         private async Task<IList<string>> ValidateNewDssParameters(CropPestDss cropPestDss, string newDssParameters)
@@ -675,6 +685,52 @@ namespace H2020.IPMDecisions.UPR.BLL
                 }
             }
             return inputAsJsonObject;
+        }
+
+        private void AddNotValidatedOnLocation(FieldDssResultDto dss)
+        {
+            dss.IsValidInLocation = false;
+            dss.ResultMessageType = (dss.ResultMessageType == null)
+                ? (int)DssOutputMessageTypeEnum.Info
+                : dss.ResultMessageType;
+            dss.ResultMessage = (string.IsNullOrEmpty(dss.ResultMessage))
+                ? this.jsonStringLocalizer["dss.dss_is_not_Valid_location"].ToString()
+                : string.Format("{0} /n {1}", dss.ResultMessage, this.jsonStringLocalizer["dss.dss_is_not_Valid_location"].ToString());
+        }
+
+        private async Task<List<FarmWithDssAvailableByLocation>> GetDssModelAvailableFromFarmIds(List<Guid> farmIds)
+        {
+            var listOfFarms = new List<FarmWithDssAvailableByLocation>();
+            var farms = await this.dataService.Farms.FindAllByConditionAsync(f => farmIds.Contains(f.Id));
+            foreach (var farm in farms)
+            {
+                var farmGeoJson = new GeoJsonFeatureCollection();
+                AddFarmLocationToGeoJson(farmGeoJson, farm);
+                var listDssAvailable = await this.internalCommunicationProvider.GetListOfDssByLocationFromDssMicroservice(farmGeoJson, "ONTHEFLY");
+                var listDssModelsAvailable = new List<DssModelInformation>();
+                if (listDssAvailable != null && listDssAvailable.Count() != 0)
+                {
+                    listDssModelsAvailable = listDssAvailable.SelectMany(f => f.DssModelInformation).ToList();
+                };
+                var farmWithDss = new FarmWithDssAvailableByLocation()
+                {
+                    FarmId = farm.Id,
+                    DssModelsAvailable = listDssModelsAvailable
+                };
+
+                listOfFarms.Add(farmWithDss);
+            }
+            return listOfFarms;
+        }
+
+        private void AddDisableDssMessage(FieldDssResultDto dss)
+        {
+            dss.IsValid = false;
+            dss.ResultMessageType = (int)DssOutputMessageTypeEnum.Error;
+            dss.ResultMessage = this.jsonStringLocalizer["dss.dss_is_disabled"].ToString();
+            dss.WarningStatus = 0;
+            dss.DssFullResult = "";
+            dss.IsDisabled = true;
         }
     }
 }
