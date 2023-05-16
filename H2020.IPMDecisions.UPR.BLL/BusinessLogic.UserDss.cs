@@ -258,10 +258,11 @@ namespace H2020.IPMDecisions.UPR.BLL
                                 && d.DssModelVersion == dss.DssModelVersion))
                             {
                                 dss.IsValid = false;
-                                dss.ResultMessageType = (int)DssOutputMessageTypeEnum.Info;
+                                dss.ResultMessageType = (int)DssOutputMessageTypeEnum.Error;
                                 dss.ResultMessage = this.jsonStringLocalizer["dss.dss_is_disabled"].ToString();
                                 dss.WarningStatus = 0;
                                 dss.DssFullResult = "";
+                                dss.IsDisabled = true;
                                 continue;
                             }
 
