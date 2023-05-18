@@ -13,6 +13,7 @@ namespace H2020.IPMDecisions.UPR.Data.Core
         IDssResultRepository DssResult { get; }
         IDataShareRequestRepository DataShareRequests { get; }
         IDataSharingRequestStatusRepository DataSharingRequestStatuses { get; }
+        IDisabledDssRepository DisabledDss { get; }
         IEppoCodeRepository EppoCodes { get; }
         IFarmRepository Farms { get; }
         IFieldRepository Fields { get; }

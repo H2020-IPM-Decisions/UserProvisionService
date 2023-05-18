@@ -15,6 +15,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence
         public DbSet<DataSharingRequest> DataSharingRequest { get; set; }
         public DbSet<DssResultDatabaseView> DssResult { get; set; }
         public DbSet<DataSharingRequestStatus> DataSharingRequestStatus { get; set; }
+        public DbSet<DisabledDss> DisabledDss { get; set; }
         public DbSet<EppoCode> EppoCode { get; set; }
         public DbSet<Farm> Farm { get; set; }
         public DbSet<Field> Field { get; set; }
@@ -51,6 +52,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence
             modelBuilder.ApplyConfiguration(new CropPestDssConfiguration());
             modelBuilder.ApplyConfiguration(new DataSharingRequestConfiguration());
             modelBuilder.ApplyConfiguration(new DataSharingRequestStatusConfiguration());
+            modelBuilder.ApplyConfiguration(new DisabledDssConfiguration());
             modelBuilder.ApplyConfiguration(new EppoCodeConfiguration());
             modelBuilder.ApplyConfiguration(new FarmConfiguration());
             modelBuilder.ApplyConfiguration(new FieldCropPestConfiguration());
