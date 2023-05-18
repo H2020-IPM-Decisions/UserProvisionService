@@ -115,7 +115,8 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             {
                 expression = f =>
                     f.CropPestDss.DssExecutionType.ToLower().Equals("onthefly") &&
-                    f.ReScheduleCount >= int.Parse(config["AppConfiguration:MaxReScheduleAttemptsDss"]);
+                    (f.ReScheduleCount >= int.Parse(config["AppConfiguration:MaxReScheduleAttemptsDss"]) &&
+                    f.ReScheduleCount < int.Parse(config["AppConfiguration:LimitReScheduleAttemptsDss"]));
             }
             else
             {
@@ -340,7 +341,6 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                         {
                             var jobScheduleId = this.queueJobs.ScheduleDssOnTheFlyQueue(dss.Id, 121);
                             dss.LastJobId = jobScheduleId;
-                            dss.ReScheduleCount += 1;
                         }
                         if (responseWeather.ReSchedule && dss.ReScheduleCount < maxReScheduleCount)
                         {
@@ -349,8 +349,9 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                             TimeSpan enqueuedTime = TimeSpan.FromSeconds(3600 + seconds);
                             var jobScheduleId = this.queueJobs.ScheduleDssOnTheFlyQueueTimeSpan(dss.Id, enqueuedTime);
                             dss.LastJobId = jobScheduleId;
-                            dss.ReScheduleCount += 1;
+
                         }
+                        dss.ReScheduleCount += 1;
                         var errorMessage = this.jsonStringLocalizer["dss_process.weather_data_error", responseWeather.ResponseWeatherAsString.ToString()].ToString();
                         CreateDssRunErrorResult(dssResult, errorMessage, responseWeather.ErrorType);
                         return dssResult;
@@ -368,6 +369,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             }
             catch (Exception ex)
             {
+                dss.ReScheduleCount += 1;
                 logger.LogError(string.Format("Error running DSS. Id: {0}, Parameters {1}. Error: {2}", dss.Id.ToString(), dss.DssParameters, ex.Message));
                 var errorMessage = this.jsonStringLocalizer["dss_process.dss_error", ex.Message.ToString()].ToString();
                 CreateDssRunErrorResult(dssResult, errorMessage, DssOutputMessageTypeEnum.Error);
