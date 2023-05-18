@@ -309,7 +309,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
                     if (weatherResponse.IsSuccessStatusCode)
                         memoryCache.Set(cacheKey, weatherResponse, MemoryCacheHelper.CreateMemoryCacheEntryOptionsMinutes(30));
                     else
-                        logger.LogError(string.Format("Weather call error. URL called: {0}. Error returned: {1}", url, await weatherResponse.Content.ReadAsStringAsync()));
+                        logger.LogError(string.Format("Weather call error - GetWeatherUsingAmalgamationProxyService. URL called: {0}. Error returned: {1}", url, await weatherResponse.Content.ReadAsStringAsync()));
                 }
                 return weatherResponse;
             }
@@ -379,7 +379,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
                     if (weatherResponse.IsSuccessStatusCode)
                         memoryCache.Set(cacheKey, weatherResponse, MemoryCacheHelper.CreateMemoryCacheEntryOptionsMinutes(30));
                     else
-                        logger.LogError(string.Format("Weather call error. URL called: {0}. Error returned: {1}", url, await weatherResponse.Content.ReadAsStringAsync()));
+                        logger.LogError(string.Format("Weather call error - GetWeatherUsingAmalgamationService. URL called: {0}. Error returned: {1}", url, await weatherResponse.Content.ReadAsStringAsync()));
                 }
                 return weatherResponse;
             }
@@ -410,7 +410,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
                         memoryCache.Set(cacheKey, weatherResponse, MemoryCacheHelper.CreateMemoryCacheEntryOptionsMinutes(30));
                     }
                     else
-                        logger.LogError(string.Format("Weather call error. URL called: {0}. Error returned: {1}", url, await httpResponse.Content.ReadAsStringAsync()));
+                        logger.LogError(string.Format("Weather call error - GetWeatherParametersAvailableByLocation. URL called: {0}. Error returned: {1}", url, await httpResponse.Content.ReadAsStringAsync()));
                 }
                 return weatherResponse;
             }
