@@ -243,9 +243,11 @@ namespace H2020.IPMDecisions.APG.API.Extensions
                         QueuePollInterval = new TimeSpan(0, 1, 0),
                     }
                 ));
+            GlobalJobFilters.Filters.Add(new AutomaticRetryAttribute { Attempts = 2 });
 
             services.AddHangfireServer(options =>
             {
+                options.WorkerCount = Environment.ProcessorCount * 3;
                 options.Queues = new[] {
                     "onthefly_schedule",
                     "onthefly_queue",
