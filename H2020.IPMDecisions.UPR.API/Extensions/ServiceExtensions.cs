@@ -247,7 +247,6 @@ namespace H2020.IPMDecisions.APG.API.Extensions
 
             services.AddHangfireServer(options =>
             {
-                options.WorkerCount = Environment.ProcessorCount * 3;
                 options.Queues = new[] {
                     "onthefly_schedule",
                     "onthefly_queue",
