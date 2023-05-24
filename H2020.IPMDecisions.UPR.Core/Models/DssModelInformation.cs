@@ -125,6 +125,8 @@ namespace H2020.IPMDecisions.UPR.Core.Models
         [JsonProperty("parameter_code")]
         public int ParameterCode { get; set; }
         public int Interval { get; set; }
+        [JsonProperty("is_required")]
+        public bool IsRequired { get; set; }
     }
 
     public class DssModelSchemaExecution
