@@ -271,7 +271,8 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 }
                 if (dssInformation.Execution.Type.ToLower() != "onthefly") return null;
 
-                var inputSchema = JsonSchemaToJson.StringToJsonSchema(dssInformation.Execution.InputSchema, logger);
+                var isDemoVersion = bool.Parse(this.config["AppConfiguration:IsDemoVersion"]);
+                var inputSchema = JsonSchemaToJson.StringToJsonSchema(dssInformation.Execution.InputSchema, logger, isDemoVersion);
                 if (inputSchema == null)
                 {
                     // This means that the server might be overloaded and can resolve weather schema
@@ -286,8 +287,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 }
                 // Check required properties with Json Schema, remove not required
                 DssDataHelper.RemoveNotRequiredInputSchemaProperties(inputSchema);
-
-                JObject inputAsJsonObject = JsonSchemaToJson.ToJsonObject(inputSchema.ToString(), logger);
+                JObject inputAsJsonObject = JsonSchemaToJson.ToJsonObject(inputSchema.ToString(), logger, isDemoVersion);
                 // Add user parameters or parameters on the fly
                 bool isOnTheFlyRun = !string.IsNullOrEmpty(onTheFlyDssParameters);
                 if (isOnTheFlyRun)

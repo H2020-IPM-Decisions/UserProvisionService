@@ -96,6 +96,19 @@ The following command will copy the backup into your local machine. Add this fil
 docker cp <containerName>:/var/lib/postgresql/data/dbBackup.sql your\local\folder\path\2.dbBackup.sql
 ```
 
+### Database configuration
+
+It is recommend to change your database settings to the following. Go into your postgres server and run the following queries
+
+``` bash
+ALTER system SET max_connections=300;
+ALTER system SET shared_buffers='512MB';
+ALTER system SET statement_timeout='5min';
+ALTER system SET wal_buffers='16MB';
+```
+
+Please remember to restart your postgres server once the values have been modified.
+
 ### How to set-up the JsonWebToken (JWT) provider
 
 Open file `H2020.IPMDecisions.UPR.API\appsettings.json` and change the json section `JwtSettings` with the your server information.

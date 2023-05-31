@@ -160,6 +160,7 @@ namespace H2020.IPMDecisions.UPR.BLL
             var modelWeatherParameters = model
                 .Input
                 .WeatherParameters
+                .Where(w => w.IsRequired.Equals(true))
                 .Select(w => w.ParameterCode)
                 .ToList();
             model.WeatherParametersValidated = modelWeatherParameters.All(w => weatherParametersAsList.Any(m => w == m));
