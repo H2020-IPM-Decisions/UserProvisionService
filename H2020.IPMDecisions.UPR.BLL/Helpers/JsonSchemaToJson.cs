@@ -8,11 +8,11 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
 {
     public static class JsonSchemaToJson
     {
-        public static string ToJsonString(string jsonSchema, ILogger logger)
+        public static string ToJsonString(string jsonSchema, ILogger logger, bool isDemoVersion = false)
         {
             try
             {
-                var jsonObject = ToJsonObject(jsonSchema, logger);
+                var jsonObject = ToJsonObject(jsonSchema, logger, isDemoVersion);
                 return jsonObject.ToString();
             }
             catch (Exception ex)
@@ -22,12 +22,12 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
             }
         }
 
-        public static JObject ToJsonObject(string jsonSchema, ILogger logger)
+        public static JObject ToJsonObject(string jsonSchema, ILogger logger, bool isDemoVersion = false)
         {
             try
             {
                 var jsonObject = new JObject();
-                JSchema schema = StringToJsonSchema(jsonSchema, logger);
+                JSchema schema = StringToJsonSchema(jsonSchema, logger, isDemoVersion);
                 return ProcessJsonSchemaProperties(jsonObject, schema, logger);
             }
             catch (Exception ex)
@@ -67,11 +67,12 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
             return json;
         }
 
-        public static JSchema StringToJsonSchema(string jsonSchema, ILogger logger)
+        public static JSchema StringToJsonSchema(string jsonSchema, ILogger logger, bool isDemoVersion = false)
         {
             try
             {
                 JSchemaUrlResolver resolver = new JSchemaUrlResolver();
+                if (isDemoVersion) jsonSchema = jsonSchema.Replace("platform.ipmdecisions.net", "demo.ipmdecisions.net");
                 return JSchema.Parse(jsonSchema, resolver);
             }
             catch (Exception ex)
@@ -139,12 +140,12 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
             }
         }
 
-        private static JObject ProcessObjectProperty(KeyValuePair<string, JSchema> property, ILogger logger)
+        private static JObject ProcessObjectProperty(KeyValuePair<string, JSchema> property, ILogger logger, bool isDemoVersion = false)
         {
             try
             {
                 var jsonObject = new JObject();
-                JSchema schema = StringToJsonSchema(property.Value.ToString(), logger);
+                JSchema schema = StringToJsonSchema(property.Value.ToString(), logger, isDemoVersion);
                 ProcessJsonSchemaProperties(jsonObject, schema, logger);
                 return jsonObject;
             }
@@ -155,12 +156,12 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
             }
         }
 
-        private static JArray ProcessArrayProperty(KeyValuePair<string, JSchema> property, ILogger logger)
+        private static JArray ProcessArrayProperty(KeyValuePair<string, JSchema> property, ILogger logger, bool isDemoVersion = false)
         {
             try
             {
                 var array = new JArray();
-                JSchema schema = StringToJsonSchema(property.Value.ToString(), logger);
+                JSchema schema = StringToJsonSchema(property.Value.ToString(), logger, isDemoVersion);
                 if (schema.Default != null)
                 {
                     array.Add(schema.Default.First);
