@@ -1,6 +1,4 @@
-using System;
 using System.Linq;
-using System.Text.RegularExpressions;
 using Newtonsoft.Json.Linq;
 
 namespace H2020.IPMDecisions.UPR.BLL.Helpers
@@ -46,6 +44,31 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
                     return property.Path;
             }
             return "";
+        }
+
+        public static void RemoveProperty(JObject jsonAsObject, string propertyNameToRemove)
+        {
+            foreach (var property in jsonAsObject.Properties().ToList())
+            {
+                if (property.Name == propertyNameToRemove)
+                {
+                    property.Remove();
+                }
+                else if (property.Value is JObject nestedObj)
+                {
+                    RemoveProperty(nestedObj, propertyNameToRemove);
+                }
+                else if (property.Value is JArray array)
+                {
+                    foreach (var item in array)
+                    {
+                        if (item is JObject nestedArrayObj)
+                        {
+                            RemoveProperty(nestedArrayObj, propertyNameToRemove);
+                        }
+                    }
+                }
+            }
         }
     }
 }

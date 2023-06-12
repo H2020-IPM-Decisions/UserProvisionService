@@ -231,6 +231,41 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
             }
         }
 
+        public static JObject AddFieldObservation(JObject obj, DssModelFieldObservation fieldObservation)
+        {
+            foreach (var property in obj.Properties().ToList())
+            {
+                if (property.Name == "fieldObservations")
+                {
+                    // Add the fieldObservation to the fieldObservations array
+                    var fieldObservations = (JArray)property.Value;
+                    int numberOfFieldObservations = fieldObservations.Count;
+                    for (int i = 0; i < numberOfFieldObservations; i++)
+                    {
+                        var item = (JObject)fieldObservations[i];
+                        item.Add("fieldObservation", JObject.FromObject(fieldObservation));
+                    }
+                }
+                else if (property.Value is JObject nestedObj)
+                {
+                    // Recursively search for the fieldObservations property
+                    AddFieldObservation(nestedObj, fieldObservation);
+                }
+                else if (property.Value is JArray array)
+                {
+                    foreach (var item in array)
+                    {
+                        if (item is JObject nestedArrayObj)
+                        {
+                            // Recursively search for the fieldObservations property
+                            AddFieldObservation(nestedArrayObj, fieldObservation);
+                        }
+                    }
+                }
+            }
+            return obj;
+        }
+
         private static List<string> CreateJsonPaths(JObject jsonObject)
         {
             List<string> pathsList = new List<string>();

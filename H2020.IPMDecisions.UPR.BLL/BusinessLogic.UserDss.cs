@@ -57,6 +57,15 @@ namespace H2020.IPMDecisions.UPR.BLL
                     var errorMessageToReturn = string.Join(" ", validationErrorMessages);
                     return GenericResponseBuilder.NoSuccess(errorMessageToReturn);
                 }
+                // Check if has field observations
+                var hasFieldObservations = fieldCropPestDssForUpdateDto.DssParameters.Contains("fieldObservations", StringComparison.OrdinalIgnoreCase);
+                if (hasFieldObservations)
+                {
+                    var userParametersAsJsonObject = JObject.Parse(fieldCropPestDssForUpdateDto.DssParameters);
+                    var fieldObservation = CreateFieldObservation(dss);
+                    DssDataHelper.AddFieldObservation(userParametersAsJsonObject, fieldObservation);
+                    fieldCropPestDssForUpdateDto.DssParameters = userParametersAsJsonObject.ToString();
+                }
 
                 this.mapper.Map(fieldCropPestDssForUpdateDto, dss);
                 this.dataService.FieldCropPestDsses.Update(dss);
@@ -76,6 +85,24 @@ namespace H2020.IPMDecisions.UPR.BLL
                 String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
                 return GenericResponseBuilder.NoSuccess($"{ex.Message} InnerException: {innerMessage}");
             }
+        }
+
+        private static DssModelFieldObservation CreateFieldObservation(FieldCropPestDss dss)
+        {
+            var fieldObservation = new DssModelFieldObservation();
+            var coordinates = new List<double>(){
+                        dss.FieldCropPest.FieldCrop.Field.Farm.Location.Coordinate.X,
+                        dss.FieldCropPest.FieldCrop.Field.Farm.Location.Coordinate.Y
+                    };
+            var geometry = new GeoJsonGeometry()
+            {
+                Coordinates = coordinates
+            };
+            fieldObservation.Location = geometry;
+            fieldObservation.Time = DateTime.Today.ToString("yyyy-MM-dd");
+            fieldObservation.PestEppoCode = dss.FieldCropPest.CropPest.PestEppoCode;
+            fieldObservation.CropEppoCode = dss.FieldCropPest.CropPest.CropEppoCode;
+            return fieldObservation;
         }
 
         public async Task<GenericResponse<IEnumerable<FieldDssResultDto>>> GetAllDssResults(Guid userId, DssResultListFilterDto filterDto)
@@ -683,6 +710,8 @@ namespace H2020.IPMDecisions.UPR.BLL
                         DssDataHelper.HideInternalDssParametersFromInputSchema(inputAsJsonObject, dssInternalParameters);
                     }
                 }
+                // remove field observations
+                JsonHelper.RemoveProperty(inputAsJsonObject, "fieldObservation");
             }
             return inputAsJsonObject;
         }
