@@ -9,7 +9,6 @@ using H2020.IPMDecisions.UPR.Core.Entities;
 using H2020.IPMDecisions.UPR.Core.Enums;
 using H2020.IPMDecisions.UPR.Core.Models;
 using Hangfire;
-using Hangfire.Storage.Monitoring;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -62,8 +61,8 @@ namespace H2020.IPMDecisions.UPR.BLL
                 if (hasFieldObservations)
                 {
                     var userParametersAsJsonObject = JObject.Parse(fieldCropPestDssForUpdateDto.DssParameters);
-                    var fieldObservation = CreateFieldObservation(dss);
-                    DssDataHelper.AddFieldObservation(userParametersAsJsonObject, fieldObservation);
+                    var fieldObservation = CreateFieldObservationNoTime(dss);
+                    DssDataHelper.UpdateFieldObservationWithNoTimeProperty(userParametersAsJsonObject, fieldObservation);
                     fieldCropPestDssForUpdateDto.DssParameters = userParametersAsJsonObject.ToString();
                 }
 
@@ -87,9 +86,9 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
         }
 
-        private static DssModelFieldObservation CreateFieldObservation(FieldCropPestDss dss)
+        private static DssModelFieldObservationNoTime CreateFieldObservationNoTime(FieldCropPestDss dss)
         {
-            var fieldObservation = new DssModelFieldObservation();
+            var fieldObservation = new DssModelFieldObservationNoTime();
             var coordinates = new List<double>(){
                         dss.FieldCropPest.FieldCrop.Field.Farm.Location.Coordinate.X,
                         dss.FieldCropPest.FieldCrop.Field.Farm.Location.Coordinate.Y
@@ -99,7 +98,6 @@ namespace H2020.IPMDecisions.UPR.BLL
                 Coordinates = coordinates
             };
             fieldObservation.Location = geometry;
-            fieldObservation.Time = DateTime.Today.ToString("yyyy-MM-dd");
             fieldObservation.PestEppoCode = dss.FieldCropPest.CropPest.PestEppoCode;
             fieldObservation.CropEppoCode = dss.FieldCropPest.CropPest.CropEppoCode;
             return fieldObservation;
@@ -710,10 +708,66 @@ namespace H2020.IPMDecisions.UPR.BLL
                         DssDataHelper.HideInternalDssParametersFromInputSchema(inputAsJsonObject, dssInternalParameters);
                     }
                 }
-                // remove field observations
-                JsonHelper.RemoveProperty(inputAsJsonObject, "fieldObservation");
+                bool hasFieldObservation = JsonHelper.HasProperty(inputAsJsonObject, "fieldObservation");
+                bool userAlreadyHaveInputFieldObservation = dss.DssParameters.ToString().Contains("fieldObservations", StringComparison.OrdinalIgnoreCase);
+                // remove field observations extra data
+                if (hasFieldObservation)
+                {
+                    ChangeFieldObservationToOnlyTime(inputAsJsonObject);
+                }
+                if (userAlreadyHaveInputFieldObservation)
+                {
+                    RemoveExtraDataFieldObservation(inputAsJsonObject);
+                }
             }
             return inputAsJsonObject;
+        }
+
+        private static void ChangeFieldObservationToOnlyTime(JObject jsonObject)
+        {
+            JObject newFieldObservation = new JObject(
+                                    new JProperty("title", "Generic field observation information"),
+                                    new JProperty("type", "object"),
+                                    new JProperty("required", new JArray("time")),
+                                    new JProperty("properties",
+                                        new JObject(
+                                            new JProperty("time",
+                                                new JObject(
+                                                    new JProperty("type", "string"),
+                                                    new JProperty("format", "date-time"),
+                                                    new JProperty("description", "The timestamp of the field observation. Format: \"yyyy-MM-dd\", e.g. 2020-04-09"),
+                                                    new JProperty("title", "Time (yyyy-MM-dd)"),
+                                                    new JProperty("default", DateTime.Today.ToString("yyyy-MM-dd"))
+                                                )
+                                            )
+                                        )
+                                    )
+                                );
+            JProperty fieldObservationProperty = JsonHelper.FindPropertyByName(jsonObject, "fieldObservation", "default");
+            if (fieldObservationProperty != null)
+            {
+                fieldObservationProperty.Value = newFieldObservation;
+            }
+        }
+
+        private static void RemoveExtraDataFieldObservation(JObject jsonObject)
+        {
+            var fieldObservationsPath = JsonHelper.GetPropertyPath(jsonObject, "fieldObservations");
+            JToken fieldObservationsToken = jsonObject.SelectToken(fieldObservationsPath);
+
+            if (fieldObservationsToken["default"] is JArray fieldObservationsArray)
+            {
+                foreach (JObject fieldObservation in fieldObservationsArray.Children<JObject>())
+                {
+                    JToken fieldObservationToken = fieldObservation.GetValue("fieldObservation");
+                    if (fieldObservationToken is JObject fieldObservationObject)
+                    {
+                        fieldObservationObject.Remove("cropEPPOCode");
+                        fieldObservationObject.Remove("pestEPPOCode");
+                        fieldObservationObject.Remove("location");
+                    }
+                }
+            }
         }
 
         private void AddNotValidatedOnLocation(FieldDssResultDto dss)

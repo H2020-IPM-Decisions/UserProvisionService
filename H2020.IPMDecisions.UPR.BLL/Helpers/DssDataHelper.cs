@@ -266,6 +266,47 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
             return obj;
         }
 
+        public static JObject UpdateFieldObservationWithNoTimeProperty(JObject obj, DssModelFieldObservationNoTime fieldObservation)
+        {
+            foreach (var property in obj.Properties().ToList())
+            {
+                if (property.Name == "fieldObservations")
+                {
+                    // Add the fieldObservation to the fieldObservations array
+                    var fieldObservations = (JArray)property.Value;
+                    int numberOfFieldObservations = fieldObservations.Count;
+                    for (int i = 0; i < numberOfFieldObservations; i++)
+                    {
+                        var item = (JObject)fieldObservations[i]["fieldObservation"];
+                        JObject observationNoTimeObject = JObject.FromObject(fieldObservation);
+
+                        item.Merge(observationNoTimeObject, new JsonMergeSettings
+                        {
+                            MergeArrayHandling = MergeArrayHandling.Replace,
+                            MergeNullValueHandling = MergeNullValueHandling.Merge
+                        });
+                    }
+                }
+                else if (property.Value is JObject nestedObj)
+                {
+                    // Recursively search for the fieldObservations property
+                    UpdateFieldObservationWithNoTimeProperty(nestedObj, fieldObservation);
+                }
+                else if (property.Value is JArray array)
+                {
+                    foreach (var item in array)
+                    {
+                        if (item is JObject nestedArrayObj)
+                        {
+                            // Recursively search for the fieldObservations property
+                            UpdateFieldObservationWithNoTimeProperty(nestedArrayObj, fieldObservation);
+                        }
+                    }
+                }
+            }
+            return obj;
+        }
+
         private static List<string> CreateJsonPaths(JObject jsonObject)
         {
             List<string> pathsList = new List<string>();
