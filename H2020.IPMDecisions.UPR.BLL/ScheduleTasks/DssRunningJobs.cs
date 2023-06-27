@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
 using H2020.IPMDecisions.UPR.BLL.Helpers;
@@ -290,80 +290,111 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 JObject inputAsJsonObject = JsonSchemaToJson.ToJsonObject(inputSchema.ToString(), logger, isDemoVersion);
                 // Add user parameters or parameters on the fly
                 bool isOnTheFlyRun = !string.IsNullOrEmpty(onTheFlyDssParameters);
+                var responseDss = new HttpResponseMessage();
+                JObject dssParametersAsJsonObject = new JObject();
                 if (isOnTheFlyRun)
                 {
-                    JObject dssParametersAsJsonObject = JObject.Parse(onTheFlyDssParameters.ToString());
-                    DssDataHelper.AddUserDssParametersToDssInput(dssParametersAsJsonObject, inputAsJsonObject);
+                    dssParametersAsJsonObject = JObject.Parse(onTheFlyDssParameters.ToString());
                 }
                 else if (!string.IsNullOrEmpty(dss.DssParameters))
                 {
-                    JObject dssParametersAsJsonObject = JObject.Parse(dss.DssParameters.ToString());
-                    DssDataHelper.AddUserDssParametersToDssInput(dssParametersAsJsonObject, inputAsJsonObject);
+                    dssParametersAsJsonObject = JObject.Parse(dss.DssParameters.ToString());
                 }
+                DssDataHelper.AddUserDssParametersToDssInput(dssParametersAsJsonObject, inputAsJsonObject);
 
-                IList<string> validationErrorMessages;
-                bool isJsonObjectValid;
-                bool reSchedule;
-                ValidateJsonSchema(inputSchema, inputAsJsonObject, out validationErrorMessages, out isJsonObjectValid, out reSchedule);
-                if (!isJsonObjectValid)
+                if (dssInformation.Execution.FormMethod.Equals("post", StringComparison.InvariantCultureIgnoreCase))
                 {
-                    string errorMessageToReturn = "";
-                    if (reSchedule && dss.ReScheduleCount < maxReScheduleCount)
-                    {
-                        Random r = new Random();
-                        var seconds = r.Next(0, 600);
-                        TimeSpan enqueuedTime = TimeSpan.FromSeconds(3600 + seconds);
-                        errorMessageToReturn = this.jsonStringLocalizer["dss_process.json_validation_error", enqueuedTime.TotalSeconds / 60].ToString();
-                        var jobScheduleId = this.queueJobs.ScheduleDssOnTheFlyQueueTimeSpan(dss.Id, enqueuedTime);
-                        dss.LastJobId = jobScheduleId;
-                        dss.ReScheduleCount += 1;
-                    }
-                    else
-                    {
-                        errorMessageToReturn = string.Join(" ", validationErrorMessages);
-                    }
-                    CreateDssRunErrorResult(dssResult, errorMessageToReturn, DssOutputMessageTypeEnum.Error);
-                    return dssResult;
-                }
 
-                if (dssInformation.Input.WeatherParameters != null)
-                {
-                    WeatherDataResult responseWeather = await PrepareWeatherData(dss, dssInformation, inputAsJsonObject, isOnTheFlyRun);
-                    if (responseWeather.UpdateDssParameters)
+                    IList<string> validationErrorMessages;
+                    bool isJsonObjectValid;
+                    bool reSchedule;
+                    ValidateJsonSchema(inputSchema, inputAsJsonObject, out validationErrorMessages, out isJsonObjectValid, out reSchedule);
+                    if (!isJsonObjectValid)
                     {
-                        dss.DssParameters = DssDataHelper.UpdateDssParametersToNewCalendarYear(dssInformation.Input.WeatherDataPeriodEnd, dss.DssParameters);
-                        dss.DssParameters = DssDataHelper.UpdateDssParametersToNewCalendarYear(dssInformation.Input.WeatherDataPeriodStart, dss.DssParameters);
-                    }
-
-                    if (!responseWeather.Continue)
-                    {
-                        if (responseWeather.ResponseWeatherAsString.ToString().Contains("This is the first time this season that weather") && dss.ReScheduleCount < maxReScheduleCount)
-                        {
-                            var jobScheduleId = this.queueJobs.ScheduleDssOnTheFlyQueue(dss.Id, 121);
-                            dss.LastJobId = jobScheduleId;
-                        }
-                        if (responseWeather.ReSchedule && dss.ReScheduleCount < maxReScheduleCount)
+                        string errorMessageToReturn = "";
+                        if (reSchedule && dss.ReScheduleCount < maxReScheduleCount)
                         {
                             Random r = new Random();
                             var seconds = r.Next(0, 600);
                             TimeSpan enqueuedTime = TimeSpan.FromSeconds(3600 + seconds);
+                            errorMessageToReturn = this.jsonStringLocalizer["dss_process.json_validation_error", enqueuedTime.TotalSeconds / 60].ToString();
                             var jobScheduleId = this.queueJobs.ScheduleDssOnTheFlyQueueTimeSpan(dss.Id, enqueuedTime);
                             dss.LastJobId = jobScheduleId;
-
+                            dss.ReScheduleCount += 1;
                         }
-                        dss.ReScheduleCount += 1;
-                        var errorMessage = this.jsonStringLocalizer["dss_process.weather_data_error", responseWeather.ResponseWeatherAsString.ToString()].ToString();
-                        CreateDssRunErrorResult(dssResult, errorMessage, responseWeather.ErrorType);
+                        else
+                        {
+                            errorMessageToReturn = string.Join(" ", validationErrorMessages);
+                        }
+                        CreateDssRunErrorResult(dssResult, errorMessageToReturn, DssOutputMessageTypeEnum.Error);
                         return dssResult;
                     }
-                    inputAsJsonObject["weatherData"] = JObject.Parse(responseWeather.ResponseWeatherAsString.ToString());
-                }
-                dss.ReScheduleCount = 0;
-                var content = new StringContent(
-                     inputAsJsonObject.ToString(),
-                     Encoding.UTF8, "application/json");
 
-                var responseDss = await httpClient.PostAsync(dssInformation.Execution.EndPoint, content);
+                    if (dssInformation.Input.WeatherParameters != null)
+                    {
+                        WeatherDataResult responseWeather = await PrepareWeatherData(dss, dssInformation, inputAsJsonObject, isOnTheFlyRun);
+                        if (responseWeather.UpdateDssParameters)
+                        {
+                            dss.DssParameters = DssDataHelper.UpdateDssParametersToNewCalendarYear(dssInformation.Input.WeatherDataPeriodEnd, dss.DssParameters);
+                            dss.DssParameters = DssDataHelper.UpdateDssParametersToNewCalendarYear(dssInformation.Input.WeatherDataPeriodStart, dss.DssParameters);
+                        }
+
+                        if (!responseWeather.Continue)
+                        {
+                            if (responseWeather.ResponseWeatherAsString.ToString().Contains("This is the first time this season that weather") && dss.ReScheduleCount < maxReScheduleCount)
+                            {
+                                var jobScheduleId = this.queueJobs.ScheduleDssOnTheFlyQueue(dss.Id, 121);
+                                dss.LastJobId = jobScheduleId;
+                            }
+                            if (responseWeather.ReSchedule && dss.ReScheduleCount < maxReScheduleCount)
+                            {
+                                Random r = new Random();
+                                var seconds = r.Next(0, 600);
+                                TimeSpan enqueuedTime = TimeSpan.FromSeconds(3600 + seconds);
+                                var jobScheduleId = this.queueJobs.ScheduleDssOnTheFlyQueueTimeSpan(dss.Id, enqueuedTime);
+                                dss.LastJobId = jobScheduleId;
+
+                            }
+                            dss.ReScheduleCount += 1;
+                            var errorMessage = this.jsonStringLocalizer["dss_process.weather_data_error", responseWeather.ResponseWeatherAsString.ToString()].ToString();
+                            CreateDssRunErrorResult(dssResult, errorMessage, responseWeather.ErrorType);
+                            return dssResult;
+                        }
+                        inputAsJsonObject["weatherData"] = JObject.Parse(responseWeather.ResponseWeatherAsString.ToString());
+                    }
+                    var content = new StringContent(
+                                         inputAsJsonObject.ToString(),
+                                         Encoding.UTF8, "application/json");
+
+                    responseDss = await httpClient.PostAsync(dssInformation.Execution.EndPoint, content);
+                }
+
+                if (dssInformation.Execution.FormMethod.Equals("get", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    // ToDo, test this CODE!!!!! Waiting for metadata update
+                    Dictionary<string, JToken> jsonDict = dssParametersAsJsonObject.ToObject<Dictionary<string, JToken>>();
+                    Dictionary<string, string> stringDict = DssDataHelper.ConvertJTokenValuesToString(jsonDict);
+                    string queryString = DssDataHelper.BuildQueryString(stringDict);
+
+                    var fullUrl = string.Format(dssInformation.Execution.EndPoint, queryString);
+                    var authType = dssInformation.Execution.AuthenticationType.ToLowerInvariant();
+                    var configString = $"{dss.CropPestDss.DssId.ToLower()}_{dss.CropPestDss.DssModelId.ToLower()}";
+                    var getDssAuthToken = config[$"DSSInternalInformation:AuthTokens:{configString}"];
+                    switch (authType)
+                    {
+                        case "basic":
+                            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", getDssAuthToken);
+                            break;
+                        case "bearer":
+                            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", getDssAuthToken);
+                            break;
+                    }
+
+                    responseDss = await httpClient
+                       .GetAsync(fullUrl);
+                }
+
+                dss.ReScheduleCount = 0;
                 await ProcessDssResult(dssResult, responseDss);
                 return dssResult;
             }

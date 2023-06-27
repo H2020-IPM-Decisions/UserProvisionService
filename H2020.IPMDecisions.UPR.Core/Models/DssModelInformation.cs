@@ -139,6 +139,8 @@ namespace H2020.IPMDecisions.UPR.Core.Models
         public string FormMethod { get; set; }
         [JsonProperty("content_type")]
         public string ContentType { get; set; }
+        [JsonProperty("authentication_type")]
+        public string AuthenticationType { get; set; }
         [JsonProperty("input_schema_categories")]
         public DssInputSchemaCategories InputSchemaCategories { get; set; }
     }

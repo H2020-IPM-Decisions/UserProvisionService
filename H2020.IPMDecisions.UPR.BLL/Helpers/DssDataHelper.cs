@@ -532,5 +532,25 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
                 throw new Exception("Error RemoveNYearsDatesDssParameters", ex);
             }
         }
+
+        public static Dictionary<string, string> ConvertJTokenValuesToString(Dictionary<string, JToken> jsonDict)
+        {
+            var stringDict = new Dictionary<string, string>();
+            foreach (var kvp in jsonDict)
+            {
+                stringDict[kvp.Key] = kvp.Value.ToString();
+            }
+            return stringDict;
+        }
+
+        public static string BuildQueryString(Dictionary<string, string> parameters)
+        {
+            var queryParameters = new List<string>();
+            foreach (var kvp in parameters)
+            {
+                queryParameters.Add($"{Uri.EscapeDataString(kvp.Key)}={Uri.EscapeDataString(kvp.Value)}");
+            }
+            return string.Join("&", queryParameters);
+        }
     }
 }
