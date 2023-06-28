@@ -54,6 +54,7 @@
         "end_of_season": "This model is inactive since {0}. Please wait until the start of the new season or change the end date of the weather data parameters to keep using the model.",
         "internal_error": "Weather service can't process your request. If the error persists, please contact us.",
         "missing_service": "Le service météo avec l'ID '{0}' n'existe pas dans le microservice météo.",
+        "missing_weather_parameter": "The weather service can not return all the weather parameters requested by the DSS.",
         "missing_weather_service": "Aucune source de données météo ou station météo n'est associée à l'exploitation agricole.",
         "next_season": "La date de début par défaut l'OAD pour obtenir et utiliser les données météorologiques est {0}. Veuillez attendre cette date ou modifier les paramètres de l'OAD pour commencer à utiliser des données météorologiques plus tôt.",
         "next_season_fixed": "The model is only valid for use from {0} to {1}. Unfortunately, this is a fixed date determined by the DSS owner and can't be changed by the user.",

@@ -54,6 +54,7 @@
         "end_of_season": "Ta DSS model je neaktiven zaradi {0}. Če želite še naprej uporabljati model, počakajte do začetka nove sezone ali spremenite končni datum parametrov vremenskih podatkov.",
         "internal_error": "Meteorološka storitev ne more obdelati vaše zahteve. Če se napaka nadaljuje, nas prosim kontaktirajte",
         "missing_service": "Vremenska storitev z ID '{0}' ne obstaja.",
+        "missing_weather_parameter": "The weather service can not return all the weather parameters requested by the DSS.",
         "missing_weather_service": "Za kmetijo ni primernih  vremenskih podatkov ali vremenskih postaj",
         "next_season": "Privzet začetni datum DSS za pridobivanje in uporabo vremenskih podatkov je {0}. Počakajte do tega datuma ali spremenite parametre DSS, da lahko začnete uporabljati vremenske podatke pred tem datumom.",
         "next_season_fixed": "Model velja samo za uporabo od {0} do {1}. Žal je to fiksni datum, ki ga določi lastnik DSS in ga uporabnik ne more spremeniti.",

@@ -54,6 +54,7 @@
         "end_of_season": "Denna modell är inaktiv sedan {0}. Vänta tills början av den nya säsongen eller ändra slutdatumet för väderdataparametrarna för att fortsätta använda modellen.",
         "internal_error": "Vädertjänsten kan inte behandla din förfrågan. Kontakta oss om felet kvarstår.",
         "missing_service": "Vädertjänsten med ID \"{0}\" finns inte på vädertjänsten.",
+        "missing_weather_parameter": "The weather service can not return all the weather parameters requested by the DSS.",
         "missing_weather_service": "Inga väderdatakällor eller väderstationer är länkade till gården",
         "next_season": "Förinställt startdatum för DSS för att hämta och använda väderdata är {0}. Vänta till detta datum eller ändra DSS-parametrarna för att börja använda tidigare väderdata.",
         "next_season_fixed": "Modellen är endast giltig för användning från {0} till {1}. Tyvärr är detta ett fast datum som bestäms av DSS-ägaren och kan inte ändras av användaren.",
