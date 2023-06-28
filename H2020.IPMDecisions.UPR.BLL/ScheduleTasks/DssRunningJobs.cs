@@ -376,7 +376,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                     Dictionary<string, string> stringDict = DssDataHelper.ConvertJTokenValuesToString(jsonDict);
                     string queryString = DssDataHelper.BuildQueryString(stringDict);
 
-                    var fullUrl = string.Format(dssInformation.Execution.EndPoint, queryString);
+                    var fullUrl = $"{dssInformation.Execution.EndPoint}?{queryString}";
                     var authType = dssInformation.Execution.AuthenticationType.ToLowerInvariant();
                     var configString = $"{dss.CropPestDss.DssId.ToLower()}_{dss.CropPestDss.DssModelId.ToLower()}";
                     var getDssAuthToken = config[$"DSSInternalInformation:AuthTokens:{configString}"];
