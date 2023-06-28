@@ -476,6 +476,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                 }
                 dataToReturn.ResultParameters.Add(resultParameter);
             }
+            if (dssModelInformation.Output.ChartGroups == null) return dataToReturn;
             foreach (var group in dssModelInformation.Output.ChartGroups)
             {
                 var chartGroupWithDataParameters = this.mapper.Map<ChartGroup>(group);
