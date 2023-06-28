@@ -33,7 +33,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
         public static int GetCurrentYearForDssDefaultDates(DssModelInformation dssInputInformation, JObject dssInputSchemaAsJson)
         {
             var currentYear = -1;
-            if (dssInputInformation.Input.WeatherDataPeriodEnd != null)
+            if (dssInputInformation.Input != null && dssInputInformation.Input.WeatherDataPeriodEnd != null)
             {
                 var weatherEndDate = ProcessWeatherDataPeriod(dssInputInformation.Input.WeatherDataPeriodEnd, dssInputSchemaAsJson);
                 currentYear = weatherEndDate.Year;

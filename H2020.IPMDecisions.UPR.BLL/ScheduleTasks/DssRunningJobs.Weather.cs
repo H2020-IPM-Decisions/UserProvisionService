@@ -221,7 +221,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 .Where(w => w.IsRequired.Equals(true))
                 .Select(w => w.ParameterCode)
                 .Count();
-            if (modelWeatherParametersRequired < weatherDataAsObject.WeatherParameters.Count())
+            if (modelWeatherParametersRequired > weatherDataAsObject.WeatherParameters.Count())
             {
                 result.ResponseWeatherAsString = this.jsonStringLocalizer["weather.missing_weather_parameter", weatherDataSource.WeatherDssParameters.ToString()].ToString();
                 result.ErrorType = DssOutputMessageTypeEnum.Error;

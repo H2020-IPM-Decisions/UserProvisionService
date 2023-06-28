@@ -372,7 +372,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 if (dssInformation.Execution.FormMethod.Equals("get", StringComparison.InvariantCultureIgnoreCase))
                 {
                     // ToDo, test this CODE!!!!! Waiting for metadata update
-                    Dictionary<string, JToken> jsonDict = dssParametersAsJsonObject.ToObject<Dictionary<string, JToken>>();
+                    Dictionary<string, JToken> jsonDict = inputAsJsonObject.ToObject<Dictionary<string, JToken>>();
                     Dictionary<string, string> stringDict = DssDataHelper.ConvertJTokenValuesToString(jsonDict);
                     string queryString = DssDataHelper.BuildQueryString(stringDict);
 
