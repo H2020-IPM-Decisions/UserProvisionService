@@ -65,7 +65,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         [Produces(MediaTypeNames.Application.Json)]
         [HttpGet("{id:guid}", Name = "api.dss.get.byid")]
         // GET: api/dss/1
-        public async Task<IActionResult> GetById([FromRoute] Guid id, [FromQuery] int days = 7)
+        public async Task<IActionResult> GetById([FromRoute] Guid id, [FromQuery] int days)
         {
             var userId = Guid.Parse(HttpContext.Items["userId"].ToString());
 

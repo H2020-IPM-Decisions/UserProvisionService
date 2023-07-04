@@ -18,7 +18,7 @@ namespace H2020.IPMDecisions.UPR.BLL
 {
     public partial class BusinessLogic : IBusinessLogic
     {
-        public async Task<GenericResponse<FieldDssResultDetailedDto>> GetFieldCropPestDssById(Guid id, Guid userId, int daysDataToReturn = 7)
+        public async Task<GenericResponse<FieldDssResultDetailedDto>> GetFieldCropPestDssById(Guid id, Guid userId, int daysDataToReturn)
         {
             try
             {
@@ -407,7 +407,7 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
         }
 
-        private async Task<FieldDssResultDetailedDto> CreateDetailedResultToReturn(FieldCropPestDss dss, int daysDataToReturn = 7)
+        private async Task<FieldDssResultDetailedDto> CreateDetailedResultToReturn(FieldCropPestDss dss, int daysDataToReturn = 0)
         {
             var dataToReturn = this.mapper.Map<FieldDssResultDetailedDto>(dss);
             var dssInformation = await internalCommunicationProvider
@@ -437,6 +437,9 @@ namespace H2020.IPMDecisions.UPR.BLL
 
             var locationResultData = dssFullOutputAsObject.LocationResult.FirstOrDefault();
             int maxDaysOutput = int.Parse(this.config["AppConfiguration:MaxDaysAllowedForDssOutputData"]);
+            if (daysDataToReturn == 0) daysDataToReturn = locationResultData.Length;
+            else if (daysDataToReturn > 0 && daysDataToReturn < 7) daysDataToReturn = 7;
+
             IEnumerable<List<double?>> dataLastDays = SelectDssLastResultsData(dataToReturn, locationResultData, daysDataToReturn, maxDaysOutput);
             List<string> labels = CreateResultParametersLabels(dataToReturn.OutputTimeEnd, dataLastDays.Count());
             if (labels == null || labels.Count() == 0)
@@ -548,10 +551,12 @@ namespace H2020.IPMDecisions.UPR.BLL
                 int lastIndex = locationResultData.Data.Count - ((daysOutput - 1) * 24 + timeEnd.Hour);
 
                 var selectedData = locationResultData.Data.Skip(index - (timeEnd.Hour - 1)).Take(timeEnd.Hour);
+
                 var selectedWarningStatus = locationResultData.WarningStatus.Skip(index - (timeEnd.Hour - 1)).Take(timeEnd.Hour);
 
                 dataByDay = new List<List<double?>>();
                 calculatedWarningStatusPerDay = new List<int?>();
+                if (selectedData.Count() == 0) return;
                 dataByDay.Add(GetMaxValueFromDoubleListOnList(selectedData));
                 calculatedWarningStatusPerDay.Add(selectedWarningStatus.Max());
 
