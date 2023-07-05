@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using CsvHelper;
 using H2020.IPMDecisions.UPR.BLL.Helpers;
 using H2020.IPMDecisions.UPR.Core.Dtos;
 using H2020.IPMDecisions.UPR.Core.Entities;
@@ -232,6 +234,98 @@ namespace H2020.IPMDecisions.UPR.BLL
                 logger.LogError(string.Format("Error in BLL - GetFieldCropPestDssDefaultParametersById. {0}", ex.Message), ex);
                 String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
                 return GenericResponseBuilder.NoSuccess<JObject>(null, $"{ex.Message} InnerException: {innerMessage}");
+            }
+        }
+
+        public async Task<GenericResponse<byte[]>> GetFieldCropPestDssDataAsCSVById(Guid id, Guid userId)
+        {
+            try
+            {
+                var dss = await this.dataService.FieldCropPestDsses.FindByIdAsync(id);
+                if (dss == null) return GenericResponseBuilder.NotFound<byte[]>();
+
+                var dssUserId = dss.FieldCropPest.FieldCrop.Field.Farm.UserFarms.FirstOrDefault().UserId;
+                if (userId != dssUserId) return GenericResponseBuilder.NotFound<byte[]>();
+
+
+                var dataToReturn = this.mapper.Map<FieldDssResultDetailedDto>(dss);
+                var dssInformation = await internalCommunicationProvider
+                                .GetDssInformationFromDssMicroservice(dss.CropPestDss.DssId);
+                if (dssInformation == null) return null;
+                var dssModelInformation = dssInformation
+                    .DssModelInformation
+                    .FirstOrDefault(m => m.Id == dss.CropPestDss.DssModelId);
+
+                if (!dataToReturn.IsValid || dataToReturn.DssExecutionType.ToLower() == "link") return null;
+                DssModelOutputInformation dssFullOutputAsObject = AddDssFullResultData(dataToReturn);
+                bool isHourlyInterval = dssFullOutputAsObject.Interval == "3600";
+
+                using (var memoryStream = new MemoryStream())
+                using (var writer = new StreamWriter(memoryStream))
+                using (var csv = new CsvWriter(writer, CultureInfo.CurrentUICulture))
+                {
+                    csv.WriteField("Date");
+                    csv.WriteField("WarningStatus");
+                    foreach (string parameterCode in dssFullOutputAsObject.ResultParameters)
+                    {
+                        if (dssModelInformation == null || dssModelInformation.Output == null)
+                        {
+                            csv.WriteField(parameterCode);
+                            continue;
+                        }
+                        var parameterInformationFromDss = dssModelInformation
+                            .Output
+                            .ResultParameters
+                            .Where(n => n.Id == parameterCode)
+                            .FirstOrDefault();
+                        if (parameterInformationFromDss == null)
+                        {
+                            csv.WriteField(parameterCode);
+                            continue;
+                        }
+                        csv.WriteField(parameterInformationFromDss.Title);
+                    }
+                    csv.NextRecord();
+
+                    var locationResult = dssFullOutputAsObject.LocationResult.FirstOrDefault();
+                    for (int i = 0; i < locationResult.Data.Count; i++)
+                    {
+                        List<double?> rowData = locationResult.Data[i];
+                        string formattedDate = FormatDate(dssFullOutputAsObject.TimeStart, i, isHourlyInterval);
+                        csv.WriteField(formattedDate);
+                        csv.WriteField(locationResult.WarningStatus[i].ToString());
+                        foreach (double? value in rowData)
+                        {
+                            csv.WriteField(value);
+                        }
+                        csv.NextRecord();
+                    }
+                    writer.Flush();
+
+                    var content = memoryStream.ToArray();
+                    return GenericResponseBuilder.Success<byte[]>(content);
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(string.Format("Error in BLL - GetFieldCropPestDssDataAsCSVById. {0}", ex.Message), ex);
+                String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
+                return GenericResponseBuilder.NoSuccess<byte[]>(null, $"{ex.Message} InnerException: {innerMessage}");
+            }
+        }
+
+        private static string FormatDate(string timeStart, int increment, bool isHourlyInterval)
+        {
+            DateTime dateTime;
+            if (isHourlyInterval)
+            {
+                dateTime = Convert.ToDateTime(timeStart).AddHours(increment);
+                return dateTime.ToString("yyyy-MM-ddTHH:mm:ssZ");
+            }
+            else
+            {
+                dateTime = Convert.ToDateTime(timeStart).AddDays(increment);
+                return dateTime.ToString("yyyy-MM-dd");
             }
         }
 

@@ -112,6 +112,7 @@ namespace H2020.IPMDecisions.UPR.BLL
         Task<GenericResponse<IEnumerable<FieldDssResultDto>>> GetAllDssResults(Guid userId, DssResultListFilterDto filterDto);
         Task<GenericResponse<IEnumerable<LinkDssDto>>> GetAllLinkDss(Guid userId);
         Task<GenericResponse<IEnumerable<DssInformation>>> GetAllAvailableDssOnFarmLocation(DssListFilterDto dssListFilterDto, Guid userId);
+        Task<GenericResponse<byte[]>> GetFieldCropPestDssDataAsCSVById(Guid id, Guid userId);
         #endregion
 
         #region DssResults
