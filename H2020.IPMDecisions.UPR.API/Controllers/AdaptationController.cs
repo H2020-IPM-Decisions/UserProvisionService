@@ -41,7 +41,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         [Produces(MediaTypeNames.Application.Json)]
         [HttpGet("{id:guid}", Name = "api.adaptation.get.byid")]
         // GET: api/dss/1/adaptation
-        public async Task<IActionResult> GetAdaptationDataById([FromRoute] Guid id, [FromQuery] int days = 7)
+        public async Task<IActionResult> GetAdaptationDataById([FromRoute] Guid id, [FromQuery] int days)
         {
             var userId = Guid.Parse(HttpContext.Items["userId"].ToString());
 
@@ -142,7 +142,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         public async Task<IActionResult> Get(
             [FromRoute] Guid dssId,
             [FromQuery] string id,
-            int days = 7)
+            int days)
         {
             var userId = Guid.Parse(HttpContext.Items["userId"].ToString());
             var response = await this.businessLogic.GetDssResultFromTaskById(dssId, id, userId, days);

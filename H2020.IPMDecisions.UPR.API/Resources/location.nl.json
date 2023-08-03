@@ -54,6 +54,7 @@
         "end_of_season": " Dit BOS is inactief sinds {0}. Wacht aub tot de start van het nieuwe seizoen of verander de eind data van de weerparameters om het BOS te kunnen blijven gebruiken.",
         "internal_error": "Weerservice kan uw verzoek niet uitvoeren. Als de foutmelding zich steeds herhaalt, neem aub contact met ons op",
         "missing_service": "Weer service met ID '{0}' bestaat niet in de weer microservice.",
+        "missing_weather_parameter": "The weather service can not return all the weather parameters requested by the DSS.",
         "missing_weather_service": "Geen Weersgegevens of Weerstation gekoppeld aan het bedrijf",
         "next_season": "De default start datum voor gebruik weerdata is  {0}. Aub wacht tot deze datum of verander de DSS parameters om te starten met eerdere weerdata",
         "next_season_fixed": "Het BOS is alleen te gebruiken van {0} tot {1}. Helaas, dit is een datum die is vastgesteld door de BOS eigenaar en kan niet worden veranderd door de gebruiker.",

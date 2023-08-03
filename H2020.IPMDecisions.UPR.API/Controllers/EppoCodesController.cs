@@ -16,7 +16,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
     /// </summary>
     [ApiController]
     [Route("api/eppocodes")]
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [AllowAnonymous]
     public class EppoCodesController : ControllerBase
     {
         private readonly IBusinessLogic businessLogic;

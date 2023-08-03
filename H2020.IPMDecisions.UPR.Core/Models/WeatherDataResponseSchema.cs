@@ -30,7 +30,7 @@ namespace H2020.IPMDecisions.UPR.Core.Models
         [JsonProperty("amalgamation")]
         public List<int?> Amalgamation { get; set; }
         [JsonProperty("width")]
-        public int Width { get; set; }
+        public int? Width { get; set; }
         [JsonProperty("qc")]
         public List<int?> Qc { get; set; }
         [JsonProperty("length")]

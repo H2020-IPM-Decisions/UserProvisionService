@@ -54,6 +54,7 @@
         "end_of_season": "This model is inactive since {0}. Please wait until the start of the new season or change the end date of the weather data parameters to keep using the model.",
         "internal_error": "Weather service can't process your request. If the error persists, please contact us.",
         "missing_service": "Η υπηρεσία καιρού με αναγνωριστικό '{0}' δεν υπάρχει στη μικρουπηρεσία καιρού.",
+        "missing_weather_parameter": "The weather service can not return all the weather parameters requested by the DSS.",
         "missing_weather_service": "Δεν υπάρχουν πηγές δεδομένων καιρού ή μετεωρολογικοί σταθμοί που σχετίζονται με το αγρόκτημα",
         "next_season": "Η προεπιλεγμένη ημερομηνία έναρξης του DSS για τη λήψη και χρήση δεδομένων καιρού είναι {0}. Παρακαλούμε περιμένετε μέχρι αυτή την ημερομηνία ή αλλάξτε τις παραμέτρους του DSS για να αρχίσετε να χρησιμοποιείτε νωρίτερα τα δεδομένα καιρού.",
         "next_season_fixed": "The model is only valid for use from {0} to {1}. Unfortunately, this is a fixed date determined by the DSS owner and can't be changed by the user.",

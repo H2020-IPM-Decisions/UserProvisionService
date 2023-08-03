@@ -54,6 +54,7 @@
 		"end_of_season": "Denne model er inaktiv siden {0}. Vent venligst indtil en ny sæson starter eller ændr dato for vejrdata parametre for at blive ved med at bruge modellen.",
 		"internal_error": "Vejr data tjeneste kan ikke processere din anmodning. Hvis fejlen forsætter, kontakt os venligst.",
 		"missing_service": "Vejrtjeneste med ID '{0}' findes ikke på vejrmikrotjenesten.",
+        "missing_weather_parameter": "The weather service can not return all the weather parameters requested by the DSS.",
 		"missing_weather_service": "Ingen vejrdatakilder eller vejrstationer knyttet til landbruget",
 		"next_season": "DSS standardstartdato for at hente og bruge vejrdata er {0}. Vent venligst indtil denne dato, eller skift DSS-parametrene for at begynde at bruge tidligere vejrdata.",
 		"next_season_fixed": "Modellen kan kun bruges fra {0} til {1}. Desværre er denne fastsættelse sat af DSS-ejeren og kan ikke ændres af brugeren.",

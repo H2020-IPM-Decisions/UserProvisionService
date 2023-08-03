@@ -1,15 +1,16 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using CsvHelper;
 using H2020.IPMDecisions.UPR.BLL.Helpers;
 using H2020.IPMDecisions.UPR.Core.Dtos;
 using H2020.IPMDecisions.UPR.Core.Entities;
 using H2020.IPMDecisions.UPR.Core.Enums;
 using H2020.IPMDecisions.UPR.Core.Models;
 using Hangfire;
-using Hangfire.Storage.Monitoring;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -19,7 +20,7 @@ namespace H2020.IPMDecisions.UPR.BLL
 {
     public partial class BusinessLogic : IBusinessLogic
     {
-        public async Task<GenericResponse<FieldDssResultDetailedDto>> GetFieldCropPestDssById(Guid id, Guid userId, int daysDataToReturn = 7)
+        public async Task<GenericResponse<FieldDssResultDetailedDto>> GetFieldCropPestDssById(Guid id, Guid userId, int daysDataToReturn)
         {
             try
             {
@@ -57,6 +58,15 @@ namespace H2020.IPMDecisions.UPR.BLL
                     var errorMessageToReturn = string.Join(" ", validationErrorMessages);
                     return GenericResponseBuilder.NoSuccess(errorMessageToReturn);
                 }
+                // Check if has field observations
+                var hasFieldObservations = fieldCropPestDssForUpdateDto.DssParameters.Contains("fieldObservations", StringComparison.OrdinalIgnoreCase);
+                if (hasFieldObservations)
+                {
+                    var userParametersAsJsonObject = JObject.Parse(fieldCropPestDssForUpdateDto.DssParameters);
+                    var fieldObservation = CreateFieldObservationNoTime(dss);
+                    DssDataHelper.UpdateFieldObservationWithNoTimeProperty(userParametersAsJsonObject, fieldObservation);
+                    fieldCropPestDssForUpdateDto.DssParameters = userParametersAsJsonObject.ToString();
+                }
 
                 this.mapper.Map(fieldCropPestDssForUpdateDto, dss);
                 this.dataService.FieldCropPestDsses.Update(dss);
@@ -76,6 +86,23 @@ namespace H2020.IPMDecisions.UPR.BLL
                 String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
                 return GenericResponseBuilder.NoSuccess($"{ex.Message} InnerException: {innerMessage}");
             }
+        }
+
+        private static DssModelFieldObservationNoTime CreateFieldObservationNoTime(FieldCropPestDss dss)
+        {
+            var fieldObservation = new DssModelFieldObservationNoTime();
+            var coordinates = new List<double>(){
+                        dss.FieldCropPest.FieldCrop.Field.Farm.Location.Coordinate.X,
+                        dss.FieldCropPest.FieldCrop.Field.Farm.Location.Coordinate.Y
+                    };
+            var geometry = new GeoJsonGeometry()
+            {
+                Coordinates = coordinates
+            };
+            fieldObservation.Location = geometry;
+            fieldObservation.PestEppoCode = dss.FieldCropPest.CropPest.PestEppoCode;
+            fieldObservation.CropEppoCode = dss.FieldCropPest.CropPest.CropEppoCode;
+            return fieldObservation;
         }
 
         public async Task<GenericResponse<IEnumerable<FieldDssResultDto>>> GetAllDssResults(Guid userId, DssResultListFilterDto filterDto)
@@ -207,6 +234,98 @@ namespace H2020.IPMDecisions.UPR.BLL
                 logger.LogError(string.Format("Error in BLL - GetFieldCropPestDssDefaultParametersById. {0}", ex.Message), ex);
                 String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
                 return GenericResponseBuilder.NoSuccess<JObject>(null, $"{ex.Message} InnerException: {innerMessage}");
+            }
+        }
+
+        public async Task<GenericResponse<byte[]>> GetFieldCropPestDssDataAsCSVById(Guid id, Guid userId)
+        {
+            try
+            {
+                var dss = await this.dataService.FieldCropPestDsses.FindByIdAsync(id);
+                if (dss == null) return GenericResponseBuilder.NotFound<byte[]>();
+
+                var dssUserId = dss.FieldCropPest.FieldCrop.Field.Farm.UserFarms.FirstOrDefault().UserId;
+                if (userId != dssUserId) return GenericResponseBuilder.NotFound<byte[]>();
+
+
+                var dataToReturn = this.mapper.Map<FieldDssResultDetailedDto>(dss);
+                var dssInformation = await internalCommunicationProvider
+                                .GetDssInformationFromDssMicroservice(dss.CropPestDss.DssId);
+                if (dssInformation == null) return null;
+                var dssModelInformation = dssInformation
+                    .DssModelInformation
+                    .FirstOrDefault(m => m.Id == dss.CropPestDss.DssModelId);
+
+                if (!dataToReturn.IsValid || dataToReturn.DssExecutionType.ToLower() == "link") return null;
+                DssModelOutputInformation dssFullOutputAsObject = AddDssFullResultData(dataToReturn);
+                bool isHourlyInterval = dssFullOutputAsObject.Interval == "3600";
+
+                using (var memoryStream = new MemoryStream())
+                using (var writer = new StreamWriter(memoryStream))
+                using (var csv = new CsvWriter(writer, CultureInfo.CurrentUICulture))
+                {
+                    csv.WriteField("Date");
+                    csv.WriteField("WarningStatus");
+                    foreach (string parameterCode in dssFullOutputAsObject.ResultParameters)
+                    {
+                        if (dssModelInformation == null || dssModelInformation.Output == null)
+                        {
+                            csv.WriteField(parameterCode);
+                            continue;
+                        }
+                        var parameterInformationFromDss = dssModelInformation
+                            .Output
+                            .ResultParameters
+                            .Where(n => n.Id == parameterCode)
+                            .FirstOrDefault();
+                        if (parameterInformationFromDss == null)
+                        {
+                            csv.WriteField(parameterCode);
+                            continue;
+                        }
+                        csv.WriteField(parameterInformationFromDss.Title);
+                    }
+                    csv.NextRecord();
+
+                    var locationResult = dssFullOutputAsObject.LocationResult.FirstOrDefault();
+                    for (int i = 0; i < locationResult.Data.Count; i++)
+                    {
+                        List<double?> rowData = locationResult.Data[i];
+                        string formattedDate = FormatDate(dssFullOutputAsObject.TimeStart, i, isHourlyInterval);
+                        csv.WriteField(formattedDate);
+                        csv.WriteField(locationResult.WarningStatus[i].ToString());
+                        foreach (double? value in rowData)
+                        {
+                            csv.WriteField(value);
+                        }
+                        csv.NextRecord();
+                    }
+                    writer.Flush();
+
+                    var content = memoryStream.ToArray();
+                    return GenericResponseBuilder.Success<byte[]>(content);
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(string.Format("Error in BLL - GetFieldCropPestDssDataAsCSVById. {0}", ex.Message), ex);
+                String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
+                return GenericResponseBuilder.NoSuccess<byte[]>(null, $"{ex.Message} InnerException: {innerMessage}");
+            }
+        }
+
+        private static string FormatDate(string timeStart, int increment, bool isHourlyInterval)
+        {
+            DateTime dateTime;
+            if (isHourlyInterval)
+            {
+                dateTime = Convert.ToDateTime(timeStart).AddHours(increment);
+                return dateTime.ToString("yyyy-MM-ddTHH:mm:ssZ");
+            }
+            else
+            {
+                dateTime = Convert.ToDateTime(timeStart).AddDays(increment);
+                return dateTime.ToString("yyyy-MM-dd");
             }
         }
 
@@ -382,7 +501,7 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
         }
 
-        private async Task<FieldDssResultDetailedDto> CreateDetailedResultToReturn(FieldCropPestDss dss, int daysDataToReturn = 7)
+        private async Task<FieldDssResultDetailedDto> CreateDetailedResultToReturn(FieldCropPestDss dss, int daysDataToReturn = 0)
         {
             var dataToReturn = this.mapper.Map<FieldDssResultDetailedDto>(dss);
             var dssInformation = await internalCommunicationProvider
@@ -412,6 +531,9 @@ namespace H2020.IPMDecisions.UPR.BLL
 
             var locationResultData = dssFullOutputAsObject.LocationResult.FirstOrDefault();
             int maxDaysOutput = int.Parse(this.config["AppConfiguration:MaxDaysAllowedForDssOutputData"]);
+            if (daysDataToReturn == 0) daysDataToReturn = locationResultData.Length;
+            else if (daysDataToReturn > 0 && daysDataToReturn < 7) daysDataToReturn = 7;
+
             IEnumerable<List<double?>> dataLastDays = SelectDssLastResultsData(dataToReturn, locationResultData, daysDataToReturn, maxDaysOutput);
             List<string> labels = CreateResultParametersLabels(dataToReturn.OutputTimeEnd, dataLastDays.Count());
             if (labels == null || labels.Count() == 0)
@@ -451,6 +573,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                 }
                 dataToReturn.ResultParameters.Add(resultParameter);
             }
+            if (dssModelInformation.Output.ChartGroups == null) return dataToReturn;
             foreach (var group in dssModelInformation.Output.ChartGroups)
             {
                 var chartGroupWithDataParameters = this.mapper.Map<ChartGroup>(group);
@@ -522,10 +645,12 @@ namespace H2020.IPMDecisions.UPR.BLL
                 int lastIndex = locationResultData.Data.Count - ((daysOutput - 1) * 24 + timeEnd.Hour);
 
                 var selectedData = locationResultData.Data.Skip(index - (timeEnd.Hour - 1)).Take(timeEnd.Hour);
+
                 var selectedWarningStatus = locationResultData.WarningStatus.Skip(index - (timeEnd.Hour - 1)).Take(timeEnd.Hour);
 
                 dataByDay = new List<List<double?>>();
                 calculatedWarningStatusPerDay = new List<int?>();
+                if (selectedData.Count() == 0) return;
                 dataByDay.Add(GetMaxValueFromDoubleListOnList(selectedData));
                 calculatedWarningStatusPerDay.Add(selectedWarningStatus.Max());
 
@@ -683,8 +808,66 @@ namespace H2020.IPMDecisions.UPR.BLL
                         DssDataHelper.HideInternalDssParametersFromInputSchema(inputAsJsonObject, dssInternalParameters);
                     }
                 }
+                bool hasFieldObservation = JsonHelper.HasProperty(inputAsJsonObject, "fieldObservation");
+                bool userAlreadyHaveInputFieldObservation = dss.DssParameters.ToString().Contains("fieldObservations", StringComparison.OrdinalIgnoreCase);
+                // remove field observations extra data
+                if (hasFieldObservation)
+                {
+                    ChangeFieldObservationToOnlyTime(inputAsJsonObject);
+                }
+                if (userAlreadyHaveInputFieldObservation)
+                {
+                    RemoveExtraDataFieldObservation(inputAsJsonObject);
+                }
             }
             return inputAsJsonObject;
+        }
+
+        private static void ChangeFieldObservationToOnlyTime(JObject jsonObject)
+        {
+            JObject newFieldObservation = new JObject(
+                                    new JProperty("title", "Generic field observation information"),
+                                    new JProperty("type", "object"),
+                                    new JProperty("required", new JArray("time")),
+                                    new JProperty("properties",
+                                        new JObject(
+                                            new JProperty("time",
+                                                new JObject(
+                                                    new JProperty("type", "string"),
+                                                    new JProperty("format", "date-time"),
+                                                    new JProperty("description", "The timestamp of the field observation. Format: \"yyyy-MM-dd\", e.g. 2020-04-09"),
+                                                    new JProperty("title", "Time (yyyy-MM-dd)"),
+                                                    new JProperty("default", DateTime.Today.ToString("yyyy-MM-dd"))
+                                                )
+                                            )
+                                        )
+                                    )
+                                );
+            JProperty fieldObservationProperty = JsonHelper.FindPropertyByName(jsonObject, "fieldObservation", "default");
+            if (fieldObservationProperty != null)
+            {
+                fieldObservationProperty.Value = newFieldObservation;
+            }
+        }
+
+        private static void RemoveExtraDataFieldObservation(JObject jsonObject)
+        {
+            var fieldObservationsPath = JsonHelper.GetPropertyPath(jsonObject, "fieldObservations");
+            JToken fieldObservationsToken = jsonObject.SelectToken(fieldObservationsPath);
+
+            if (fieldObservationsToken["default"] is JArray fieldObservationsArray)
+            {
+                foreach (JObject fieldObservation in fieldObservationsArray.Children<JObject>())
+                {
+                    JToken fieldObservationToken = fieldObservation.GetValue("fieldObservation");
+                    if (fieldObservationToken is JObject fieldObservationObject)
+                    {
+                        fieldObservationObject.Remove("cropEPPOCode");
+                        fieldObservationObject.Remove("pestEPPOCode");
+                        fieldObservationObject.Remove("location");
+                    }
+                }
+            }
         }
 
         private void AddNotValidatedOnLocation(FieldDssResultDto dss)

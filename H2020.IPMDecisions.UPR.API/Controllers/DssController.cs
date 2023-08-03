@@ -65,7 +65,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         [Produces(MediaTypeNames.Application.Json)]
         [HttpGet("{id:guid}", Name = "api.dss.get.byid")]
         // GET: api/dss/1
-        public async Task<IActionResult> GetById([FromRoute] Guid id, [FromQuery] int days = 7)
+        public async Task<IActionResult> GetById([FromRoute] Guid id, [FromQuery] int days)
         {
             var userId = Guid.Parse(HttpContext.Items["userId"].ToString());
 
@@ -97,6 +97,28 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
                 return response.RequestResult;
 
             return Ok(response.Result);
+        }
+
+        /// <summary>
+        /// Use this request to download a CSV file with the season data
+        /// </summary>
+        /// <remarks>The user will be identified using the UserId on the authentication JWT.
+        /// <para>The DSS must belong to the user</para>
+        /// </remarks>
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [HttpGet("{id:guid}/download", Name = "api.dss.download.byid")]
+        // GET: api/dss/1/download
+        public async Task<IActionResult> GetDataAsCSV([FromRoute] Guid id)
+        {
+            var userId = Guid.Parse(HttpContext.Items["userId"].ToString());
+
+            var response = await businessLogic.GetFieldCropPestDssDataAsCSVById(id, userId);
+            if (!response.IsSuccessful)
+                return response.RequestResult;
+
+            return File(response.Result, "text/csv", "data.csv");
         }
 
         /// <summary>

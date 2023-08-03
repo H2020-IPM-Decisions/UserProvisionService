@@ -139,9 +139,6 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             //ToDo - Ask what to do when multiple weather data sources associated to a farm. At the moment use only one
             var weatherDataSource = listWeatherDataSource.FirstOrDefault();
 
-            // Use only debug files for November Demo
-            // var responseWeatherAsText = GetWeatherDataTestFile(dssWeatherInput, weatherDataSource);
-
             PrepareWeatherDssParameters(dssWeatherInput, weatherDataSource);
             weatherDataSource.Interval = dssWeatherInput.WeatherParameters.FirstOrDefault().Interval;
             var responseWeather = await PrepareWeatherDataCall(farmLocationX, farmLocationY, weatherDataSource);
@@ -210,7 +207,6 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 result.ErrorType = DssOutputMessageTypeEnum.Error;
                 return result;
             };
-
             if (!await ValidateWeatherDataSchema(responseWeatherAsText))
             {
                 result.ResponseWeatherAsString = this.jsonStringLocalizer["weather.validation_error", weatherDataSource.WeatherDssParameters.ToString()].ToString();
@@ -218,7 +214,21 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 return result;
             };
 
-            responseWeatherAsText = ReorderWeatherParameters(weatherDataSource.WeatherDssParameters, responseWeatherAsText);
+            var weatherDataAsObject = JsonConvert.DeserializeObject<WeatherDataResponseSchema>(responseWeatherAsText);
+
+            var modelWeatherParametersRequired = dssWeatherInput
+                .WeatherParameters
+                .Where(w => w.IsRequired.Equals(true))
+                .Select(w => w.ParameterCode)
+                .Count();
+            if (modelWeatherParametersRequired > weatherDataAsObject.WeatherParameters.Count())
+            {
+                result.ResponseWeatherAsString = this.jsonStringLocalizer["weather.missing_weather_parameter", weatherDataSource.WeatherDssParameters.ToString()].ToString();
+                result.ErrorType = DssOutputMessageTypeEnum.Error;
+                return result;
+            }
+
+            responseWeatherAsText = ReorderWeatherParameters(weatherDataAsObject, weatherDataSource.WeatherDssParameters);
 
             result.Continue = true;
             result.ResponseWeatherAsString = responseWeatherAsText;
@@ -231,13 +241,12 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             result.ResponseWeatherAsString = this.jsonStringLocalizer["weather.internal_error"].ToString();
         }
 
-        private static string ReorderWeatherParameters(string weatherParameterFromDss, string responseWeatherAsText)
+        private static string ReorderWeatherParameters(WeatherDataResponseSchema weatherDataAsObject, string weatherParameterFromDss)
         {
             try
             {
-                var weatherDataAsObject = JsonConvert.DeserializeObject<WeatherDataResponseSchema>(responseWeatherAsText);
                 string weatherParametersFromObject = string.Join(",", weatherDataAsObject.WeatherParameters);
-                if (weatherParameterFromDss == weatherParametersFromObject) return responseWeatherAsText;
+                if (weatherParameterFromDss == weatherParametersFromObject) return JsonConvert.SerializeObject(weatherDataAsObject);
 
                 var dssParametersAsList = weatherParameterFromDss.Split(",").Select(x => Int32.Parse(x)).ToList();
                 Dictionary<int, int> newOldIndex = new Dictionary<int, int>();
@@ -305,90 +314,6 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             catch (Exception ex)
             {
                 throw ex;
-            }
-        }
-
-        private string GetWeatherDataTestFile(DssModelSchemaInput dssWeatherInput, WeatherSchemaForHttp weatherDataSource)
-        {
-            try
-            {
-                var assembly = Assembly.GetExecutingAssembly();
-                var fileName = "IPMDecision_FullSeasonWeather";
-                var fileNameInterval = "_Hourly.json";
-                var weatherInterval = dssWeatherInput.WeatherParameters.FirstOrDefault().Interval;
-                if (weatherInterval == 86400)
-                    fileNameInterval = "_Daily.json";
-                fileName = fileName + fileNameInterval;
-
-                var resourceName = string.Format("H2020.IPMDecisions.UPR.BLL.Files.{0}", fileName);
-
-                var fileAsString = "";
-                using (Stream stream = assembly.GetManifestResourceStream(resourceName))
-                using (StreamReader reader = new StreamReader(stream))
-                    fileAsString = reader.ReadToEnd();
-
-                var weatherData = JsonConvert.DeserializeObject<WeatherDataResponseSchema>(fileAsString);
-                var intervalStartDates = (weatherDataSource.WeatherTimeStart - weatherData.TimeStart);
-                var intervalStartEndDates = (weatherDataSource.WeatherTimeEnd - weatherDataSource.WeatherTimeStart);
-
-                var startIndex = 0;
-                var lengthBetweenIndex = 0;
-                if (weatherInterval == 86400)
-                {
-                    if (!(weatherDataSource.WeatherTimeStart < weatherData.TimeStart))
-                        startIndex = (int)intervalStartDates.TotalDays - 1;
-                    lengthBetweenIndex = (int)intervalStartEndDates.TotalDays + 1;
-                }
-                else
-                {
-                    if (!(weatherDataSource.WeatherTimeStart < weatherData.TimeStart))
-                        startIndex = (int)intervalStartDates.TotalHours - 24;
-                    lengthBetweenIndex = (int)intervalStartEndDates.TotalHours + 24;
-                }
-                var weatherDataResult = weatherData.LocationWeatherDataResult.FirstOrDefault();
-
-                weatherData.LocationWeatherDataResult.FirstOrDefault().Data =
-                    weatherDataResult.Data.Skip(startIndex).Take(lengthBetweenIndex).ToList();
-
-                weatherData.LocationWeatherDataResult.FirstOrDefault().Length = weatherDataResult.Data.Count();
-                weatherData.TimeStart = weatherDataSource.WeatherTimeStart.ToUniversalTime().AddDays(-1);
-                // End date can not be more than the current end date of the file
-                if (weatherDataSource.WeatherTimeEnd > weatherData.TimeEnd)
-                {
-                    weatherDataSource.WeatherTimeEnd = weatherData.TimeEnd;
-                }
-                weatherData.TimeEnd = weatherDataSource.WeatherTimeEnd.ToUniversalTime();
-
-                // Change WeatherParameters from 1001 to 1002 as we need to use this parameter
-                var weatherReplaced = dssWeatherInput.WeatherParameters.Select(p => p.ParameterCode.ToString().Replace("1001", "1002"));
-
-                var listIndexToRemove = new List<int>();
-                foreach (var (item, index) in weatherData.WeatherParameters.Select((value, i) => (value, i)))
-                {
-                    if (!weatherReplaced.Any(w => w.ToString() == item.ToString()))
-                    {
-                        listIndexToRemove.Add(index);
-                    }
-                }
-
-                List<int> sortedListIndexToRemove = listIndexToRemove.OrderByDescending(i => i).ToList();
-                foreach (var index in sortedListIndexToRemove)
-                {
-                    weatherData.WeatherParameters.RemoveAt(index);
-                    weatherData.LocationWeatherDataResult.FirstOrDefault().Amalgamation.RemoveAt(index);
-                    weatherData.LocationWeatherDataResult.FirstOrDefault().Qc.RemoveAt(index);
-                    foreach (var dataItem in weatherData.LocationWeatherDataResult.FirstOrDefault().Data)
-                    {
-                        dataItem.RemoveAt(index);
-                    }
-                }
-                weatherData.LocationWeatherDataResult.FirstOrDefault().Width = weatherData.WeatherParameters.Count();
-                return JsonConvert.SerializeObject(weatherData);
-            }
-            catch (Exception ex)
-            {
-                ex.Message.ToString();
-                throw;
             }
         }
 

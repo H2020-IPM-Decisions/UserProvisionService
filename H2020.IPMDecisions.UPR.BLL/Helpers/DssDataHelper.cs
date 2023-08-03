@@ -33,7 +33,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
         public static int GetCurrentYearForDssDefaultDates(DssModelInformation dssInputInformation, JObject dssInputSchemaAsJson)
         {
             var currentYear = -1;
-            if (dssInputInformation.Input.WeatherDataPeriodEnd != null)
+            if (dssInputInformation.Input != null && dssInputInformation.Input.WeatherDataPeriodEnd != null)
             {
                 var weatherEndDate = ProcessWeatherDataPeriod(dssInputInformation.Input.WeatherDataPeriodEnd, dssInputSchemaAsJson);
                 currentYear = weatherEndDate.Year;
@@ -229,6 +229,82 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
             {
                 throw new Exception("Error UpdateDssParametersToNewCalendarYear", ex);
             }
+        }
+
+        public static JObject AddFieldObservation(JObject obj, DssModelFieldObservation fieldObservation)
+        {
+            foreach (var property in obj.Properties().ToList())
+            {
+                if (property.Name == "fieldObservations")
+                {
+                    // Add the fieldObservation to the fieldObservations array
+                    var fieldObservations = (JArray)property.Value;
+                    int numberOfFieldObservations = fieldObservations.Count;
+                    for (int i = 0; i < numberOfFieldObservations; i++)
+                    {
+                        var item = (JObject)fieldObservations[i];
+                        item.Add("fieldObservation", JObject.FromObject(fieldObservation));
+                    }
+                }
+                else if (property.Value is JObject nestedObj)
+                {
+                    // Recursively search for the fieldObservations property
+                    AddFieldObservation(nestedObj, fieldObservation);
+                }
+                else if (property.Value is JArray array)
+                {
+                    foreach (var item in array)
+                    {
+                        if (item is JObject nestedArrayObj)
+                        {
+                            // Recursively search for the fieldObservations property
+                            AddFieldObservation(nestedArrayObj, fieldObservation);
+                        }
+                    }
+                }
+            }
+            return obj;
+        }
+
+        public static JObject UpdateFieldObservationWithNoTimeProperty(JObject obj, DssModelFieldObservationNoTime fieldObservation)
+        {
+            foreach (var property in obj.Properties().ToList())
+            {
+                if (property.Name == "fieldObservations")
+                {
+                    // Add the fieldObservation to the fieldObservations array
+                    var fieldObservations = (JArray)property.Value;
+                    int numberOfFieldObservations = fieldObservations.Count;
+                    for (int i = 0; i < numberOfFieldObservations; i++)
+                    {
+                        var item = (JObject)fieldObservations[i]["fieldObservation"];
+                        JObject observationNoTimeObject = JObject.FromObject(fieldObservation);
+
+                        item.Merge(observationNoTimeObject, new JsonMergeSettings
+                        {
+                            MergeArrayHandling = MergeArrayHandling.Replace,
+                            MergeNullValueHandling = MergeNullValueHandling.Merge
+                        });
+                    }
+                }
+                else if (property.Value is JObject nestedObj)
+                {
+                    // Recursively search for the fieldObservations property
+                    UpdateFieldObservationWithNoTimeProperty(nestedObj, fieldObservation);
+                }
+                else if (property.Value is JArray array)
+                {
+                    foreach (var item in array)
+                    {
+                        if (item is JObject nestedArrayObj)
+                        {
+                            // Recursively search for the fieldObservations property
+                            UpdateFieldObservationWithNoTimeProperty(nestedArrayObj, fieldObservation);
+                        }
+                    }
+                }
+            }
+            return obj;
         }
 
         private static List<string> CreateJsonPaths(JObject jsonObject)
@@ -455,6 +531,26 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
             {
                 throw new Exception("Error RemoveNYearsDatesDssParameters", ex);
             }
+        }
+
+        public static Dictionary<string, string> ConvertJTokenValuesToString(Dictionary<string, JToken> jsonDict)
+        {
+            var stringDict = new Dictionary<string, string>();
+            foreach (var kvp in jsonDict)
+            {
+                stringDict[kvp.Key] = kvp.Value.ToString();
+            }
+            return stringDict;
+        }
+
+        public static string BuildQueryString(Dictionary<string, string> parameters)
+        {
+            var queryParameters = new List<string>();
+            foreach (var kvp in parameters)
+            {
+                queryParameters.Add($"{Uri.EscapeDataString(kvp.Key)}={Uri.EscapeDataString(kvp.Value)}");
+            }
+            return string.Join("&", queryParameters);
         }
     }
 }
