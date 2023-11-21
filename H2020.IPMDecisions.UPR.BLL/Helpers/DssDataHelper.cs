@@ -524,6 +524,22 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
                         var newDateValue = dateValue.AddYears(-yearsToRemove).ToString("yyyy-MM-dd");
                         return UpdateTokenValue(dssParameters, weatherDateJson, newDateValue.ToString());
                     }
+                    else if (weatherDate.DeterminedBy.ToLower() == "fixed_date")
+                    {
+                        // ToDo Understand why we put this code in here....
+                        
+                        // JObject dssInputSchemaAsJson = JObject.Parse(dssParameters.ToString());
+                        // var token = dssInputSchemaAsJson.SelectTokens(weatherDateJson).FirstOrDefault();
+                        // if (token == null)
+                        //     continue;
+                        // string dateString = token.ToString();
+                        // DateTime dateValue;
+                        // if (!DateTime.TryParse(dateString, CultureInfo.InvariantCulture, DateTimeStyles.None, out dateValue))
+                        //     dateValue = DateTime.Parse(DssDataHelper.AddDefaultDatesToDssJsonInput(dateString));
+
+                        // var newDateValue = dateValue.AddYears(-yearsToRemove).ToString("yyyy-MM-dd");
+                        // return UpdateTokenValue(dssParameters, weatherDateJson, newDateValue.ToString());
+                    }
                 }
                 return dssParameters;
             }
