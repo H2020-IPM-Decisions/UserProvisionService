@@ -47,7 +47,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         public async Task<IActionResult> Get()
         {
             var userId = Guid.Parse(HttpContext.Items["userId"].ToString());
-            var response = await businessLogic.GetUserWidgets(userId);
+            var response = await businessLogic.GetUserWeather(userId);
             if (!response.IsSuccessful)
                 return BadRequest(new { message = response.ErrorMessage });
 
