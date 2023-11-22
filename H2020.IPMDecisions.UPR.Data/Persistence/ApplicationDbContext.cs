@@ -33,6 +33,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence
         public DbSet<UserFarm> UserFarm { get; set; }
         public DbSet<UserProfile> UserProfile { get; set; }
         public DbSet<UserFarmType> UserFarmType { get; set; }
+        public DbSet<UserWeather> UserWeather { get; set; }
         public DbSet<UserWidget> UserWidget { get; set; }
         public DbSet<WeatherForecast> WeatherForecast { get; set; }
         public DbSet<WeatherHistorical> WeatherHistorical { get; set; }

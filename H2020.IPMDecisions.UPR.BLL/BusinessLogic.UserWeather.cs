@@ -36,8 +36,17 @@ namespace H2020.IPMDecisions.UPR.BLL
                         opt.Items["weatherName"] = getWeatherServiceInformation.Name;
                         opt.Items["encryptedPassword"] = encryptedPassword;
                     });
+                dataToInsert.UserProfile = currentUserProfileExists.Result;
 
-                return GenericResponseBuilder.Success<UserWeatherDto>(null);
+                this.dataService.UserWeathers.Create(dataToInsert);
+                await this.dataService.CompleteAsync();
+
+                var dataToReturn = this.mapper.Map<UserWeatherDto>(dataToInsert, opt =>
+                    {
+                        opt.Items["weatherName"] = getWeatherServiceInformation.Name;
+                    });
+
+                return GenericResponseBuilder.Success(dataToReturn);
             }
             catch (Exception ex)
             {

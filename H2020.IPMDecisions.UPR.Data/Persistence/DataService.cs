@@ -273,6 +273,19 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence
             }
         }
 
+        public IUserWeatherRepository userWeather;
+        public IUserWeatherRepository UserWeathers
+        {
+            get
+            {
+                if (userWeather == null)
+                {
+                    userWeather = new UserWeatherRepository(this.context);
+                }
+                return userWeather;
+            }
+        }
+
         public DataService(
             ApplicationDbContext context,
             IPropertyMappingService propertyMappingService)

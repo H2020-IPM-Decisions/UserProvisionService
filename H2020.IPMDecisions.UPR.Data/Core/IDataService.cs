@@ -23,6 +23,7 @@ namespace H2020.IPMDecisions.UPR.Data.Core
         IFieldSprayApplicationRepository FieldSprayApplication { get; }
         IUserFarmsRepository UserFarms { get; }
         IUserProfileRepository UserProfiles { get; }
+        IUserWeatherRepository UserWeathers { get; }
         IUserWidgetRepository UserWidgets { get; }
         IWeatherHistoricalRepository WeatherHistoricals { get; }
         IWeatherForecastRepository WeatherForecasts { get; }

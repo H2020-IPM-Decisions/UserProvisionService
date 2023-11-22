@@ -25,8 +25,10 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
                 });
 
             // Entities to Dtos
-            CreateMap<UserWeather, UserWeatherDto>();
-
+            CreateMap<UserWeather, UserWeatherDto>().AfterMap((src, dest, context) =>
+                {
+                    dest.WeatherName = context.Items["weatherName"] as string;
+                });
         }
     }
 }
