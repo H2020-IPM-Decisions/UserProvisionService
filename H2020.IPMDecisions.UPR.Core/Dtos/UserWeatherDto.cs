@@ -2,10 +2,11 @@ namespace H2020.IPMDecisions.UPR.Core.Dtos
 {
     public class UserWeatherDto
     {
-        public string UserWeatherId { get; set; }
-        public string UserWeatherStationId { get; set; }
-        public string UserWeatherStationName { get; set; }
-        public string UserWeatherStationReference { get; set; }
-        public string UserWeatherUsername { get; set; }
+        public string WeatherId { get; set; }
+        public string WeatherDataSourceId { get; set; }
+        public string WeatherStationId { get; set; }
+        public string WeatherStationName { get; set; }
+        public string WeatherStationReference { get; set; }
+        public string WeatherUsername { get; set; }
     }
 }
