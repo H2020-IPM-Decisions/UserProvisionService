@@ -6,13 +6,13 @@ namespace H2020.IPMDecisions.UPR.Core.Dtos
     {
 
         [Required]
-        public string WeatherDataSourceId { get; set; }
+        public string WeatherId { get; set; }
         [Required]
         public string WeatherStationId { get; set; }
         public string WeatherStationReference { get; set; }
         [Required]
-        public string WeatherUsername { get; set; }
+        public string UserName { get; set; }
         [Required]
-        public string WeatherPassword { get; set; }
+        public string Password { get; set; }
     }
 }

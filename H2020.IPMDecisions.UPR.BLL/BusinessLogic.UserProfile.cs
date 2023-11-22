@@ -24,7 +24,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                 var currentUserProfileExists = await GetUserProfileByUserId(userId);
                 if (currentUserProfileExists.Result != null)
                 {
-                    return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, "User profile aready exits. Please use `PATCH` method for partial updates.");
+                    return GenericResponseBuilder.NoSuccess<IDictionary<string, object>>(null, "User profile already exits. Please use `PATCH` method for partial updates.");
                 }
 
                 var userProfileEntity = this.mapper.Map<UserProfile>(userProfileForCreation);

@@ -53,6 +53,10 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                     result = AddWeatherDates(dssInformation, dssInputSchemaAsJson, weatherToCall, currentYear, isOnTheFlyData);
                     listOfPreferredWeatherDataSources.Add(weatherToCall);
                 }
+                // ToDo Get own weather data station. This is old code from prev solution
+                // contentData.Add("weatherStationId", dataSource.StationId.ToString());
+                //  credentialsAsObject.Password = _encryption.Decrypt(credentialsAsObject.Password);
+
                 if (result.Continue == false) return result;
 
                 return await GetWeatherData(Math.Round(farm.Location.X, 4), Math.Round(farm.Location.Y, 4), listOfPreferredWeatherDataSources, dssInformation.Input);

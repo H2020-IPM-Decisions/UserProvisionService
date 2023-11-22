@@ -4,7 +4,7 @@ namespace H2020.IPMDecisions.UPR.Core.Dtos
     {
         public string WeatherStationId { get; set; }
         public string WeatherStationReference { get; set; }
-        public string WeatherUsername { get; set; }
-        public string WeatherPassword { get; set; }
+        public string UserName { get; set; }
+        public string Password { get; set; }
     }
 }
