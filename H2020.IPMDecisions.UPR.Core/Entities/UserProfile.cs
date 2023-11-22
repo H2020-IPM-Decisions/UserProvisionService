@@ -19,6 +19,7 @@ namespace H2020.IPMDecisions.UPR.Core.Entities
 
         public IList<UserFarm> UserFarms { get; set; }
         public ICollection<UserWidget> UserWidgets { get; set; }
+        public ICollection<UserWeather> UserWeathers { get; set; }
         public ICollection<DataSharingRequest> DataSharingRequests { get; set; }
     }
 }

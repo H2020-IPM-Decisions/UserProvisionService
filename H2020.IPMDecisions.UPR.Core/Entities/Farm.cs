@@ -16,6 +16,8 @@ namespace H2020.IPMDecisions.UPR.Core.Entities
         public WeatherForecast WeatherForecast { get; set; }
         public Guid WeatherHistoricalId { get; set; }
         public WeatherHistorical WeatherHistorical { get; set; }
+        public Guid? UserWeatherId { get; set; }
+        public UserWeather UserWeather { get; set; }
 
         public IList<UserFarm> UserFarms { get; set; }
         public ICollection<Field> Fields { get; set; }

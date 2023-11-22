@@ -4,16 +4,17 @@ using System.ComponentModel.DataAnnotations;
 
 namespace H2020.IPMDecisions.UPR.Core.Entities
 {
-    public class WeatherCredential
+    public class UserWeather
     {
         [Key]
         public Guid Id { get; set; }
         public string UserName { get; set; }
-        [Required]
-        [DataType(DataType.Password)]
         public string Password { get; set; }
+        public string WeatherId { get; set; }
         public string WeatherStationId { get; set; }
+        public string WeatherStationReference { get; set; }
 
-        public ICollection<Farm> Farms { get; set; }
+        public Guid UserProfileId { get; set; }
+        public UserProfile UserProfile { get; set; }
     }
 }

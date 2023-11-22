@@ -70,6 +70,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence
             modelBuilder.ApplyConfiguration(new UserFarmConfiguration());
             modelBuilder.ApplyConfiguration(new UserFarmTypeConfiguration());
             modelBuilder.ApplyConfiguration(new UserWidgetConfiguration());
+            modelBuilder.ApplyConfiguration(new UserWeatherConfiguration());
             modelBuilder.ApplyConfiguration(new UserProfileConfiguration());
             modelBuilder.ApplyConfiguration(new UserAddressConfiguration());
             modelBuilder.ApplyConfiguration(new WeatherForecastConfiguration());
