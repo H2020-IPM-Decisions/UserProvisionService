@@ -47,7 +47,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         public async Task<IActionResult> Get()
         {
             var userId = Guid.Parse(HttpContext.Items["userId"].ToString());
-            var response = await businessLogic.GetUserWeather(userId);
+            var response = await businessLogic.GetUserWeathers(userId);
             if (!response.IsSuccessful)
                 return BadRequest(new { message = response.ErrorMessage });
 
@@ -76,27 +76,6 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
                 new { },
                 response.Result);
         }
-
-
-        // /// <summary>Use this endpoint to make a partial update of the user widgets.</summary>
-        // /// <remarks>Instead of using the PATCH conventions, and locate the value using the array location, use the "widgetDescription" to identify the widget to update. As it not possible to add or remove widgets, only the "Replace" operation would be valid.
-        // /// <para>For an example payload, please see the 'Request body' section.</para>
-        // /// </remarks>
-        // [Consumes("application/json-patch+json")]
-        // [ProducesResponseType(StatusCodes.Status204NoContent)]
-        // [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        // [HttpPatch(Name = "api.userweatherstation.patch.profilebyid")]
-        // [SwaggerRequestExample(typeof(Operation[]), typeof(JsonPatchUserWidgetRequestExample))]
-        // //PATCH :  api/users/weather
-        // public async Task<IActionResult> PartialUpdate(
-        //     JsonPatchDocument<UserWidgetForUpdateDto> patchDocument)
-        // {
-        //     var userId = Guid.Parse(HttpContext.Items["userId"].ToString());
-        //     var response = await this.businessLogic.UpdateUserWidgets(userId, patchDocument);
-        //     if (!response.IsSuccessful)
-        //         return response.RequestResult;
-        //     return NoContent();
-        // }
 
         /// <summary>Requests permitted on this URL</summary>
         [ProducesResponseType(StatusCodes.Status200OK)]

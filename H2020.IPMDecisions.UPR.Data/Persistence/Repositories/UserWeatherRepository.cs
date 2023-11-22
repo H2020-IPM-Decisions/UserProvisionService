@@ -24,10 +24,10 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
 
         public void Delete(UserWeather entity)
         {
-             this.context.Remove(entity);
+            this.context.Remove(entity);
         }
 
-        public async Task<List<UserWeather>> FindByUserIdAsync(Guid userId)
+        public async Task<IEnumerable<UserWeather>> FindByUserIdAsync(Guid userId)
         {
             return await this
                 .context

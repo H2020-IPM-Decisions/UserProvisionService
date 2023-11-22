@@ -10,9 +10,34 @@ namespace H2020.IPMDecisions.UPR.BLL
 {
     public partial class BusinessLogic : IBusinessLogic
     {
-        public Task<GenericResponse<List<UserWeatherDto>>> GetUserWeather(Guid userId)
+        public async Task<GenericResponse<IEnumerable<UserWeatherDto>>> GetUserWeathers(Guid userId)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var weathersAsEntities = await this.dataService.UserWeathers.FindByUserIdAsync(userId);
+                var weathersToReturn = new List<UserWeatherDto>();
+                foreach (var userWeather in weathersAsEntities)
+                {
+                    var getWeatherServiceInformation = await this.internalCommunicationProvider
+                        .GetWeatherProviderInformationFromWeatherMicroservice(userWeather.WeatherId);
+
+                    var weathersToAdd = this.mapper.Map<UserWeatherDto>(userWeather, opt =>
+                    {
+                        opt.Items["weatherName"] = getWeatherServiceInformation.Name;
+                    });
+
+                    weathersToReturn.Add(weathersToAdd);
+                }
+
+                return GenericResponseBuilder.Success<IEnumerable<UserWeatherDto>>(weathersToReturn);
+
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(string.Format("Error in BLL - GetUserWeather. {0}", ex.Message), ex);
+                String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
+                return GenericResponseBuilder.NoSuccess<IEnumerable<UserWeatherDto>>(null, $"{ex.Message} InnerException: {innerMessage}");
+            }
         }
 
         public async Task<GenericResponse<UserWeatherDto>> CreateUserWeather(Guid userId, UserWeatherForCreationDto userWeatherForCreationDto)
