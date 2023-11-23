@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using H2020.IPMDecisions.UPR.Core.Dtos;
@@ -153,6 +154,57 @@ namespace H2020.IPMDecisions.UPR.BLL
                 String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
                 return GenericResponseBuilder.NoSuccess($"{ex.Message} InnerException: {innerMessage}");
             }
+        }
+
+        public async Task<GenericResponse> RemoveUserWeatherToFarms(Guid id, Guid userId, List<Guid> farmIds)
+        {
+            try
+            {
+                return await ManageUserWeatherOnFarm(id, userId, farmIds, true);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(string.Format("Error in BLL - UpdateUserWeatherById. {0}", ex.Message), ex);
+                String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
+                return GenericResponseBuilder.NoSuccess($"{ex.Message} InnerException: {innerMessage}");
+            }
+        }
+
+        public async Task<GenericResponse> AddUserWeatherToFarms(Guid id, Guid userId, List<Guid> farmIds)
+        {
+            try
+            {
+                return await ManageUserWeatherOnFarm(id, userId, farmIds);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(string.Format("Error in BLL - UpdateUserWeatherById. {0}", ex.Message), ex);
+                String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
+                return GenericResponseBuilder.NoSuccess($"{ex.Message} InnerException: {innerMessage}");
+            }
+        }
+
+        private async Task<GenericResponse> ManageUserWeatherOnFarm(Guid id, Guid userId, List<Guid> farmIds, bool remove = false)
+        {
+            Expression<Func<UserFarm, bool>> expression = uw => uw.UserId == userId;
+            var farmsFromTheUser = await this.dataService.UserFarms.FindAllAsync(expression);
+            if (farmsFromTheUser == null) return GenericResponseBuilder.NotFound();
+            foreach (var farmId in farmIds)
+            {
+                if (farmsFromTheUser.ToList().Any(f => f.FarmId.Equals(farmId) & f.Farm.UserWeatherId.Equals(id)) & remove)
+                {
+                    var farm = farmsFromTheUser.Select(uf => uf.Farm).Where(f => f.Id.Equals(farmId)).FirstOrDefault();
+                    farm.UserWeatherId = null;
+                }
+                else if (!farmsFromTheUser.ToList().Any(f => f.FarmId.Equals(farmId) & f.Farm.UserWeatherId.Equals(id)) & !remove)
+                {
+                    var farm = farmsFromTheUser.Select(uf => uf.Farm).Where(f => f.Id.Equals(farmId)).FirstOrDefault();
+                    if (farm != null)
+                        farm.UserWeatherId = id;
+                }
+            }
+            await this.dataService.CompleteAsync();
+            return GenericResponseBuilder.Success();
         }
     }
 }

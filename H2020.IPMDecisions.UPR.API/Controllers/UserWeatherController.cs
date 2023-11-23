@@ -66,7 +66,6 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         [Produces(MediaTypeNames.Application.Json)]
         [HttpGet("{id:guid}", Name = "api.userweather.get.weatherid")]
-        [HttpHead]
         // GET:  api/users/weather/5
         public async Task<IActionResult> GetById([FromRoute] Guid id)
         {
@@ -88,7 +87,6 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         [Produces(MediaTypeNames.Application.Json)]
         [HttpPost("", Name = "api.userweather.post.userid")]
-        [HttpHead]
         // POST:  api/users/weather
         public async Task<IActionResult> Post([FromBody] UserWeatherForCreationDto userWeatherForCreationDto)
         {
@@ -143,6 +141,48 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
             var response = await businessLogic.UpdateUserWeatherById(id, userId, userWeatherForUpdateDto);
             if (!response.IsSuccessful)
                 return response.RequestResult;
+
+            return NoContent();
+        }
+
+        /// <summary>
+        /// Add weather source to a farm.
+        /// </summary>
+        /// <remarks>The user will be identified using the UserId on the authentication JWT.
+        /// </remarks>
+        [Consumes(MediaTypeNames.Application.Json)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+        [Produces(MediaTypeNames.Application.Json)]
+        [HttpPost("{id:guid}/farms", Name = "api.userweather.post.addtofarms")]
+        // POST:  api/users/weather/5
+        public async Task<IActionResult> AddToFarm([FromRoute] Guid id, [FromBody] List<Guid> farmIds)
+        {
+            var userId = Guid.Parse(HttpContext.Items["userId"].ToString());
+            var response = await businessLogic.AddUserWeatherToFarms(id, userId, farmIds);
+            if (!response.IsSuccessful)
+                return BadRequest(new { message = response.ErrorMessage });
+
+            return NoContent();
+        }
+
+        /// <summary>
+        /// Remove weather source to a farm.
+        /// </summary>
+        /// <remarks>The user will be identified using the UserId on the authentication JWT.
+        /// </remarks>
+        [Consumes(MediaTypeNames.Application.Json)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+        [Produces(MediaTypeNames.Application.Json)]
+        [HttpDelete("{id:guid}/farms", Name = "api.userweather.post.addtofarms")]
+        // DELETE:  api/users/weather/5
+        public async Task<IActionResult> RemoveFromFarm([FromRoute] Guid id, [FromBody] List<Guid> farmIds)
+        {
+            var userId = Guid.Parse(HttpContext.Items["userId"].ToString());
+            var response = await businessLogic.RemoveUserWeatherToFarms(id, userId, farmIds);
+            if (!response.IsSuccessful)
+                return BadRequest(new { message = response.ErrorMessage });
 
             return NoContent();
         }

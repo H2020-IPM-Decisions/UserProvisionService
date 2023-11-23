@@ -159,6 +159,8 @@ namespace H2020.IPMDecisions.UPR.BLL
         Task<GenericResponse<UserWeatherDto>> CreateUserWeather(Guid userId, UserWeatherForCreationDto userWeatherForCreationDto);
         Task<GenericResponse> RemoveUserWeather(Guid id, Guid userId);
         Task<GenericResponse> UpdateUserWeatherById(Guid id, Guid userId, UserWeatherForUpdateDto userWeatherForUpdateDto);
+        Task<GenericResponse> RemoveUserWeatherToFarms(Guid id, Guid userId, List<Guid> farmIds);
+        Task<GenericResponse> AddUserWeatherToFarms(Guid id, Guid userId, List<Guid> farmIds);
         #endregion
     }
 }

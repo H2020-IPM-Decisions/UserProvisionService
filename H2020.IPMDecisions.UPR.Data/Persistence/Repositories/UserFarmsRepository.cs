@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using H2020.IPMDecisions.UPR.Core.Entities;
 using H2020.IPMDecisions.UPR.Data.Core.Repositories;
@@ -24,6 +26,15 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
         public void DeleteRange(List<UserFarm> entities)
         {
             this.context.UserFarm.RemoveRange(entities);
+        }
+
+        public async Task<IEnumerable<UserFarm>> FindAllAsync(Expression<Func<UserFarm, bool>> expression)
+        {
+            return await this.context
+                .UserFarm
+                .Where(expression)
+                .Include(u => u.Farm)
+                .ToListAsync();
         }
 
         public async Task<List<UserFarm>> GetReportDataAsync()
