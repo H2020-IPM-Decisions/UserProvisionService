@@ -15,7 +15,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Configurations
 
             builder.Property(uw => uw.WeatherId)
                .IsRequired();
-            
+
             builder.Property(uw => uw.WeatherStationReference)
                .IsRequired();
 
@@ -30,7 +30,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Configurations
 
             builder.HasOne<UserProfile>(uw => uw.UserProfile)
                 .WithMany(u => u.UserWeathers)
-                .HasForeignKey(uw => uw.UserProfileId)
+                .HasForeignKey(uw => uw.UserId)
                 .HasConstraintName("FK_UserWeather_UserProfile")
                 .OnDelete(DeleteBehavior.Cascade)
                 .IsRequired();

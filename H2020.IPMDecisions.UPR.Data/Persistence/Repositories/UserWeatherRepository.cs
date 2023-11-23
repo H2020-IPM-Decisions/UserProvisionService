@@ -32,7 +32,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
             return await this
                 .context
                 .UserWeather
-                .Where(uw => uw.UserProfileId == userId)
+                .Where(uw => uw.UserId == userId)
                 .ToListAsync();
         }
 

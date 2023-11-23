@@ -31,7 +31,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Configurations
 
             builder.HasMany<UserWeather>(u => u.UserWeathers)
                 .WithOne(uw => uw.UserProfile)
-                .HasForeignKey(uw => uw.UserProfileId)
+                .HasForeignKey(uw => uw.UserId)
                 .OnDelete(DeleteBehavior.Cascade)
                 .IsRequired();
         }

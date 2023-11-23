@@ -14,7 +14,7 @@ namespace H2020.IPMDecisions.UPR.Core.Entities
         public string WeatherStationId { get; set; }
         public string WeatherStationReference { get; set; }
 
-        public Guid UserProfileId { get; set; }
+        public Guid UserId { get; set; }
         public UserProfile UserProfile { get; set; }
     }
 }
