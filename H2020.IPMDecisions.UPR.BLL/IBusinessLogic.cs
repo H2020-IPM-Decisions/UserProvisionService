@@ -156,6 +156,7 @@ namespace H2020.IPMDecisions.UPR.BLL
         Task<GenericResponse<List<WeatherBaseDto>>> GetWeatherDataSources();
         Task<GenericResponse<IEnumerable<UserWeatherDto>>> GetUserWeathers(Guid userId);
         Task<GenericResponse<UserWeatherDto>> CreateUserWeather(Guid userId, UserWeatherForCreationDto userWeatherForCreationDto);
+        Task<GenericResponse> RemoveUserWeather(Guid userWeatherId, Guid userId);
         #endregion
     }
 }

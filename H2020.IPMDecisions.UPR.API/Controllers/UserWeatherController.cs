@@ -77,12 +77,32 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
                 response.Result);
         }
 
+        /// <summary>
+        /// Use this request to delete a user user weather
+        /// </summary>
+        /// <remarks> UserId from query is only for administration purposes
+        /// </remarks>
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [HttpDelete("{userWeatherId:guid}", Name = "api.userweather.delete.byid")]
+        //DELETE :  api/users/weather/1
+        public async Task<IActionResult> Delete([FromRoute] Guid userWeatherId)
+        {
+            var userId = Guid.Parse(HttpContext.Items["userId"].ToString());
+
+            var response = await this.businessLogic.RemoveUserWeather(userWeatherId, userId);
+            if (!response.IsSuccessful)
+                return BadRequest(new { message = response.ErrorMessage });
+
+            return NoContent();
+        }
+
         /// <summary>Requests permitted on this URL</summary>
         [ProducesResponseType(StatusCodes.Status200OK)]
         [HttpOptions]
         public IActionResult Options()
         {
-            Response.Headers.Add("Allow", "OPTIONS, GET, PATCH");
+            Response.Headers.Add("Allow", "OPTIONS, DELETE, GET, POST");
             return Ok();
         }
     }

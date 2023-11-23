@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using H2020.IPMDecisions.UPR.Core.Dtos;
 using H2020.IPMDecisions.UPR.Core.Entities;
@@ -78,6 +79,27 @@ namespace H2020.IPMDecisions.UPR.BLL
                 logger.LogError(string.Format("Error in BLL - CreateUserWeather. {0}", ex.Message), ex);
                 String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
                 return GenericResponseBuilder.NoSuccess<UserWeatherDto>(null, $"{ex.Message} InnerException: {innerMessage}");
+            }
+        }
+
+        public async Task<GenericResponse> RemoveUserWeather(Guid userWeatherId, Guid userId)
+        {
+            try
+            {
+                Expression<Func<UserWeather, bool>> expression = uw => uw.UserId == userId && uw.Id == userWeatherId;
+                var weatherToDelete = await this.dataService.UserWeathers.FindByConditionAsync(expression);
+                if (weatherToDelete == null) return GenericResponseBuilder.Success();
+
+                this.dataService.UserWeathers.Delete(weatherToDelete);
+                await this.dataService.CompleteAsync();
+
+                return GenericResponseBuilder.Success();
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(string.Format("Error in BLL - RemoveUserWeather. {0}", ex.Message));
+                String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
+                return GenericResponseBuilder.NoSuccess($"{ex.Message} InnerException: {innerMessage}");
             }
         }
     }
