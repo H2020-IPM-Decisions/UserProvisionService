@@ -41,13 +41,32 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         [ProducesResponseType(typeof(IEnumerable<UserWeatherDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         [Produces(MediaTypeNames.Application.Json)]
-        [HttpGet("", Name = "api.userweather.get.userid")]
+        [HttpGet("", Name = "api.userweather.get.all")]
         [HttpHead]
         // GET:  api/users/weather
         public async Task<IActionResult> Get()
         {
             var userId = Guid.Parse(HttpContext.Items["userId"].ToString());
             var response = await businessLogic.GetUserWeathers(userId);
+            if (!response.IsSuccessful)
+                return BadRequest(new { message = response.ErrorMessage });
+
+            return Ok(response.Result);
+        }
+
+        /// <summary>
+        /// Returns one weather stations that belong the user.
+        /// </summary>
+        [ProducesResponseType(typeof(UserWeatherDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+        [Produces(MediaTypeNames.Application.Json)]
+        [HttpGet("{userWeatherId:guid}", Name = "api.userweather.get.weatherid")]
+        [HttpHead]
+        // GET:  api/users/weather/5
+        public async Task<IActionResult> GetById([FromRoute] Guid userWeatherId)
+        {
+            var userId = Guid.Parse(HttpContext.Items["userId"].ToString());
+            var response = await businessLogic.GetUserWeatherById(userWeatherId, userId);
             if (!response.IsSuccessful)
                 return BadRequest(new { message = response.ErrorMessage });
 
@@ -72,8 +91,8 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
                 return BadRequest(new { message = response.ErrorMessage });
 
             return CreatedAtRoute(
-                "api.userweather.get.userid",
-                new { },
+                "api.userweather.get.weatherid",
+                new { userWeatherId = response.Result.Id },
                 response.Result);
         }
 

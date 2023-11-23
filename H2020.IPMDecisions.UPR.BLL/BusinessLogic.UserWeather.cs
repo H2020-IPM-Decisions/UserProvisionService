@@ -41,6 +41,31 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
         }
 
+        public async Task<GenericResponse<UserWeatherDto>> GetUserWeatherById(Guid userWeatherId, Guid userId)
+        {
+            try
+            {
+                Expression<Func<UserWeather, bool>> expression = uw => uw.UserId == userId && uw.Id == userWeatherId;
+                var weatherToReturn = await this.dataService.UserWeathers.FindByConditionAsync(expression);
+                if (weatherToReturn == null) return GenericResponseBuilder.NotFound<UserWeatherDto>();
+
+                var getWeatherServiceInformation = await this.internalCommunicationProvider
+                    .GetWeatherProviderInformationFromWeatherMicroservice(weatherToReturn.WeatherId);
+                var dataToReturn = this.mapper.Map<UserWeatherDto>(weatherToReturn, opt =>
+                    {
+                        opt.Items["weatherName"] = getWeatherServiceInformation.Name;
+                    });
+
+                return GenericResponseBuilder.Success(dataToReturn);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(string.Format("Error in BLL - GetUserWeatherById. {0}", ex.Message));
+                String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
+                return GenericResponseBuilder.NoSuccess<UserWeatherDto>(null, $"{ex.Message} InnerException: {innerMessage}");
+            }
+        }
+
         public async Task<GenericResponse<UserWeatherDto>> CreateUserWeather(Guid userId, UserWeatherForCreationDto userWeatherForCreationDto)
         {
             try
