@@ -61,7 +61,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
 
         public void Update(UserWeather entity)
         {
-            throw new NotImplementedException();
+            this.context.UserWeather.Update(entity);
         }
     }
 }

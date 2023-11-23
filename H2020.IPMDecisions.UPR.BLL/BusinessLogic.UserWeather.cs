@@ -41,11 +41,11 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
         }
 
-        public async Task<GenericResponse<UserWeatherDto>> GetUserWeatherById(Guid userWeatherId, Guid userId)
+        public async Task<GenericResponse<UserWeatherDto>> GetUserWeatherById(Guid id, Guid userId)
         {
             try
             {
-                Expression<Func<UserWeather, bool>> expression = uw => uw.UserId == userId && uw.Id == userWeatherId;
+                Expression<Func<UserWeather, bool>> expression = uw => uw.UserId == userId && uw.Id == id;
                 var weatherToReturn = await this.dataService.UserWeathers.FindByConditionAsync(expression);
                 if (weatherToReturn == null) return GenericResponseBuilder.NotFound<UserWeatherDto>();
 
@@ -107,11 +107,11 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
         }
 
-        public async Task<GenericResponse> RemoveUserWeather(Guid userWeatherId, Guid userId)
+        public async Task<GenericResponse> RemoveUserWeather(Guid id, Guid userId)
         {
             try
             {
-                Expression<Func<UserWeather, bool>> expression = uw => uw.UserId == userId && uw.Id == userWeatherId;
+                Expression<Func<UserWeather, bool>> expression = uw => uw.UserId == userId && uw.Id == id;
                 var weatherToDelete = await this.dataService.UserWeathers.FindByConditionAsync(expression);
                 if (weatherToDelete == null) return GenericResponseBuilder.Success();
 
@@ -123,6 +123,33 @@ namespace H2020.IPMDecisions.UPR.BLL
             catch (Exception ex)
             {
                 logger.LogError(string.Format("Error in BLL - RemoveUserWeather. {0}", ex.Message));
+                String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
+                return GenericResponseBuilder.NoSuccess($"{ex.Message} InnerException: {innerMessage}");
+            }
+        }
+
+        public async Task<GenericResponse> UpdateUserWeatherById(Guid id, Guid userId, UserWeatherForUpdateDto userWeatherForUpdateDto)
+        {
+            try
+            {
+                Expression<Func<UserWeather, bool>> expression = uw => uw.UserId == userId && uw.Id == id;
+                var weatherToUpdate = await this.dataService.UserWeathers.FindByConditionAsync(expression);
+                if (weatherToUpdate == null) return GenericResponseBuilder.NotFound<UserWeatherDto>();
+
+                var encryptedPassword = _encryption.Encrypt(userWeatherForUpdateDto.Password);
+
+                var dataToInsert = this.mapper.Map(userWeatherForUpdateDto, weatherToUpdate, opt =>
+                {
+                    opt.Items["encryptedPassword"] = encryptedPassword;
+                });
+
+                this.dataService.UserWeathers.Update(dataToInsert);
+                await this.dataService.CompleteAsync();
+                return GenericResponseBuilder.Success();
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(string.Format("Error in BLL - UpdateUserWeatherById. {0}", ex.Message), ex);
                 String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
                 return GenericResponseBuilder.NoSuccess($"{ex.Message} InnerException: {innerMessage}");
             }

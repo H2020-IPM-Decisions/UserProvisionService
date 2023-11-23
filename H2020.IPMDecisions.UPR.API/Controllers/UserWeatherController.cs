@@ -38,6 +38,8 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         /// <summary>
         /// Returns the list of weather stations that belong the user.
         /// </summary>
+        /// <remarks>The user will be identified using the UserId on the authentication JWT.
+        /// </remarks>
         [ProducesResponseType(typeof(IEnumerable<UserWeatherDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         [Produces(MediaTypeNames.Application.Json)]
@@ -57,16 +59,19 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         /// <summary>
         /// Returns one weather stations that belong the user.
         /// </summary>
+        /// <remarks>The user will be identified using the UserId on the authentication JWT.
+        /// <para>The User Weather must belong to the user</para>
+        /// </remarks>
         [ProducesResponseType(typeof(UserWeatherDto), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         [Produces(MediaTypeNames.Application.Json)]
-        [HttpGet("{userWeatherId:guid}", Name = "api.userweather.get.weatherid")]
+        [HttpGet("{id:guid}", Name = "api.userweather.get.weatherid")]
         [HttpHead]
         // GET:  api/users/weather/5
-        public async Task<IActionResult> GetById([FromRoute] Guid userWeatherId)
+        public async Task<IActionResult> GetById([FromRoute] Guid id)
         {
             var userId = Guid.Parse(HttpContext.Items["userId"].ToString());
-            var response = await businessLogic.GetUserWeatherById(userWeatherId, userId);
+            var response = await businessLogic.GetUserWeatherById(id, userId);
             if (!response.IsSuccessful)
                 return BadRequest(new { message = response.ErrorMessage });
 
@@ -76,6 +81,8 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         /// <summary>
         /// Create a new weather data source to a user.
         /// </summary>
+        /// <remarks>The user will be identified using the UserId on the authentication JWT.
+        /// </remarks>
         [Consumes(MediaTypeNames.Application.Json)]
         [ProducesResponseType(typeof(IEnumerable<UserWeatherDto>), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
@@ -99,19 +106,43 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         /// <summary>
         /// Use this request to delete a user user weather
         /// </summary>
-        /// <remarks> UserId from query is only for administration purposes
+        /// <remarks>The user will be identified using the UserId on the authentication JWT.
+        /// <para>The User Weather must belong to the user</para>
         /// </remarks>
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [HttpDelete("{userWeatherId:guid}", Name = "api.userweather.delete.byid")]
+        [HttpDelete("{id:guid}", Name = "api.userweather.delete.byid")]
         //DELETE :  api/users/weather/1
-        public async Task<IActionResult> Delete([FromRoute] Guid userWeatherId)
+        public async Task<IActionResult> Delete([FromRoute] Guid id)
         {
             var userId = Guid.Parse(HttpContext.Items["userId"].ToString());
 
-            var response = await this.businessLogic.RemoveUserWeather(userWeatherId, userId);
+            var response = await this.businessLogic.RemoveUserWeather(id, userId);
             if (!response.IsSuccessful)
                 return BadRequest(new { message = response.ErrorMessage });
+
+            return NoContent();
+        }
+
+        /// <summary>
+        /// Use this request to update a user weather
+        /// </summary>
+        /// <remarks>The user will be identified using the UserId on the authentication JWT.
+        /// <para>The User Weather must belong to the user</para>
+        /// </remarks>
+        [Consumes(MediaTypeNames.Application.Json)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [HttpPut("{id:guid}", Name = "api.userweather.put.byid")]
+        // PUT: api/dss/1
+        public async Task<IActionResult> Put([FromRoute] Guid id, [FromBody] UserWeatherForUpdateDto userWeatherForUpdateDto)
+        {
+            var userId = Guid.Parse(HttpContext.Items["userId"].ToString());
+
+            var response = await businessLogic.UpdateUserWeatherById(id, userId, userWeatherForUpdateDto);
+            if (!response.IsSuccessful)
+                return response.RequestResult;
 
             return NoContent();
         }

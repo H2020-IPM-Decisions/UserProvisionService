@@ -24,6 +24,17 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
                     dest.Password = encryptedPassword;
                 });
 
+            CreateMap<UserWeatherForUpdateDto, UserWeather>()
+               .ForMember(dest => dest.Id, opt => opt.Ignore())
+               .ForMember(dest => dest.WeatherId, opt => opt.Ignore())
+               .ForMember(dest => dest.UserId, opt => opt.Ignore())
+               .ForMember(dest => dest.Id, opt => opt.Ignore())
+               .AfterMap((src, dest, context) =>
+               {
+                   var encryptedPassword = context.Items["encryptedPassword"] as string;
+                   dest.Password = encryptedPassword;
+               });
+
             // Entities to Dtos
             CreateMap<UserWeather, UserWeatherDto>()
                 .AfterMap((src, dest, context) =>
