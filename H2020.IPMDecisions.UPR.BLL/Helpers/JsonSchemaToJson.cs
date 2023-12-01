@@ -94,6 +94,10 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
                 {
                     return null;
                 }
+                else if (property.Value.Enum != null && property.Value.Enum.Count != 0)
+                {
+                    return new JProperty(property.Key, property.Value.Enum[0].ToString());
+                }
                 else
                 {
                     return new JProperty(property.Key, "");
@@ -130,7 +134,11 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
                 if (HasDefaultValue(property.Value))
                 {
                     return new JProperty(property.Key, (int)property.Value.Default);
-                };
+                }
+                else if (property.Value.Enum != null && property.Value.Enum.Count != 0)
+                {
+                    return new JProperty(property.Key, property.Value.Enum[0].ToString());
+                }
                 return new JProperty(property.Key, null);
             }
             catch (Exception ex)

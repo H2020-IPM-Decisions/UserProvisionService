@@ -395,7 +395,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 }
 
                 dss.ReScheduleCount = 0;
-                await ProcessDssResult(dssResult, responseDss);
+                await ProcessDssResult(dssResult, dss.DssParameters, responseDss);
                 return dssResult;
             }
             catch (Exception ex)
@@ -424,7 +424,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             }
         }
 
-        private async Task ProcessDssResult(FieldDssResult dssResult, HttpResponseMessage responseDss)
+        private async Task ProcessDssResult(FieldDssResult dssResult, string dssParameters, HttpResponseMessage responseDss)
         {
             try
             {
@@ -432,7 +432,8 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 // check if response is JSON, if not, generic error
                 if (!DataParseHelper.IsValidJson(responseAsText))
                 {
-                    logger.Log(LogLevel.Error, string.Format("Error running DSS: {0}. Response was: {1}",
+                    logger.Log(LogLevel.Error, string.Format("Error running DSS: {0}. DSS Parameters {1}. Response was: {1}",
+                    dssParameters,
                     responseDss.RequestMessage.RequestUri.ToString(),
                     responseAsText));
 
@@ -443,8 +444,9 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 // ToDo. Check valid responses when DSS do not run properly
                 if (!responseDss.IsSuccessStatusCode)
                 {
-                    logger.Log(LogLevel.Error, string.Format("Error running DSS: {0}. Response was: {1}",
+                    logger.Log(LogLevel.Error, string.Format("Error running DSS: {0}. DSS Parameters {1}. Response was: {2}",
                     responseDss.RequestMessage.RequestUri.ToString(),
+                    dssParameters,
                     responseAsText));
 
                     // DSS error follow schema output
@@ -503,8 +505,9 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             }
             catch (Exception ex)
             {
-                logger.Log(LogLevel.Error, string.Format("Error running this DSS: {0}. Response was: {1}",
+                logger.Log(LogLevel.Error, string.Format("Error running this DSS: {0}. DSS Parameters {1}. Response was: {2}",
                     responseDss.RequestMessage.RequestUri.ToString(),
+                    dssParameters,
                     await responseDss.Content.ReadAsStringAsync()));
                 dssResult.ResultMessageType = (int)DssOutputMessageTypeEnum.Error;
                 CreateDssRunErrorResult(dssResult, ex.Message, DssOutputMessageTypeEnum.Error);
