@@ -97,7 +97,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
 
             return CreatedAtRoute(
                 "api.userweather.get.weatherid",
-                new { userWeatherId = response.Result.Id },
+                new { id = response.Result.Id },
                 response.Result);
         }
 
