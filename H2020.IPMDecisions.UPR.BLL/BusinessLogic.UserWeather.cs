@@ -18,14 +18,22 @@ namespace H2020.IPMDecisions.UPR.BLL
             {
                 var weathersAsEntities = await this.dataService.UserWeathers.FindByUserIdAsync(userId);
                 var weathersToReturn = new List<UserWeatherDto>();
+                if (weathersAsEntities == null && weathersAsEntities.Count() == 0)
+                    return GenericResponseBuilder.Success<IEnumerable<UserWeatherDto>>(weathersToReturn);
+
+                Expression<Func<UserFarm, bool>> expression = uw => uw.UserId == userId;
+                var farmsFromTheUser = await this.dataService.UserFarms.FindAllAsync(expression);
+                var onlyFarms = farmsFromTheUser.Select(uf => uf.Farm);
+
                 foreach (var userWeather in weathersAsEntities)
                 {
                     var getWeatherServiceInformation = await this.internalCommunicationProvider
                         .GetWeatherProviderInformationFromWeatherMicroservice(userWeather.WeatherId);
-
+                    var farmsAsDtos = this.mapper.Map<List<FarmDto>>(onlyFarms.Where(f => f.UserWeatherId == userWeather.Id));
                     var weathersToAdd = this.mapper.Map<UserWeatherDto>(userWeather, opt =>
                     {
                         opt.Items["weatherName"] = getWeatherServiceInformation.Name;
+                        opt.Items["farms"] = farmsAsDtos;
                     });
 
                     weathersToReturn.Add(weathersToAdd);
@@ -50,12 +58,17 @@ namespace H2020.IPMDecisions.UPR.BLL
                 var weatherToReturn = await this.dataService.UserWeathers.FindByConditionAsync(expression);
                 if (weatherToReturn == null) return GenericResponseBuilder.NotFound<UserWeatherDto>();
 
+                Expression<Func<Farm, bool>> expressionFarms = f => f.UserWeatherId == id;
+                var farmsFromTheUser = await this.dataService.Farms.FindAllByConditionAsync(expressionFarms);
+                var farmsAsDtos = this.mapper.Map<List<FarmDto>>(farmsFromTheUser);
+
                 var getWeatherServiceInformation = await this.internalCommunicationProvider
                     .GetWeatherProviderInformationFromWeatherMicroservice(weatherToReturn.WeatherId);
                 var dataToReturn = this.mapper.Map<UserWeatherDto>(weatherToReturn, opt =>
-                    {
-                        opt.Items["weatherName"] = getWeatherServiceInformation.Name;
-                    });
+                {
+                    opt.Items["weatherName"] = getWeatherServiceInformation.Name;
+                    opt.Items["farms"] = farmsAsDtos;
+                });
 
                 return GenericResponseBuilder.Success(dataToReturn);
             }

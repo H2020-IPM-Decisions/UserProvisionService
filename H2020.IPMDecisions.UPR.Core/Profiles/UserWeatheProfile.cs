@@ -40,6 +40,11 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
                 .AfterMap((src, dest, context) =>
                 {
                     dest.WeatherName = context.Items["weatherName"] as string;
+
+                    if (context.Items.ContainsKey("farms") && context.Items["farms"] is List<FarmDto> farms)
+                    {
+                        dest.Farms = farms;
+                    }
                 });
         }
     }
