@@ -1,9 +1,14 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
-using H2020.IPMDecisions.UPR.API.Filters;
+using H2020.IPMDecisions.UPR.BLL.Providers;
+using H2020.IPMDecisions.UPR.Core.PatchOperationExamples;
 using H2020.IPMDecisions.UPR.Data.Persistence;
+using Hangfire;
+using Hangfire.PostgreSql;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -16,17 +21,21 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Newtonsoft.Json.Schema;
 using Newtonsoft.Json.Serialization;
+using NLog;
+using NLog.Extensions.Logging;
+using Swashbuckle.AspNetCore.Filters;
 
 namespace H2020.IPMDecisions.APG.API.Extensions
 {
-    public static class ServiceExtensions
+    internal static class ServiceExtensions
     {
-        public static void ConfigureJwtAuthentication(this IServiceCollection services, IConfiguration config)
+        internal static void ConfigureJwtAuthentication(this IServiceCollection services, IConfiguration config)
         {
             var jwtSecretKey = config["JwtSettings:SecretKey"];
             var authorizationServerUrl = config["JwtSettings:IssuerServerUrl"];
-            var audiencesServerUrl = Audiences(config["JwtSettings:ValidAudiencesUrls"]);
+            var audiencesServerUrl = Audiences(config["JwtSettings:ValidAudiences"]);
 
             services.AddAuthentication(options =>
             {
@@ -51,7 +60,7 @@ namespace H2020.IPMDecisions.APG.API.Extensions
             });
         }
 
-        public static void ConfigureCors(this IServiceCollection services, IConfiguration config)
+        internal static void ConfigureCors(this IServiceCollection services, IConfiguration config)
         {
             var allowedHosts = config["AllowedHosts"];
             if (allowedHosts == null) return;
@@ -60,12 +69,14 @@ namespace H2020.IPMDecisions.APG.API.Extensions
             {
                 options.AddPolicy("UserProvisionCORS", builder =>
                 {
-                    builder.WithOrigins(allowedHosts);
+                    builder
+                    .WithOrigins(allowedHosts)
+                    .AllowAnyHeader(); ;
                 });
             });
         }
 
-        public static void ConfigureContentNegotiation(this IServiceCollection services)
+        internal static void ConfigureContentNegotiation(this IServiceCollection services)
         {
             services.AddControllers(setupAction =>
                 {
@@ -89,19 +100,22 @@ namespace H2020.IPMDecisions.APG.API.Extensions
             });
         }
 
-        public static void ConfigurePostgresContext(this IServiceCollection services, IConfiguration config)
+        internal static void ConfigurePostgresContext(this IServiceCollection services, IConfiguration config)
         {
             var connectionString = config["ConnectionStrings:MyPostgreSQLConnection"];
 
             services
                 .AddDbContext<ApplicationDbContext>(options =>
                 {
-                    options.UseNpgsql(connectionString,
-                        b => b.MigrationsAssembly("H2020.IPMDecisions.UPR.Data"));
+                    options.UseNpgsql(
+                        connectionString,
+                            b => b.UseNetTopologySuite()
+                            .MigrationsAssembly("H2020.IPMDecisions.UPR.Data")
+                        );
                 });
         }
 
-        public static void ConfigureSwagger(this IServiceCollection services)
+        internal static void ConfigureSwagger(this IServiceCollection services)
         {
             services.AddSwaggerGen(c =>
             {
@@ -137,21 +151,29 @@ namespace H2020.IPMDecisions.APG.API.Extensions
                       Example: 'Bearer 12345abcdef'",
                 });
 
+                c.ExampleFilters();
                 c.OperationFilter<SecurityRequirementsOperationFilter>();
 
+                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+                c.IncludeXmlComments(xmlPath, includeControllerXmlComments: true);
             });
 
             services.AddSwaggerGenNewtonsoftSupport();
+            services.AddSwaggerExamplesFromAssemblyOf<JsonPatchFieldRequestExample>();
+            services.AddSwaggerExamplesFromAssemblyOf<JsonPatchFarmRequestExample>();
+            services.AddSwaggerExamplesFromAssemblyOf<JsonPatchUserWidgetRequestExample>();
+            services.AddSwaggerExamplesFromAssemblyOf<JsonPatchUserProfileRequestExample>();
         }
 
-        public static void ConfigureKestrelWebServer(this IServiceCollection services, IConfiguration config)
+        internal static void ConfigureKestrelWebServer(this IServiceCollection services, IConfiguration config)
         {
             services.Configure<KestrelServerOptions>(
                 config.GetSection("Kestrel")
             );
         }
 
-        public static void ConfigureHttps(this IServiceCollection services, IConfiguration config)
+        internal static void ConfigureHttps(this IServiceCollection services, IConfiguration config)
         {
             services.Configure<ForwardedHeadersOptions>(options =>
             {
@@ -173,12 +195,94 @@ namespace H2020.IPMDecisions.APG.API.Extensions
             });
         }
 
-        public static IEnumerable<string> Audiences(string audiences)
+        internal static void ConfigureLogger(this IServiceCollection services, IConfiguration config)
+        {
+            LogManager.Configuration = new NLogLoggingConfiguration(config.GetSection("NLog"));
+        }
+
+        internal static void ConfigureInternalCommunicationHttpService(this IServiceCollection services, IConfiguration config)
+        {
+            services.AddHttpClient<IMicroservicesInternalCommunicationHttpProvider, MicroservicesInternalCommunicationHttpProvider>(client =>
+            {
+                client.BaseAddress = new Uri(config["MicroserviceInternalCommunication:ApiGatewayAddress"]);
+                client.DefaultRequestHeaders.Add(config["MicroserviceInternalCommunication:SecurityTokenCustomHeader"], config["MicroserviceInternalCommunication:SecurityToken"]);
+            });
+        }
+
+        internal static void ConfigureAuthorization(this IServiceCollection services, IConfiguration config)
+        {
+            var claimType = config["AccessClaims:ClaimTypeName"].ToLower();
+            var accessLevels = AccessLevels(config["AccessClaims:UserAccessLevels"]);
+
+            services.AddAuthorization(options =>
+            {
+                accessLevels.ToList().ForEach(level =>
+                {
+                    options.AddPolicy(level,
+                        policy =>
+                        {
+                            policy.RequireClaim(claimType, level.ToLower());
+                        });
+                });
+            });
+        }
+
+        internal static void ConfigureHangfire(this IServiceCollection services, IConfiguration config)
+        {
+            services.AddHangfire(configuration =>
+                configuration
+                .SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
+                .UseSimpleAssemblyNameTypeSerializer()
+                .UseRecommendedSerializerSettings()
+                .UseNLogLogProvider()
+                .UsePostgreSqlStorage(
+                    config.GetConnectionString("MyPostgreSQLConnection"),
+                    new PostgreSqlStorageOptions
+                    {
+                        PrepareSchemaIfNecessary = true,
+                        QueuePollInterval = new TimeSpan(0, 1, 0),
+                    }
+                ));
+            GlobalJobFilters.Filters.Add(new AutomaticRetryAttribute { Attempts = 2 });
+
+            services.AddHangfireServer(options =>
+            {
+                options.Queues = new[] {
+                    "onthefly_schedule",
+                    "onthefly_queue",
+                    "deleteoldresults_schedule",
+                    "weather_queue",
+                    "onmemory_queue",
+                    "dsserror_schedule"
+                };
+            });
+        }
+
+        internal static void ConfigureCaching(this IServiceCollection services)
+        {
+            services.AddMemoryCache();
+            services.AddDistributedMemoryCache();
+        }
+
+        internal static void ConfigureNewtonsoft(this IServiceCollection services, IConfiguration config)
+        {
+
+            string licenseKey = config["AppConfiguration:NewtonsoftLicence"];
+            if (!string.IsNullOrEmpty(licenseKey)) License.RegisterLicense(licenseKey);
+        }
+
+        internal static IEnumerable<string> Audiences(string audiences)
         {
             var listOfAudiences = new List<string>();
             if (string.IsNullOrEmpty(audiences)) return listOfAudiences;
             listOfAudiences = audiences.Split(';').ToList();
             return listOfAudiences;
+        }
+
+        internal static IEnumerable<string> AccessLevels(string levels)
+        {
+            var listOfLevels = levels.Split(';').ToList();
+            return listOfLevels;
         }
     }
 }

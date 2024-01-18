@@ -1,0 +1,66 @@
+{
+    "data_share": {
+        "back_to_pending": "Et voi muuttaa pyyntöä takaisin odottavaksi.",
+        "declined_request": "Käyttäjä on kieltänyt dataan pääsyn.",
+        "email_error": "Pyyntö luotu, mutta sähköpostia lähetettäessä tapahtui virhe.",
+        "existing_request": "Olet jo pyytänyt datan tälle käyttäjälle.",
+        "farms_ownership_error": "Tila(t) eivät kuulu käyttäjälle.",
+        "no_farms_error": "Käyttäjällä ei ole yhtään tilaa järjestelmässä.",
+        "not_existing_request": "Pyyntö ei ole järjestelmässä tai se on jo hyväksytty/hylätty.",
+        "own_request_error": "Käyttäjä ei voi pyytää omaa dataansa.",
+        "pending_change_error": "Et voi päivittää odottavaa pyyntöä. Käytä 'vastaa' päätteessä hyväksyäksesi tai hylätäksesi pyyntö.",
+        "request_error": "Pyyntö ei kuulu käyttäjälle.",
+        "user_not_registered": "Käyttäjä ei ole rekisteröitynyt järjestelmään.",
+        "user_requesting_no_profile": "Datan jakoa pyytävällä käyttäjällä ei ole profiilia järjestelmässä.",
+        "user_without_profile": "Käyttäjällä ei ole profiilia järjestelmässä.",
+        "wrong_method": "Metodi on pyyntöjen hyväksymiseen tai hylkäämiseen."
+    },
+    "dss": {
+        "adaptation_duplicated": "For model {0}, you have already saved a DSS with the following name {1}. Please change the name before continuing.",
+        "dss_missing_metadata": "DSS:ää tunnuksella '{0}' ja versiolla '{1}' ei ole olemassa DSS-mikropalveluissa.",
+        "dss_is_disabled": "This DSS has been temporarily removed from the IPM Decisions Platform due to the identification of potential issues with the DSS. The DSS will be reinstated once these issues have been resolved.",
+        "dss_is_not_Valid_location": "This DSS has not been validated for your location and you should treat it's results with caution, as they may not be reliable.",
+        "duplicated": "Toistettu  kasvin ({0}), kasvintuhoojan ({1}), DSS({2}), mallin ({3}), DSS version ({4}) yhdistelmä pellolla.",
+        "existing_combination": "Pellolla on jo kasvin ({0}), kasvintuhoojan ({1}) ja DSS({2}) yhdistelmä.",
+        "field_eppo_code": "Kenttä {0} hyväksyy vain '{1}' kasvin EPPO-koodin.",
+        "model_missing_metadata": "DSS:llä tunnuksella '{0}' ja versiolla '{1}' ei ole yhtään mallia tunnuksella '{2}' ja versiolla '{3}' DSS-mikropalvelussa.",
+        "warning_header": "Yksi tai useampi kasvin, kasvintuhoojan ja DSSn yhdistelmä on jo olemassa. Lisätietoja varten tarkista vastauksen sisältö.",
+        "warning_status_representation": "{0}\n\n{1}",
+        "warnings": "Korjaa seuraavat virheet ennen tallentamista."
+    },
+    "dss_process": {
+        "dss_error": "Virhe ajettaessa DSS:ää - {0}",
+        "dss_format_error": "Viestivirhe DSS:stä ei noudata IPM Decisions-standardeja, joten emme voi valitettavasti tarjota lisätietoja.",
+        "dss_information": "DSS:n tietojen haussa mikropalvelussa tapahtui virhe.",
+        "dss_no_endpoint": "DSS:n ajamiseen ei ole päätettä.",
+        "json_validation_error": "A problem has occurred, the platform will try to re-run de DSS in {0} minutes",
+        "not_on_the_fly": "The DSS can not run 'on-the-fly', so this process cannot be completed.",
+        "system_ready_error": "DSS:n ajamisessa tapahtui virhe. DSS ei ole valmiina.",
+        "weather_data_error": "Virhe säädatassa - {0}"
+    },
+    "farm": {
+        "owner_error": "Et ole tilan omistaja, joten toimintoa ei voida suorittaa."
+    },
+    "shared": {
+        "missing_default_forecast": "Tietokannassa ei ole oletusarvoa sääennusteelle.",
+        "missing_default_historical": "Tietokannassa ei ole oletusarvoa aiemmalle säälle.",
+        "missing_payload": "Viestistä puuttuu data.",
+        "missing_user_profile": "Luo käyttäjäprofiili ensin.",
+        "wrong_fields": "Pyynnössä on väärät pellot tai puuttuva 'id'.",
+        "wrong_media_type": "Väärä mediatyyppi pyynnössä.",
+        "wrong_order_by": "Väärä luettelointijärjestys pyynnössä."
+    },
+    "weather": {
+        "end_of_season": "This model is inactive since {0}. Please wait until the start of the new season or change the end date of the weather data parameters to keep using the model.",
+        "internal_error": "Weather service can't process your request. If the error persists, please contact us.",
+        "missing_service": "Sääpalvelua tunnuksella'{0}' ei ole olemassa säämikropalvelussa.",
+        "missing_weather_parameter": "The weather service can not return all the weather parameters requested by the DSS.",
+        "missing_weather_service": "Tilalle ei ole säätiedon lähteita tai tilaan ei liity yhtään sääasemaa.",
+        "next_season": "DSS:n oletuspäivämäärä säädatan haulle ja käytölle on '{0}'. Odota tähän päivämäärään asti tai muuta DSS:n parametreja käyttämään aikaisempaa säätietoa.",
+        "next_season_fixed": "The model is only valid for use from {0} to {1}. Unfortunately, this is a fixed date determined by the DSS owner and can't be changed by the user.",
+        "no_json_format": "Säätieto ei ollut JSON-formaatissa.",
+        "service_busy": "Weather service is busy and can't process your request. The platform will try again to get the weather data in {0} minutes. If the error persist, please contact us.",
+        "start_end_date_problem": "The start date ({0}) is after the end date ({1}) on the weather data parameters. Please fix this before continuing.",
+        "validation_error": "Saatu säätieto ei täytä IPM Decisionsin säädatan validointiskeemaa. Tämä voi johtua siitä, että säädatan lähde ei hyväksy DSS:n {0} lähettämiä parametreja."
+    }
+}

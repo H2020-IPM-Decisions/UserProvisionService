@@ -1,10 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
-    <Version>0.0.1.0</Version>
-    <AssemblyVersion>0.0.1.0</AssemblyVersion>
-    <FileVersion>0.0.1.0</FileVersion>
+    <Version>1.22.0.0</Version>
+    <AssemblyVersion>1.22.0.0</AssemblyVersion>
+    <FileVersion>1.22.0.0</FileVersion>
     <Authors>ADAS Modelling and Informatics Team</Authors>
     <Company>RSK ADAS Ltd</Company>
     <Product>H2020 IPM Decisions User Provision Service</Product>
@@ -15,15 +14,30 @@
     <PackageTags>H2020, IPM Decisions, User Provision Service</PackageTags>
     <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
   </PropertyGroup>
-
+  <ItemGroup>
+    <None Remove="Files\IPMDecision_FullSeasonWeather_Daily.json" />
+    <None Remove="Files\IPMDecision_FullSeasonWeather_Hourly.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Files\IPMDecision_FullSeasonWeather_Daily.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Files\IPMDecision_FullSeasonWeather_Hourly.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
+  </ItemGroup>
   <ItemGroup>
     <PackageReference Include="automapper" Version="9.0.0" />
+    <PackageReference Include="CsvHelper" Version="30.0.1" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.2.0" />
+    <PackageReference Include="Hangfire" Version="1.7.19" />
+    <PackageReference Include="Hangfire.AspNetCore" Version="1.7.19" />
+    <PackageReference Include="System.Json" Version="4.7.1" />
+    <PackageReference Include="Newtonsoft.Json.Schema" Version="3.0.14" />
+    <PackageReference Include="Two10.CountryLookup" Version="1.0.4" />
   </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\H2020.IPMDecisions.UPR.Core\H2020.IPMDecisions.UPR.Core.csproj" />
     <ProjectReference Include="..\H2020.IPMDecisions.UPR.Data\H2020.IPMDecisions.UPR.Data.csproj" />
   </ItemGroup>
-
 </Project>

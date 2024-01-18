@@ -10,7 +10,8 @@ namespace H2020.IPMDecisions.UPR.Core.Dtos
         public virtual string LastName { get; set; }
         public virtual string PhoneNumber { get; set; }
         public virtual string MobileNumber { get; set; }
-        public virtual string Address { get; set; }
+        public virtual string Street { get; set; }
+        public virtual string City { get; set; }
         public virtual string Postcode { get; set; }
         public virtual string Country { get; set; }
     }

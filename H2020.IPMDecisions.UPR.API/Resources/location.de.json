@@ -1,0 +1,66 @@
+{
+    "data_share": {
+        "back_to_pending": "Sie können eine Anfrage nicht auf den Status \"ausstehend\" zurücksetzen.",
+        "declined_request": "Der Benutzer hat den Zugriff auf die Daten abgelehnt.",
+        "email_error": "Anfrage erstellt, aber Fehler beim Senden der E-Mail.",
+        "existing_request": "Sie haben bereits Daten für diesen Benutzer angefordert.",
+        "farms_ownership_error": "Die Betriebe gehören nicht dem Benutzer.",
+        "no_farms_error": "Der Benutzer hat keine Betriebe im System.",
+        "not_existing_request": "Die Anfrage existiert nicht im System oder wurde bereits angenommen/abgelehnt.",
+        "own_request_error": "Der Benutzer kann seine eigenen Daten nicht anfordern.",
+        "pending_change_error": "Sie können eine ausstehende Anfrage nicht aktualisieren. Bitte verwenden Sie den abschließenden Punkt \"Antwort\", um eine Anfrage anzunehmen oder abzulehnen.",
+        "request_error": "Die Anfrage gehört nicht dem Benutzer.",
+        "user_not_registered": "Der Benutzer ist nicht im System registriert.",
+        "user_requesting_no_profile": "Der Benutzer, der die gemeinsame Nutzung von Daten anfordert, hat kein Profil im System.",
+        "user_without_profile": "Der Benutzer hat kein Profil im System.",
+        "wrong_method": "Die Methode ist zum Annehmen oder Ablehnen von Anfragen."
+    },
+    "dss": {
+        "adaptation_duplicated": "For model {0}, you have already saved a DSS with the following name {1}. Please change the name before continuing.",
+        "dss_missing_metadata": "DSS mit ID '{0}' und Version '{1}' existieren nicht auf dem DSS Microservice.",
+        "dss_is_disabled": "This DSS has been temporarily removed from the IPM Decisions Platform due to the identification of potential issues with the DSS. The DSS will be reinstated once these issues have been resolved.",
+        "dss_is_not_Valid_location": "This DSS has not been validated for your location and you should treat it's results with caution, as they may not be reliable.",
+        "duplicated": "Doppelte Kombination von Kultur ({0}), Schaderreger ({1}), DSS ({2}), Modell ({3}) & DSS-Modellversion ({4}) auf einem Feld.",
+        "existing_combination": "Das Feld hat bereits eine Kombination aus Kultur ({0}), Schaderreger ({1}) und DSS ({2}).",
+        "field_eppo_code": "Feld mit ID {0} akzeptiert nur '{1}' als EPPO Kultur-Code",
+        "model_missing_metadata": "Für die DSS mit der ID '{0}' und der Version '{1}' gibt es kein Modell mit der ID '{2}' und der Version '{3}' im DSS-Microservice.",
+        "warning_header": "Eine oder mehrere Kombinationen aus Kultur, Schaderreger und DSS sind bereits vorhanden. Bitte prüfen Sie den Antworttext für weitere Informationen.",
+        "warning_status_representation": "{0}\n\n{1}",
+        "warnings": "Bitte beheben Sie den/die folgenden Fehler vor dem Speichern:"
+    },
+    "dss_process": {
+        "dss_error": "Fehler bei der Ausführung des DSS - {0}",
+        "dss_format_error": "Die Fehlermeldungen von DSS entsprechen nicht den IPM Decisions Standards, daher können wir leider keine weiteren Informationen liefern.",
+        "dss_information": "Fehler beim Abrufen von DSS-Informationen vom Microservice.",
+        "dss_no_endpoint": "Endpunkt nicht verfügbar, um DSS auszuführen.",
+        "json_validation_error": "A problem has occurred, the platform will try to re-run de DSS in {0} minutes",
+        "not_on_the_fly": "The DSS can not run 'on-the-fly', so this process cannot be completed.",
+        "system_ready_error": "Fehler beim Ausführen des DSS - System nicht bereit.",
+        "weather_data_error": "Fehler mit den Wetterdaten - {0}"
+    },
+    "farm": {
+        "owner_error": "Sie sind nicht der Eigentümer dieser Farm, daher kann der Vorgang nicht abgeschlossen werden."
+    },
+    "shared": {
+        "missing_default_forecast": "Die Datenbank enthält keine Standardwerte für die Wettervorhersage.",
+        "missing_default_historical": "Die Datenbank enthält keine Standardwerte für zurückliegendes Wetter.",
+        "missing_payload": "Daten fehlen in der Lieferung.",
+        "missing_user_profile": "Bitte erstellen Sie zuerst ein `Benutzerprofil`.",
+        "wrong_fields": "Fehlerhafte Felder eingegeben oder fehlende \"Feld-ID\" in der Anfrage.",
+        "wrong_media_type": "Fehlerhafter Medientyp in der Anfrage.",
+        "wrong_order_by": "Falsche Sortierung in der Anfrage eingegeben."
+    },
+    "weather": {
+        "end_of_season": "This model is inactive since {0}. Please wait until the start of the new season or change the end date of the weather data parameters to keep using the model.",
+        "internal_error": "Weather service can't process your request. If the error persists, please contact us.",
+        "missing_service": "Der Wetterdienst mit der ID '{0}' existiert nicht im Wetter-Microservice.",
+        "missing_weather_parameter": "The weather service can not return all the weather parameters requested by the DSS.",
+        "missing_weather_service": "Dem Betrieb sind keine Wetterdatenquellen oder Wetterstationen zugeordnet",
+        "next_season": "Das Standardstartdatum für das DSS zum Erhalt und zur Nutzung von Wetterdaten ist {0}. Bitte warten Sie ab, bis dieses Datum erreicht ist oder ändern Sie die DSS-Parameter, um frühere Wetterdaten zu nutzen.",
+        "next_season_fixed": "The model is only valid for use from {0} to {1}. Unfortunately, this is a fixed date determined by the DSS owner and can't be changed by the user.",
+        "no_json_format": "Die empfangenen Wetterdaten sind nicht im JSON-Format.",
+        "service_busy": "Weather service is busy and can't process your request. The platform will try again to get the weather data in {0} minutes. If the error persists, please contact us.",
+        "start_end_date_problem": "The start date ({0}) is after the end date ({1}) on the weather data parameters. Please fix this before continuing.",
+        "validation_error": "Die empfangenen Wetterdaten haben die IPM Decisions Wettervalidierung nicht erfüllt. Dies könnte daran liegen, dass die gewählte Wetterdatenquelle die vom DSS benötigten Wetterparameter nicht akzeptiert: {0}. "
+    }
+}

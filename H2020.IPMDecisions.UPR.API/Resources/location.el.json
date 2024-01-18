@@ -1,0 +1,66 @@
+{
+    "data_share": {
+        "back_to_pending": "Δεν μπορείτε να αλλάξετε μια αίτηση σε εκκρεμότητα.",
+        "declined_request": "Ο χρήστης αρνήθηκε την πρόσβαση στα δεδομένα.",
+        "email_error": "Το αίτημα δημιουργήθηκε αλλά υπάρχει  σφάλμα αποστολής email.",
+        "existing_request": "Έχετε ήδη ζητήσει δεδομένα για αυτόν τον χρήστη.",
+        "farms_ownership_error": "Τα αγροκτήματα δεν ανήκουν στον χρήστη.",
+        "no_farms_error": "Ο χρήστης δεν έχει κανένα αγρόκτημα στο σύστημα.",
+        "not_existing_request": "Το αίτημα δεν υπάρχει στο σύστημα ή έχει ήδη γίνει αποδεκτό/απορριφθεί.",
+        "own_request_error": "Ο χρήστης δεν μπορεί να ζητήσει τα δικά του δεδομένα.",
+        "pending_change_error": "Δεν μπορείτε να ενημερώσετε μια εκκρεμή αίτηση. Παρακαλούμε χρησιμοποιήστε το τελικό σημείο 'απάντηση' για να αποδεχτείτε/απορρίψετε το αίτημα.",
+        "request_error": "Το αίτημα δεν ανήκει στον χρήστη.",
+        "user_not_registered": "Ο χρήστης δεν είναι εγγεγραμμένος στο σύστημα.",
+        "user_requesting_no_profile": "Ο χρήστης που ζητά κοινή χρήση δεδομένων δεν έχει προφίλ στο σύστημα.",
+        "user_without_profile": "Ο χρήστης δεν έχει προφίλ στο σύστημα.",
+        "wrong_method": "Η μέθοδος αφορά την αποδοχή ή την απόρριψη αιτήσεων."
+    },
+    "dss": {
+        "adaptation_duplicated": "For model {0}, you have already saved a DSS with the following name {1}. Please change the name before continuing.",
+        "dss_missing_metadata": "Το DSS με ID '{0}' και έκδοση '{1}' δεν υπάρχει στη μικρουπηρεσία DSS.",
+        "dss_is_disabled": "This DSS has been temporarily removed from the IPM Decisions Platform due to the identification of potential issues with the DSS. The DSS will be reinstated once these issues have been resolved.",
+        "dss_is_not_Valid_location": "This DSS has not been validated for your location and you should treat it's results with caution, as they may not be reliable.",
+        "duplicated": "Επαναλαμβανόμενος συνδυασμός των Καλλιέργεια ({0}), Εχθρός ({1}), DSS ({2}), Μοντέλο ({3}) & Έκδοση μοντέλου DSS ({4}) σε ένα πεδίο.",
+        "existing_combination": "Ο αγρός έχει ήδη συνδυασμό καλλιέργειας ({0}), επιβλαβών οργανισμών ({1}) και DSS ({2}).",
+        "field_eppo_code": "Το πεδίο με ID {0} δέχεται μόνο τον κωδικό καλλιέργειας EPPO '{1}'.",
+        "json_validation_error": "A problem has occurred, the platform will try to re-run de DSS in {0} minutes",
+        "model_missing_metadata": "Το DSS με ID '{0}' και έκδοση '{1}', δεν έχει κανένα μοντέλο με ID '{2}' και έκδοση '{3}' στη μικρουπηρεσία DSS.",
+        "not_on_the_fly": "The DSS can not run 'on-the-fly', so this process cannot be completed.",
+        "warning_header": "Υπάρχει ήδη ένας ή περισσότεροι συνδυασμοί καλλιέργειας, επιβλαβών οργανισμών και DSS. Ελέγξτε το σώμα της απάντησης για περισσότερες πληροφορίες.",
+        "warning_status_representation": "{0}\n\n{1}",
+        "warnings": "Διορθώστε το(τα) ακόλουθο(-α) σφάλμα(-τα) πριν από την αποθήκευση:"
+    },
+    "dss_process": {
+        "dss_error": "Σφάλμα εκτέλεσης του DSS - {0}",
+        "dss_format_error": "Το σφάλμα του μηνύματος από την DSS δεν ακολουθεί τα πρότυπα IPM Decisions, οπότε δυστυχώς δεν μπορούμε να παράσχουμε περισσότερες πληροφορίες.",
+        "dss_information": "Σφάλμα λήψης πληροφοριών DSS από μικρουπηρεσία.",
+        "dss_no_endpoint": "Το τελικό σημείο δεν είναι διαθέσιμο για την εκτέλεση του DSS.",
+        "system_ready_error": "Σφάλμα εκτέλεσης του DSS - Το σύστημα δεν είναι έτοιμο.",
+        "weather_data_error": "Σφάλμα με δεδομένα καιρού - {0}"
+    },
+    "farm": {
+        "owner_error": "Δεν είστε ο ιδιοκτήτης αυτού του αγροκτήματος, οπότε η διαδικασία δεν μπορεί να ολοκληρωθεί."
+    },
+    "shared": {
+        "missing_default_forecast": "Η βάση δεδομένων δεν περιέχει προεπιλεγμένη τιμή πρόγνωσης καιρού.",
+        "missing_default_historical": "Η βάση δεδομένων δεν περιέχει προεπιλεγμένη ιστορική τιμή καιρού.",
+        "missing_payload": "Λείπουν δεδομένα για το ωφέλιμο φορτίο.",
+        "missing_user_profile": "Παρακαλούμε, δημιουργήστε πρώτα ένα \"Προφίλ χρήστη\".",
+        "wrong_fields": "Λανθασμένη εισαγωγή πεδίων ή έλλειψη του πεδίου \"id\" στην αίτηση.",
+        "wrong_media_type": "Λάθος τύπος μέσου στην αίτηση.",
+        "wrong_order_by": "To OrderBy καταχωρήθηκε λανθασμένα στην αίτηση."
+    },
+    "weather": {
+        "end_of_season": "This model is inactive since {0}. Please wait until the start of the new season or change the end date of the weather data parameters to keep using the model.",
+        "internal_error": "Weather service can't process your request. If the error persists, please contact us.",
+        "missing_service": "Η υπηρεσία καιρού με αναγνωριστικό '{0}' δεν υπάρχει στη μικρουπηρεσία καιρού.",
+        "missing_weather_parameter": "The weather service can not return all the weather parameters requested by the DSS.",
+        "missing_weather_service": "Δεν υπάρχουν πηγές δεδομένων καιρού ή μετεωρολογικοί σταθμοί που σχετίζονται με το αγρόκτημα",
+        "next_season": "Η προεπιλεγμένη ημερομηνία έναρξης του DSS για τη λήψη και χρήση δεδομένων καιρού είναι {0}. Παρακαλούμε περιμένετε μέχρι αυτή την ημερομηνία ή αλλάξτε τις παραμέτρους του DSS για να αρχίσετε να χρησιμοποιείτε νωρίτερα τα δεδομένα καιρού.",
+        "next_season_fixed": "The model is only valid for use from {0} to {1}. Unfortunately, this is a fixed date determined by the DSS owner and can't be changed by the user.",
+        "no_json_format": "Τα δεδομένα καιρού που λαμβάνονται δεν είναι σε μορφή JSON.",
+        "service_busy": "Weather service is busy and can't process your request. The platform will try again to get the weather data in {0} minutes. If the error persists, please contact us.",
+        "start_end_date_problem": "The start date ({0}) is after the end date ({1}) on the weather data parameters. Please fix this before continuing.",
+        "validation_error": "Τα δεδομένα καιρού που ελήφθησαν απέτυχαν στο σχήμα επικύρωσης IPM Decisions Weather. Αυτό μπορεί να οφείλεται στο γεγονός ότι η επιλεγμένη πηγή δεδομένων καιρού δεν δέχεται τις παραμέτρους καιρού που απαιτούνται από το DSS: {0}"
+    }
+}

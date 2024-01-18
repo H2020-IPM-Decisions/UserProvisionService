@@ -1,9 +1,12 @@
+using Microsoft.AspNetCore.Mvc;
+
 namespace H2020.IPMDecisions.UPR.Core.Models
 {
     public class GenericResponse
     {
         public bool IsSuccessful { get; set; }
         public string ErrorMessage { get; set; }
+        public IActionResult RequestResult { get; set; }
     }
 
     public class GenericResponse<T> : GenericResponse
@@ -29,14 +32,15 @@ namespace H2020.IPMDecisions.UPR.Core.Models
                 IsSuccessful = true
             };
         }
-        
+
         public static GenericResponse<T> NoSuccess<T>(T result, string errorMessage = "")
         {
             return new GenericResponse<T>()
             {
                 IsSuccessful = false,
                 Result = result,
-                ErrorMessage = errorMessage
+                ErrorMessage = errorMessage,
+                RequestResult = new BadRequestObjectResult(new { message = errorMessage, result = result })
             };
         }
 
@@ -45,7 +49,55 @@ namespace H2020.IPMDecisions.UPR.Core.Models
             return new GenericResponse()
             {
                 IsSuccessful = false,
-                ErrorMessage = errorMessage
+                ErrorMessage = errorMessage,
+                RequestResult = new BadRequestObjectResult(new { message = errorMessage })
+            };
+        }
+
+        public static GenericResponse<T> Unauthorized<T>()
+        {
+            return new GenericResponse<T>()
+            {
+                IsSuccessful = false,
+                RequestResult = new UnauthorizedResult()
+            };
+        }
+
+        public static GenericResponse NotFound()
+        {
+            return new GenericResponse()
+            {
+                IsSuccessful = false,
+                RequestResult = new NotFoundResult()
+            };
+        }
+
+        public static GenericResponse<T> NotFound<T>()
+        {
+            return new GenericResponse<T>()
+            {
+                IsSuccessful = false,
+                RequestResult = new NotFoundResult()
+            };
+        }
+
+        public static GenericResponse<T> Duplicated<T>(string errorMessage = "", object result = null)
+        {
+            return new GenericResponse<T>()
+            {
+                IsSuccessful = false,
+                ErrorMessage = errorMessage,
+                RequestResult = new CustomConflictResult(errorMessage, result)
+            };
+        }
+
+        public static GenericResponse<T> Accepted<T>(T result)
+        {
+            return new GenericResponse<T>()
+            {
+                IsSuccessful = true,
+                Result = result,
+                RequestResult = new AcceptedResult()
             };
         }
     }
