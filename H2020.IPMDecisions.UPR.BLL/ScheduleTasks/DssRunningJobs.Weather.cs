@@ -1,10 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
 using System.Linq;
 using System.Net.Http;
-using System.Reflection;
 using System.Threading.Tasks;
 using H2020.IPMDecisions.UPR.BLL.Helpers;
 using H2020.IPMDecisions.UPR.Core.Entities;
@@ -24,42 +22,30 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             try
             {
                 var result = new WeatherDataResult();
-                var listOfPreferredWeatherDataSources = new List<WeatherSchemaForHttp>();
                 var farm = dss.FieldCropPest.FieldCrop.Field.Farm;
                 var currentYear = DssDataHelper.GetCurrentYearForDssDefaultDates(dssInformation, dssInputSchemaAsJson);
                 var currentHost = config["MicroserviceInternalCommunication:WeatherApiUrl"];
-                if (farm.WeatherForecast != null)
-                {
-                    var weatherInformation = await this.internalCommunicationProvider
-                           .GetWeatherProviderInformationFromWeatherMicroservice(farm.WeatherForecast.WeatherId);
+                var defaultWeatherServiceId = config["AppConfiguration:DefaultWeatherService"];
 
-                    var weatherToCall = this.mapper.Map<WeatherSchemaForHttp>(weatherInformation, opt =>
-                    {
-                        opt.Items["host"] = currentHost;
-                    });
-                    weatherToCall.IsForecast = true;
-                    result = AddWeatherDates(dssInformation, dssInputSchemaAsJson, weatherToCall, currentYear, isOnTheFlyData);
-                    listOfPreferredWeatherDataSources.Add(weatherToCall);
-                }
-                if (farm.WeatherHistorical != null)
-                {
-                    var weatherInformation = await this.internalCommunicationProvider
-                           .GetWeatherProviderInformationFromWeatherMicroservice(farm.WeatherHistorical.WeatherId);
+                var weatherInformation = await this.internalCommunicationProvider
+                       .GetWeatherProviderInformationFromWeatherMicroservice(defaultWeatherServiceId);
 
-                    var weatherToCall = this.mapper.Map<WeatherSchemaForHttp>(weatherInformation, opt =>
-                    {
-                        opt.Items["host"] = currentHost;
-                    });
-                    result = AddWeatherDates(dssInformation, dssInputSchemaAsJson, weatherToCall, currentYear, isOnTheFlyData);
-                    listOfPreferredWeatherDataSources.Add(weatherToCall);
-                }
+                if (weatherInformation == null) throw new NullReferenceException(this.jsonStringLocalizer["weather.missing_service", defaultWeatherServiceId].ToString());
+
+                var weatherToCall = this.mapper.Map<WeatherSchemaForHttp>(weatherInformation, opt =>
+                {
+                    opt.Items["host"] = currentHost;
+                });
+                weatherToCall.IsForecast = true;
+                result = AddWeatherDates(dssInformation, dssInputSchemaAsJson, weatherToCall, currentYear, isOnTheFlyData);
+
                 // ToDo Get own weather data station. This is old code from prev solution
                 // contentData.Add("weatherStationId", dataSource.StationId.ToString());
                 //  credentialsAsObject.Password = _encryption.Decrypt(credentialsAsObject.Password);
 
                 if (result.Continue == false) return result;
 
-                return await GetWeatherData(Math.Round(farm.Location.X, 4), Math.Round(farm.Location.Y, 4), listOfPreferredWeatherDataSources, dssInformation.Input);
+                return await GetWeatherData(Math.Round(farm.Location.X, 4), Math.Round(farm.Location.Y, 4), weatherToCall, dssInformation.Input);
             }
             catch (Exception ex)
             {
@@ -130,19 +116,12 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
         public async Task<WeatherDataResult> GetWeatherData(
             double farmLocationX,
             double farmLocationY,
-            List<WeatherSchemaForHttp> listWeatherDataSource,
+            WeatherSchemaForHttp weatherDataSource,
             DssModelSchemaInput dssWeatherInput)
         {
             var result = new WeatherDataResult();
-            if (listWeatherDataSource.Count < 1)
-            {
-                result.ResponseWeatherAsString = this.jsonStringLocalizer["weather.missing_weather_service"].ToString();
-                return result;
-            }
 
             //ToDo - Ask what to do when multiple weather data sources associated to a farm. At the moment use only one
-            var weatherDataSource = listWeatherDataSource.FirstOrDefault();
-
             PrepareWeatherDssParameters(dssWeatherInput, weatherDataSource);
             weatherDataSource.Interval = dssWeatherInput.WeatherParameters.FirstOrDefault().Interval;
             var responseWeather = await PrepareWeatherDataCall(farmLocationX, farmLocationY, weatherDataSource);
