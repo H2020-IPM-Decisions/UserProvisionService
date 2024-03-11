@@ -121,7 +121,8 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             else
             {
                 expression = f =>
-                    f.CropPestDss.DssExecutionType.ToLower().Equals("onthefly");
+                    f.CropPestDss.DssExecutionType.ToLower().Equals("onthefly")
+                    & f.FieldCropPest.FieldCrop.Field.Farm.UserFarms.Any(uf => uf.FarmId != null);
             }
 
             httpClient = new HttpClient();
