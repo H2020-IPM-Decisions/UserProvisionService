@@ -54,9 +54,12 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
             throw new NotImplementedException();
         }
 
-        public Task<UserWeather> FindByIdAsync(Guid id)
+        public async Task<UserWeather> FindByIdAsync(Guid id)
         {
-            throw new NotImplementedException();
+            return await this.context
+                .UserWeather
+                .Where(uw => uw.Id.Equals(id))
+                .FirstOrDefaultAsync();
         }
 
         public void Update(UserWeather entity)

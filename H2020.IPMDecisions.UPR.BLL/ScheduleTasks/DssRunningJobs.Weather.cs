@@ -38,12 +38,18 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 });
                 weatherToCall.IsForecast = true;
                 result = AddWeatherDates(dssInformation, dssInputSchemaAsJson, weatherToCall, currentYear, isOnTheFlyData);
-
-                // ToDo Get own weather data station. This is old code from prev solution
-                // contentData.Add("weatherStationId", dataSource.StationId.ToString());
-                //  credentialsAsObject.Password = _encryption.Decrypt(credentialsAsObject.Password);
-
                 if (result.Continue == false) return result;
+
+                if (farm.UserWeatherId != null)
+                {
+                    var ownWeatherData = await this.dataService.UserWeathers.FindByIdAsync((Guid)farm.UserWeatherId);
+                    var decryptedPassword = _encryption.Decrypt(ownWeatherData.Password);
+                    var privateWeatherForAsRequest = this.mapper.Map<PrivateWeatherBodyRequest>(ownWeatherData, opt =>
+                    {
+                        opt.Items["decryptedPassword"] = decryptedPassword;
+                    });
+                    return await GetWeatherData(Math.Round(farm.Location.X, 4), Math.Round(farm.Location.Y, 4), weatherToCall, dssInformation.Input, privateWeatherForAsRequest);
+                }
 
                 return await GetWeatherData(Math.Round(farm.Location.X, 4), Math.Round(farm.Location.Y, 4), weatherToCall, dssInformation.Input);
             }
@@ -117,14 +123,15 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             double farmLocationX,
             double farmLocationY,
             WeatherSchemaForHttp weatherDataSource,
-            DssModelSchemaInput dssWeatherInput)
+            DssModelSchemaInput dssWeatherInput,
+            PrivateWeatherBodyRequest ownWeatherDataSource = null)
         {
             var result = new WeatherDataResult();
 
             //ToDo - Ask what to do when multiple weather data sources associated to a farm. At the moment use only one
             PrepareWeatherDssParameters(dssWeatherInput, weatherDataSource);
             weatherDataSource.Interval = dssWeatherInput.WeatherParameters.FirstOrDefault().Interval;
-            var responseWeather = await PrepareWeatherDataCall(farmLocationX, farmLocationY, weatherDataSource);
+            var responseWeather = await PrepareWeatherDataCall(farmLocationX, farmLocationY, weatherDataSource, ownWeatherDataSource);
             result.Continue = false;
             if (!responseWeather.IsSuccessStatusCode)
             {
@@ -325,7 +332,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             double farmLocationX,
             double farmLocationY,
             WeatherSchemaForHttp weatherDataSource,
-            bool useProxy = false)
+            PrivateWeatherBodyRequest ownWeatherDataSource = null)
         {
             var weatherStringParametersUrl = string.Format("longitude={0}&latitude={1}&interval={2}&ignoreErrors=true",
                 Math.Round(farmLocationX, 4).ToString("G", CultureInfo.InvariantCulture),
@@ -334,45 +341,23 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
 
             // ToDo this is for testing purposes as WX data needed from 2021;
             var weatherFormat = "yyyy-MM-dd";
-            if (weatherDataSource.WeatherId.ToLower() == "no.nibio.lmt")
-            {
-                weatherDataSource.StationId = "41";
-                useProxy = true;
 
-                weatherDataSource.WeatherTimeStart = new DateTime(2021, 4, 1);
-                var startWeatherDate = weatherDataSource.WeatherTimeStart.ToString(weatherFormat, CultureInfo.InvariantCulture);
-                startWeatherDate = string.Format("{0}T00:00:00%2B02:00", startWeatherDate);
-                var endWeatherDate = weatherDataSource.WeatherTimeEnd.ToString(weatherFormat, CultureInfo.InvariantCulture);
-                endWeatherDate = string.Format("{0}T00:00:00%2B02:00", endWeatherDate);
+            weatherStringParametersUrl = string.Format("{0}&timeStart={1}&timeEnd={2}",
+               weatherStringParametersUrl,
+               weatherDataSource.WeatherTimeStart.ToString(weatherFormat, CultureInfo.InvariantCulture),
+                weatherDataSource.WeatherTimeEnd.ToString(weatherFormat, CultureInfo.InvariantCulture));
 
-                weatherStringParametersUrl = string.Format("{0}&timeStart={1}&timeEnd={2}",
-                    weatherStringParametersUrl,
-                    startWeatherDate,
-                    endWeatherDate);
-            }
-            else
-            {
-                weatherStringParametersUrl = string.Format("{0}&timeStart={1}&timeEnd={2}",
-                   weatherStringParametersUrl,
-                   weatherDataSource.WeatherTimeStart.ToString(weatherFormat, CultureInfo.InvariantCulture),
-                    weatherDataSource.WeatherTimeEnd.ToString(weatherFormat, CultureInfo.InvariantCulture));
-            }
 
             if (!string.IsNullOrEmpty(weatherDataSource.WeatherDssParameters))
             {
                 weatherStringParametersUrl = string.Format("{0}&parameters={1}",
                     weatherStringParametersUrl, weatherDataSource.WeatherDssParameters);
             }
-            if (!string.IsNullOrEmpty(weatherDataSource.StationId))
-            {
-                weatherStringParametersUrl = string.Format("{0}&weatherStationId={1}",
-                    weatherStringParametersUrl, weatherDataSource.StationId.ToString());
-            }
-            if (useProxy)
+            if (ownWeatherDataSource != null)
             {
                 return await
                     internalCommunicationProvider
-                    .GetWeatherUsingAmalgamationProxyService(weatherDataSource.Url, weatherStringParametersUrl);
+                    .GetWeatherUsingAmalgamationPrivateService(weatherStringParametersUrl, ownWeatherDataSource);
             }
             // #if DEBUG
             //             bool useOwnService = true;

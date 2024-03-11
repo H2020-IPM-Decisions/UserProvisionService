@@ -6,9 +6,9 @@ using H2020.IPMDecisions.UPR.Core.Models;
 
 namespace H2020.IPMDecisions.UPR.Core.Profiles
 {
-    public class UserWeatheProfile : MainProfile
+    public class UserWeatherProfile : MainProfile
     {
-        public UserWeatheProfile()
+        public UserWeatherProfile()
         {
             // Dtos to Entities
             CreateMap<UserWeatherForCreationDto, UserWeather>()
@@ -45,6 +45,14 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
                     {
                         dest.Farms = farms;
                     }
+                });
+
+            CreateMap<UserWeather, PrivateWeatherBodyRequest>()
+                .ForMember(dest => dest.WeatherSourceId, opt => opt.MapFrom(src => src.WeatherId))
+                .AfterMap((src, dest, context) =>
+                {
+                    var decryptedPassword = context.Items["decryptedPassword"] as string;
+                    dest.Password = decryptedPassword;
                 });
         }
     }

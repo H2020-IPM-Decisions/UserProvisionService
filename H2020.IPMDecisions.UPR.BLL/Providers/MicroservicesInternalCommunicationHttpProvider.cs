@@ -299,22 +299,24 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
             }
         }
 
-        public async Task<HttpResponseMessage> GetWeatherUsingAmalgamationProxyService(string endPointUrl, string endPointQueryString)
+        public async Task<HttpResponseMessage> GetWeatherUsingAmalgamationPrivateService(string endPointQueryString, PrivateWeatherBodyRequest ownWeatherDataSource)
         {
             try
             {
-                var cacheKey = string.Format("weather_{0}_{1}", endPointUrl.ToLower(), endPointQueryString.ToLower());
+                var cacheKey = string.Format("weather_private_{0}_{1}_{2}", endPointQueryString.ToLower(), ownWeatherDataSource.WeatherSourceId, ownWeatherDataSource.WeatherStationId);
                 if (!memoryCache.TryGetValue(cacheKey, out HttpResponseMessage weatherResponse))
                 {
                     var wxEndPoint = config["MicroserviceInternalCommunication:WeatherMicroservice"];
-                    var endPointUrlEncoded = HttpUtility.UrlEncode(endPointUrl);
-                    var endPointQueryStringEncoded = HttpUtility.UrlEncode(endPointQueryString);
-                    var url = string.Format("{0}rest/amalgamation/amalgamate/proxy/?endpointURL={1}&endpointQueryStr={2}", wxEndPoint, endPointUrlEncoded, endPointQueryStringEncoded);
-                    weatherResponse = await httpClient.GetAsync(url);
+                    var url = string.Format("{0}rest/amalgamation/amalgamate/private?{1}", wxEndPoint, endPointQueryString);
+                    var content = new StringContent(
+                        System.Text.Json.JsonSerializer.Serialize(ownWeatherDataSource),
+                        Encoding.UTF8,
+                        MediaTypeNames.Application.Json);
+                    weatherResponse = await httpClient.PostAsync(url, content);
                     if (weatherResponse.IsSuccessStatusCode)
                         memoryCache.Set(cacheKey, weatherResponse, MemoryCacheHelper.CreateMemoryCacheEntryOptionsMinutes(30));
                     else
-                        logger.LogError(string.Format("Weather call error - GetWeatherUsingAmalgamationProxyService. URL called: {0}. Error returned: {1}", url, await weatherResponse.Content.ReadAsStringAsync()));
+                        logger.LogError(string.Format("Weather call error - GetWeatherUsingAmalgamationService. URL called: {0}. Error returned: {1}", url, await weatherResponse.Content.ReadAsStringAsync()));
                 }
                 return weatherResponse;
             }
