@@ -162,5 +162,9 @@ namespace H2020.IPMDecisions.UPR.BLL
         Task<GenericResponse> RemoveUserWeatherToFarms(Guid id, Guid userId, List<Guid> farmIds);
         Task<GenericResponse> AddUserWeatherToFarms(Guid id, Guid userId, List<Guid> farmIds);
         #endregion
+
+        #region RiskMaps
+        Task<GenericResponse<List<RiskMapBaseDto>>> GetRiskMapDataSources();
+        #endregion
     }
 }
