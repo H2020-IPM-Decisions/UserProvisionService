@@ -45,6 +45,24 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
             return Ok(response.Result);
         }
 
+        /// <summary>
+        /// Returns the full risk map details
+        /// </summary>
+        [ProducesResponseType(typeof(RiskMapBaseDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+        [Produces(MediaTypeNames.Application.Json)]
+        [HttpGet("{id:string}", Name = "api.riskmaps.get.byId")]
+        [HttpHead]
+        // GET:  api/riskmaps/1
+        public async Task<IActionResult> GetById([FromRoute] string id)
+        {
+            var response = await businessLogic.GetRiskMapDetailedInformation(id);
+            if (!response.IsSuccessful)
+                return BadRequest(new { message = response.ErrorMessage });
+
+            return Ok(response.Result);
+        }
+
         /// <summary>Requests permitted on this URL</summary>
         [ProducesResponseType(StatusCodes.Status200OK)]
         [HttpOptions]

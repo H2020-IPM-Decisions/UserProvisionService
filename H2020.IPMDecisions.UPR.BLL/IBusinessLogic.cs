@@ -164,7 +164,8 @@ namespace H2020.IPMDecisions.UPR.BLL
         #endregion
 
         #region RiskMaps
-        Task<GenericResponse<List<RiskMapBaseDto>>> GetRiskMapDataSources();
+        Task<GenericResponse<IEnumerable<RiskMapBaseDto>>> GetRiskMapDataSources();
+        Task<GenericResponse<RiskMapFullDetailDto>> GetRiskMapDetailedInformation(string id);
         #endregion
     }
 }
