@@ -1,8 +1,8 @@
 namespace H2020.IPMDecisions.UPR.Core.Dtos
 {
-    public class WeatherBaseDto
+    public class RiskMapBaseDto
     {
-        public string WeatherId { get; set; }
+        public string RiskMapId { get; set; }
         public string Name { get; set; }
         public string Url { get; set; }
     }

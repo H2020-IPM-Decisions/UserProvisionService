@@ -531,7 +531,11 @@ namespace H2020.IPMDecisions.UPR.BLL
 
             var locationResultData = dssFullOutputAsObject.LocationResult.FirstOrDefault();
             int maxDaysOutput = int.Parse(this.config["AppConfiguration:MaxDaysAllowedForDssOutputData"]);
-            if (daysDataToReturn == 0) daysDataToReturn = locationResultData.Length;
+            if (daysDataToReturn == 0)
+            {
+                if (int.Parse(dataToReturn.Interval) == 3600) locationResultData.Length = locationResultData.Length / 24;
+                daysDataToReturn = locationResultData.Length;
+            }
             else if (daysDataToReturn > 0 && daysDataToReturn < 7) daysDataToReturn = 7;
 
             IEnumerable<List<double?>> dataLastDays = SelectDssLastResultsData(dataToReturn, locationResultData, daysDataToReturn, maxDaysOutput);
@@ -546,10 +550,11 @@ namespace H2020.IPMDecisions.UPR.BLL
             for (int i = 0; i < dssFullOutputAsObject.ResultParameters.Count; i++)
             {
                 var parameterCode = dssFullOutputAsObject.ResultParameters[i];
-                var resultParameter = new ResultParameters();
-                resultParameter.Labels = labels;
-
-                resultParameter.Code = parameterCode;
+                var resultParameter = new ResultParameters
+                {
+                    Labels = labels,
+                    Code = parameterCode
+                };
                 var parameterInformationFromDss = dssModelInformation
                         .Output
                         .ResultParameters
@@ -718,7 +723,6 @@ namespace H2020.IPMDecisions.UPR.BLL
         private List<string> CreateResultParametersLabels(string outputTimeEnd, int days)
         {
             if (outputTimeEnd is null) return null;
-
             var isADate = DateTime.TryParse(outputTimeEnd, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime dateTime);
             if (!isADate) return null;
 
