@@ -48,7 +48,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         [ProducesResponseType(typeof(RiskMapBaseDto), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         [Produces(MediaTypeNames.Application.Json)]
-        [HttpGet("{id:string}", Name = "api.riskmaps.get.byId")]
+        [HttpGet("{id}", Name = "api.riskmaps.get.byId")]
         // GET:  api/riskmaps/1
         public async Task<IActionResult> GetById([FromRoute] string id)
         {
