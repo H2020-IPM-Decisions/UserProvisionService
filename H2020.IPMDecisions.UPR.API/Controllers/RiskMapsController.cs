@@ -1,11 +1,9 @@
 using System;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 using System.Net.Mime;
 using H2020.IPMDecisions.UPR.BLL;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using System.Collections.Generic;
 using H2020.IPMDecisions.UPR.Core.Dtos;
 
@@ -16,7 +14,6 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
     /// </summary>
     [ApiController]
     [Route("api/riskmaps")]
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class RiskMapsController : ControllerBase
     {
         private readonly IBusinessLogic businessLogic;
@@ -52,7 +49,6 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         [Produces(MediaTypeNames.Application.Json)]
         [HttpGet("{id:string}", Name = "api.riskmaps.get.byId")]
-        [HttpHead]
         // GET:  api/riskmaps/1
         public async Task<IActionResult> GetById([FromRoute] string id)
         {
