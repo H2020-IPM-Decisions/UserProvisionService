@@ -11,11 +11,22 @@ namespace H2020.IPMDecisions.UPR.Core.Dtos
         public string ProviderCity { get; set; }
         public string ProviderEmail { get; set; }
         public string ProviderUrl { get; set; }
-        public List<LayerConfiguration> LayersConfiguration { get; set; }
+        public MapConfiguration MapConfiguration { get; set; }
+    }
+
+    public class MapConfiguration
+    {
+        public string Name { get; set; }
+        public string Title { get; set; }
+        public string Abstract { get; set; }
+        public List<LayerConfiguration> LayersConfiguration { get; set; } = new List<LayerConfiguration>();
     }
 
     public class LayerConfiguration
     {
-        public string LayerType { get; set; }
+        public string Name { get; set; }
+        public string Title { get; set; }
+        public List<string> Dates { get; set; }
+        public string LegendURL { get; set; }
     }
 }

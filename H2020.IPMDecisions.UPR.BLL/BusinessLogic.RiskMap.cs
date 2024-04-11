@@ -45,7 +45,6 @@ namespace H2020.IPMDecisions.UPR.BLL
                     return GenericResponseBuilder.NotFound<RiskMapFullDetailDto>();
 
                 var language = Thread.CurrentThread.CurrentCulture.Name;
-                System.Console.WriteLine(language);
                 var httpClient = new HttpClient();
                 var response = await httpClient.GetAsync(string.Format("{0}?service=WMS&version=1.3.0&request=GetCapabilities&language={0}", riskMapListShortDto.WmsUrl, language));
                 if (!response.IsSuccessStatusCode)
@@ -59,11 +58,11 @@ namespace H2020.IPMDecisions.UPR.BLL
                 {
                     wmsCapabilities = (WmsCapabilities)serializer.Deserialize(stringReader);
                 }
-                // Get layer names. For nibio is {0}.{1}.{2}
 
-                // loop and get dates
-
-                // Get legend from firstitem
+                if (providerId.Equals("nibio", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    riskMapListShortDto.MapConfiguration = GetLayerFromNibioWMS(wmsCapabilities);
+                }
 
                 return GenericResponseBuilder.Success(riskMapListShortDto);
             }
@@ -74,6 +73,48 @@ namespace H2020.IPMDecisions.UPR.BLL
                 return GenericResponseBuilder.NoSuccess<RiskMapFullDetailDto>(null, $"{ex.Message} InnerException: {innerMessage}");
             }
 
+        }
+
+        private MapConfiguration GetLayerFromNibioWMS(WmsCapabilities wmsCapabilities)
+        {
+
+            var mapConfiguration = new MapConfiguration
+            {
+                Name = wmsCapabilities.Service.Name,
+                Title = wmsCapabilities.Service.Title,
+                Abstract = wmsCapabilities.Service.Abstract
+            };
+
+            HashSet<string> uniqueLayerNames = new HashSet<string>();
+            HashSet<string> uniqueLayerDates = new HashSet<string>();
+            var fullListOfLayers = wmsCapabilities.Capability.Layer.Layers;
+            foreach (var layer in fullListOfLayers)
+            {
+                string[] parts = layer.Name.Split('.');
+                string layerNameWithoutDate = string.Join(".", parts.Take(2));
+                string layerDates = parts.LastOrDefault();
+                uniqueLayerNames.Add(layerNameWithoutDate);
+                uniqueLayerDates.Add(layerDates);
+            }
+
+            foreach (var uniqueName in uniqueLayerNames)
+            {
+                var layerConfiguration = new LayerConfiguration
+                {
+                    Name = uniqueName,
+                    Dates = uniqueLayerDates.ToList()
+                };
+
+                var firstLayer = fullListOfLayers.Where(l => l.Name.StartsWith(uniqueName)).FirstOrDefault();
+                string[] parts = firstLayer.Name.Split('.');
+                string layerDate = parts.LastOrDefault();
+                layerConfiguration.Title = firstLayer.Title.Replace(layerDate, "");
+                layerConfiguration.LegendURL = firstLayer.Styles.FirstOrDefault().LegendURLs.FirstOrDefault().OnlineResource.Href;
+
+
+                mapConfiguration.LayersConfiguration.Add(layerConfiguration);
+            }
+            return mapConfiguration;
         }
     }
 }
