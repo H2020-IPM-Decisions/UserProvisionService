@@ -427,7 +427,6 @@ namespace H2020.IPMDecisions.UPR.BLL
             catch (Exception ex)
             {
                 logger.LogError(string.Format("Error in BLL - AddExtraInformationToDss. {0}. Full error: {1}", ex.Message, ex));
-                throw ex;
             }
         }
 

@@ -139,7 +139,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         //OPTIONS: api/eppocodes
         public IActionResult Options()
         {
-            Response.Headers.Add("Allow", "OPTIONS, GET, HEAD, POST, PUT");
+            Response.Headers.Append("Allow", "OPTIONS, GET, HEAD, POST, PUT");
             return Ok();
         }
     }

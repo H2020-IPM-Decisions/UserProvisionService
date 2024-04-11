@@ -70,7 +70,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
             if (!response.IsSuccessful)
                 return response.RequestResult;
 
-            Response.Headers.Add("X-Pagination",
+            Response.Headers.Append("X-Pagination",
                 JsonSerializer.Serialize(response.Result.PaginationMetaData));
 
             return Ok(new
@@ -136,7 +136,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         //OPTIONS: api/fields/1/observations
         public IActionResult Options([FromRoute] Guid fieldId)
         {
-            Response.Headers.Add("Allow", "OPTIONS, GET, POST, DELETE");
+            Response.Headers.Append("Allow", "OPTIONS, GET, POST, DELETE");
             return Ok();
         }
     }

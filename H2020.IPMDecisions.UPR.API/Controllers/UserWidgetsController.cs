@@ -80,7 +80,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         [HttpOptions]
         public IActionResult Options()
         {
-            Response.Headers.Add("Allow", "OPTIONS, GET, PATCH");
+            Response.Headers.Append("Allow", "OPTIONS, GET, PATCH");
             return Ok();
         }
     }

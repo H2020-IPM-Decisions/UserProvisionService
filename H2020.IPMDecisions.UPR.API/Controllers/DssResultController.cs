@@ -87,7 +87,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         [HttpOptions]
         public IActionResult Options([FromRoute] Guid dssId)
         {
-            Response.Headers.Add("Allow", "OPTIONS, GET, POST");
+            Response.Headers.Append("Allow", "OPTIONS, GET, POST");
             return Ok();
         }
     }
