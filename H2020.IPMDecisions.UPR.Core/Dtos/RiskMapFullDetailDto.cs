@@ -19,6 +19,7 @@ namespace H2020.IPMDecisions.UPR.Core.Dtos
         public string Name { get; set; }
         public string Title { get; set; }
         public string Abstract { get; set; }
+        public string Projection { get; set; }
         public List<LayerConfiguration> LayersConfiguration { get; set; } = new List<LayerConfiguration>();
     }
 

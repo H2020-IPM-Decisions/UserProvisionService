@@ -77,12 +77,12 @@ namespace H2020.IPMDecisions.UPR.BLL
 
         private MapConfiguration GetLayerFromNibioWMS(WmsCapabilities wmsCapabilities)
         {
-
             var mapConfiguration = new MapConfiguration
             {
                 Name = wmsCapabilities.Service.Name,
                 Title = wmsCapabilities.Service.Title,
-                Abstract = wmsCapabilities.Service.Abstract
+                Abstract = wmsCapabilities.Service.Abstract,    
+                Projection = wmsCapabilities.Capability.Layer.CRS.FirstOrDefault()            
             };
 
             HashSet<string> uniqueLayerNames = new HashSet<string>();

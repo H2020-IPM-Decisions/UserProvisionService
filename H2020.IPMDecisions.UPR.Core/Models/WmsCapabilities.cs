@@ -136,8 +136,8 @@ namespace H2020.IPMDecisions.UPR.Core.Models
         // [XmlElement(ElementName = "KeywordList")]
         // public KeywordList KeywordList { get; set; }
 
-        // [XmlElement(ElementName = "CRS")]
-        // public List<string> CRS { get; set; }
+        [XmlElement(ElementName = "CRS")]
+        public List<string> CRS { get; set; }
 
         // [XmlElement(ElementName = "EX_GeographicBoundingBox")]
         // public EX_GeographicBoundingBox GeographicBoundingBox { get; set; }
