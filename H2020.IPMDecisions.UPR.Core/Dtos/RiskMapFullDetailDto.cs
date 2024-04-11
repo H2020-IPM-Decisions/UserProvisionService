@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace H2020.IPMDecisions.UPR.Core.Dtos
 {
     public class RiskMapFullDetailDto : RiskMapBaseDto
@@ -9,5 +11,11 @@ namespace H2020.IPMDecisions.UPR.Core.Dtos
         public string ProviderCity { get; set; }
         public string ProviderEmail { get; set; }
         public string ProviderUrl { get; set; }
+        public List<LayerConfiguration> LayersConfiguration { get; set; }
+    }
+
+    public class LayerConfiguration
+    {
+        public string LayerType { get; set; }
     }
 }
