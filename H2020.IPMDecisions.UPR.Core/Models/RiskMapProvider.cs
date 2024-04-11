@@ -28,6 +28,7 @@ namespace H2020.IPMDecisions.UPR.Core.Models
                     ProviderPostalCode = provider.PostalCode,
                     ProviderCity = provider.City,
                     ProviderUrl = provider.Url,
+                    ProviderEmail = provider.Email,
                 }))
             .ToList();
         }
