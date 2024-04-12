@@ -25,6 +25,7 @@ using Newtonsoft.Json.Schema;
 using Newtonsoft.Json.Serialization;
 using NLog;
 using NLog.Extensions.Logging;
+using Npgsql;
 using Swashbuckle.AspNetCore.Filters;
 
 namespace H2020.IPMDecisions.APG.API.Extensions
@@ -104,15 +105,15 @@ namespace H2020.IPMDecisions.APG.API.Extensions
         {
             var connectionString = config["ConnectionStrings:MyPostgreSQLConnection"];
 
-            services
-                .AddDbContext<ApplicationDbContext>(options =>
-                {
-                    options.UseNpgsql(
-                        connectionString,
-                            b => b.UseNetTopologySuite()
-                            .MigrationsAssembly("H2020.IPMDecisions.UPR.Data")
-                        );
-                });
+            var dataSourceBuilder = new NpgsqlDataSourceBuilder(connectionString);
+            dataSourceBuilder.UseNetTopologySuite();
+            var dataSource = dataSourceBuilder.Build();
+
+            services.AddDbContext<ApplicationDbContext>(options =>
+                options.UseNpgsql(dataSource, o => o
+                    .UseNetTopologySuite()
+                    .SetPostgresVersion(12, 0)
+                    .MigrationsAssembly("H2020.IPMDecisions.UPR.Data")));
         }
 
         internal static void ConfigureSwagger(this IServiceCollection services)

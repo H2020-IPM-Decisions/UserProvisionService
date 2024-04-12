@@ -98,7 +98,7 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
                 {
                     if (!string.IsNullOrEmpty(dest.DssLogoUrl))
                     {
-                        dest.DssLogoUrl = string.Format("{0}{1}", context.Options.Items["host"].ToString(), dest.DssLogoUrl);
+                        dest.DssLogoUrl = string.Format("{0}{1}", context.Items["host"].ToString(), dest.DssLogoUrl);
                     }
                 });
 

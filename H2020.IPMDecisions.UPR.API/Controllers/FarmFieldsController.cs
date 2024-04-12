@@ -76,7 +76,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
             if (!response.IsSuccessful)
                 return response.RequestResult;
 
-            Response.Headers.Add("X-Pagination",
+            Response.Headers.Append("X-Pagination",
                 JsonSerializer.Serialize(response.Result.PaginationMetaData));
 
             return Ok(new
@@ -181,7 +181,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         //OPTIONS: api/farms/1/fields
         public IActionResult Options([FromRoute] Guid farmId)
         {
-            Response.Headers.Add("Allow", "OPTIONS, GET, PATCH, POST, DELETE");
+            Response.Headers.Append("Allow", "OPTIONS, GET, PATCH, POST, DELETE");
             return Ok();
         }
     }

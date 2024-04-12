@@ -1,6 +1,6 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>netstandard2.1</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <Version>1.23.0.0</Version>
     <AssemblyVersion>1.23.0.0</AssemblyVersion>
     <FileVersion>1.23.0.0</FileVersion>
@@ -27,13 +27,13 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="automapper" Version="9.0.0" />
-    <PackageReference Include="CsvHelper" Version="30.0.1" />
+    <PackageReference Include="automapper" Version="13.0.1" />
+    <PackageReference Include="CsvHelper" Version="31.0.3" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.2.0" />
-    <PackageReference Include="Hangfire" Version="1.7.19" />
-    <PackageReference Include="Hangfire.AspNetCore" Version="1.7.19" />
+    <PackageReference Include="Hangfire" Version="1.7.37" />
+    <PackageReference Include="Hangfire.AspNetCore" Version="1.7.37" />
     <PackageReference Include="System.Json" Version="4.7.1" />
-    <PackageReference Include="Newtonsoft.Json.Schema" Version="3.0.14" />
+    <PackageReference Include="Newtonsoft.Json.Schema" Version="3.0.15" />
     <PackageReference Include="Two10.CountryLookup" Version="1.0.4" />
   </ItemGroup>
   <ItemGroup>

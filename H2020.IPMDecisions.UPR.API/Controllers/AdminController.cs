@@ -139,7 +139,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         // OPTION: api/admin
         public IActionResult Options()
         {
-            Response.Headers.Add("Allow", "DELETE, POST, OPTIONS, GET, PUT");
+            Response.Headers.Append("Allow", "DELETE, POST, OPTIONS, GET, PUT");
             return Ok();
         }
     }

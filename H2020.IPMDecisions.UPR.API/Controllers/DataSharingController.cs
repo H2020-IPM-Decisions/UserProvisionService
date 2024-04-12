@@ -70,7 +70,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
             if (!response.IsSuccessful)
                 return response.RequestResult;
 
-            Response.Headers.Add("X-Pagination",
+            Response.Headers.Append("X-Pagination",
                 JsonSerializer.Serialize(response.Result.PaginationMetaData));
 
             return Ok(new
@@ -164,7 +164,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         //OPTIONS: api/datashare
         public IActionResult Options()
         {
-            Response.Headers.Add("Allow", "OPTIONS, GET, POST, DELETE");
+            Response.Headers.Append("Allow", "OPTIONS, GET, POST, DELETE");
             return Ok();
         }
     }
