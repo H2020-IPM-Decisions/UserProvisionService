@@ -109,16 +109,11 @@ namespace H2020.IPMDecisions.APG.API.Extensions
             dataSourceBuilder.UseNetTopologySuite();
             var dataSource = dataSourceBuilder.Build();
 
-            services
-                .AddDbContext<ApplicationDbContext>(options =>
-                {
-                    options.UseNpgsql(
-                        connectionString,
-                            b => b.UseNetTopologySuite()
-                            .SetPostgresVersion(12, 0)
-                            .MigrationsAssembly("H2020.IPMDecisions.UPR.Data")
-                        );
-                });
+            services.AddDbContext<ApplicationDbContext>(options =>
+                options.UseNpgsql(dataSource, o => o
+                    .UseNetTopologySuite()
+                    .SetPostgresVersion(12, 0)
+                    .MigrationsAssembly("H2020.IPMDecisions.UPR.Data")));
         }
 
         internal static void ConfigureSwagger(this IServiceCollection services)
