@@ -9,6 +9,7 @@ using System.Xml.Serialization;
 using H2020.IPMDecisions.UPR.Core.Dtos;
 using H2020.IPMDecisions.UPR.Core.Models;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 
 namespace H2020.IPMDecisions.UPR.BLL
 {
@@ -110,7 +111,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                 string layerDate = parts.LastOrDefault();
                 layerConfiguration.Title = firstLayer.Title.Replace(layerDate, "");
                 layerConfiguration.LegendURL = firstLayer.Styles.FirstOrDefault().LegendURLs.FirstOrDefault().OnlineResource.Href;
-                layerConfiguration.LegendMetadata = firstLayer.Abstract;
+                layerConfiguration.LegendMetadata = JsonConvert.DeserializeObject<dynamic>(firstLayer.Abstract);
 
                 mapConfiguration.LayersConfiguration.Add(layerConfiguration);
             }

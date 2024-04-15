@@ -29,6 +29,6 @@ namespace H2020.IPMDecisions.UPR.Core.Dtos
         public string Title { get; set; }
         public List<string> Dates { get; set; }
         public string LegendURL { get; set; }
-        public string LegendMetadata { get; set; }
+        public dynamic LegendMetadata { get; set; }
     }
 }
