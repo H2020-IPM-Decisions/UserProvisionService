@@ -114,6 +114,8 @@ namespace H2020.IPMDecisions.APG.API.Extensions
                     .UseNetTopologySuite()
                     .SetPostgresVersion(12, 0)
                     .MigrationsAssembly("H2020.IPMDecisions.UPR.Data")));
+
+            AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
         }
 
         internal static void ConfigureSwagger(this IServiceCollection services)
