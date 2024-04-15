@@ -130,8 +130,8 @@ namespace H2020.IPMDecisions.UPR.Core.Models
         [XmlElement(ElementName = "Title")]
         public string Title { get; set; }
 
-        // [XmlElement(ElementName = "Abstract")]
-        // public string Abstract { get; set; }
+        [XmlElement(ElementName = "Abstract")]
+        public string Abstract { get; set; }
 
         // [XmlElement(ElementName = "KeywordList")]
         // public KeywordList KeywordList { get; set; }
