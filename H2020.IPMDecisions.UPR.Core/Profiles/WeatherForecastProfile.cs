@@ -18,7 +18,7 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
                 .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.EndPoint))
                 .AfterMap((src, dest, context) =>
                 {
-                    dest.Url = dest.Url.Replace("{WEATHER_API_URL}", context.Options.Items["host"].ToString());
+                    dest.Url = dest.Url.Replace("{WEATHER_API_URL}", context.Items["host"].ToString());
                 });
 
             // Entities to Dtos

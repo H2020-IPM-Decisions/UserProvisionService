@@ -192,7 +192,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         [HttpOptions]
         public IActionResult Options()
         {
-            Response.Headers.Add("Allow", "OPTIONS, DELETE, GET, POST");
+            Response.Headers.Append("Allow", "OPTIONS, DELETE, GET, POST");
             return Ok();
         }
     }

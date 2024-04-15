@@ -86,8 +86,8 @@ namespace H2020.IPMDecisions.UPR.BLL
                     {
                         warningsAsString = string.Format("{0} {1};", warningsAsString, error);
                     }
-                    httpContext.Response.Headers.Add("warning", "Warning");
-                    httpContext.Response.Headers.Add("warn-text", this.jsonStringLocalizer["dss.warning_header"].ToString());
+                    httpContext.Response.Headers.Append("warning", "Warning");
+                    httpContext.Response.Headers.Append("warn-text", this.jsonStringLocalizer["dss.warning_header"].ToString());
                     return GenericResponseBuilder.Duplicated<IDictionary<string, object>>(warningsAsString, dataToReturn);
                 }
 

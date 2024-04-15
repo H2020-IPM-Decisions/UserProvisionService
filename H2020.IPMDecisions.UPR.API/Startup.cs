@@ -1,4 +1,3 @@
-using AutoMapper;
 using H2020.IPMDecisions.APG.API.Extensions;
 using H2020.IPMDecisions.UPR.API.Filters;
 using H2020.IPMDecisions.UPR.BLL;

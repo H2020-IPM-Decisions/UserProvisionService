@@ -48,11 +48,11 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         [ProducesResponseType(typeof(RiskMapBaseDto), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         [Produces(MediaTypeNames.Application.Json)]
-        [HttpGet("{id}", Name = "api.riskmaps.get.byId")]
-        // GET:  api/riskmaps/1
-        public async Task<IActionResult> GetById([FromRoute] string id)
+        [HttpGet("{providerId}/{id}", Name = "api.riskmaps.get.byId")]
+        // GET:  api/riskmaps/1/a
+        public async Task<IActionResult> GetById([FromRoute] string providerId, [FromRoute] string id)
         {
-            var response = await businessLogic.GetRiskMapDetailedInformation(id);
+            var response = await businessLogic.GetRiskMapFilteredDataSource(providerId, id);
             if (!response.IsSuccessful)
                 return BadRequest(new { message = response.ErrorMessage });
 
@@ -64,7 +64,7 @@ namespace H2020.IPMDecisions.UPR.API.Controllers
         [HttpOptions]
         public IActionResult Options()
         {
-            Response.Headers.Add("Allow", "OPTIONS, GET");
+            Response.Headers.Append("Allow", "OPTIONS, GET");
             return Ok();
         }
     }

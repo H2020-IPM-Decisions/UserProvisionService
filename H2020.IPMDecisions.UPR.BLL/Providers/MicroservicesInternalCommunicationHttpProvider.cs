@@ -488,6 +488,33 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
                 return null;
             }
         }
+
+        public async Task<RiskMapProvider> GetAllTheRiskMapsFromDssMicroservice()
+        {
+            try
+            {
+                var cacheKey = string.Format("list_riskmaps");
+                if (!memoryCache.TryGetValue(cacheKey, out RiskMapProvider riskMapsList))
+                {
+                    var dssEndPoint = config["MicroserviceInternalCommunication:DssMicroservice"];
+                    var response = await httpClient.GetAsync(string.Format("{0}rest/risk_maps/list ", dssEndPoint));
+
+
+                    if (!response.IsSuccessStatusCode)
+                        return null;
+
+                    var responseAsText = await response.Content.ReadAsStringAsync();
+                    riskMapsList = JsonConvert.DeserializeObject<RiskMapProvider>(responseAsText);
+                    memoryCache.Set(cacheKey, riskMapsList, MemoryCacheHelper.CreateMemoryCacheEntryOptionsMinutes(30));
+                }
+                return riskMapsList;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(string.Format("Error in Internal Communication - GetAllTheRiskMapsFromDssMicroservice. {0}", ex.Message));
+                return null;
+            }
+        }
         #endregion
     }
 }

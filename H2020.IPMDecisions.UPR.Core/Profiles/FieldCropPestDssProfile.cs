@@ -36,8 +36,8 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
                 .AfterMap((src, dest, context) =>
                 {
                     dest.IsCustomDss = true;
-                    dest.CropPestDssId = Guid.Parse(context.Options.Items["CropPestDssId"].ToString());
-                    dest.FieldCropPestId = Guid.Parse(context.Options.Items["FieldCropPestId"].ToString());
+                    dest.CropPestDssId = Guid.Parse(context.Items["CropPestDssId"].ToString());
+                    dest.FieldCropPestId = Guid.Parse(context.Items["FieldCropPestId"].ToString());
                 });
         }
     }
