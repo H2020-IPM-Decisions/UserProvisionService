@@ -24,7 +24,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Configurations
                         c.DssExecutionType
                     })
                 .IsUnique()
-                .HasName("IX_CropPestDss_All");
+                .HasDatabaseName("IX_CropPestDss_All");
 
             builder.Property(c => c.DssId)
                 .IsRequired();

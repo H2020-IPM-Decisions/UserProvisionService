@@ -121,7 +121,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Migrations
 
                     b.HasIndex("CropPestId", "DssId", "DssVersion", "DssModelId", "DssModelVersion", "DssExecutionType")
                         .IsUnique()
-                        .HasName("IX_CropPestDss_All");
+                        .HasDatabaseName("IX_CropPestDss_All");
 
                     b.ToTable("CropPestDss");
                 });
