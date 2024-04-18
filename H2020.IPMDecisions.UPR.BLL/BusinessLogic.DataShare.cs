@@ -149,8 +149,10 @@ namespace H2020.IPMDecisions.UPR.BLL
 
                 foreach (var item in requestsAsDto)
                 {
-                    var authorizedFarms = farmsFromUser.Where(f => f.UserFarms.Count > 1 && f.UserFarms.Any(uf => uf.UserId.Equals(item.RequesterId)));
-                    item.AuthorizedFarms = this.mapper.Map<List<FarmDto>>(authorizedFarms, opt => opt.Items["UserId"] = userId);
+                    item.AuthorizedFarms = farmsFromUser
+                        .Where(f => f.UserFarms.Count > 1 && f.UserFarms.Any(uf => uf.UserId.Equals(item.RequesterId)))
+                        .Select(uf => uf.Id)
+                        .ToList();
                 };
 
                 var shapedRequestsToReturn = requestsAsDto.ShapeData();
