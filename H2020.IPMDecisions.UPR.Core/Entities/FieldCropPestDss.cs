@@ -18,6 +18,7 @@ namespace H2020.IPMDecisions.UPR.Core.Entities
         public int ReScheduleCount { get; set; }
         public bool IsCustomDss { get; set; } = false;
         public string CustomName { get; set; } = "";
+        public DateTime DssParametersLastUpdate { get; set; }
 
         public ICollection<FieldDssResult> FieldDssResults { get; set; }
         public List<FieldDssObservation> FieldDssObservations { get; set; }
