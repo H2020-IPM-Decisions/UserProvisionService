@@ -17,7 +17,7 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
                 .ForMember(dest => dest.WeatherHistoricalDto, opt => opt.MapFrom(src => src.WeatherHistorical))
                 .AfterMap((src, dest, context) =>
                 {
-                    var userId = context.TryGetItems(out var items) ?  Guid.Parse(items["UserId"].ToString()) : new Guid();
+                    var userId = context.TryGetItems(out var items) ? Guid.Parse(items["UserId"].ToString()) : new Guid();
                     dest.IsShared = src.UserFarms.Count > 1 ? true : false;
                     if (dest.IsShared)
                     {
@@ -25,12 +25,13 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
                         var advisorProfile = src.UserFarms
                             .Where(uf => uf.UserFarmType.Description.Equals(UserFarmTypeEnum.Advisor.ToString(), StringComparison.InvariantCultureIgnoreCase))
                             .FirstOrDefault().UserProfile;
-                        dest.SharedPersonName = $"{advisorProfile.FirstName} {advisorProfile.LastName}";
+                        dest.AdvisorName = $"{advisorProfile.FirstName} {advisorProfile.LastName}";
                         // get owner farm
                         var ownerProfile = src.UserFarms
                             .Where(uf => uf.UserFarmType.Description.Equals(UserFarmTypeEnum.Owner.ToString(), StringComparison.InvariantCultureIgnoreCase))
                             .FirstOrDefault().UserProfile;
                         if (!userId.Equals(ownerProfile.UserId)) dest.Owner = false;
+                        dest.OwnerName = $"{ownerProfile.FirstName} {ownerProfile.LastName}";
                     }
                 });
 

@@ -4,6 +4,7 @@ namespace H2020.IPMDecisions.UPR.Core.Dtos
     {
         public bool IsShared { get; set; } = false;
         public bool Owner { get; set; } = true;
-        public string SharedPersonName { get; set; }
+        public string AdvisorName { get; set; }
+        public string OwnerName { get; set; }
     }
 }
