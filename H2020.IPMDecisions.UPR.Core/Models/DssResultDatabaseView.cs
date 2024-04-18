@@ -28,5 +28,6 @@ namespace H2020.IPMDecisions.UPR.Core.Models
         public int? ResultMessageType { get; set; }
         public string ResultMessage { get; set; }
         public string LastJobId { get; set; }
+        public DateTime DssParametersLastUpdate { get; set; }
     }
 }

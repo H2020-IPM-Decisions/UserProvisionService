@@ -4,11 +4,11 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.SqlQueries
     {
         public const string GetDssResults = @"SELECT ""Farm"".""Name"" as ""FarmName"",""Field"".""FarmId"", ""Field"".""Id"" as ""FieldId"",
         ""FieldCropPestDss"".""Id"", ""FieldCropPestDss"".""LastJobId"", ""FieldCropPestDss"".""IsCustomDss"" as ""IsCustomModelName"",
-        ""FieldCropPestDss"".""CustomName"" as ""DssCustomModelName"", fc.""CropEppoCode"", ""CropPest"".""PestEppoCode"",
-        ""CropPestDss"".""DssId"",""CropPestDss"".""DssModelId"", ""CropPestDss"".""DssExecutionType"", ""CropPestDss"".""DssModelName"",
-        ""CropPestDss"".""DssName"", ""CropPestDss"".""DssModelVersion"", ""CropPestDss"".""DssVersion"", ""CropPestDss"".""DssEndPoint"",
-        dssResults.""CreationDate"", dssResults.""DssFullResult"", dssResults.""WarningStatus"", dssResults.""WarningMessage"",
-        dssResults.""ResultMessageType"", dssResults.""ResultMessage"", dssResults.""IsValid""
+        ""FieldCropPestDss"".""CustomName"" as ""DssCustomModelName"", ""FieldCropPestDss"".""DssParametersLastUpdate"", fc.""CropEppoCode"", 
+        ""CropPest"".""PestEppoCode"", ""CropPestDss"".""DssId"",""CropPestDss"".""DssModelId"", ""CropPestDss"".""DssExecutionType"", 
+        ""CropPestDss"".""DssModelName"", ""CropPestDss"".""DssName"", ""CropPestDss"".""DssModelVersion"", ""CropPestDss"".""DssVersion"", 
+        ""CropPestDss"".""DssEndPoint"", dssResults.""CreationDate"", dssResults.""DssFullResult"", dssResults.""WarningStatus"", 
+        dssResults.""WarningMessage"", dssResults.""ResultMessageType"", dssResults.""ResultMessage"", dssResults.""IsValid""
                 FROM ""FieldCrop"" fc
                 INNER JOIN ""Field"" ON ""Field"".""Id"" = fc.""FieldId""
                 INNER JOIN ""Farm"" ON ""Farm"".""Id"" = ""Field"".""FarmId""

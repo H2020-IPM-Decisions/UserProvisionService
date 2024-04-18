@@ -34,6 +34,7 @@ namespace H2020.IPMDecisions.UPR.Core.Dtos
         public string WarningRecommendedAction { get; set; }
         public int? ResultMessageType { get; set; }
         public string ResultMessage { get; set; }
+        public DateTime DssParametersLastUpdate { get; set; }
         public IEnumerable<string> ValidatedSpatialCountries { get; set; }
         public IEnumerable<DssModelAuthorsDto> Authors { get; set; }
     }

@@ -115,6 +115,19 @@ namespace H2020.IPMDecisions.UPR.BLL
                 {
                     dssResults = dssResults.Where(d => d.DssExecutionType.ToLower() == filterDto.ExecutionType.ToLower()).ToList();
                 }
+                foreach (var result in dssResults)
+                {
+                    if (result.DssId.Equals("dk.seges") && result.DssModelId.StartsWith("CPO_"))
+                    {
+                        // if (result.IsValid == true)
+                        // {
+                        //     System.Console.WriteLine("Changing the warning status");
+                        //     result.WarningStatus = 2;
+                        //     result.ResultMessage = "";
+                        // }
+                    }
+                }
+
                 var dssResultsToReturn = this.mapper.Map<IEnumerable<FieldDssResultDto>>(dssResults);
 
                 if (dssResultsToReturn != null && dssResultsToReturn.Count() != 0)
