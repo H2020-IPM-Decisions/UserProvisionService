@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace H2020.IPMDecisions.UPR.Core.Dtos
 {
@@ -10,5 +11,6 @@ namespace H2020.IPMDecisions.UPR.Core.Dtos
         public Guid RequesterId { get; set; }
         public string RequesterName { get; set; }
         public string RequestStatus { get; set; }
+        public List<FarmDto> AuthorizedFarms { get; set; }
     }
 }

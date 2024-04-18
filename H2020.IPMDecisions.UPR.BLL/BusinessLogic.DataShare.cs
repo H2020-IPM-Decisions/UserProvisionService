@@ -143,10 +143,17 @@ namespace H2020.IPMDecisions.UPR.BLL
                     requestsAsEntities.HasNext,
                     requestsAsEntities.HasPrevious);
 
-                var shapedRequestsToReturn = this.mapper
-                   .Map<IEnumerable<DataShareRequestDto>>(requestsAsEntities)
-                   .ShapeData();
+                var farmsFromUser = await this.dataService.Farms.FindAllByConditionAsync(f => f.UserFarms.Any(uf => uf.UserId == userId & (uf.Authorised)));
+                var requestsAsDto = this.mapper
+                   .Map<IEnumerable<DataShareRequestDto>>(requestsAsEntities);
 
+                foreach (var item in requestsAsDto)
+                {
+                    var authorizedFarms = farmsFromUser.Where(f => f.UserFarms.Count > 1 && f.UserFarms.Any(uf => uf.UserId.Equals(item.RequesterId)));
+                    item.AuthorizedFarms = this.mapper.Map<List<FarmDto>>(authorizedFarms, opt => opt.Items["UserId"] = userId);
+                };
+
+                var shapedRequestsToReturn = requestsAsDto.ShapeData();
                 var requestsToReturn = new ShapedDataWithLinks()
                 {
                     Value = shapedRequestsToReturn,

@@ -50,6 +50,12 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
                 .Where(expression)
                 .Include(f => f.Fields)
                     .ThenInclude(fi => fi.FieldCrop)
+                .Include(f => f.WeatherForecast)
+                .Include(f => f.WeatherHistorical)
+                .Include(f => f.UserFarms)
+                    .ThenInclude(uf => uf.UserFarmType)
+                .Include(f => f.UserFarms)
+                    .ThenInclude(uf => uf.UserProfile)
                 .ToListAsync<Farm>();
         }
 
