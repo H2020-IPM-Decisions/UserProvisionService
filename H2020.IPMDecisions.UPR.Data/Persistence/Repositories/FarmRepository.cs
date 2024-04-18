@@ -39,6 +39,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
         {
             return await this.context
                 .Farm
+                .Include(f => f.UserFarms)
                 .ToListAsync<Farm>();
         }
 
@@ -85,7 +86,11 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
 
             collection = collection
                 .Include(f => f.WeatherForecast)
-                .Include(f => f.WeatherHistorical);
+                .Include(f => f.WeatherHistorical)
+                .Include(f => f.UserFarms)
+                    .ThenInclude(uf => uf.UserFarmType)
+                .Include(f => f.UserFarms)
+                    .ThenInclude(uf => uf.UserProfile);
 
             collection = ApplyResourceParameter(resourceParameter, collection);
 
@@ -113,7 +118,8 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Repositories
             collection = collection
                 .Include(f => f.WeatherForecast)
                 .Include(f => f.WeatherHistorical)
-                .Include(f => f.Fields);
+                .Include(f => f.Fields)
+                .Include(f => f.UserFarms);
             // .ThenInclude(fi => fi.FieldObservations);
 
             collection = ApplyResourceParameter(resourceParameter, collection);
