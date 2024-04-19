@@ -2,7 +2,7 @@
 
 namespace H2020.IPMDecisions.UPR.Data.Persistence.Migrations
 {
-    public partial class remove : Migration
+    public partial class Remove : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {

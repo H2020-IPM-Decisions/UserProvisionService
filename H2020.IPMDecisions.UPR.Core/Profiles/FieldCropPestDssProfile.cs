@@ -28,7 +28,8 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
                     opt => opt.MapFrom(src => JsonConvert.DeserializeObject<dynamic>(src.DssParameters.ToString())));
 
             // Dtos to Entities       
-            CreateMap<FieldCropPestDssForUpdateDto, FieldCropPestDss>();
+            CreateMap<FieldCropPestDssForUpdateDto, FieldCropPestDss>()
+                .ForMember(dest => dest.DssParametersLastUpdate, opt => opt.MapFrom(src => DateTime.Now));
 
             CreateMap<FieldCropPestDssForAdaptationDto, FieldCropPestDss>()
                 .ForMember(dest => dest.DssParameters, opt => opt.MapFrom(src => src.DssParameters))

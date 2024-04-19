@@ -12,7 +12,7 @@ namespace H2020.IPMDecisions.UPR.Data.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
     [Migration("20210325104140_remove")]
-    partial class remove
+    partial class Remove
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {

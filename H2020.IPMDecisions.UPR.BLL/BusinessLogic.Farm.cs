@@ -64,7 +64,6 @@ namespace H2020.IPMDecisions.UPR.BLL
                 // Call Weather service with Farm location
                 AddAmalgamationDataCollectionProcessIntoQueue(farmAsEntity.Location);
 
-
                 var currentHost = config["MicroserviceInternalCommunication:WeatherApiUrl"];
                 var defaultIdWeatherForecast = AdminValuesEnum.WeatherForecastService;
                 var weatherForecastDefaultValue = await this.dataService.AdminVariables.FindByIdAsync(defaultIdWeatherForecast);
@@ -194,7 +193,6 @@ namespace H2020.IPMDecisions.UPR.BLL
 
                     return GenericResponseBuilder.Success<IDictionary<string, object>>(farmToReturnWithChildrenShaped);
                 }
-
                 var farmToReturn = this.mapper.Map<FarmDto>(farm)
                     .ShapeData(resourceParameter.Fields) as IDictionary<string, object>;
 
@@ -266,7 +264,10 @@ namespace H2020.IPMDecisions.UPR.BLL
                 }
 
                 var shapedFarmsToReturn = this.mapper
-                   .Map<IEnumerable<FarmDto>>(farmsAsEntities)
+                   .Map<IEnumerable<FarmDto>>(farmsAsEntities, opt =>
+                    {
+                        opt.Items["UserId"] = userId;
+                    })
                    .ShapeData(resourceParameter.Fields);
 
                 var shapedFarmsToReturnWithLinks = shapedFarmsToReturn.Select(farm =>

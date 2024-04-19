@@ -208,7 +208,8 @@ CREATE TABLE public."FieldCropPestDss" (
     "LastJobId" text,
     "ReScheduleCount" integer DEFAULT 0 NOT NULL,
     "CustomName" text,
-    "IsCustomDss" boolean DEFAULT false NOT NULL
+    "IsCustomDss" boolean DEFAULT false NOT NULL,
+    "DssParametersLastUpdate" timestamp without time zone DEFAULT '-infinity'::timestamp without time zone NOT NULL
 );
 
 

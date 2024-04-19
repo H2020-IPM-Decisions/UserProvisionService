@@ -238,7 +238,8 @@ namespace H2020.IPMDecisions.UPR.BLL
             {
                 FieldCropPest = fieldCropPest,
                 CropPestDssId = cropPestDssExist.Id,
-                DssParameters = dssParameters
+                DssParameters = dssParameters,
+                DssParametersLastUpdate = DateTime.Now
             };
             this.dataService.FieldCropPestDsses.Create(newFieldCropPestDss);
             return newFieldCropPestDss;

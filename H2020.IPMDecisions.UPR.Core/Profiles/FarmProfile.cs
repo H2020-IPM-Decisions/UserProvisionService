@@ -1,6 +1,8 @@
 using System;
+using System.Linq;
 using H2020.IPMDecisions.UPR.Core.Dtos;
 using H2020.IPMDecisions.UPR.Core.Entities;
+using H2020.IPMDecisions.UPR.Core.Enums;
 using NetTopologySuite.Geometries;
 
 namespace H2020.IPMDecisions.UPR.Core.Profiles
@@ -12,7 +14,26 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
             // Entities to Dtos
             CreateMap<Farm, FarmDto>()
                 .ForMember(dest => dest.WeatherForecastDto, opt => opt.MapFrom(src => src.WeatherForecast))
-                .ForMember(dest => dest.WeatherHistoricalDto, opt => opt.MapFrom(src => src.WeatherHistorical));
+                .ForMember(dest => dest.WeatherHistoricalDto, opt => opt.MapFrom(src => src.WeatherHistorical))
+                .AfterMap((src, dest, context) =>
+                {
+                    var userId = context.TryGetItems(out var items) ? Guid.Parse(items["UserId"].ToString()) : new Guid();
+                    dest.IsShared = src.UserFarms.Count > 1 ? true : false;
+                    if (dest.IsShared)
+                    {
+                        // get advisor farm
+                        var advisorProfile = src.UserFarms
+                            .Where(uf => uf.UserFarmType.Description.Equals(UserFarmTypeEnum.Advisor.ToString(), StringComparison.InvariantCultureIgnoreCase))
+                            .FirstOrDefault().UserProfile;
+                        dest.AdvisorName = $"{advisorProfile.FirstName} {advisorProfile.LastName}";
+                        // get owner farm
+                        var ownerProfile = src.UserFarms
+                            .Where(uf => uf.UserFarmType.Description.Equals(UserFarmTypeEnum.Owner.ToString(), StringComparison.InvariantCultureIgnoreCase))
+                            .FirstOrDefault().UserProfile;
+                        if (!userId.Equals(ownerProfile.UserId)) dest.Owner = false;
+                        dest.OwnerName = $"{ownerProfile.FirstName} {ownerProfile.LastName}";
+                    }
+                });
 
             CreateMap<Farm, FarmWithChildrenDto>()
                .ForMember(dest => dest.FieldsDto, opt => opt.Ignore());

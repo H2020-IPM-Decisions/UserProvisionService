@@ -115,6 +115,11 @@ namespace H2020.IPMDecisions.UPR.BLL
                 {
                     dssResults = dssResults.Where(d => d.DssExecutionType.ToLower() == filterDto.ExecutionType.ToLower()).ToList();
                 }
+                foreach (var result in dssResults)
+                {
+                    CheckLastInputUpdate(result);
+                }
+
                 var dssResultsToReturn = this.mapper.Map<IEnumerable<FieldDssResultDto>>(dssResults);
 
                 if (dssResultsToReturn != null && dssResultsToReturn.Count() != 0)
@@ -129,6 +134,26 @@ namespace H2020.IPMDecisions.UPR.BLL
                 logger.LogError(string.Format("Error in BLL - GetAllUserFieldCropPestDss. {0}", ex.Message), ex);
                 String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
                 return GenericResponseBuilder.NoSuccess<IEnumerable<FieldDssResultDto>>(null, $"{ex.Message} InnerException: {innerMessage}");
+            }
+        }
+
+        private void CheckLastInputUpdate(DssResultDatabaseView result)
+        {
+            if (result.DssId.Equals("dk.seges") && result.DssModelId.StartsWith("CPO_"))
+            {
+                var daysSinceLastUpdate = (DateTime.Today - result.DssParametersLastUpdate).Days;
+                if (result.IsValid == true && daysSinceLastUpdate >= 10)
+                {
+                    result.IsValid = false;
+                    result.WarningStatus = 0;
+                    result.ResultMessageType = 2;
+                    result.ResultMessage = this.jsonStringLocalizer["dss.update_overdue"].ToString();
+                }
+                else if (result.IsValid == true && daysSinceLastUpdate >= 5)
+                {
+                    result.ResultMessageType = 1;
+                    result.ResultMessage = this.jsonStringLocalizer["dss.update_needed", daysSinceLastUpdate].ToString();
+                }
             }
         }
 

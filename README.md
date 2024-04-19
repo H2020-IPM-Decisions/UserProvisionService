@@ -15,11 +15,11 @@ These instructions will get you a copy of the project up and running on your loc
 The User Provision Service uses the following technologies:
 
 ```
-ASP.NET Core 3.1.101
+ASP.NET Core 8.0.x
 PostgreSQL 12.2
 ```
 
-1. [Install](https://dotnet.microsoft.com/download/dotnet-core/3.1) the required .NET Core SDK.
+1. [Install](https://dotnet.microsoft.com/en-us/download/dotnet/8.0) the required .NET Core SDK.
 
 2. [Install](https://www.postgresql.org/download/) the required PostgreSQL database.
 
