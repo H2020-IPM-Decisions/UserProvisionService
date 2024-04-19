@@ -117,15 +117,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                 }
                 foreach (var result in dssResults)
                 {
-                    if (result.DssId.Equals("dk.seges") && result.DssModelId.StartsWith("CPO_"))
-                    {
-                        // if (result.IsValid == true)
-                        // {
-                        //     System.Console.WriteLine("Changing the warning status");
-                        //     result.WarningStatus = 2;
-                        //     result.ResultMessage = "";
-                        // }
-                    }
+                    CheckLastInputUpdate(result);
                 }
 
                 var dssResultsToReturn = this.mapper.Map<IEnumerable<FieldDssResultDto>>(dssResults);
@@ -143,6 +135,39 @@ namespace H2020.IPMDecisions.UPR.BLL
                 String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
                 return GenericResponseBuilder.NoSuccess<IEnumerable<FieldDssResultDto>>(null, $"{ex.Message} InnerException: {innerMessage}");
             }
+        }
+
+        private void CheckLastInputUpdate(DssResultDatabaseView result)
+        {
+            if (result.DssId.Equals("dk.seges") && result.DssModelId.StartsWith("CPO_"))
+            {
+                var daysSinceLastUpdate = (DateTime.Today - result.DssParametersLastUpdate).Days;
+                if (result.IsValid == true && daysSinceLastUpdate > 15)
+                {
+                    InvalidateResult(result, 0, "dss.update_overdue", daysSinceLastUpdate);
+                }
+                else if (result.IsValid == true && daysSinceLastUpdate > 10)
+                {
+                    SetResultMessage(result, 2, "dss.update_needed", daysSinceLastUpdate);
+                }
+                else if (result.IsValid == true && daysSinceLastUpdate > 5)
+                {
+                    SetResultMessage(result, 1, "dss.update_needed", daysSinceLastUpdate);
+                }
+            }
+        }
+
+        void SetResultMessage(DssResultDatabaseView result, int messageType, string messageKey, int daysSinceLastUpdate)
+        {
+            result.ResultMessageType = messageType;
+            result.ResultMessage = this.jsonStringLocalizer[messageKey, daysSinceLastUpdate].ToString();
+        }
+
+        void InvalidateResult(DssResultDatabaseView result, int messageType, string messageKey, int daysSinceLastUpdate)
+        {
+            result.IsValid = false;
+            result.WarningStatus = 0;
+            SetResultMessage(result, messageType, messageKey, daysSinceLastUpdate);
         }
 
         public async Task<GenericResponse<IEnumerable<LinkDssDto>>> GetAllLinkDss(Guid userId)
