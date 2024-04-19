@@ -142,32 +142,19 @@ namespace H2020.IPMDecisions.UPR.BLL
             if (result.DssId.Equals("dk.seges") && result.DssModelId.StartsWith("CPO_"))
             {
                 var daysSinceLastUpdate = (DateTime.Today - result.DssParametersLastUpdate).Days;
-                if (result.IsValid == true && daysSinceLastUpdate > 15)
+                if (result.IsValid == true && daysSinceLastUpdate >= 10)
                 {
-                    InvalidateResult(result, 0, "dss.update_overdue", daysSinceLastUpdate);
+                    result.IsValid = false;
+                    result.WarningStatus = 0;
+                    result.ResultMessageType = 2;
+                    result.ResultMessage = this.jsonStringLocalizer["dss.update_overdue"].ToString();
                 }
-                else if (result.IsValid == true && daysSinceLastUpdate > 10)
+                else if (result.IsValid == true && daysSinceLastUpdate >= 5)
                 {
-                    SetResultMessage(result, 2, "dss.update_needed", daysSinceLastUpdate);
-                }
-                else if (result.IsValid == true && daysSinceLastUpdate > 5)
-                {
-                    SetResultMessage(result, 1, "dss.update_needed", daysSinceLastUpdate);
+                    result.ResultMessageType = 1;
+                    result.ResultMessage = this.jsonStringLocalizer["dss.update_needed", daysSinceLastUpdate].ToString();
                 }
             }
-        }
-
-        void SetResultMessage(DssResultDatabaseView result, int messageType, string messageKey, int daysSinceLastUpdate)
-        {
-            result.ResultMessageType = messageType;
-            result.ResultMessage = this.jsonStringLocalizer[messageKey, daysSinceLastUpdate].ToString();
-        }
-
-        void InvalidateResult(DssResultDatabaseView result, int messageType, string messageKey, int daysSinceLastUpdate)
-        {
-            result.IsValid = false;
-            result.WarningStatus = 0;
-            SetResultMessage(result, messageType, messageKey, daysSinceLastUpdate);
         }
 
         public async Task<GenericResponse<IEnumerable<LinkDssDto>>> GetAllLinkDss(Guid userId)
