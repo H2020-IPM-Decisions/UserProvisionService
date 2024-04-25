@@ -50,19 +50,19 @@ namespace H2020.IPMDecisions.UPR.BLL
         {
             try
             {
-                var farmerUserId = await this.internalCommunicationProvider.GetUserIdFromIdpMicroservice(dataShareRequestDto.Email.ToString());
-                if (string.IsNullOrEmpty(farmerUserId))
+                var farmerUserInformation = await this.internalCommunicationProvider.GetUserInformationFromIdpMicroservice(dataShareRequestDto.Email.ToString());
+                if (string.IsNullOrEmpty(farmerUserInformation.Id.ToString()) || farmerUserInformation.Claims.Any(c => c.Value.ToLower() != "farmer"))
                 {
                     return GenericResponseBuilder.NoSuccess<bool>(false, this.jsonStringLocalizer["data_share.user_not_registered"].ToString());
                 }
 
-                var farmerProfile = await GetUserProfileByUserId(Guid.Parse(farmerUserId));
+                var farmerProfile = await GetUserProfileByUserId(farmerUserInformation.Id);
                 if (farmerProfile.Result == null)
                 {
                     return GenericResponseBuilder.NoSuccess<bool>(false, this.jsonStringLocalizer["data_share.user_without_profile"].ToString());
                 }
 
-                if (Guid.Parse(farmerUserId) == userId)
+                if (farmerUserInformation.Id == userId)
                 {
                     return GenericResponseBuilder.NoSuccess<bool>(false, this.jsonStringLocalizer["data_share.own_request_error"].ToString());
                 }
@@ -75,7 +75,7 @@ namespace H2020.IPMDecisions.UPR.BLL
 
                 var requestExists = await this.dataService.DataShareRequests.FindByConditionAsync(
                         d => (d.RequesterId == userId)
-                        && (d.RequesteeId == Guid.Parse(farmerUserId)), true);
+                        && (d.RequesteeId == farmerUserInformation.Id), true);
 
                 if (requestExists != null
                     && requestExists.RequestStatus.Description.Equals(RequestStatusEnum.Declined.ToString()))
@@ -89,7 +89,7 @@ namespace H2020.IPMDecisions.UPR.BLL
 
                 await this.dataService.DataShareRequests.Create(
                     userId,
-                    Guid.Parse(farmerUserId),
+                    farmerUserInformation.Id,
                     RequestStatusEnum.Pending);
                 await this.dataService.CompleteAsync();
 
