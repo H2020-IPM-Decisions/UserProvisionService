@@ -10,7 +10,7 @@
         "own_request_error": "User can not request its own data.",
         "pending_change_error": "You can not update a pending request. Please use the 'reply' endpoint to accept/decline request.",
         "request_error": "Request does not belong to the user.",
-        "user_not_registered": "User is not registered in the system.",
+        "user_not_registered": "User is not registered in the system or can not accept data request as is not a farmer.",
         "user_requesting_no_profile": "User requesting data share does not have a profile in the system.",
         "user_without_profile": "User does not have a profile in the system.",
         "wrong_method": "The method is for accepting or declining requests."

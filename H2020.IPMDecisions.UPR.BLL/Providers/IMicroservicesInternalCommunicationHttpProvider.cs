@@ -9,6 +9,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
     public interface IMicroservicesInternalCommunicationHttpProvider
     {
         Task<string> GetUserIdFromIdpMicroservice(string userEmail);
+        Task<UserInformationInternalCall> GetUserInformationFromIdpMicroservice(string userEmail);
         Task<bool> SendDataRequestEmail(string requesterEmail, string toEmail);
         Task<DssModelInformation> GetDssModelInformationFromDssMicroservice(string dssId, string modelId);
         Task<JSchema> GetDssModelInputSchemaMicroservice(string dssId, string modelId);

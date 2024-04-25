@@ -238,6 +238,44 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
             }
         }
 
+        public async Task<UserInformationInternalCall> GetUserInformationFromIdpMicroservice(string userEmail)
+        {
+            try
+            {
+                var cacheKey = string.Format("user_information_{0}", userEmail.ToLower());
+                if (!memoryCache.TryGetValue(cacheKey, out UserInformationInternalCall userInformation))
+                {
+                    var jsonObject = new System.Json.JsonObject
+                    {
+                        { "email", userEmail }
+                    };
+                    var customContentType = config["MicroserviceInternalCommunication:ContentTypeHeader"];
+
+                    var content = new StringContent(
+                        jsonObject.ToString(),
+                        Encoding.UTF8,
+                        customContentType);
+
+                    var idpEndPoint = config["MicroserviceInternalCommunication:IdentityProviderMicroservice"];
+                    var userInformationResponse = await httpClient.PostAsync(idpEndPoint + "internal/get-user-information", content);
+
+                    if (!userInformationResponse.IsSuccessStatusCode)
+                    {
+                        return null;
+                    }
+                    var responseAsText = await userInformationResponse.Content.ReadAsStringAsync();
+                    userInformation = JsonConvert.DeserializeObject<UserInformationInternalCall>(responseAsText);
+                    memoryCache.Set(cacheKey, userInformation, MemoryCacheHelper.CreateMemoryCacheEntryOptionsDays(15));
+                }
+                return userInformation;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(string.Format("Error in Internal Communication - GetUserId. {0}", ex.Message));
+                return null;
+            }
+        }
+
         public async Task<bool> SendDataRequestEmail(string requesterEmail, string toEmail)
         {
             try
