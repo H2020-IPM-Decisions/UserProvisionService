@@ -47,7 +47,7 @@ namespace H2020.IPMDecisions.UPR.BLL
 
                 var language = Thread.CurrentThread.CurrentCulture.Name;
                 var httpClient = new HttpClient();
-                var response = await httpClient.GetAsync(string.Format("{0}?service=WMS&version=1.3.0&request=GetCapabilities&language={0}", riskMapListShortDto.WmsUrl, language));
+                var response = await httpClient.GetAsync(string.Format("{0}?service=WMS&version=1.3.0&request=GetCapabilities&language={1}", riskMapListShortDto.WmsUrl, language));
                 if (!response.IsSuccessStatusCode)
                     return GenericResponseBuilder.NoSuccess<RiskMapFullDetailDto>(null, "Error getting the risk maps");
 
