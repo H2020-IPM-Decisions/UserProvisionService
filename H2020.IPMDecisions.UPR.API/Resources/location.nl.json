@@ -24,6 +24,8 @@
         "existing_combination": "Perceel heeft al gewas ({0}), ziekte ({1}), and DSS ({2}) combinatie.",
         "field_eppo_code": "Perceel met ID '(0) accepteert alleen '(1) 'EPPO gewascode",
         "model_missing_metadata": "De DSS met ID '{0}' en versie '{1}', hebben geen enkel model met ID '{2}' en versie '{3}' in de DSS microservice.",
+        "update_needed": "Deze BOS vertrouwt op regelmatige updates van het huidige groeistadium en ziekteniveaus om een nauwkeurige risicovoorspelling te doen. U hebt deze parameters al {0} dagen niet bijgewerkt. Controleer de parameters en werk ze zo nodig bij.",
+        "update_overdue": "Deze BOS is afhankelijk van regelmatige updates over het huidige groeistadium en de ziekteniveaus om een nauwkeurige risicovoorspelling te kunnen doen. U hebt de parameters 10 dagen of langer niet bijgewerkt. De parameters moeten worden bijgewerkt om een nieuwe risicovoorspelling te ontvangen.",
         "warning_header": "Een of meer gewas, pest & DSS combinaties bestaan al. Controleer 'response body' voor meer informatie",
         "warning_status_representation": "{0}\n\n{1}",
         "warnings": "Corrigeer de volgende fout(en) alvorens op te slaan"
