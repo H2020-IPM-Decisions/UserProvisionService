@@ -122,9 +122,17 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
                 if (!memoryCache.TryGetValue(cacheKey, out List<string> listOfEppoCodes))
                 {
                     var dssEndPoint = config["MicroserviceInternalCommunication:DssMicroservice"];
-                    var executionTypeString = string.IsNullOrEmpty(executionType) && eppoCodeType.ToLower().Equals("pest") ? "platform_validated/true" : $"execution_type/{executionType.ToUpper()}";
+                    var filterString = "";
+                    if (!eppoCodeType.ToLower().Equals("pest"))
+                    {
+                        filterString = "platform_validated/true";
+                    }
+                    if (!string.IsNullOrEmpty(executionType))
+                    {
+                        filterString = $"execution_type/{executionType.ToUpper()}";
+                    }
 
-                    var response = await httpClient.GetAsync(string.Format("{0}rest/{1}/{2}", dssEndPoint, eppoCodeType, executionTypeString));
+                    var response = await httpClient.GetAsync(string.Format("{0}rest/{1}/{2}", dssEndPoint, eppoCodeType, filterString));
 
                     if (!response.IsSuccessStatusCode) return null;
 
