@@ -24,6 +24,8 @@
         "existing_combination": "Fältet har redan kombinationen gröda ({0}), skadegörare ({1}) och DSS ({2}).",
         "field_eppo_code": "Fält med ID {0} accepterar endast EPPO-kod för \"{1}\"",
         "model_missing_metadata": "DSS med ID \"{0}\" och version \"{1}\", har ingen modell med ID \"{2}\" och version \"{3}\" i DSS-tjänsten.",
+        "update_needed": "Detta DSS förlitar sig på regelbundna uppdateringar om nuvarande tillväxtstadium och sjukdomsnivåer för att ge en korrekt riskvärdring. Du har inte uppdaterat dessa parametrar på {0} dagar. Granska parametrarna och uppdatera dem vid behov",
+        "update_overdue": "Detta DSS förlitar sig på regelbundna uppdateringar om nuvarande tillväxtstadium och sjukdomsnivåer för att ge en korrekt riskvärdering. Du har inte uppdaterat parametrarna på 10 eller fler dagar. Parametrar måste uppdateras för att få en ny riskvärdering.",
         "warning_header": "En eller flera kombinationer av grödor, skadegörare och DSS finns redan. Mer information finns i svarstexten.",
         "warning_status_representation": "{0}\n\n{1}",
         "warnings": "Åtgärda följande fel innan du sparar:"

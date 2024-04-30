@@ -24,6 +24,8 @@
         "existing_combination": "Pellolla on jo kasvin ({0}), kasvintuhoojan ({1}) ja DSS({2}) yhdistelmä.",
         "field_eppo_code": "Kenttä {0} hyväksyy vain '{1}' kasvin EPPO-koodin.",
         "model_missing_metadata": "DSS:llä tunnuksella '{0}' ja versiolla '{1}' ei ole yhtään mallia tunnuksella '{2}' ja versiolla '{3}' DSS-mikropalvelussa.",
+        "update_needed": "Tämä ennustemalli perustuu säännöllisiin päivityksiin nykyisestä kasvuasteesta ja tautitasosta, jotta se voi antaa tarkan riskiennusteen. Et ole päivittänyt näitä tietoja {0} päivään. Tarkista kasvuasteen ja tautitason tiedot ja päivitä ne tarvittaessa.",
+        "update_overdue": "Tämä ennustemalli perustuu säännöllisiin päivityksiin nykyisestä kasvuasteesta ja tautitasosta, jotta se voi antaa tarkan riskiennusteen. Et ole päivittänyt tietoja vähintään 10 päivään. Kasvuasteen ja tautitason tiedot on päivitettävä, jotta saat uuden riskiennusteen.",
         "warning_header": "Yksi tai useampi kasvin, kasvintuhoojan ja DSSn yhdistelmä on jo olemassa. Lisätietoja varten tarkista vastauksen sisältö.",
         "warning_status_representation": "{0}\n\n{1}",
         "warnings": "Korjaa seuraavat virheet ennen tallentamista."

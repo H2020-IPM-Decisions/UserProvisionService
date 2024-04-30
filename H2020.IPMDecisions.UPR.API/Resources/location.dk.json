@@ -16,7 +16,7 @@
 		"wrong_method": "Metoden er til at acceptere eller afvise anmodninger."
 	},
 	"dss": {
-        "adaptation_duplicated": "For model {0}, you have already saved a DSS with the following name {1}. Please change the name before continuing.",
+		"adaptation_duplicated": "For model {0}, you have already saved a DSS with the following name {1}. Please change the name before continuing.",
 		"dss_missing_metadata": "DSS med ID '{0}' og version '{1}' findes ikke på DSS-mikrotjenesten.",
 		"dss_is_disabled": "This DSS has been temporarily removed from the IPM Decisions Platform due to the identification of potential issues with the DSS. The DSS will be reinstated once these issues have been resolved.",
 		"dss_is_not_Valid_location": "This DSS has not been validated for your location and you should treat it's results with caution, as they may not be reliable.",
@@ -24,8 +24,10 @@
 		"existing_combination": "Marken har allerede en kombination af afgrøde ({0}), skadedyr ({1}) og DSS ({2}).",
 		"field_eppo_code": "Felt med ID {0} accepterer kun '{1}'-afgrøde-EPPO-kode",
 		"model_missing_metadata": "DSS med id '{0}' og version '{1}' har ikke nogen model med id '{2}' og version '{3}' på DSS-mikrotjenesten.",
+		"update_needed": "Denne DSS er afhængig af regelmæssige opdateringer af det aktuelle vækststadie og sygdomsniveauer for at give en nøjagtig risikovurdering. Du har ikke opdateret disse parametre i {0} dage. Gennemgå parametrene og opdater dem efter behov. ",
+		"update_overdue": "Denne DSS er afhængig af regelmæssige opdateringer af det aktuelle vækststadie og sygdomsniveauer for at give en nøjagtig risikovurdering. Du har ikke opdateret disse parametre i 10 eller flere dage. Parametrene skal opdateres for at modtage en ny risikovurdering.",
 		"warning_header": "En eller flere kombinationer af afgrøde, skadedyr og DSS findes allerede. Se venligst svarteksten for mere information.",
-        "warning_status_representation": "{0}\n\n{1}",
+		"warning_status_representation": "{0}\n\n{1}",
 		"warnings": "Ret venligst følgende fejl, før du gemmer:"
 	},
 	"dss_process": {
@@ -54,7 +56,7 @@
 		"end_of_season": "Denne model er inaktiv siden {0}. Vent venligst indtil en ny sæson starter eller ændr dato for vejrdata parametre for at blive ved med at bruge modellen.",
 		"internal_error": "Vejr data tjeneste kan ikke processere din anmodning. Hvis fejlen forsætter, kontakt os venligst.",
 		"missing_service": "Vejrtjeneste med ID '{0}' findes ikke på vejrmikrotjenesten.",
-        "missing_weather_parameter": "The weather service can not return all the weather parameters requested by the DSS.",
+		"missing_weather_parameter": "The weather service can not return all the weather parameters requested by the DSS.",
 		"missing_weather_service": "Ingen vejrdatakilder eller vejrstationer knyttet til landbruget",
 		"next_season": "DSS standardstartdato for at hente og bruge vejrdata er {0}. Vent venligst indtil denne dato, eller skift DSS-parametrene for at begynde at bruge tidligere vejrdata.",
 		"next_season_fixed": "Modellen kan kun bruges fra {0} til {1}. Desværre er denne fastsættelse sat af DSS-ejeren og kan ikke ændres af brugeren.",
