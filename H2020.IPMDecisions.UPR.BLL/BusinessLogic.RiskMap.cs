@@ -46,8 +46,9 @@ namespace H2020.IPMDecisions.UPR.BLL
                     return GenericResponseBuilder.NotFound<RiskMapFullDetailDto>();
 
                 var language = Thread.CurrentThread.CurrentCulture.Name;
+                if (language.ToLower().Equals("no")) language = "nb"; // Exception added because Nibio's server work with NB instead of NO
                 var httpClient = new HttpClient();
-                var response = await httpClient.GetAsync(string.Format("{0}?service=WMS&version=1.3.0&request=GetCapabilities&language={0}", riskMapListShortDto.WmsUrl, language));
+                var response = await httpClient.GetAsync(string.Format("{0}?service=WMS&version=1.3.0&request=GetCapabilities&language={1}", riskMapListShortDto.WmsUrl, language));
                 if (!response.IsSuccessStatusCode)
                     return GenericResponseBuilder.NoSuccess<RiskMapFullDetailDto>(null, "Error getting the risk maps");
 
