@@ -19,7 +19,7 @@
         "adaptation_duplicated": "For model {0}, you have already saved a DSS with the following name {1}. Please change the name before continuing.",
         "dss_missing_metadata": "DSS with ID '{0}' and version '{1}' do not exist on the DSS microservice.",
         "dss_is_disabled": "This DSS has been temporarily removed from the IPM Decisions Platform due to the identification of potential issues with the DSS. The DSS will be reinstated once these issues have been resolved.",
-        "dss_is_not_Valid_location": "This DSS has not been validated for your location and you should treat it's results with caution, as they may not be reliable.",
+        "dss_is_not_valid_location": "This DSS has not been validated for your location and you should treat it's results with caution, as they may not be reliable.",
         "duplicated": "Duplicated combination of Crop ({0}), Pest ({1}), DSS ({2}), Model ({3}) & DSS Model version ({4}) on a field.",
         "existing_combination": "Field already has crop ({0}), pest ({1}), and DSS ({2}) combination.",
         "field_eppo_code": "Field with ID {0} only accepts '{1}' crop EPPO code",

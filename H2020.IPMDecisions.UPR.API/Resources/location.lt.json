@@ -19,7 +19,7 @@
         "adaptation_duplicated": "For model {0}, you have already saved a DSS with the following name {1}. Please change the name before continuing.",
         "dss_missing_metadata": "SPS su ID „{0}“ ir versija „{1}“ SPS mikropaslaugoje neegzistuoja",
         "dss_is_disabled": "This DSS has been temporarily removed from the IPM Decisions Platform due to the identification of potential issues with the DSS. The DSS will be reinstated once these issues have been resolved.",
-        "dss_is_not_Valid_location": "This DSS has not been validated for your location and you should treat it's results with caution, as they may not be reliable.",
+        "dss_is_not_valid_location": "This DSS has not been validated for your location and you should treat it's results with caution, as they may not be reliable.",
         "duplicated": "Pasikartojančių augalo ({0}), kenksmingojo organizmo ({1}), SPS ({2}), modelio ({3}) ir SPS modelio versijų ({4}) kombinacija lauke.",
         "existing_combination": "Lauke jau yra augalo ({0}), kenksmingojo organizmo({1}) ir SPS ({2}) kombinacija.",
         "field_eppo_code": "Laukas su ID {0} priima tik „{1}“ augalo EPPO kodą",
