@@ -24,6 +24,8 @@
         "existing_combination": "Lauke jau yra augalo ({0}), kenksmingojo organizmo({1}) ir SPS ({2}) kombinacija.",
         "field_eppo_code": "Laukas su ID {0} priima tik „{1}“ augalo EPPO kodą",
         "model_missing_metadata": "SPS su ID '{0}' ir versija '{1}' neturi jokio modelio su ID '{2}' ir versija '{3}' SPS mikropaslaugoje.",
+        "update_needed": " Ši sprendimų priėmimo sistema (SPS) remiasi reguliariais atnaujinimais apie esamą augalų augimo tarpsnį ir ligos išplitimą, kad būtų galima tiksliai prognozuoti ligos riziką. Jūs neatnaujinote šių parametrų {0} dienų. Peržiūrėkite parametrus ir, jei reikia, juos atnaujinkite.",
+        "update_overdue": "Ši sprendimų priėmimo sistema (SPS) remiasi reguliariais atnaujinimais apie esamą augalų augimo tarpsnį ir ligos išplitimą, kad būtų galima tiksliai prognozuoti ligos riziką. Jūs neatnaujinote parametrų 10 ar daugiau dienų. Norint gauti naują ligos  rizikos prognozę, parametrai turi būti atnaujinti.",
         "warning_header": "Jau yra vienas ar daugiau augalų, kenksmingųjų organizmų ir SPS derinių. Norėdami gauti daugiau informacijos patikrinkite atsakymo turinį.",
         "warning_status_representation": "{0}\n\n{1}",
         "warnings": "Prieš išsaugodami ištaisykite šią klaidą (-as):"
