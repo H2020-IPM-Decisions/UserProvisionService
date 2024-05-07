@@ -905,8 +905,8 @@ namespace H2020.IPMDecisions.UPR.BLL
                 ? (int)DssOutputMessageTypeEnum.Info
                 : dss.ResultMessageType;
             dss.ResultMessage = (string.IsNullOrEmpty(dss.ResultMessage))
-                ? this.jsonStringLocalizer["dss.dss_is_not_Valid_location"].ToString()
-                : string.Format("{0} \r\n {1}", dss.ResultMessage, this.jsonStringLocalizer["dss.dss_is_not_Valid_location"].ToString());
+                ? this.jsonStringLocalizer["dss.dss_is_not_valid_location"].ToString()
+                : string.Format("{0} \r\n {1}", dss.ResultMessage, this.jsonStringLocalizer["dss.dss_is_not_valid_location"].ToString());
         }
 
         private async Task<List<FarmWithDssAvailableByLocation>> GetDssModelAvailableFromFarmIds(List<Guid> farmIds)

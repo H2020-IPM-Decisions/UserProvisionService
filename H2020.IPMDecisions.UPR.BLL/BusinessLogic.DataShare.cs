@@ -51,7 +51,7 @@ namespace H2020.IPMDecisions.UPR.BLL
             try
             {
                 var farmerUserInformation = await this.internalCommunicationProvider.GetUserInformationFromIdpMicroservice(dataShareRequestDto.Email.ToString());
-                if (string.IsNullOrEmpty(farmerUserInformation.Id.ToString()) || farmerUserInformation.Claims.Any(c => c.Value.ToLower() != "farmer"))
+                if (string.IsNullOrEmpty(farmerUserInformation.Id.ToString()))
                 {
                     return GenericResponseBuilder.NoSuccess<bool>(false, this.jsonStringLocalizer["data_share.user_not_registered"].ToString());
                 }
