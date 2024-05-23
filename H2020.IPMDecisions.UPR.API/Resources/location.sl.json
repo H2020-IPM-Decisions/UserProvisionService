@@ -24,6 +24,8 @@
         "existing_combination": "Polje že ima kombinacijo kulturne rastline ({0}), škodljivega organizma ({1}) in DSS ({2}).",
         "field_eppo_code": "Polje z ID {0} sprejema samo '{1}' kodo EPPO za kulturno rastlino.",
         "model_missing_metadata": "DSS z ID '{0}' in različico '{1}' nima nobenega modela z ID '{2}' in različico '{3}'.",
+        "update_needed": "Ta DSS se zanaša na redne posodobitve trenutne faze rasti in stopnje okuženosti, da bi zagotovil natančno napoved tveganja. Teh parametrov niste posodobili že {0} dni. Preverite parametre in jih po potrebi posodobite.",
+        "update_overdue": "Ta DSS se zanaša na redne posodobitve trenutne faze rasti in stopnje okuženosti, da bi zagotovil natančno napoved tveganja. Parametrov niste posodobili 10 ali več dni. Parametre je treba posodobiti, če želite prejeti novo napoved tveganja.",
         "warning_header": "Ena ali več kombinacij kulturne rastline, škodljivega organizma in DSS že obstaja. Za več informacij kontaktirajte odgovorno osebo. ",
         "warning_status_representation": "{0}\n\n{1}",
         "warnings": "Pred shranjevanjem odpravite naslednjo(-e) napako(-e):"
