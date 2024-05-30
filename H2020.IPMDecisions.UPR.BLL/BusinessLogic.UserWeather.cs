@@ -95,23 +95,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                     return GenericResponseBuilder.NoSuccess<UserWeatherDto>(null, "User do not have an user profile.");
                 }
 
-                var testBodyPrivateWeather = new WeatherAdapterBodyRequest()
-                {
-                    Credentials = new AdapterCredentials()
-                    {
-                        UserName = userWeatherForCreationDto.UserName,
-                        Password = userWeatherForCreationDto.Password,
-                    },
-                    WeatherStationId = userWeatherForCreationDto.WeatherStationId,
-                    Interval = getWeatherServiceInformation.Temporal.Intervals.FirstOrDefault().ToString(),
-                    Parameters = getWeatherServiceInformation.Parameters.Common.FirstOrDefault().ToString(),
-                    TimeStart = DateTime.Today.AddDays(-3).ToString("yyyy-MM-dd"),
-                    TimeEnd = DateTime.Today.AddDays(-1).ToString("yyyy-MM-dd"),
-                };
-                var collection = testBodyPrivateWeather.ToKeyValuePairList();
-                var areValidLoginDetails = await this.internalCommunicationProvider
-                    .ValidateLoginDetailPersonaWeatherStation(getWeatherServiceInformation.EndPoint.ToString(), collection);
-
+                bool areValidLoginDetails = await CheckCredentialsWeatherService(getWeatherServiceInformation, userWeatherForCreationDto.UserName, userWeatherForCreationDto.Password, userWeatherForCreationDto.WeatherStationId);
                 if (!areValidLoginDetails)
                 {
                     return GenericResponseBuilder.NoSuccess<UserWeatherDto>(null, this.jsonStringLocalizer["weather.wrong_login_details"].ToString());
@@ -120,19 +104,19 @@ namespace H2020.IPMDecisions.UPR.BLL
                 var encryptedPassword = _encryption.Encrypt(userWeatherForCreationDto.Password);
 
                 var dataToInsert = this.mapper.Map<UserWeather>(userWeatherForCreationDto, opt =>
-                    {
-                        opt.Items["weatherName"] = getWeatherServiceInformation.Name;
-                        opt.Items["encryptedPassword"] = encryptedPassword;
-                    });
+                {
+                    opt.Items["weatherName"] = getWeatherServiceInformation.Name;
+                    opt.Items["encryptedPassword"] = encryptedPassword;
+                });
                 dataToInsert.UserProfile = currentUserProfileExists.Result;
 
                 this.dataService.UserWeathers.Create(dataToInsert);
                 await this.dataService.CompleteAsync();
 
                 var dataToReturn = this.mapper.Map<UserWeatherDto>(dataToInsert, opt =>
-                    {
-                        opt.Items["weatherName"] = getWeatherServiceInformation.Name;
-                    });
+                {
+                    opt.Items["weatherName"] = getWeatherServiceInformation.Name;
+                });
 
                 return GenericResponseBuilder.Success(dataToReturn);
             }
@@ -142,6 +126,27 @@ namespace H2020.IPMDecisions.UPR.BLL
                 String innerMessage = (ex.InnerException != null) ? ex.InnerException.Message : "";
                 return GenericResponseBuilder.NoSuccess<UserWeatherDto>(null, $"{ex.Message} InnerException: {innerMessage}");
             }
+        }
+
+        private async Task<bool> CheckCredentialsWeatherService(WeatherDataSchema weatherDataInformation, string userName, string password, string weatherStationId)
+        {
+            var testBodyPrivateWeather = new WeatherAdapterBodyRequest()
+            {
+                Credentials = new AdapterCredentials()
+                {
+                    UserName = userName,
+                    Password = password,
+                },
+                WeatherStationId = weatherStationId,
+                Interval = weatherDataInformation.Temporal.Intervals.FirstOrDefault().ToString(),
+                Parameters = weatherDataInformation.Parameters.Common.FirstOrDefault().ToString(),
+                TimeStart = DateTime.Today.AddDays(-3).ToString("yyyy-MM-dd"),
+                TimeEnd = DateTime.Today.AddDays(-1).ToString("yyyy-MM-dd"),
+            };
+            var collection = testBodyPrivateWeather.ToKeyValuePairList();
+            var areValidLoginDetails = await this.internalCommunicationProvider
+                .ValidateLoginDetailPersonaWeatherStation(weatherDataInformation.EndPoint.ToString(), collection);
+            return areValidLoginDetails;
         }
 
         public async Task<GenericResponse> RemoveUserWeather(Guid id, Guid userId)
@@ -173,6 +178,18 @@ namespace H2020.IPMDecisions.UPR.BLL
                 var weatherToUpdate = await this.dataService.UserWeathers.FindByConditionAsync(expression);
                 if (weatherToUpdate == null) return GenericResponseBuilder.NotFound<UserWeatherDto>();
 
+                var getWeatherServiceInformation = await this.internalCommunicationProvider.GetWeatherProviderInformationFromWeatherMicroservice(weatherToUpdate.WeatherId);
+
+                bool areValidLoginDetails = await CheckCredentialsWeatherService(getWeatherServiceInformation, userWeatherForUpdateDto.UserName, userWeatherForUpdateDto.Password, userWeatherForUpdateDto.WeatherStationId);
+                if (!areValidLoginDetails)
+                {
+                    return GenericResponseBuilder.NoSuccess<UserWeatherDto>(null, this.jsonStringLocalizer["weather.wrong_login_details"].ToString());
+                }
+
+                if (!areValidLoginDetails)
+                {
+                    return GenericResponseBuilder.NoSuccess<UserWeatherDto>(null, this.jsonStringLocalizer["weather.wrong_login_details"].ToString());
+                }
                 var encryptedPassword = _encryption.Encrypt(userWeatherForUpdateDto.Password);
 
                 var dataToInsert = this.mapper.Map(userWeatherForUpdateDto, weatherToUpdate, opt =>
