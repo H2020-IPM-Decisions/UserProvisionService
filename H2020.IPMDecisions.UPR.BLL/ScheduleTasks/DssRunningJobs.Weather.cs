@@ -197,12 +197,6 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 result.ErrorType = DssOutputMessageTypeEnum.Error;
                 return result;
             };
-            if (!await ValidateWeatherDataSchema(responseWeatherAsText))
-            {
-                result.ResponseWeatherAsString = this.jsonStringLocalizer["weather.validation_error", weatherDataSource.WeatherDssParameters.ToString()].ToString();
-                result.ErrorType = DssOutputMessageTypeEnum.Error;
-                return result;
-            };
 
             var weatherDataAsObject = JsonConvert.DeserializeObject<WeatherDataResponseSchema>(responseWeatherAsText);
 

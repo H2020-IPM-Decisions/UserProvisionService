@@ -17,6 +17,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
         Task<HttpResponseMessage> GetWeatherUsingAmalgamationPrivateService(string endPointQueryString, PrivateWeatherBodyRequest ownWeatherDataSource);
         Task<HttpResponseMessage> GetWeatherUsingAmalgamationService(string endPointQueryString);
         Task<HttpResponseMessage> GetWeatherUsingOwnService(string endPointUrl, string endPointParameters);
+        Task<bool> ValidateLoginDetailPersonaWeatherStation(string endPointQueryString, List<KeyValuePair<string, string>> collection);
         Task<IEnumerable<DssInformation>> GetAllListOfDssFromDssMicroservice();
         Task<List<WeatherDataSchema>> GetListWeatherProviderInformationFromWeatherMicroservice();
         Task<WeatherDataSchema> GetWeatherProviderInformationFromWeatherMicroservice(string weatherId);
