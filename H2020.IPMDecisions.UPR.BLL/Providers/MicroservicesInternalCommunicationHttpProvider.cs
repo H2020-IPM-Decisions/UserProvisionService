@@ -340,7 +340,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
             }
             catch (Exception ex)
             {
-                logger.LogError(string.Format("Error in Internal Communication - ValidateWeatherdDataSchemaFromDssMicroservice. {0}", ex.Message));
+                logger.LogError(string.Format("Error in Internal Communication - ValidateWeatherDataSchemaFromDssMicroservice. {0}", ex.Message));
                 return false;
             }
         }
@@ -370,6 +370,23 @@ namespace H2020.IPMDecisions.UPR.BLL.Providers
             {
                 logger.LogError(string.Format("Error in Internal Communication - GetWeatherUsingAmalgamationService. {0}", ex.Message));
                 return new HttpResponseMessage(HttpStatusCode.BadRequest);
+            }
+        }
+
+        public async Task<bool> ValidateLoginDetailPersonaWeatherStation(string endPointQueryString, List<KeyValuePair<string, string>> collection)
+        {
+            try
+            {
+                var wxEndPoint = config["MicroserviceInternalCommunication:WeatherMicroservice"];
+                var url = endPointQueryString.Replace("{WEATHER_API_URL}/", wxEndPoint);
+                var content = new FormUrlEncodedContent(collection);
+                var weatherResponse = await httpClient.PostAsync(url, content);
+                return weatherResponse.IsSuccessStatusCode;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(string.Format("Error in Internal Communication - GetWeatherUsingAmalgamationService. {0}", ex.Message));
+                return false;
             }
         }
 

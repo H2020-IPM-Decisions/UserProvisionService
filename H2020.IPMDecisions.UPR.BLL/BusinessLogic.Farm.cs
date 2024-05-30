@@ -60,10 +60,6 @@ namespace H2020.IPMDecisions.UPR.BLL
                 }
 
                 var farmAsEntity = this.mapper.Map<Farm>(farmForCreationDto);
-
-                // Call Weather service with Farm location
-                AddAmalgamationDataCollectionProcessIntoQueue(farmAsEntity.Location);
-
                 var currentHost = config["MicroserviceInternalCommunication:WeatherApiUrl"];
                 var defaultIdWeatherForecast = AdminValuesEnum.WeatherForecastService;
                 var weatherForecastDefaultValue = await this.dataService.AdminVariables.FindByIdAsync(defaultIdWeatherForecast);

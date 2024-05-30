@@ -29,6 +29,7 @@ namespace H2020.IPMDecisions.UPR.Core.Models
     {
         public int Forecast { get; set; }
         public WeatherTemporalHistoric Historic { get; set; }
+        public List<int> Intervals { get; set; }
     }
 
     public class WeatherTemporalHistoric

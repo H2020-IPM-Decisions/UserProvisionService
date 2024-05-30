@@ -7,6 +7,7 @@ using H2020.IPMDecisions.UPR.Core.Dtos;
 using H2020.IPMDecisions.UPR.Core.Entities;
 using H2020.IPMDecisions.UPR.Core.Models;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 
 namespace H2020.IPMDecisions.UPR.BLL
 {
@@ -92,6 +93,28 @@ namespace H2020.IPMDecisions.UPR.BLL
                 if (currentUserProfileExists.Result == null)
                 {
                     return GenericResponseBuilder.NoSuccess<UserWeatherDto>(null, "User do not have an user profile.");
+                }
+
+                var testBodyPrivateWeather = new WeatherAdapterBodyRequest()
+                {
+                    Credentials = new AdapterCredentials()
+                    {
+                        UserName = userWeatherForCreationDto.UserName,
+                        Password = userWeatherForCreationDto.Password,
+                    },
+                    WeatherStationId = userWeatherForCreationDto.WeatherStationId,
+                    Interval = getWeatherServiceInformation.Temporal.Intervals.FirstOrDefault().ToString(),
+                    Parameters = getWeatherServiceInformation.Parameters.Common.FirstOrDefault().ToString(),
+                    TimeStart = DateTime.Today.AddDays(-3).ToString("yyyy-MM-dd"),
+                    TimeEnd = DateTime.Today.AddDays(-1).ToString("yyyy-MM-dd"),
+                };
+                var collection = testBodyPrivateWeather.ToKeyValuePairList();
+                var areValidLoginDetails = await this.internalCommunicationProvider
+                    .ValidateLoginDetailPersonaWeatherStation(getWeatherServiceInformation.EndPoint.ToString(), collection);
+
+                if (!areValidLoginDetails)
+                {
+                    return GenericResponseBuilder.NoSuccess<UserWeatherDto>(null, this.jsonStringLocalizer["weather.wrong_login_details"].ToString());
                 }
 
                 var encryptedPassword = _encryption.Encrypt(userWeatherForCreationDto.Password);
