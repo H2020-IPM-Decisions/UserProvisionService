@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
+using H2020.IPMDecisions.UPR.Core.Entities;
 using H2020.IPMDecisions.UPR.Core.Models;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Schema;
@@ -527,7 +528,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
                     else if (weatherDate.DeterminedBy.ToLower() == "fixed_date")
                     {
                         // ToDo Understand why we put this code in here....
-                        
+
                         // JObject dssInputSchemaAsJson = JObject.Parse(dssParameters.ToString());
                         // var token = dssInputSchemaAsJson.SelectTokens(weatherDateJson).FirstOrDefault();
                         // if (token == null)
@@ -567,6 +568,36 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
                 queryParameters.Add($"{Uri.EscapeDataString(kvp.Key)}={Uri.EscapeDataString(kvp.Value)}");
             }
             return string.Join("&", queryParameters);
+        }
+
+        public static JObject UpdateSystemParameters(JObject dssParametersAsJsonObject, CropPest cropPest)
+        {
+            UpdateProperty(dssParametersAsJsonObject, "crop", cropPest.CropEppoCode);
+            UpdateProperty(dssParametersAsJsonObject, "pest", cropPest.PestEppoCode);
+            return dssParametersAsJsonObject;
+        }
+
+        static void UpdateProperty(JToken token, string propertyName, string newValue)
+        {
+            if (token.Type == JTokenType.Object)
+            {
+                var obj = (JObject)token;
+                foreach (var property in obj.Properties())
+                {
+                    if (string.Equals(property.Name, propertyName, StringComparison.OrdinalIgnoreCase))
+                    {
+                        obj[property.Name] = newValue;
+                    }
+                    UpdateProperty(property.Value, propertyName, newValue);
+                }
+            }
+            else if (token.Type == JTokenType.Array)
+            {
+                foreach (var item in (JArray)token)
+                {
+                    UpdateProperty(item, propertyName, newValue);
+                }
+            }
         }
     }
 }

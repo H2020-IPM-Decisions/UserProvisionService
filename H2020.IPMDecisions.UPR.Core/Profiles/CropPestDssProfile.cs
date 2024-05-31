@@ -15,9 +15,10 @@ namespace H2020.IPMDecisions.UPR.Core.Profiles
                 .ForMember(dest => dest.DssExecutionType, opt => opt.MapFrom(src => src.DssExecutionType.ToLower()));
 
             CreateMap<FarmDssForCreationDto, CropPestDss>()
-                .ForMember(dest => dest.CropPest, opt => opt.Ignore())
                 .ForMember(dest => dest.FieldCropPestDsses, opt => opt.Ignore())
-                .ForMember(dest => dest.DssExecutionType, opt => opt.MapFrom(src => src.DssExecutionType.ToLower()));
+                .ForMember(dest => dest.DssExecutionType, opt => opt.MapFrom(src => src.DssExecutionType.ToLower()))
+                .ForPath(dest => dest.CropPest.CropEppoCode, opt => opt.MapFrom(src => src.CropEppoCode))
+                .ForPath(dest => dest.CropPest.PestEppoCode, opt => opt.MapFrom(src => src.PestEppoCode));
 
             CreateMap<FarmDssForCreationDto, CropPestForCreationDto>()
                 .ForMember(dest => dest.CropEppoCode, opt => opt.MapFrom(src => src.CropEppoCode.ToUpper()))
