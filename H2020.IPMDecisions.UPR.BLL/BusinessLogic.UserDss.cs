@@ -313,15 +313,19 @@ namespace H2020.IPMDecisions.UPR.BLL
                     csv.NextRecord();
 
                     var locationResult = dssFullOutputAsObject.LocationResult.FirstOrDefault();
-                    for (int i = 0; i < locationResult.Data.Count; i++)
+                    for (int i = 0; i < locationResult.Length; i++)
                     {
-                        List<double?> rowData = locationResult.Data[i];
                         string formattedDate = FormatDate(dssFullOutputAsObject.TimeStart, i, isHourlyInterval);
                         csv.WriteField(formattedDate);
                         csv.WriteField(locationResult.WarningStatus[i].ToString());
-                        foreach (double? value in rowData)
+
+                        if (locationResult.Data.Count() >= locationResult.Length)
                         {
-                            csv.WriteField(value);
+                            List<double?> rowData = locationResult.Data[i];
+                            foreach (double? value in rowData)
+                            {
+                                csv.WriteField(value);
+                            }
                         }
                         csv.NextRecord();
                     }
@@ -832,7 +836,6 @@ namespace H2020.IPMDecisions.UPR.BLL
                     var dssInternalParameters = dssModelInformation.Execution.InputSchemaCategories.Internal;
                     var dssSystemParameters = dssModelInformation.Execution.InputSchemaCategories.System;
                     dssInternalParameters.AddRange(dssSystemParameters);
-                    
                     if (dssInternalParameters.Count != 0)
                     {
                         DssDataHelper.HideInternalDssParametersFromInputSchema(inputAsJsonObject, dssInternalParameters);
