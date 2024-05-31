@@ -830,7 +830,9 @@ namespace H2020.IPMDecisions.UPR.BLL
                                             .GetDssModelInformationFromDssMicroservice(dss.CropPestDss.DssId, dss.CropPestDss.DssModelId);
 
                     var dssInternalParameters = dssModelInformation.Execution.InputSchemaCategories.Internal;
-
+                    var dssSystemParameters = dssModelInformation.Execution.InputSchemaCategories.System;
+                    dssInternalParameters.AddRange(dssSystemParameters);
+                    
                     if (dssInternalParameters.Count != 0)
                     {
                         DssDataHelper.HideInternalDssParametersFromInputSchema(inputAsJsonObject, dssInternalParameters);
