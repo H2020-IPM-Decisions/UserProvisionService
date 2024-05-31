@@ -303,9 +303,24 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 }
                 DssDataHelper.AddUserDssParametersToDssInput(dssParametersAsJsonObject, inputAsJsonObject);
 
+                var authType = dssInformation.Execution.AuthenticationType.ToLowerInvariant();
+                if (!authType.Equals("none", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    var configString = $"{dss.CropPestDss.DssId.ToLower()}_{dss.CropPestDss.DssModelId.ToLower()}";
+                    var getDssAuthToken = config[$"DSSInternalInformation:AuthTokens:{configString}"];
+                    switch (authType)
+                    {
+                        case "basic":
+                            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", getDssAuthToken);
+                            break;
+                        case "bearer_token":
+                            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", getDssAuthToken);
+                            break;
+                    }
+                }
+
                 if (dssInformation.Execution.FormMethod.Equals("post", StringComparison.InvariantCultureIgnoreCase))
                 {
-
                     IList<string> validationErrorMessages;
                     bool isJsonObjectValid;
                     bool reSchedule;
@@ -376,20 +391,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                     Dictionary<string, JToken> jsonDict = inputAsJsonObject.ToObject<Dictionary<string, JToken>>();
                     Dictionary<string, string> stringDict = DssDataHelper.ConvertJTokenValuesToString(jsonDict);
                     string queryString = DssDataHelper.BuildQueryString(stringDict);
-
                     var fullUrl = $"{dssInformation.Execution.EndPoint}?{queryString}";
-                    var authType = dssInformation.Execution.AuthenticationType.ToLowerInvariant();
-                    var configString = $"{dss.CropPestDss.DssId.ToLower()}_{dss.CropPestDss.DssModelId.ToLower()}";
-                    var getDssAuthToken = config[$"DSSInternalInformation:AuthTokens:{configString}"];
-                    switch (authType)
-                    {
-                        case "basic":
-                            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", getDssAuthToken);
-                            break;
-                        case "bearer":
-                            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", getDssAuthToken);
-                            break;
-                    }
 
                     responseDss = await httpClient
                        .GetAsync(fullUrl);
