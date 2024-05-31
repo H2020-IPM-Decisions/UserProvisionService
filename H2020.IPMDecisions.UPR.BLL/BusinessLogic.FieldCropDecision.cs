@@ -11,6 +11,7 @@ using H2020.IPMDecisions.UPR.Core.Models;
 using H2020.IPMDecisions.UPR.Core.ResourceParameters;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json.Linq;
 
 namespace H2020.IPMDecisions.UPR.BLL
 {
@@ -261,6 +262,14 @@ namespace H2020.IPMDecisions.UPR.BLL
                 DssDataHelper.RemoveNotRequiredInputSchemaProperties(dssInputUISchema);
                 dssParameters = JsonSchemaToJson.ToJsonString(dssInputUISchema.ToString(), logger, isDemoVersion);
                 dssParameters = DssDataHelper.AddDefaultDatesToDssJsonInput(dssParameters, currentYear);
+
+                var dssSystemParameters = dssModelInformation.Execution.InputSchemaCategories.System;
+                if (dssSystemParameters.Count != 0)
+                {
+                    JObject dssParametersAsJsonObject = JObject.Parse(dssParameters);
+                    DssDataHelper.UpdateSystemParameters(dssParametersAsJsonObject, cropPestDss.CropPest);
+                    dssParameters = dssParametersAsJsonObject.ToString();
+                }
             }
             return dssParameters;
         }
