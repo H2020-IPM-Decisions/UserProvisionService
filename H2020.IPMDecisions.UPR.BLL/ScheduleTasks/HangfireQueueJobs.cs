@@ -10,7 +10,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
         string ScheduleDssOnTheFlyQueue(Guid id, double minutes);
         string ScheduleDssOnTheFlyQueueSeconds(Guid id, int second);
         string AddFarmLocationToWeatherQueue(string weatherStringParametersUrl);
-        string RunDssOnMemory(Guid id, string dssParameters);
+        string RunDssOnMemory(Guid id, string dssParameters, bool isHistorical = false);
         string ScheduleDssOnTheFlyQueueTimeSpan(Guid id, TimeSpan delay);
     }
 
@@ -49,10 +49,10 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                job => job.QueueWeatherToAmalgamationService(JobCancellationToken.Null, weatherStringParametersUrl));
         }
 
-        public string RunDssOnMemory(Guid id, string dssParameters)
+        public string RunDssOnMemory(Guid id, string dssParameters, bool isHistorical = false)
         {
             return BackgroundJob.Enqueue<DssRunningJobs>(
-               job => job.QueueOnMemoryDss(JobCancellationToken.Null, id, dssParameters, null));
+               job => job.QueueOnMemoryDss(JobCancellationToken.Null, id, dssParameters, null, isHistorical));
         }
 
         public string ScheduleDssOnTheFlyQueueTimeSpan(Guid id, TimeSpan delay)
