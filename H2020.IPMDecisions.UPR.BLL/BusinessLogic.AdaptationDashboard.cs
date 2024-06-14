@@ -164,7 +164,7 @@ namespace H2020.IPMDecisions.UPR.BLL
                 var dssModelInformation = await internalCommunicationProvider
                                         .GetDssModelInformationFromDssMicroservice(dss.CropPestDss.DssId, dss.CropPestDss.DssModelId);
                 var historicalParameters = DssDataHelper.PrepareDssParametersForHistoricalYear(dssModelInformation.Input, dssParametersToRun);
-                DssTaskStatusDto historicalJobTask = CreateTaskStatusDto(id, historicalParameters);
+                DssTaskStatusDto historicalJobTask = CreateTaskStatusDto(id, historicalParameters, true);
                 var historicalDataJob = new DssHistoricalDataTask()
                 {
                     TaskType = "Historical",
@@ -248,9 +248,9 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
         }
 
-        private DssTaskStatusDto CreateTaskStatusDto(Guid dssId, string dssParameters)
+        private DssTaskStatusDto CreateTaskStatusDto(Guid dssId, string dssParameters, bool isHistorical = false)
         {
-            var jobId = this.queueJobs.RunDssOnMemory(dssId, dssParameters);
+            var jobId = this.queueJobs.RunDssOnMemory(dssId, dssParameters, isHistorical);
             var monitoringApi = JobStorage.Current.GetMonitoringApi();
             var jobDetail = monitoringApi.JobDetails(jobId);
             if (jobDetail == null) return null;

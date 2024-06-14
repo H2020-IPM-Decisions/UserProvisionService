@@ -12,9 +12,10 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
 {
     public static class DssDataHelper
     {
-        public static string AddDefaultDatesToDssJsonInput(string jsonAsString, int? currentYear = -1)
+        public static string AddDefaultDatesToDssJsonInput(string jsonAsString, int? currentYear = -1, bool isHistorical = false)
         {
             if (currentYear == -1) currentYear = DateTime.Today.Year;
+            if (isHistorical) currentYear = currentYear - 1;
 
             Regex currentYearRegex = new Regex(@"[{]+[\scurrent_year]+[}]+",
                RegexOptions.IgnoreCase | RegexOptions.IgnorePatternWhitespace);
@@ -60,7 +61,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
             return false;
         }
 
-        public static DateTime ProcessWeatherDataPeriod(IEnumerable<WeatherDataPeriod> weatherDatePeriodList, JObject dssInputSchemaAsJson, int currentYear = -1)
+        public static DateTime ProcessWeatherDataPeriod(IEnumerable<WeatherDataPeriod> weatherDatePeriodList, JObject dssInputSchemaAsJson, int currentYear = -1, bool isHistorical = false)
         {
             foreach (var weatherDate in weatherDatePeriodList)
             {
@@ -82,7 +83,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
                 }
                 else // "fixed_date" as specified on /dss/rest/schema/dss
                 {
-                    return DateTime.Parse(DssDataHelper.AddDefaultDatesToDssJsonInput(weatherDateJson, currentYear));
+                    return DateTime.Parse(DssDataHelper.AddDefaultDatesToDssJsonInput(weatherDateJson, currentYear, isHistorical));
                 }
             }
             // If we reach this point means that no valid weather data on schema
@@ -524,22 +525,6 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
 
                         var newDateValue = dateValue.AddYears(-yearsToRemove).ToString("yyyy-MM-dd");
                         return UpdateTokenValue(dssParameters, weatherDateJson, newDateValue.ToString());
-                    }
-                    else if (weatherDate.DeterminedBy.ToLower() == "fixed_date")
-                    {
-                        // ToDo Understand why we put this code in here....
-
-                        // JObject dssInputSchemaAsJson = JObject.Parse(dssParameters.ToString());
-                        // var token = dssInputSchemaAsJson.SelectTokens(weatherDateJson).FirstOrDefault();
-                        // if (token == null)
-                        //     continue;
-                        // string dateString = token.ToString();
-                        // DateTime dateValue;
-                        // if (!DateTime.TryParse(dateString, CultureInfo.InvariantCulture, DateTimeStyles.None, out dateValue))
-                        //     dateValue = DateTime.Parse(DssDataHelper.AddDefaultDatesToDssJsonInput(dateString));
-
-                        // var newDateValue = dateValue.AddYears(-yearsToRemove).ToString("yyyy-MM-dd");
-                        // return UpdateTokenValue(dssParameters, weatherDateJson, newDateValue.ToString());
                     }
                 }
                 return dssParameters;

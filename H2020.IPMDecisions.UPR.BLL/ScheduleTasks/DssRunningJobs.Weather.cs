@@ -17,7 +17,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
 {
     public partial class DssRunningJobs
     {
-        private async Task<WeatherDataResult> PrepareWeatherData(FieldCropPestDss dss, DssModelInformation dssInformation, JObject dssInputSchemaAsJson, bool isOnTheFlyData = true)
+        private async Task<WeatherDataResult> PrepareWeatherData(FieldCropPestDss dss, DssModelInformation dssInformation, JObject dssInputSchemaAsJson, bool isOnTheFlyData = true, bool isHistorical = false)
         {
             try
             {
@@ -37,7 +37,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                     opt.Items["host"] = currentHost;
                 });
                 weatherToCall.IsForecast = true;
-                result = AddWeatherDates(dssInformation, dssInputSchemaAsJson, weatherToCall, currentYear, isOnTheFlyData);
+                result = AddWeatherDates(dssInformation, dssInputSchemaAsJson, weatherToCall, currentYear, isOnTheFlyData, isHistorical);
                 if (result.Continue == false) return result;
 
                 if (farm.UserWeatherId != null)
@@ -65,14 +65,14 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             }
         }
 
-        private WeatherDataResult AddWeatherDates(DssModelInformation dssInformation, JObject dssInputSchemaAsJson, WeatherSchemaForHttp weatherToCall, int currentYear = -1, bool isOnTheFlyData = false)
+        private WeatherDataResult AddWeatherDates(DssModelInformation dssInformation, JObject dssInputSchemaAsJson, WeatherSchemaForHttp weatherToCall, int currentYear = -1, bool isOnTheFlyData = false, bool isHistorical = false)
         {
             var result = new WeatherDataResult() { Continue = true };
             DateTime originalWeatherEndDate = DateTime.Today.AddDays(-1);
             bool addExtraYear = false;
             if (dssInformation.Input.WeatherDataPeriodEnd != null)
             {
-                weatherToCall.WeatherTimeEnd = DssDataHelper.ProcessWeatherDataPeriod(dssInformation.Input.WeatherDataPeriodEnd, dssInputSchemaAsJson, currentYear);
+                weatherToCall.WeatherTimeEnd = DssDataHelper.ProcessWeatherDataPeriod(dssInformation.Input.WeatherDataPeriodEnd, dssInputSchemaAsJson, currentYear, isHistorical);
                 originalWeatherEndDate = weatherToCall.WeatherTimeEnd;
                 if (weatherToCall.WeatherTimeEnd.AddDays(15) < DateTime.Today && bool.Parse(config["AppConfiguration:AutoUpdateToNextSeason"]) && !isOnTheFlyData)
                 {
@@ -91,7 +91,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             }
             if (dssInformation.Input.WeatherDataPeriodStart != null)
             {
-                weatherToCall.WeatherTimeStart = DssDataHelper.ProcessWeatherDataPeriod(dssInformation.Input.WeatherDataPeriodStart, dssInputSchemaAsJson, currentYear);
+                weatherToCall.WeatherTimeStart = DssDataHelper.ProcessWeatherDataPeriod(dssInformation.Input.WeatherDataPeriodStart, dssInputSchemaAsJson, currentYear, isHistorical);
                 if (addExtraYear) weatherToCall.WeatherTimeStart = weatherToCall.WeatherTimeStart.AddYears(1);
                 if (weatherToCall.WeatherTimeStart > DateTime.Today)
                 {

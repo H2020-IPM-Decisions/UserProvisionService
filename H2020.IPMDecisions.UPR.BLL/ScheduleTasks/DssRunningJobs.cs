@@ -30,7 +30,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
         void ExecuteOnTheFlyDss(IJobCancellationToken token);
         void ExecuteDssWithErrors(IJobCancellationToken token);
         Task QueueOnTheFlyDss(IJobCancellationToken token, Guid dssId);
-        Task QueueOnMemoryDss(IJobCancellationToken token, Guid id, string dssParameters, PerformContext context);
+        Task QueueOnMemoryDss(IJobCancellationToken token, Guid id, string dssParameters, PerformContext context, bool isHistorical = false);
     }
 
     public partial class DssRunningJobs : IDssRunningJobs
@@ -167,12 +167,12 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
         }
 
         [Queue("onmemory_queue")]
-        public async Task QueueOnMemoryDss(IJobCancellationToken token, Guid id, string dssParameters, PerformContext context)
+        public async Task QueueOnMemoryDss(IJobCancellationToken token, Guid id, string dssParameters, PerformContext context, bool isHistorical = false)
         {
             try
             {
                 token.ThrowIfCancellationRequested();
-                await ExecuteOnMemoryDss(id, dssParameters, context);
+                await ExecuteOnMemoryDss(id, dssParameters, context, isHistorical);
             }
             catch (Exception ex)
             {
@@ -217,13 +217,13 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             }
         }
 
-        private async Task ExecuteOnMemoryDss(Guid id, string dssParameters, PerformContext context)
+        private async Task ExecuteOnMemoryDss(Guid id, string dssParameters, PerformContext context, bool isHistorical = false)
         {
             try
             {
                 httpClient = new HttpClient();
                 var dss = await this.dataService.FieldCropPestDsses.FindByIdAsync(id);
-                var dssResult = await RunOnTheFlyDss(dss, dssParameters);
+                var dssResult = await RunOnTheFlyDss(dss, dssParameters, isHistorical);
                 if (dssResult == null) return;
                 string jobId = context.BackgroundJob.Id;
                 var cacheKey = string.Format("InMemoryDssResult_{0}", jobId);
@@ -240,7 +240,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
         }
 
         #region DSS Common Stuff
-        public async Task<FieldDssResult> RunOnTheFlyDss(FieldCropPestDss dss, string onTheFlyDssParameters = "")
+        public async Task<FieldDssResult> RunOnTheFlyDss(FieldCropPestDss dss, string onTheFlyDssParameters = "", bool isHistorical = false)
         {
             var dssResult = new FieldDssResult()
             {
@@ -348,7 +348,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
 
                     if (dssInformation.Input.WeatherParameters != null)
                     {
-                        WeatherDataResult responseWeather = await PrepareWeatherData(dss, dssInformation, inputAsJsonObject, isOnTheFlyRun);
+                        WeatherDataResult responseWeather = await PrepareWeatherData(dss, dssInformation, inputAsJsonObject, isOnTheFlyRun, isHistorical);
                         if (responseWeather.UpdateDssParameters)
                         {
                             dss.DssParameters = DssDataHelper.UpdateDssParametersToNewCalendarYear(dssInformation.Input.WeatherDataPeriodEnd, dss.DssParameters);
