@@ -199,8 +199,17 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
         private static string UpdateTokenValue(string jsonString, string tokenName, string newValue)
         {
             JObject jsonObj = (JObject)Newtonsoft.Json.JsonConvert.DeserializeObject(jsonString);
-            jsonObj.SelectToken(tokenName).Replace(newValue);
-            return Newtonsoft.Json.JsonConvert.SerializeObject(jsonObj);
+            bool updated = UpdateTokenRecursive(jsonObj, tokenName, newValue);
+
+            if (updated)
+            {
+                return jsonObj.ToString();
+            }
+            else
+            {
+                Console.WriteLine($"{tokenName} not found.");
+                return jsonString; // Return the original JSON if the token was not found
+            }
         }
 
         public static string UpdateDssParametersToNewCalendarYear(IEnumerable<WeatherDataPeriod> weatherDatePeriodList, string dssParameters)
@@ -491,12 +500,13 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
             return inputAsJsonObject;
         }
 
-        public static string PrepareDssParametersForHistoricalYear(DssModelSchemaInput inputSchema, string dssParameters, int yearsToRemove = 1)
+        public static string PrepareDssParametersForHistoricalYear(JObject dssInputSchema, string dssParameters, int yearsToRemove = 1)
         {
             try
             {
-                dssParameters = RemoveNYearsDatesDssParameters(inputSchema.WeatherDataPeriodStart, dssParameters, yearsToRemove);
-                dssParameters = RemoveNYearsDatesDssParameters(inputSchema.WeatherDataPeriodEnd, dssParameters, yearsToRemove);
+                List<string> dateProperties = new List<string>();
+                FindDateProperties(dssInputSchema, dateProperties);
+                dssParameters = RemoveNYearsDatesDssParameters(dateProperties, dssParameters, yearsToRemove);
                 return dssParameters;
             }
             catch (Exception ex)
@@ -505,27 +515,24 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
             }
         }
 
-        private static string RemoveNYearsDatesDssParameters(IEnumerable<WeatherDataPeriod> weatherDatePeriodList, string dssParameters, int yearsToRemove = 1)
+        private static string RemoveNYearsDatesDssParameters(List<string> propertiesToModify, string dssParameters, int yearsToRemove = 1)
         {
             try
             {
-                foreach (var weatherDate in weatherDatePeriodList)
+                JObject dssInputSchemaAsJson = JObject.Parse(dssParameters.ToString());
+                foreach (var property in propertiesToModify)
                 {
-                    var weatherDateJson = weatherDate.Value.ToString();
-                    if (weatherDate.DeterminedBy.ToLower() == "input_schema_property")
-                    {
-                        JObject dssInputSchemaAsJson = JObject.Parse(dssParameters.ToString());
-                        var token = dssInputSchemaAsJson.SelectTokens(weatherDateJson).FirstOrDefault();
-                        if (token == null)
-                            continue;
-                        string dateString = token.ToString();
-                        DateTime dateValue;
-                        if (!DateTime.TryParse(dateString, CultureInfo.InvariantCulture, DateTimeStyles.None, out dateValue))
-                            dateValue = DateTime.Parse(DssDataHelper.AddDefaultDatesToDssJsonInput(dateString));
-
-                        var newDateValue = dateValue.AddYears(-yearsToRemove).ToString("yyyy-MM-dd");
-                        return UpdateTokenValue(dssParameters, weatherDateJson, newDateValue.ToString());
-                    }
+                    var token = FindProperty(dssInputSchemaAsJson, property);
+                    if (token == null)
+                        continue;
+                    string dateString = token.ToString();
+                    DateTime dateValue;
+                    if (string.IsNullOrEmpty(dateString))
+                        continue;
+                    if (!DateTime.TryParse(dateString, CultureInfo.InvariantCulture, DateTimeStyles.None, out dateValue))
+                        dateValue = DateTime.Parse(DssDataHelper.AddDefaultDatesToDssJsonInput(dateString));
+                    var newDateValue = dateValue.AddYears(-yearsToRemove).ToString("yyyy-MM-dd");
+                    dssParameters = UpdateTokenValue(dssParameters, property, newDateValue.ToString());
                 }
                 return dssParameters;
             }
@@ -583,6 +590,95 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
                     UpdateProperty(item, propertyName, newValue);
                 }
             }
+        }
+
+        private static void FindDateProperties(JToken token, List<string> dateProperties)
+        {
+            if (token.Type == JTokenType.Object)
+            {
+                foreach (var property in (JObject)token)
+                {
+                    if (property.Value.Type == JTokenType.Object)
+                    {
+                        var obj = (JObject)property.Value;
+                        var formatToken = obj["format"];
+                        if (formatToken != null && formatToken.ToString() == "date")
+                        {
+                            dateProperties.Add(property.Key);
+                        }
+                        FindDateProperties(property.Value, dateProperties);
+                    }
+                    else if (property.Value.Type == JTokenType.Array)
+                    {
+                        foreach (var item in (JArray)property.Value)
+                        {
+                            FindDateProperties(item, dateProperties);
+                        }
+                    }
+                }
+            }
+        }
+
+        private static JToken FindProperty(JToken token, string propertyName)
+        {
+            if (token.Type == JTokenType.Object)
+            {
+                foreach (var property in (JObject)token)
+                {
+                    if (property.Key == propertyName)
+                    {
+                        return property.Value;
+                    }
+                    JToken result = FindProperty(property.Value, propertyName);
+                    if (result != null)
+                    {
+                        return result;
+                    }
+                }
+            }
+            else if (token.Type == JTokenType.Array)
+            {
+                foreach (var item in (JArray)token)
+                {
+                    JToken result = FindProperty(item, propertyName);
+                    if (result != null)
+                    {
+                        return result;
+                    }
+                }
+            }
+            return null;
+        }
+
+        private static bool UpdateTokenRecursive(JToken token, string tokenName, string newValue)
+        {
+            if (token.Type == JTokenType.Object)
+            {
+                JObject obj = (JObject)token;
+                foreach (var property in obj.Properties())
+                {
+                    if (property.Name == tokenName)
+                    {
+                        property.Value = newValue;
+                        return true;
+                    }
+                    if (UpdateTokenRecursive(property.Value, tokenName, newValue))
+                    {
+                        return true;
+                    }
+                }
+            }
+            else if (token.Type == JTokenType.Array)
+            {
+                foreach (var item in (JArray)token)
+                {
+                    if (UpdateTokenRecursive(item, tokenName, newValue))
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
     }
 }
