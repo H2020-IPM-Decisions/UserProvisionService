@@ -142,7 +142,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 // if (dssResult == null) continue;
                 // this.dataService.FieldCropPestDsses.AddDssResult(dss, dssResult);
                 // #else
-                // Add them to the queue every 10 seconds, to allow weather service to return data so doesn't get overload                
+                // Add them to the queue every 10 seconds, to allow weather service to return data so doesn't get overload
                 dss.LastJobId = this.queueJobs.ScheduleDssOnTheFlyQueueTimeSpan(dss.Id, lastEnqueuedTime);
                 lastEnqueuedTime = lastEnqueuedTime += TimeSpan.FromSeconds(int.Parse(config["AppConfiguration:SecondsGapDssNightSchedule"]));
                 // #endif
@@ -276,13 +276,21 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 var inputSchema = JsonSchemaToJson.StringToJsonSchema(dssInformation.Execution.InputSchema, logger, isDemoVersion);
                 if (inputSchema == null)
                 {
-                    // This means that the server might be overloaded and can resolve weather schema
-                    Random r = new Random();
-                    var randomMinute = r.Next(0, 30);
-                    string errorMessageToReturn = this.jsonStringLocalizer["dss_process.json_validation_error", 120 + randomMinute].ToString();
-                    var jobScheduleId = this.queueJobs.ScheduleDssOnTheFlyQueue(dss.Id, 120 + randomMinute);
-                    dss.LastJobId = jobScheduleId;
-                    dss.ReScheduleCount += 1;
+                    string errorMessageToReturn = "";
+                    if (dss.ReScheduleCount < maxReScheduleCount)
+                    {
+                        // This means that the server might be overloaded and can resolve weather schema
+                        Random r = new Random();
+                        var randomMinute = r.Next(0, 30);
+                        errorMessageToReturn = this.jsonStringLocalizer["dss_process.json_validation_error", 120 + randomMinute].ToString();
+                        var jobScheduleId = this.queueJobs.ScheduleDssOnTheFlyQueue(dss.Id, 120 + randomMinute);
+                        dss.LastJobId = jobScheduleId;
+                        dss.ReScheduleCount += 1;
+                    }
+                    else
+                    {
+                        errorMessageToReturn = this.jsonStringLocalizer["dss_process.dss_format_error"].ToString();
+                    }
                     CreateDssRunErrorResult(dssResult, errorMessageToReturn, DssOutputMessageTypeEnum.Error);
                     return dssResult;
                 }
