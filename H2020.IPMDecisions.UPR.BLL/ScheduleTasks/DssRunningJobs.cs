@@ -122,7 +122,8 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             {
                 expression = f =>
                     f.CropPestDss.DssExecutionType.ToLower().Equals("onthefly")
-                    & f.FieldCropPest.FieldCrop.Field.Farm.UserFarms.Any(uf => uf.FarmId != null);
+                    && f.FieldCropPest.FieldCrop.Field.Farm.UserFarms.Any(uf => uf.FarmId != null)
+                    && f.ReScheduleCount < int.Parse(config["AppConfiguration:LimitReScheduleAttemptsDss"]);
             }
 
             httpClient = new HttpClient();
