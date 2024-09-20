@@ -16,9 +16,9 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 job => job.DeleteOldDssResults(JobCancellationToken.Null),
                 Cron.Daily(23, 30), TimeZoneInfo.Utc);
 
-            // RecurringJob.AddOrUpdate<DssRunningJobs>(nameof(DssRunningJobs.ExecuteDssWithErrors),
-            //     job => job.ExecuteDssWithErrors(JobCancellationToken.Null),
-            //     string.Format("0 {0} * * *", configuration["AppConfiguration:HoursToRunDssWithErrorsSchedule"]), TimeZoneInfo.Utc);
+            RecurringJob.AddOrUpdate<DssRunningJobs>(nameof(DssRunningJobs.ExecuteDssWithErrors),
+                job => job.ExecuteDssWithErrors(JobCancellationToken.Null),
+                string.Format("0 {0} * * *", configuration["AppConfiguration:HoursToRunDssWithErrorsSchedule"]), TimeZoneInfo.Utc);
         }
     }
 }
