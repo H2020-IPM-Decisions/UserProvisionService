@@ -5,8 +5,8 @@ namespace H2020.IPMDecisions.UPR.Core.ResourceParameters
 {
     public class FieldSprayResourceParameter : BaseResourceParameter
     {
-        const int maxPageSize = 20;
-        private int _pageSize = 10;
+        const int maxPageSize = 50;
+        private int _pageSize = 25;
         public override int PageSize
         {
             get { return _pageSize; }
