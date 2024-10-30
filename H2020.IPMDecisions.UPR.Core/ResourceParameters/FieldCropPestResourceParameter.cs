@@ -2,7 +2,7 @@ namespace H2020.IPMDecisions.UPR.Core.ResourceParameters
 {
     public class FieldCropPestResourceParameter : BaseResourceParameter
     {
-        const int maxPageSize = 20;
+        const int maxPageSize = 50;
         private int _pageSize = 10;
         public override int PageSize
         {
@@ -20,6 +20,6 @@ namespace H2020.IPMDecisions.UPR.Core.ResourceParameters
                 }
                 base.OrderBy = value;
             }
-        }        
+        }
     }
 }
