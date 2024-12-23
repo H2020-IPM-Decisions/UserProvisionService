@@ -125,7 +125,10 @@ namespace H2020.IPMDecisions.UPR.BLL
                 if (dssResultsToReturn != null && dssResultsToReturn.Count() != 0)
                 {
                     bool newDisplayOutOfSeason = filterDto.DisplayOutOfSeason.HasValue ? filterDto.DisplayOutOfSeason.Value : bool.Parse(this.config["AppConfiguration:DisplayOutOfSeasonDss"]);
-                    await AddExtraInformationToDss(dssResultsToReturn, newDisplayOutOfSeason);
+                    var listUserFarmsAsOwner = await this.dataService.UserFarms
+                        .FindAllAsync(uf => uf.UserId == userId & uf.UserFarmType.Id == UserFarmTypeEnum.Owner);
+                    var listFarmsIdsAsOwner = listUserFarmsAsOwner.Select(uf => uf.FarmId).ToList();
+                    await AddExtraInformationToDss(dssResultsToReturn, newDisplayOutOfSeason, listFarmsIdsAsOwner);
                 }
                 return GenericResponseBuilder.Success<IEnumerable<FieldDssResultDto>>(dssResultsToReturn);
             }
@@ -358,7 +361,7 @@ namespace H2020.IPMDecisions.UPR.BLL
             }
         }
 
-        private async Task AddExtraInformationToDss(IEnumerable<FieldDssResultDto> dssResultsToReturn, bool outOfSeason = false)
+        private async Task AddExtraInformationToDss(IEnumerable<FieldDssResultDto> dssResultsToReturn, bool outOfSeason = false, List<Guid> listFarmsIdsAsOwner = null)
         {
             try
             {
@@ -370,6 +373,10 @@ namespace H2020.IPMDecisions.UPR.BLL
                 List<FarmWithDssAvailableByLocation> listOfFarms = await GetDssModelAvailableFromFarmIds(farmIds);
                 foreach (var dss in dssResultsToReturn)
                 {
+                    if (!listFarmsIdsAsOwner.Contains(dss.FarmId))
+                    {
+                        dss.IsOwner = false;
+                    }
                     if (listOfDss != null && listOfDss.Count() != 0)
                     {
                         var dssOnListMatchDatabaseRecord = listOfDss
