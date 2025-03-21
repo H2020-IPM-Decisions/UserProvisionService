@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using H2020.IPMDecisions.UPR.Core.Dtos;
@@ -13,13 +14,14 @@ namespace H2020.IPMDecisions.UPR.Core.Models
 
         public List<RiskMapFullDetailDto> ToRiskMapBaseDto()
         {
+            var currentYear = DateTime.Now.Year.ToString();
             return RiskMapProviders
             .SelectMany(provider => provider.RiskMaps
                 .Select(riskMap => new RiskMapFullDetailDto
                 {
                     Id = riskMap.Id,
                     Title = riskMap.Title,
-                    WmsUrl = riskMap.WmsUrl,
+                    WmsUrl = riskMap.WmsUrl.Replace("{CURRENT_YEAR}", currentYear),
                     PlatformValidated = riskMap.PlatformValidated,
                     ProviderId = provider.Id,
                     ProviderName = provider.Name,
