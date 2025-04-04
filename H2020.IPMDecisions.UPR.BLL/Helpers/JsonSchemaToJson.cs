@@ -72,6 +72,7 @@ namespace H2020.IPMDecisions.UPR.BLL.Helpers
             try
             {
                 JSchemaUrlResolver resolver = new JSchemaUrlResolver();
+                jsonSchema = jsonSchema.Replace("ipmdecisions.nibio.no", "platform.ipmdecisions.net");
                 if (isDemoVersion) jsonSchema = jsonSchema.Replace("platform.ipmdecisions.net", "demo.ipmdecisions.net");
                 return JSchema.Parse(jsonSchema, resolver);
             }
