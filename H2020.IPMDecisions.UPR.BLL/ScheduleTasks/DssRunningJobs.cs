@@ -357,7 +357,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
 
                     if (dssInformation.Input.WeatherParameters != null)
                     {
-                        WeatherDataResult responseWeather = await PrepareWeatherData(dss, dssInformation, inputAsJsonObject, isOnTheFlyRun, isHistorical);
+                        WeatherDataResult responseWeather = await PrepareWeatherData(dss, dssInformation, inputAsJsonObject, isOnTheFlyRun, isHistorical, isDemoVersion);
                         if (responseWeather.UpdateDssParameters)
                         {
                             dss.DssParameters = DssDataHelper.UpdateDssParametersToNewCalendarYear(dssInformation.Input.WeatherDataPeriodEnd, dss.DssParameters);
