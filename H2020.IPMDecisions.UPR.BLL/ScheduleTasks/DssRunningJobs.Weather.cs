@@ -17,7 +17,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
 {
     public partial class DssRunningJobs
     {
-        private async Task<WeatherDataResult> PrepareWeatherData(FieldCropPestDss dss, DssModelInformation dssInformation, JObject dssInputSchemaAsJson, bool isOnTheFlyData = true, bool isHistorical = false)
+        private async Task<WeatherDataResult> PrepareWeatherData(FieldCropPestDss dss, DssModelInformation dssInformation, JObject dssInputSchemaAsJson, bool isOnTheFlyData = true, bool isHistorical = false, bool isDemoVersion = false)
         {
             try
             {
@@ -37,7 +37,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                     opt.Items["host"] = currentHost;
                 });
                 weatherToCall.IsForecast = true;
-                result = AddWeatherDates(dssInformation, dssInputSchemaAsJson, weatherToCall, currentYear, isOnTheFlyData, isHistorical);
+                result = AddWeatherDates(dssInformation, dssInputSchemaAsJson, weatherToCall, currentYear, isOnTheFlyData, isHistorical, isDemoVersion);
                 if (result.Continue == false) return result;
 
                 if (farm.UserWeatherId != null)
@@ -65,7 +65,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             }
         }
 
-        private WeatherDataResult AddWeatherDates(DssModelInformation dssInformation, JObject dssInputSchemaAsJson, WeatherSchemaForHttp weatherToCall, int currentYear = -1, bool isOnTheFlyData = false, bool isHistorical = false)
+        private WeatherDataResult AddWeatherDates(DssModelInformation dssInformation, JObject dssInputSchemaAsJson, WeatherSchemaForHttp weatherToCall, int currentYear = -1, bool isOnTheFlyData = false, bool isHistorical = false, bool isDemoVersion = false)
         {
             var result = new WeatherDataResult() { Continue = true };
             DateTime originalWeatherEndDate = DateTime.Today.AddDays(-1);
@@ -86,7 +86,10 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 // Forecast weather max 8 days
                 if (weatherToCall.WeatherTimeEnd > DateTime.Today.AddDays(8))
                 {
-                    weatherToCall.WeatherTimeEnd = DateTime.Today.AddDays(8);
+                    if (isDemoVersion && dssInformation.Input.WeatherDataPeriodStart.FirstOrDefault().DeterminedBy.ToLower() == "fixed_date" && weatherToCall.WeatherTimeEnd.Year > DateTime.Today.Year)
+                        weatherToCall.WeatherTimeEnd = weatherToCall.WeatherTimeEnd.AddYears(-1);
+                    else
+                        weatherToCall.WeatherTimeEnd = DateTime.Today.AddDays(8);
                 }
             }
             if (dssInformation.Input.WeatherDataPeriodStart != null)
@@ -97,16 +100,19 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 {
                     if (dssInformation.Input.WeatherDataPeriodStart.FirstOrDefault().DeterminedBy.ToLower() == "fixed_date")
                     {
-                        result.ResponseWeatherAsString = this.jsonStringLocalizer["weather.next_season_fixed",
-                            weatherToCall.WeatherTimeStart.ToString("dd/MM"), originalWeatherEndDate.ToString("dd/MM")].ToString();
+                        if (isDemoVersion)
+                            weatherToCall.WeatherTimeStart = weatherToCall.WeatherTimeStart.AddYears(-1);
+                        else
+                            result.ResponseWeatherAsString = this.jsonStringLocalizer["weather.next_season_fixed",
+                                weatherToCall.WeatherTimeStart.ToString("dd/MM"), originalWeatherEndDate.ToString("dd/MM")].ToString();
                     }
                     else
                     {
                         result.ResponseWeatherAsString = this.jsonStringLocalizer["weather.next_season",
                             weatherToCall.WeatherTimeStart.ToString("dd/MM/yyyy")].ToString();
+                        result.Continue = false;
+                        result.ErrorType = DssOutputMessageTypeEnum.Warning;
                     }
-                    result.Continue = false;
-                    result.ErrorType = DssOutputMessageTypeEnum.Warning;
                 }
                 else if (weatherToCall.WeatherTimeStart > weatherToCall.WeatherTimeEnd)
                 {
