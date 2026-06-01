@@ -9,9 +9,11 @@ using System.Threading.Tasks;
 using AutoMapper;
 using H2020.IPMDecisions.UPR.BLL.Helpers;
 using H2020.IPMDecisions.UPR.BLL.Providers;
+using H2020.IPMDecisions.UPR.Core.Configurations;
 using H2020.IPMDecisions.UPR.Core.Entities;
 using H2020.IPMDecisions.UPR.Core.Enums;
 using H2020.IPMDecisions.UPR.Core.Models;
+using H2020.IPMDecisions.UPR.Core.Services;
 using H2020.IPMDecisions.UPR.Data.Core;
 using Hangfire;
 using Hangfire.Server;
@@ -46,6 +48,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
         private readonly IHangfireQueueJobs queueJobs;
         private readonly IMemoryCache memoryCache;
         private readonly IConfiguration config;
+        private readonly IDssAuthTokenService dssAuthTokenService;
         private readonly EncryptionHelper _encryption;
 
         public DssRunningJobs(
@@ -57,7 +60,9 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             IJsonStringLocalizer jsonStringLocalizer,
             IHangfireQueueJobs queueJobs,
             IMemoryCache memoryCache,
-            IConfiguration config)
+            IConfiguration config,
+            IDssAuthTokenService dssAuthTokenService
+            )
         {
             this.dataService = dataService
                 ?? throw new ArgumentNullException(nameof(dataService));
@@ -78,6 +83,8 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
             this.config = config
                 ?? throw new ArgumentNullException(nameof(config));
             _encryption = new EncryptionHelper(dataProtectionProvider);
+            this.dssAuthTokenService = dssAuthTokenService
+                ?? throw new ArgumentNullException(nameof(dssAuthTokenService));
         }
 
         [Queue("onthefly_schedule")]
@@ -264,7 +271,7 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                 {
                     CreateDssRunErrorResult(dssResult, this.jsonStringLocalizer["dss_process.dss_information"].ToString(), DssOutputMessageTypeEnum.Error);
                     return dssResult;
-                };
+                }
 
                 if (string.IsNullOrEmpty(dssInformation.Execution.EndPoint))
                 {
@@ -311,19 +318,36 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
                     dssParametersAsJsonObject = JObject.Parse(dss.DssParameters.ToString());
                 }
                 DssDataHelper.AddUserDssParametersToDssInput(dssParametersAsJsonObject, inputAsJsonObject);
-
                 var authType = dssInformation.Execution.AuthenticationType.ToLowerInvariant();
                 if (!authType.Equals("none", StringComparison.InvariantCultureIgnoreCase))
                 {
-                    var configString = $"{dss.CropPestDss.DssId.ToLower()}_{dss.CropPestDss.DssModelId.ToLower()}";
-                    var getDssAuthToken = config[$"DSSInternalInformation:AuthTokens:{configString}"];
+                    var dssId = dss.CropPestDss.DssId.ToLower();
+                    var configString = $"DSSInternalInformation:AuthTokens:{dssId}";
                     switch (authType)
                     {
                         case "basic":
+                            var getDssAuthToken = config[configString];
+                            if (string.IsNullOrEmpty(getDssAuthToken))
+                            {
+                                var errorMessage = this.jsonStringLocalizer["dss_process.dss_authentication_error"].ToString();
+                                CreateDssRunErrorResult(dssResult, errorMessage, DssOutputMessageTypeEnum.Error);
+                                return dssResult;
+                            }
                             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", getDssAuthToken);
                             break;
                         case "bearer_token":
-                            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", getDssAuthToken);
+                            var bearerToken = "";
+                            if (dssId == "de.isip")
+                            {
+                                bearerToken = await dssAuthTokenService.GetAccessTokenAsync(configString);
+                            }
+                            if (string.IsNullOrEmpty(bearerToken))
+                            {
+                                var errorMessage = this.jsonStringLocalizer["dss_process.dss_authentication_error"].ToString();
+                                CreateDssRunErrorResult(dssResult, errorMessage, DssOutputMessageTypeEnum.Error);
+                                return dssResult;
+                            }
+                            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", bearerToken);
                             break;
                     }
                 }
@@ -451,7 +475,8 @@ namespace H2020.IPMDecisions.UPR.BLL.ScheduleTasks
 
                     CreateDssRunErrorResult(dssResult, responseAsText, DssOutputMessageTypeEnum.Error);
                     return;
-                };
+                }
+                ;
                 var dssOutput = JsonConvert.DeserializeObject<DssModelOutputInformation>(responseAsText);
                 // ToDo. Check valid responses when DSS do not run properly
                 if (!responseDss.IsSuccessStatusCode)
