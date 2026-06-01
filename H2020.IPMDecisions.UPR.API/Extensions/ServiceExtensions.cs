@@ -278,11 +278,9 @@ namespace H2020.IPMDecisions.APG.API.Extensions
         internal static void ConfigureISIPTokenService(this IServiceCollection services, IConfiguration config)
         {
 
-            var deIsipTokenInformation = config.GetSection("DSSInternalInformation:DeIsipTokenInformation");
+            var deIsipTokenInformation = config.GetSection("DSSInternalInformation:AuthTokens:de.isip");
             DeIsipTokenInformation deIsipTokenInformationConfiguration = new();
             deIsipTokenInformation.Bind(deIsipTokenInformationConfiguration);
-
-            services.AddMemoryCache();
 
             services.AddHttpClient<IDeIsipTokenInformation, DeIsipTokenInformation>(client =>
             {
