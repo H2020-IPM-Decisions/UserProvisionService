@@ -58,6 +58,7 @@ namespace H2020.IPMDecisions.UPR.API
             services.ConfigureLogger(Configuration);
             services.AddSingleton<LocationMiddleware>();
             services.AddScoped<IDataService, DataService>();
+            services.AddScoped<IDssAuthTokenService, DssAuthTokenService>();
             services.AddScoped<IHangfireQueueJobs, HangfireQueueJobs>();
             services.AddSingleton<IJsonStringLocalizer, JsonStringLocalizer>();
             services.AddSingleton<IJsonStringLocalizerProvider, JsonStringLocalizerProvider>();
