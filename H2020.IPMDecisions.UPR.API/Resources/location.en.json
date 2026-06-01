@@ -31,6 +31,7 @@
         "warnings": "Please fix the following error(s) before saving:"
     },
     "dss_process": {
+        "dss_authentication_error": "Error running the DSS - Authentication parameters not found for this DSS.",
         "dss_error": "Error running the DSS - {0}",
         "dss_format_error": "Message error from DSS do not follow IPM Decisions standards, so, unfortunately, we can not provide more information.",
         "dss_information": "Error getting DSS information from microservice.",

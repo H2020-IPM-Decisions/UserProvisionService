@@ -1,9 +1,11 @@
+using System;
 using H2020.IPMDecisions.APG.API.Extensions;
 using H2020.IPMDecisions.UPR.API.Filters;
 using H2020.IPMDecisions.UPR.BLL;
 using H2020.IPMDecisions.UPR.BLL.Helpers;
 using H2020.IPMDecisions.UPR.BLL.Providers;
 using H2020.IPMDecisions.UPR.BLL.ScheduleTasks;
+using H2020.IPMDecisions.UPR.Core.Configurations;
 using H2020.IPMDecisions.UPR.Core.Profiles;
 using H2020.IPMDecisions.UPR.Core.Services;
 using H2020.IPMDecisions.UPR.Data.Core;
@@ -56,6 +58,7 @@ namespace H2020.IPMDecisions.UPR.API
             services.ConfigureLogger(Configuration);
             services.AddSingleton<LocationMiddleware>();
             services.AddScoped<IDataService, DataService>();
+            services.AddScoped<IDssAuthTokenService, DssAuthTokenService>();
             services.AddScoped<IHangfireQueueJobs, HangfireQueueJobs>();
             services.AddSingleton<IJsonStringLocalizer, JsonStringLocalizer>();
             services.AddSingleton<IJsonStringLocalizerProvider, JsonStringLocalizerProvider>();
@@ -74,6 +77,7 @@ namespace H2020.IPMDecisions.UPR.API
                 return factory.GetUrlHelper(actionContext);
             });
 
+            services.ConfigureISIPTokenService(Configuration);
             services.ConfigurePostgresContext(Configuration);
             services.ConfigureHangfire(Configuration);
             services.ConfigureSwagger();

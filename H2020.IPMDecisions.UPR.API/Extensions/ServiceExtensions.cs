@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using H2020.IPMDecisions.UPR.BLL.Providers;
+using H2020.IPMDecisions.UPR.Core.Configurations;
 using H2020.IPMDecisions.UPR.Core.PatchOperationExamples;
 using H2020.IPMDecisions.UPR.Data.Persistence;
 using Hangfire;
@@ -149,7 +150,7 @@ namespace H2020.IPMDecisions.APG.API.Extensions
                     Scheme = JwtBearerDefaults.AuthenticationScheme,
                     BearerFormat = "JWT",
                     In = ParameterLocation.Header,
-                    Description = @"JWT Authorization header using the Bearer scheme. 
+                    Description = @"JWT Authorization header using the Bearer scheme.
                       Enter 'Bearer' [space] and then your token in the text input below.
                       Example: 'Bearer 12345abcdef'",
                 });
@@ -273,6 +274,20 @@ namespace H2020.IPMDecisions.APG.API.Extensions
             string licenseKey = config["AppConfiguration:NewtonsoftLicence"];
             if (!string.IsNullOrEmpty(licenseKey)) License.RegisterLicense(licenseKey);
         }
+
+        internal static void ConfigureISIPTokenService(this IServiceCollection services, IConfiguration config)
+        {
+
+            var deIsipTokenInformation = config.GetSection("DSSInternalInformation:AuthTokens:de.isip");
+            DeIsipTokenInformation deIsipTokenInformationConfiguration = new();
+            deIsipTokenInformation.Bind(deIsipTokenInformationConfiguration);
+
+            services.AddHttpClient<IDeIsipTokenInformation, DeIsipTokenInformation>(client =>
+            {
+                client.BaseAddress = new Uri(deIsipTokenInformationConfiguration.TokenEndpoint);
+            });
+        }
+
 
         internal static IEnumerable<string> Audiences(string audiences)
         {
