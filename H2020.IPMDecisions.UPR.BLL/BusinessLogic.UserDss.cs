@@ -316,13 +316,14 @@ namespace H2020.IPMDecisions.UPR.BLL
                     csv.NextRecord();
 
                     var locationResult = dssFullOutputAsObject.LocationResult.FirstOrDefault();
-                    for (int i = 0; i < locationResult.Length; i++)
+                    var length = locationResult.Length > locationResult.WarningStatus.Count() ? locationResult.WarningStatus.Count() : locationResult.Length;
+                    for (int i = 0; i < length; i++)
                     {
                         string formattedDate = FormatDate(dssFullOutputAsObject.TimeStart, i, isHourlyInterval);
                         csv.WriteField(formattedDate);
                         csv.WriteField(locationResult.WarningStatus[i].ToString());
 
-                        if (locationResult.Data.Count() >= locationResult.Length)
+                        if (locationResult.Data.Count() >= length)
                         {
                             List<double?> rowData = locationResult.Data[i];
                             foreach (double? value in rowData)
