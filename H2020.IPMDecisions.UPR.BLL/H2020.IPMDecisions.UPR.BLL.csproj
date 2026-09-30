@@ -1,9 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <Version>1.26.2.0</Version>
-    <AssemblyVersion>1.26.2.0</AssemblyVersion>
-    <FileVersion>1.26.2.0</FileVersion>
+    <TargetFramework>net10.0</TargetFramework>
+    <Version>1.27.0.0</Version>
+    <AssemblyVersion>1.27.0.0</AssemblyVersion>
+    <FileVersion>1.27.0.0</FileVersion>
     <Authors>ADAS Modelling and Informatics Team</Authors>
     <Company>RSK ADAS Ltd</Company>
     <Product>H2020 IPM Decisions User Provision Service</Product>
@@ -29,12 +29,12 @@
   <ItemGroup>
     <PackageReference Include="ADAS.CountryLookup" Version="1.0.0" />
     <PackageReference Include="automapper" Version="13.0.1" />
-    <PackageReference Include="CsvHelper" Version="31.0.3" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.2.0" />
-    <PackageReference Include="Hangfire" Version="1.7.37" />
-    <PackageReference Include="Hangfire.AspNetCore" Version="1.7.37" />
-    <PackageReference Include="System.Json" Version="4.7.1" />
-    <PackageReference Include="Newtonsoft.Json.Schema" Version="3.0.15" />
+    <PackageReference Include="CsvHelper" Version="33.1.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.3.13" />
+    <PackageReference Include="Hangfire" Version="1.8.25" />
+    <PackageReference Include="Hangfire.AspNetCore" Version="1.8.25" />
+    <PackageReference Include="System.Json" Version="4.8.0" />
+    <PackageReference Include="Newtonsoft.Json.Schema" Version="4.0.2" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\H2020.IPMDecisions.UPR.Core\H2020.IPMDecisions.UPR.Core.csproj" />
