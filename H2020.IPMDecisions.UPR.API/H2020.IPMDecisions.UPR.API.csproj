@@ -17,16 +17,16 @@
     <NoWarn>$(NoWarn);1591</NoWarn>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Hangfire" Version="1.7.37" />
-    <PackageReference Include="Hangfire.AspNetCore" Version="1.7.37" />
+    <PackageReference Include="Hangfire" Version="1.8.25" />
+    <PackageReference Include="Hangfire.AspNetCore" Version="1.8.25" />
     <PackageReference Include="Hangfire.PostgreSql" Version="1.19.13" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.2" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL.NetTopologySuite" Version="8.0.2" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="10.2.3" />
     <PackageReference Include="Swashbuckle.AspNetCore.Newtonsoft" Version="10.2.3" />
-    <PackageReference Include="NLog.Web.AspNetCore" Version="5.3.8" />
-    <PackageReference Include="NLog" Version="5.2.8" />
-    <PackageReference Include="NLog.Extensions.Logging" Version="5.3.8" />
+    <PackageReference Include="NLog.Web.AspNetCore" Version="6.2.1" />
+    <PackageReference Include="NLog" Version="6.2.1" />
+    <PackageReference Include="NLog.Extensions.Logging" Version="6.2.1" />
     <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="10.2.3" />
     <PackageReference Include="Swashbuckle.AspNetCore.Filters" Version="10.0.1" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.12" />
